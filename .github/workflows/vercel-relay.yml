@@ -1,0 +1,65 @@
+name: Vercel Free-Tier Deployment Relay
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - staging
+      - development
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vercel-relay-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    # Owner-authored commits deploy directly, including PR merges by the owner.
+    if: >-
+      github.event.head_commit.author.username != 'Kyaee' &&
+      !startsWith(github.event.head_commit.message, '[Vercel Trigger]')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || github.token }}
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Create and push owner deployment commit
+        env:
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git config user.name "Kyaee"
+          git config user.email "efrohibire@gmail.com"
+
+          for attempt in 1 2 3; do
+            # Build on the current branch tip so every member's changes are included.
+            git fetch origin "refs/heads/$DEPLOY_BRANCH"
+            git checkout --detach FETCH_HEAD
+
+            if [[ "$(git log -1 --format=%s)" == '[Vercel Trigger]'* ]]; then
+              echo "The latest branch tip already has an owner deployment commit."
+              exit 0
+            fi
+
+            # Empty commits are skipped by Vercel's unaffected-project detection.
+            # Change a file inside the Vercel project without adding public content.
+            git rev-parse HEAD > vercel-deploy-trigger.txt
+            git add vercel-deploy-trigger.txt
+            git commit -m "[Vercel Trigger] Deploying latest changes"
+
+            if git push origin "HEAD:refs/heads/$DEPLOY_BRANCH"; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying from the latest branch tip."
+          done
+
+          echo "::error::Could not push the owner deployment commit after 3 attempts."
+          exit 1
