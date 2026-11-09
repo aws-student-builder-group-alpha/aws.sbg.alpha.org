@@ -1,5 +1,11 @@
 # Progress Tracker
 
+## Merge verification and app-local build configuration — 9 November 2026
+
+The owner authorized merging the Alpha integration. PR #43 includes a later README-only edit from the remote branch; it is preserved. The first hosted recruitment CI run passed lint and all Node tests, then its default Turbopack build inherited the parent main-site PostCSS configuration and failed resolving the parent's Tailwind plugin. The earlier local production builds used webpack and did not exercise that path. Explicit app-local Turbopack and output tracing roots now keep each application's configuration/dependencies separate; no package upgrade or UI/domain change is required. Hosted re-verification and the merge remain pending until recorded in the handoff.
+
+Reviewed all six context documents for this fix. Updated architecture and code standards for build isolation and this tracker for the actual CI failure. Product scope, UI direction and workflow policy are unchanged: this is build configuration only. No hosted data, authentication, credentials, billing or repository protection rules changed.
+
 ## Ponytail cleanup, existing members and Alpha source consolidation — 9 November 2026
 
 Audited both application source trees, manifests, import callers, styles and existing checks in Ponytail full mode. Removed the unused particle/orbit implementations, uncalled motion wrappers, 199 lines of verified obsolete selectors, 54 unused main-site files and dead bindings/state. Main-site dependencies went from 57 to 23: removed 35 unused direct packages and explicitly declared the already-installed Sharp version used by the media script. No retained package version changed. The inventory covers recruitment app/lib/scripts/tests and main-site src/scripts. It excludes dependency/build/generated directories and documentation; the unchanged generated SDK schema file remains in the recruitment total: recruitment 18,123 → 17,141 lines; main 22,797 → 17,054 lines, including the new combined launcher. Net reduction is **6,725 lines**. This is a maintainability measurement, not a runtime speed claim.

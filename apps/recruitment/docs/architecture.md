@@ -4,6 +4,8 @@
 
 Recruitment is delivered as `apps/recruitment` inside Alpha's existing main-site repository. Keep its own package/lockfile, framework runtime, environment and migration ledger. The main app proxies `/recruitment` in combined mode; this source consolidation does not migrate accounts, change hosted configuration or combine the two authorization systems. Do not copy ignored credentials, build output, dependency directories or Git metadata into source delivery.
 
+Recruitment explicitly sets its Turbopack and output-file-tracing roots to its configuration directory. Its builds must resolve its own PostCSS/Tailwind setup without inheriting the main application's configuration, including on CI where only recruitment dependencies are installed.
+
 Existing-member creation reuses `issueMember` and the existing MFA-protected SQL function. A verified first Google sign-in is required; a recruitment application is not. The UI adds explicit create/manage actions, opaque white working surfaces and distinct acknowledged, failed and revoked states. Confirmation, private reasons, existing ID preservation, acceptance guards and audit records remain authoritative on the server.
 
 ## Sequential text department cards — 9 November 2026

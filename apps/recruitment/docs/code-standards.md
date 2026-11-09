@@ -2,6 +2,8 @@
 
 The main-site repository keeps this app under `apps/recruitment` with its own lockfile, lint configuration and TypeScript scope. Run its checks from that directory or with `npm --prefix apps/recruitment`. Root main-site lint/types exclude the nested app so framework versions and generated types cannot leak between apps. Remove code only after checking callers, dynamic/framework entry points and current tests; preserve generated SDK types and applied migrations.
 
+Keep the explicit app-local Turbopack and tracing roots in `next.config.ts`. Verify the default Turbopack build through recruitment CI as well as the combined launcher's webpack build; one bundler passing does not establish configuration isolation for the other.
+
 ## General and TypeScript
 
 - Scroll-scrubbed transforms/opacity must not also have CSS transitions on those properties. Keep hover transitions on separate properties/elements, and verify that stopping/reversing scroll stops/retraces the rendered state without lag.
