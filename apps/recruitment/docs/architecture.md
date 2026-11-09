@@ -1,5 +1,10 @@
 # Architecture
 
+## Standalone recruitment delivery — 10 November 2026
+
+Recruitment deploys independently from apps/recruitment at https://aws-alpha-recruitment.vercel.app with APP_URL set to that origin. The production basePath is empty and output is .next. Only local combined previews use /recruitment and build/combined. Main-site Apply now links use the standalone hostname; main authentication, routes and session checks remain unchanged. Preserve existing backend data and do not replay migrations.
+
+
 ## Source consolidation and membership presentation — 9 November 2026
 
 Recruitment is delivered as `apps/recruitment` inside Alpha's existing main-site repository. Keep its own package/lockfile, framework runtime, environment and migration ledger. The main app proxies `/recruitment` in combined mode; this source consolidation does not migrate accounts, change hosted configuration or combine the two authorization systems. Do not copy ignored credentials, build output, dependency directories or Git metadata into source delivery.

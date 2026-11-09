@@ -63,7 +63,7 @@ Configure recruitment environment variables in `apps/recruitment/.env.local` usi
 For local development, set:
 
 ```env
-APP_URL=http://127.0.0.1:4300/recruitment
+APP_URL=http://127.0.0.1:4300
 ```
 
 ## Deployment
@@ -75,3 +75,8 @@ The main website deploys through **Vercel** on pushes to `main`. Recruitment req
 - [Recruitment Setup](apps/recruitment/README.md)
 - [Progress Tracker](apps/recruitment/docs/progress-tracker.md)
 - [Community Gallery Sources](docs/community-gallery-sources.md)
+
+
+## Recruitment deployment
+
+The owner selected standalone recruitment at https://aws-alpha-recruitment.vercel.app. Only the main-site Apply now links point there; main routes, account navigation and backend stay unchanged. Build the recruitment Vercel project from apps/recruitment with Node 24.x. Keep NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW=0 and NEXT_PUBLIC_ALPHA_COMBINED_SITE=0; production uses the standard .next output directory. Set APP_URL=https://aws-alpha-recruitment.vercel.app (origin only), and allow its exact /auth/callback in the existing recruitment Supabase project. Local combined preview remains separate. No paid upgrade or schema replay is required.

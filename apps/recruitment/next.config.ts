@@ -3,7 +3,8 @@ import { recruitmentBasePath } from "./lib/site-paths";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: import.meta.dirname,
-  ...(recruitmentBasePath && { basePath: recruitmentBasePath, distDir: "build/combined" }),
+  ...(recruitmentBasePath && { basePath: recruitmentBasePath }),
+  distDir: process.env.NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW === "1" ? "build/combined" : ".next",
   devIndicators: false,
   experimental: {
     agentFeedback: true,

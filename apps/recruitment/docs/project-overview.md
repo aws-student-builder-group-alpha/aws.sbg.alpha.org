@@ -1,5 +1,10 @@
 # Alpha Recruitment
 
+## Standalone recruitment delivery — 10 November 2026
+
+The latest owner instruction limits main-site integration to Apply now links. Deploy recruitment separately at https://aws-alpha-recruitment.vercel.app; preserve the main website and local combined preview. This supersedes the intermediate plan to add production proxy routing.
+
+
 ## Existing members and one Alpha source repository — 9 November 2026
 
 The owner clarified that recruitment and the main website are both Alpha main-site work. Maintain recruitment under `apps/recruitment` in the existing organization main-site repository, with separate locked dependencies and the existing `/recruitment` route integration. No second organization repository, deployment or automatic merge is part of this delivery.
