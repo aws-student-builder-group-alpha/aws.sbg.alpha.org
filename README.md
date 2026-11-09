@@ -35,7 +35,7 @@ This source consolidation does not deploy either app or change Google/Supabase h
 
 ## Ponytail cleanup
 
-Removed verified unused UI scaffolds, orphan helpers/styles and 35 unused main-site direct dependencies, without upgrading retained packages. Declared the existing Sharp version directly because the media optimizer imports it. Kept active Alpha waves, Team scrolling, event zoom/slideshows, form validation, authorization, MFA, private uploads and audit records. Recruitment's [progress tracker](apps/recruitment/docs/progress-tracker.md) records measured source counts, verification and remaining provider/device limits. Generated code, dependencies and build output are excluded from source-line counts.
+Removed verified unused UI scaffolds, orphan helpers/styles and 35 unused main-site direct dependencies, without upgrading retained packages. Declared the existing Sharp version directly because the media optimizer imports it. Kept active Alpha waves, Team scrolling, event zoom/slideshows, form validation, authorization, MFA, private uploads and audit records. Recruitment's [progress tracker](apps/recruitment/docs/progress-tracker.md) records measured source counts, verification and remaining provider/device limits. Dependency directories, build outputs and documentation are excluded from line counts; recruitment tests are included.
 
 Recruitment's synthetic verification pipeline is runnable with `npm --prefix apps/recruitment run verify:ci`; its active organization workflow lives at `.github/workflows/recruitment-ci.yml`. Main-site checks remain `npm run verify`, plus `npx tsx --test scripts/community-gallery.test.ts scripts/event-history.test.ts`.
 
