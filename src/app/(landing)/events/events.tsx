@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Calendar, MapPin, Clock, ArrowRight } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import EventHighlights from '@/components/event-highlights'
 import { getTopUpcomingEvents, formatEventDate } from "@/data/events"
 
 gsap.registerPlugin(ScrollTrigger)
@@ -73,21 +74,17 @@ export default function Events() {
 							className="text-3xl sm:text-4xl lg:text-6xl
 								font-bold text-[#232f3e] leading-tight"
 						>
-							Upcoming
-							<br />
-							Events
+							{upcoming.length ? <>Upcoming<br />Events</> : <>Built<br />together.</>}
 						</h2>
 					</div>
 					<div className="flex items-end">
 						<Link
 							href="/events"
-							className="inline-flex items-center gap-2
-								text-sm font-medium text-[#ff9900]
+							className="text-sm font-medium text-[#ff9900]
 								hover:text-[#ec8800] transition-colors
 								link-underline lg:ml-auto"
 						>
-							View All Events
-							<ArrowRight size={16} />
+							View events
 						</Link>
 					</div>
 				</div>
@@ -258,30 +255,9 @@ export default function Events() {
 						))}
 					</div>
 				) : (
-					/* No events */
-					<div
-						className="event-item text-center py-20
-							rounded-2xl border border-dashed
-							border-[#232f3e]/10"
-					>
-						<p
-							className="text-lg text-[#232f3e]/40
-								mb-6"
-						>
-							No upcoming events at the moment.
-						</p>
-						<Link
-							href="/events"
-							className="inline-flex items-center gap-2
-								bg-[#ff9900] text-white font-semibold
-								text-sm px-6 py-3 rounded-full
-								hover:bg-[#ec8800] transition-colors"
-						>
-							View Past Events
-							<ArrowRight size={16} />
-						</Link>
-					</div>
+					<EventHighlights />
 				)}
+				{upcoming.length > 0 && <div className="mt-16"><h3 className="mb-8 text-2xl font-semibold text-[#232f3e]">Past highlights</h3><EventHighlights /></div>}
 			</div>
 		</section>
 	)

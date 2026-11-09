@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url'
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const MEETUP_BASE = 'https://www.meetup.com'
 const GROUP_SLUG =
-	'aws-cloud-club-at-rizal-technological-university'
+	'aws-sbg-at-rizal-technological-univ-mandaluyong-main-campus'
 const UPCOMING_URL =
 	`${MEETUP_BASE}/${GROUP_SLUG}/events/`
 const PAST_URL =
@@ -81,6 +81,7 @@ interface Event {
 	type: string
 	image: string
 	registrationLink?: string
+	sourceUrl: string
 }
 
 // ---- Fetching ----
@@ -207,6 +208,7 @@ function mapToEvent(
 
 	const event: Event = {
 		id: raw.id,
+		sourceUrl: raw.eventUrl,
 		title: raw.title,
 		description: stripHtml(raw.description),
 		date: raw.dateTime.slice(0, 10),

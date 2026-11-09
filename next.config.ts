@@ -2,11 +2,25 @@ import type { NextConfig } from "next";
 
 const isStaticExportEnabled =
   process.env.NEXT_PUBLIC_ENABLE_STATIC_EXPORT === 'true';
+const combinedPreview = process.env.NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW === '1';
 
 const nextConfig: NextConfig = {
   output: isStaticExportEnabled ? 'export' : undefined,
   trailingSlash: true,
-  distDir: isStaticExportEnabled ? 'dist' : '.next',
+  distDir: combinedPreview ? 'build/combined' : isStaticExportEnabled ? 'dist' : '.next',
+  ...(combinedPreview && {
+    skipTrailingSlashRedirect: true,
+    async rewrites() {
+      const recruitment = 'http://127.0.0.1:4301/recruitment';
+      return {
+        beforeFiles: [
+          { source: '/recruitment/:path*', destination: `${recruitment}/:path*` },
+          // The existing font CSS uses root-relative public URLs.
+          { source: '/brand/:font(geist-latin.woff2|urban-starblues.ttf)', destination: `${recruitment}/brand/:font` },
+        ],
+      };
+    },
+  }),
   images: {
     unoptimized: true,
     remotePatterns: [

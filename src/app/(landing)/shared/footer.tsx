@@ -8,6 +8,9 @@ import {
 	Instagram,
 } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import { RECRUITMENT_URL } from "@/lib/recruitment"
+import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS } from "@/lib/navigation"
 
 const SOCIAL_LINKS = [
 	{
@@ -71,7 +74,7 @@ export default function Footer() {
 						>
 							<div className="relative w-10 h-10">
 								<Image
-									src="/Logo (2).png"
+									src="/optimized/alpha-logo.webp"
 									alt="AWS Student Builder Group Logo"
 									fill
 									className="object-contain"
@@ -130,7 +133,7 @@ export default function Footer() {
 					</div>
 
 					{/* Quick Links */}
-					<div>
+					<nav aria-label="Footer quick links">
 						<h3
 							className="font-semibold text-white
 								mb-4 text-sm uppercase
@@ -139,38 +142,18 @@ export default function Footer() {
 							Quick Links
 						</h3>
 						<ul className="space-y-3">
-							<li>
-								<a
-									href="#about"
-									className="text-sm text-white/50
-										hover:text-[#ff9900]
-										transition-colors"
-								>
-									About Us
-								</a>
-							</li>
-							<li>
-								<a
-									href="/events"
-									className="text-sm text-white/50
-										hover:text-[#ff9900]
-										transition-colors"
-								>
-									Events
-								</a>
-							</li>
-							<li>
-								<a
-									href="#members"
-									className="text-sm text-white/50
-										hover:text-[#ff9900]
-										transition-colors"
-								>
-									Our Team
-								</a>
-							</li>
+							{[...MAIN_SECTION_LINKS, ...MAIN_PAGE_LINKS].map((link) => {
+								const FooterLink = link.href === RECRUITMENT_URL ? "a" : Link
+								return (
+									<li key={link.href}>
+										<FooterLink href={link.href} className="text-sm text-white/70 hover:text-[#ff9900] transition-colors">
+											{link.label}
+										</FooterLink>
+									</li>
+								)
+							})}
 						</ul>
-					</div>
+					</nav>
 
 					{/* Contact */}
 					<div>

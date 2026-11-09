@@ -313,10 +313,7 @@ export default function AdminSubmissions({
 		useState<string | null>(null)
 
 	const steps = useMemo(() => SUBMISSIONS_STEPS, [])
-	const { startTour } = useAdminTour({
-		page: 'submissions',
-		steps,
-	})
+	const { startTour } = useAdminTour(steps)
 
 	useEffect(() => {
 		if (!pageRef.current) return

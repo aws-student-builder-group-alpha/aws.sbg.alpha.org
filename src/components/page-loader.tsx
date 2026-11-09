@@ -12,6 +12,16 @@ export default function PageLoader() {
 
 	useEffect(() => {
 		if (!loaderRef.current) return
+		let seenIntro = false
+		try {
+			seenIntro = sessionStorage.getItem("alpha-intro-shown") === "1"
+			sessionStorage.setItem("alpha-intro-shown", "1")
+		} catch { /* A blocked storage API must not prevent the page from opening. */ }
+		if (seenIntro || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			gsap.set(loaderRef.current, { autoAlpha: 0, pointerEvents: "none" })
+			setIsLoading(false)
+			return
+		}
 
 		const tl = gsap.timeline({
 			onComplete: () => setIsLoading(false),
@@ -23,7 +33,7 @@ export default function PageLoader() {
 			{
 				y: 0,
 				opacity: 1,
-				duration: 0.6,
+				duration: 0.3,
 				ease: "power3.out",
 			},
 		)
@@ -32,16 +42,17 @@ export default function PageLoader() {
 				{ scaleX: 0 },
 				{
 					scaleX: 1,
-					duration: 1,
+					duration: 0.5,
 					ease: "power2.inOut",
 				},
-				"-=0.2",
+				"-=0.1",
 			)
 			.to(loaderRef.current, {
 				yPercent: -100,
-				duration: 0.8,
+				duration: 0.6,
 				ease: "power4.inOut",
 			})
+		return () => { tl.kill() }
 	}, [])
 
 	return (
@@ -49,6 +60,7 @@ export default function PageLoader() {
 			{isLoading && (
 				<motion.div
 					ref={loaderRef}
+					aria-hidden="true"
 					className="fixed inset-0 z-[10000] flex
 						flex-col items-center justify-center
 						bg-[#232f3e]"

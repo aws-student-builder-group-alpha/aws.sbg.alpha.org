@@ -18,7 +18,8 @@ import {
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '@/lib/utils'
-import { Navigation, Footer } from '@/app/(landing)'
+import Navigation from '@/app/(landing)/shared/navigation'
+import Footer from '@/app/(landing)/shared/footer'
 
 const TRACKS = [
 	{

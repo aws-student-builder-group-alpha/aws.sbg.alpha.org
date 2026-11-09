@@ -6,6 +6,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useMagnetic } from "@/hooks/use-magnetic"
 import MeshGradient from "./mesh-gradient"
+import { RECRUITMENT_URL } from "@/lib/recruitment"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -28,7 +29,7 @@ export default function Hero() {
 	// Entry animation + scroll parallax
 	useEffect(() => {
 		const ctx = gsap.context(() => {
-			const tl = gsap.timeline({ delay: 1.6 })
+			const tl = gsap.timeline({ delay: 0.1 })
 
 			gsap.set(auroraRef.current, {
 				opacity: 0,
@@ -121,7 +122,7 @@ export default function Hero() {
 					duration: 0.8,
 					ease: "power3.out",
 				},
-				"-=0.5",
+				0.25,
 			)
 
 			// CTA
@@ -133,7 +134,7 @@ export default function Hero() {
 					duration: 0.8,
 					ease: "power3.out",
 				},
-				"-=0.5",
+				0.35,
 			)
 
 			// Bottom bar
@@ -234,7 +235,7 @@ export default function Hero() {
 						sm:w-24 sm:h-24 mb-6 sm:mb-8"
 				>
 					<Image
-						src="/Logo (2).png"
+						src="/optimized/alpha-logo.webp"
 						alt="AWS Student Builder Group Logo"
 						fill
 						className="object-contain
@@ -322,7 +323,7 @@ export default function Hero() {
 				>
 					<a
 						ref={primaryRef}
-						href="#contact"
+						href={RECRUITMENT_URL}
 						className="group inline-flex
 							items-center gap-2
 							bg-white text-[#08090a]
@@ -332,7 +333,7 @@ export default function Hero() {
 							transition-all duration-300
 							will-change-transform"
 					>
-						Join our Community
+						Apply now
 						<svg
 							width="16"
 							height="16"

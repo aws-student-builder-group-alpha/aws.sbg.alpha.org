@@ -116,7 +116,7 @@ export default function LoginClient() {
 						className='flex items-center gap-3 w-fit'
 					>
 						<Image
-							src='/Logo (2).png'
+							src='/optimized/alpha-logo.webp'
 							alt='AWS Student Builder Group Logo'
 							width={40}
 							height={40}
@@ -191,7 +191,7 @@ export default function LoginClient() {
 							className='flex items-center gap-3'
 						>
 							<Image
-								src='/Logo (2).png'
+								src='/optimized/alpha-logo.webp'
 								alt='AWS Student Builder Group Logo'
 								width={36}
 								height={36}

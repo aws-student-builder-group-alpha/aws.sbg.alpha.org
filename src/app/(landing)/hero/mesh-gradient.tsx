@@ -67,11 +67,16 @@ export default function MeshGradient() {
 
 		let w = 0
 		let h = 0
+		let visible = true
+		let lastFrame = 0
+		let layers: WaveLayer[] = []
+		const motion = window.matchMedia("(prefers-reduced-motion: reduce)")
+		const coarsePointer = window.matchMedia("(pointer: coarse)")
 
 		const resize = () => {
 			const parent = canvas.parentElement
 			if (!parent) return
-			const dpr = Math.min(window.devicePixelRatio, 2)
+			const dpr = Math.min(window.devicePixelRatio || 1, coarsePointer.matches ? 1.25 : 1.5)
 			w = parent.clientWidth
 			h = parent.clientHeight
 			canvas.width = w * dpr
@@ -79,12 +84,17 @@ export default function MeshGradient() {
 			canvas.style.width = `${w}px`
 			canvas.style.height = `${h}px`
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+			layers = WAVE_LAYERS.map((layer, i) => ({
+				...layer,
+				baseY: h * (0.7 + i * 0.06),
+				amplitude: h * (0.08 + i * 0.015),
+			}))
 		}
 
 		resize()
-		window.addEventListener("resize", resize)
 
 		const handleMouse = (e: MouseEvent) => {
+			if (motion.matches || coarsePointer.matches) return
 			const rect = canvas.getBoundingClientRect()
 			mouseRef.current = {
 				x: (e.clientX - rect.left) / rect.width,
@@ -218,8 +228,7 @@ export default function MeshGradient() {
 			ctx.fill()
 		}
 
-		const animate = () => {
-			timeRef.current += 0.02
+		const draw = () => {
 			const t = timeRef.current
 			const mouse = mouseRef.current
 
@@ -227,16 +236,7 @@ export default function MeshGradient() {
 			ctx.fillStyle = "#000"
 			ctx.fillRect(0, 0, w, h)
 
-			// Build wave layers with responsive sizing
-			const waves: WaveLayer[] = WAVE_LAYERS.map(
-				(layer, i) => ({
-					...layer,
-					baseY: h * (0.7 + i * 0.06),
-					amplitude: h * (0.08 + i * 0.015),
-				}),
-			)
-
-			for (const wave of waves) {
+			for (const wave of layers) {
 				drawWave(
 					wave,
 					t,
@@ -246,14 +246,45 @@ export default function MeshGradient() {
 				)
 			}
 
-			rafRef.current = requestAnimationFrame(animate)
 		}
 
-		rafRef.current = requestAnimationFrame(animate)
+		const animate = (now: number) => {
+			rafRef.current = 0
+			if (!visible || document.hidden || motion.matches) return
+			const interval = 1000 / (coarsePointer.matches ? 30 : 60)
+			if (!lastFrame || now - lastFrame >= interval - 1) {
+				if (lastFrame) timeRef.current += Math.min((now - lastFrame) / 1000, 0.1) * 1.2
+				lastFrame = now
+				draw()
+			}
+			rafRef.current = requestAnimationFrame(animate)
+		}
+		const sync = () => {
+			cancelAnimationFrame(rafRef.current)
+			rafRef.current = 0
+			lastFrame = 0
+			draw()
+			if (visible && !document.hidden && !motion.matches) rafRef.current = requestAnimationFrame(animate)
+		}
+		const onResize = () => { resize(); sync() }
+		const observer = new IntersectionObserver(([entry]) => {
+			visible = entry.isIntersecting
+			sync()
+		})
+		observer.observe(canvas)
+		window.addEventListener("resize", onResize)
+		document.addEventListener("visibilitychange", sync)
+		motion.addEventListener("change", sync)
+		coarsePointer.addEventListener("change", onResize)
+		sync()
 
 		return () => {
 			cancelAnimationFrame(rafRef.current)
-			window.removeEventListener("resize", resize)
+			observer.disconnect()
+			window.removeEventListener("resize", onResize)
+			document.removeEventListener("visibilitychange", sync)
+			motion.removeEventListener("change", sync)
+			coarsePointer.removeEventListener("change", onResize)
 			if (section) {
 				section.removeEventListener(
 					"mousemove",
@@ -270,6 +301,7 @@ export default function MeshGradient() {
 	return (
 		<canvas
 			ref={canvasRef}
+			aria-hidden="true"
 			className="absolute inset-0 w-full h-full"
 			style={{
 				filter: "blur(20px) contrast(1.2)",

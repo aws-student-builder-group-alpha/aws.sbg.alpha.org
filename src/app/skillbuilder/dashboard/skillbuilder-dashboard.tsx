@@ -28,7 +28,6 @@ import MemberLeaderboard from './member-leaderboard'
 import type {
 	ModuleStatus,
 	SkillbuilderSnapshot,
-	SkillCategoryDto,
 	SkillModuleDto,
 	LeaderboardMember,
 } from '@/types/skillbuilder.types'
@@ -488,17 +487,13 @@ export default function SkillbuilderDashboard({
 	const [openCategoryId, setOpenCategoryId] = useState<string | null>(null)
 	const [docLinksByModule, setDocLinksByModule] = useState<Record<string, string>>({})
 	const [messagesByModule, setMessagesByModule] = useState<Record<string, string>>({})
-	const [globalMessage, setGlobalMessage] = useState<string | null>(null)
 	const [isPending, startTransition] = useTransition()
 	const [showSignOutModal, setShowSignOutModal] =
 		useState(false)
 	const heroRef = useRef<HTMLElement>(null)
 	const tracksRef = useRef<HTMLDivElement>(null)
 	const tourSteps = useMemo(() => SKILLBUILDER_STEPS, [])
-	const { startTour } = useAdminTour({
-		page: 'skillbuilder',
-		steps: tourSteps,
-	})
+	const { startTour } = useAdminTour(tourSteps)
 
 	const totals = initialSnapshot.totals
 	const overallPct = totals.modules > 0 ? Math.round((totals.done / totals.modules) * 100) : 0
@@ -626,7 +621,7 @@ export default function SkillbuilderDashboard({
 
 	function handleUndoModule(moduleId: string) {
 		startTransition(async () => {
-			const result = await undoModuleProgressAction(moduleId)
+			await undoModuleProgressAction(moduleId)
 			setMessagesByModule((prev) => ({
 				...prev,
 				[moduleId]: '',
@@ -796,11 +791,6 @@ export default function SkillbuilderDashboard({
 
 				<section className='py-10 px-4 sm:px-6 lg:px-8'>
 					<div className='container mx-auto max-w-6xl space-y-5'>
-						{globalMessage && (
-							<p className='rounded-md border bg-white px-3 py-2 text-sm text-muted-foreground shadow-sm'>
-								{globalMessage}
-							</p>
-						)}
 
 						<div ref={tracksRef} data-tour='sb-tracks' className='space-y-4'>
 							{categories.map((category, catIdx) => {

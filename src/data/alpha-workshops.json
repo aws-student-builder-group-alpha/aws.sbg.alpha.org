@@ -1,0 +1,46 @@
+[
+  {
+    "id": "313249800",
+    "title": "Cloud Kickoff Assembly: Discovering Cloud, Tech for Students & Communities",
+    "description": "Cloud Kickoff Assembly: Discovering Cloud, Tech for Students & Communities is an online academic assembly organized by AWS Learning Club – Alpha that introduces students to cloud computing and its role in today’s technology-driven world. Participants can expect a guided introduction to cloud fundamentals, a live demonstration of Amazon Web Services (AWS) in action, and practical discussions on how cloud skills translate into real career opportunities. The event also features interactive activities, an open forum with industry insights, and a student community pitch highlighting opportunities to get involved in cloud learning initiatives. By the end of the assembly, participants will gain a clearer understanding of cloud technology, industry pathways, and how they can begin their journey in the tech and cloud ecosystem.",
+    "date": "2026-02-16",
+    "time": "1:00 PM - 4:00 PM",
+    "location": "Online Event",
+    "type": "Online",
+    "image": "https://secure.meetupstatic.com/photos/event/8/8/4/9/highres_532714889.jpeg",
+    "sourceUrl": "https://www.meetup.com/aws-sbg-at-rizal-technological-univ-mandaluyong-main-campus/events/313249800/"
+  },
+  {
+    "id": "313845567",
+    "title": "She Who Builds the Cloud ☁️",
+    "description": "She Who Builds the Cloud:\n\nA Beginner’s Guide to Cloud Computing and Mental Health Tech Growth is a student-led webinar that empowers women and LGBTQIA+ students to explore careers in tech. Combining an introduction to AWS cloud fundamentals with open discussions on mental health and imposter syndrome, the event creates a supportive space where participants can build both technical skills and personal resilience. Through hands-on learning and meaningful conversations, it aims to inspire confidence, representation, and a stronger sense of belonging in the tech industry.",
+    "date": "2026-04-17",
+    "time": "1:00 PM - 4:00 PM",
+    "location": "Online Event",
+    "type": "Online",
+    "image": "https://secure.meetupstatic.com/photos/event/5/1/d/0/highres_533720944.jpeg",
+    "sourceUrl": "https://www.meetup.com/aws-sbg-at-rizal-technological-univ-mandaluyong-main-campus/events/313845567/"
+  },
+  {
+    "id": "314574481",
+    "title": "WEB DEV  & GITHUB FUNDAMENTALS",
+    "description": "Kick off your journey into tech by understanding how the web truly works. In this session, participants will explore the core building blocks of web development HTML, CSS, and JavaScript while gaining clarity on how frontend, backend, and databases interact in real-world systems. The session also introduces the MERN stack to give learners a clear direction on modern development paths. Through a guided hands-on lab, students will create their very first web page, transforming theory into something tangible.",
+    "date": "2026-05-04",
+    "time": "1:00 PM - 3:00 PM",
+    "location": "Online Event",
+    "type": "Online",
+    "image": "https://secure.meetupstatic.com/photos/event/1/e/b/5/highres_534007861.jpeg",
+    "sourceUrl": "https://www.meetup.com/aws-sbg-at-rizal-technological-univ-mandaluyong-main-campus/events/314574481/"
+  },
+  {
+    "id": "314670850",
+    "title": "AWS MANAGEMENT CONSOLE & STATIC WEB HOSTING",
+    "description": "Take the next step in your developer journey by bringing your projects to the cloud. In this session, participants will explore the AWS Management Console to understand core cloud infrastructure while gaining clarity on how to leverage Amazon S3 for seamless static web hosting. The session also introduces fundamental cloud computing concepts to give learners a clear direction on modern deployment pathways. Through a guided hands-on lab, students will deploy their very first static website to the internet, transforming local files into a live, globally accessible web page.",
+    "date": "2026-05-11",
+    "time": "1:00 PM - 3:00 PM",
+    "location": "Online Event",
+    "type": "Online",
+    "image": "https://secure.meetupstatic.com/photos/event/b/7/a/c/highres_534107020.jpeg",
+    "sourceUrl": "https://www.meetup.com/aws-sbg-at-rizal-technological-univ-mandaluyong-main-campus/events/314670850/"
+  }
+]

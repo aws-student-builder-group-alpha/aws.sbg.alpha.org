@@ -5,15 +5,7 @@ import { driver, type Driver, type DriveStep } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { DRIVER_THEME } from '@/lib/admin-tour'
 
-interface UseAdminTourOptions {
-	page: string
-	steps: DriveStep[]
-}
-
-export function useAdminTour({
-	page,
-	steps,
-}: UseAdminTourOptions) {
+export function useAdminTour(steps: DriveStep[]) {
 	const driverRef = useRef<Driver | null>(null)
 
 	useEffect(() => {
@@ -47,7 +39,7 @@ export function useAdminTour({
 
 		driverRef.current = d
 		d.drive()
-	}, [page, steps])
+	}, [steps])
 
 	return { startTour }
 }
