@@ -14,21 +14,11 @@ import {
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { AnimatePresence, motion } from "framer-motion"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
 import SignOutModal from "@/components/sign-out-modal"
-
-const LEFT_NAV_LINKS = [
-	{ href: "#about", label: "About" },
-	{ href: "#vision", label: "Vision" },
-	{ href: "#members", label: "Team" },
-	{ href: "#contact", label: "Connect" },
-]
-
-const RIGHT_NAV_LINKS = [
-	{ href: "/events", label: "Events" },
-	{ href: "/skillbuilder", label: "Skillbuilder" },
-]
+import { RECRUITMENT_URL, COMBINED_PREVIEW } from "@/lib/recruitment"
+import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS } from "@/lib/navigation"
 
 interface NavigationProps {
 	initialAuth?: {
@@ -42,7 +32,6 @@ export default function Navigation({
 	initialAuth,
 }: NavigationProps = {}) {
 	const pathname = usePathname()
-	const router = useRouter()
 	const [isScrolled, setIsScrolled] = useState(false)
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 	const [activeSection, setActiveSection] = useState("")
@@ -62,15 +51,40 @@ export default function Navigation({
 	const [isSigningOut, setIsSigningOut] = useState(false)
 	const navRef = useRef<HTMLElement>(null)
 	const accountRef = useRef<HTMLDivElement>(null)
+	const [recruitmentSignedIn, setRecruitmentSignedIn] = useState<boolean | null>(null)
+	const [signOutError, setSignOutError] = useState('')
+	const pageLinks = COMBINED_PREVIEW ? recruitmentSignedIn === null ? [] : recruitmentSignedIn ? [{ href: '/recruitment/application?resume=1', label: 'My application' }] : MAIN_PAGE_LINKS : MAIN_PAGE_LINKS
 
-	const desktopLinks = [...LEFT_NAV_LINKS, ...RIGHT_NAV_LINKS]
-	const mobileLinks = [...LEFT_NAV_LINKS, ...RIGHT_NAV_LINKS]
+	const mobileLinks = [...MAIN_SECTION_LINKS, ...pageLinks]
+	useEffect(() => {
+		if (!COMBINED_PREVIEW) return
+		const controller = new AbortController()
+		const check = async () => {
+			try {
+				const response = await fetch('/recruitment/api/community/session', { cache: 'no-store', signal: controller.signal })
+				const result = await response.json()
+				if (response.ok && result.ok && typeof result.data?.signedIn === 'boolean') setRecruitmentSignedIn(result.data.signedIn)
+			} catch { /* Keep the navigation usable if verification is unavailable. */ }
+		}
+		void check()
+		window.addEventListener('focus', check)
+		return () => { controller.abort(); window.removeEventListener('focus', check) }
+	}, [])
+	async function signOutRecruitment() {
+		setIsSigningOut(true); setSignOutError('')
+		try {
+			const response = await fetch('/recruitment/api/community/session', { method: 'POST' })
+			if (!response.ok) throw new Error()
+			window.location.assign('/')
+		} catch { setSignOutError('Sign-out could not be confirmed. Retry.'); setIsSigningOut(false) }
+	}
 
 	useEffect(() => {
 		gsap.registerPlugin(ScrollTrigger)
 	}, [])
 
 	useEffect(() => {
+		if (COMBINED_PREVIEW) return
 		const supabase = getSupabaseBrowserClient()
 
 		const fetchProfile = async (
@@ -138,43 +152,31 @@ export default function Navigation({
 	}, [])
 
 	useEffect(() => {
-		const checkTheme = () => {
-			const darkSections =
-				document.querySelectorAll('[data-theme="dark"]')
-			const navHeight = 80
-
-			for (const section of darkSections) {
-				const rect = section.getBoundingClientRect()
-				if (
-					rect.top <= navHeight &&
-					rect.bottom >= navHeight
-				) {
-					setIsDarkSection(true)
-					return
-				}
-			}
-			setIsDarkSection(false)
-		}
-
-		window.addEventListener("scroll", checkTheme, {
-			passive: true,
-		})
-		checkTheme()
-
-		return () =>
-			window.removeEventListener("scroll", checkTheme)
-	}, [])
-
-	useEffect(() => {
-		const handleScroll = () => {
+		const darkSections = [...document.querySelectorAll('[data-theme="dark"]')]
+		let frame = 0
+		const update = () => {
+			frame = 0
 			setIsScrolled(window.scrollY > 20)
+			const navHeight = navRef.current?.offsetHeight ?? 80
+			setIsDarkSection(darkSections.some(section => {
+				const rect = section.getBoundingClientRect()
+				return rect.top <= navHeight && rect.bottom >= navHeight
+			}))
 		}
+		const handleScroll = () => {
+			if (!frame) frame = requestAnimationFrame(update)
+		}
+		frame = requestAnimationFrame(update)
 		window.addEventListener("scroll", handleScroll, {
 			passive: true,
 		})
-		return () =>
+		window.addEventListener("resize", handleScroll)
+		return () => {
+			cancelAnimationFrame(frame)
 			window.removeEventListener("scroll", handleScroll)
-	}, [])
+			window.removeEventListener("resize", handleScroll)
+		}
+	}, [pathname])
 
 	useEffect(() => {
 		if (!navRef.current) return
@@ -223,7 +225,7 @@ export default function Navigation({
 				(entries) => {
 					for (const entry of entries) {
 						if (entry.isIntersecting) {
-							setActiveSection(`#${id}`)
+							setActiveSection(`/#${id}`)
 						}
 					}
 				},
@@ -233,7 +235,7 @@ export default function Navigation({
 			observers.push(observer)
 		}
 
-		const matchedRoute = RIGHT_NAV_LINKS.find((link) =>
+		const matchedRoute = MAIN_PAGE_LINKS.find((link) =>
 			pathname.startsWith(link.href),
 		)
 		if (matchedRoute) {
@@ -300,11 +302,6 @@ export default function Navigation({
 			: "bg-white/80 backdrop-blur-xl border-b border-black/5 shadow-lg shadow-black/[0.03]"
 		: "bg-transparent"
 
-	function resolveLinkHref(href: string) {
-		if (!href.startsWith("#")) return href
-		return pathname === "/" ? href : `/${href}`
-	}
-
 	function linkClass(href: string) {
 		return `link-underline text-sm font-medium transition-colors duration-300 ${
 			activeSection === href
@@ -317,17 +314,19 @@ export default function Navigation({
 		<>
 			<nav
 				ref={navRef}
+				aria-label="Main navigation"
 				className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${bgStyle}`}
 			>
 				<div className="px-4 sm:px-6 lg:px-8">
 					<div className="flex items-center h-16 lg:h-20">
 							<Link
 								href="/"
+								aria-label="Alpha home"
 								className="flex items-center gap-2.5 group shrink-0"
 							>
 							<div className="relative w-10 h-10 lg:w-11 lg:h-11 transition-transform duration-300 group-hover:scale-110">
 								<Image
-									src="/Logo (2).png"
+									src="/optimized/alpha-logo.webp"
 									alt="AWS Student Builder Group Logo"
 									fill
 									priority
@@ -348,12 +347,12 @@ export default function Navigation({
 							</div>
 							</Link>
 
-						<div className="hidden md:flex items-center gap-8 ml-auto">
+						<div className="hidden xl:flex items-center gap-6 ml-auto">
 							<div className="flex items-center gap-7">
-								{LEFT_NAV_LINKS.map((link) => (
+								{MAIN_SECTION_LINKS.map((link) => (
 									<a
 										key={link.href}
-										href={resolveLinkHref(link.href)}
+										href={link.href}
 										className={linkClass(link.href)}
 									>
 										{link.label}
@@ -364,18 +363,21 @@ export default function Navigation({
 							<div className="w-px h-5 bg-white/20" />
 
 							<div className="flex items-center gap-7">
-								{RIGHT_NAV_LINKS.map((link) => (
-									<Link
-										key={link.href}
-										href={link.href}
-										className={linkClass(link.href)}
-									>
-										{link.label}
-									</Link>
-								))}
+								{pageLinks.map((link) => {
+									const NavigationLink = link.href === RECRUITMENT_URL ? "a" : Link
+									return (
+										<NavigationLink
+											key={link.href}
+											href={link.href}
+											className={link.href === RECRUITMENT_URL ? "inline-flex min-h-11 items-center justify-center rounded-md bg-[#ff9900] px-4 text-xs font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : linkClass(link.href)}
+										>
+											{link.label}
+										</NavigationLink>
+									)
+								})}
 
 								<div ref={accountRef} className="relative">
-									{isAuthenticated ? (
+									{COMBINED_PREVIEW ? recruitmentSignedIn && <><button type="button" className={`text-sm ${textColor}`} disabled={isSigningOut} onClick={() => void signOutRecruitment()}>Sign out</button>{signOutError&&<p role="alert">{signOutError}</p>}</> : isAuthenticated ? (
 										<>
 											<button
 												type="button"
@@ -441,7 +443,7 @@ export default function Navigation({
 							</div>
 						</div>
 
-						<div className="flex justify-end ml-auto md:hidden">
+						<div className="flex justify-end ml-auto xl:hidden">
 							<button
 								onClick={() =>
 									setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -452,6 +454,8 @@ export default function Navigation({
 										: `${textColor} ${hoverColor}`
 								}`}
 								aria-label="Toggle menu"
+								aria-expanded={isMobileMenuOpen}
+								aria-controls='mobile-navigation'
 							>
 								{isMobileMenuOpen ? (
 									<X size={24} />
@@ -476,7 +480,8 @@ export default function Navigation({
 							duration: 0.6,
 							ease: [0.77, 0, 0.175, 1],
 						}}
-						className="fixed inset-0 z-[55] bg-[#232f3e] flex flex-col items-center justify-center"
+						id='mobile-navigation'
+						className="fixed inset-0 z-[55] overflow-y-auto bg-[#232f3e] flex flex-col items-center py-24"
 					>
 						<button
 							onClick={closeMobileMenu}
@@ -486,11 +491,11 @@ export default function Navigation({
 							<X size={28} />
 						</button>
 
-						<div className="flex flex-col items-center gap-8">
+						<div className="my-auto flex shrink-0 flex-col items-center gap-5 sm:gap-7">
 							{mobileLinks.map((link, i) => (
 								<motion.a
 									key={link.href}
-									href={resolveLinkHref(link.href)}
+									href={link.href}
 									onClick={closeMobileMenu}
 									initial={{ y: 40, opacity: 0 }}
 									animate={{ y: 0, opacity: 1 }}
@@ -499,13 +504,13 @@ export default function Navigation({
 										duration: 0.45,
 										ease: [0.25, 1, 0.5, 1],
 									}}
-									className="urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"
+									className={link.href === RECRUITMENT_URL ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"}
 								>
 									{link.label}
 								</motion.a>
 							))}
 
-							{isAuthenticated ? (
+							{COMBINED_PREVIEW ? recruitmentSignedIn && <><button type="button" className="text-lg text-white" disabled={isSigningOut} onClick={() => void signOutRecruitment()}>Sign out</button>{signOutError&&<p role="alert" className="text-white">{signOutError}</p>}</> : isAuthenticated ? (
 								<>
 									{isAdmin && (
 										<motion.a
@@ -578,7 +583,7 @@ export default function Navigation({
 							className="absolute bottom-10"
 						>
 							<Image
-								src="/Logo (2).png"
+								src="/optimized/alpha-logo.webp"
 								alt="AWS Student Builder Group Logo"
 								width={48}
 								height={48}

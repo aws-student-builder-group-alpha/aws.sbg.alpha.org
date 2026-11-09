@@ -220,7 +220,7 @@ export default function CoreVision() {
 										overflow-hidden aspect-[4/3]"
 								>
 									<Image
-										src="/Banner.png"
+										src="/optimized/banner.webp"
 										alt="It&apos;s Always Day One Banner"
 										fill
 										className="object-cover"
@@ -307,7 +307,7 @@ export default function CoreVision() {
 							vision-mobile-item"
 					>
 						<Image
-							src="/Banner.png"
+							src="/optimized/banner.webp"
 							alt="It&apos;s Always Day One Banner"
 							width={800}
 							height={400}

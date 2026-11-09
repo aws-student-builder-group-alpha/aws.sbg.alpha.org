@@ -224,7 +224,6 @@ function SignatureAnimation({
 		})
 
 		paths.forEach((path) => {
-			const length = path.getTotalLength()
 			gsap.set(path, {
 				strokeDasharray: length,
 				strokeDashoffset: length,
@@ -234,7 +233,6 @@ function SignatureAnimation({
 		gsap.set(seal, { scale: 0, opacity: 0 })
 
 		paths.forEach((path, i) => {
-			const length = path.getTotalLength()
 			tl.to(
 				path,
 				{

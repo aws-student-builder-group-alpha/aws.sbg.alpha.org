@@ -23,10 +23,7 @@ export default function AdminLeaderboard({
 	const pageRef = useRef<HTMLDivElement>(null)
 	const [search, setSearch] = useState('')
 	const steps = useMemo(() => LEADERBOARD_STEPS, [])
-	const { startTour } = useAdminTour({
-		page: 'leaderboard',
-		steps,
-	})
+	const { startTour } = useAdminTour(steps)
 
 	useEffect(() => {
 		if (!pageRef.current) return

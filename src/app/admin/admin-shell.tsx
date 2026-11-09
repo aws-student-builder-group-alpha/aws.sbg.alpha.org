@@ -81,7 +81,7 @@ export default function AdminShell({
 					className='flex items-center gap-3'
 				>
 					<Image
-						src='/Logo (2).png'
+						src='/optimized/alpha-logo.webp'
 						alt='AWS Student Builder Group Logo'
 						width={32}
 						height={32}
@@ -203,7 +203,7 @@ export default function AdminShell({
 					)}
 				</button>
 				<Image
-					src='/Logo (2).png'
+					src='/optimized/alpha-logo.webp'
 					alt='AWS Student Builder Group Logo'
 					width={24}
 					height={24}

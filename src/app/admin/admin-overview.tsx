@@ -18,7 +18,6 @@ import {
 	BookOpen,
 	ChevronRight,
 	CircleHelp,
-	Layers,
 	TrendingUp,
 	Trophy,
 	Users,
@@ -62,10 +61,7 @@ export default function AdminOverview({
 }: AdminOverviewProps) {
 	const pageRef = useRef<HTMLDivElement>(null)
 	const steps = useMemo(() => OVERVIEW_STEPS, [])
-	const { startTour } = useAdminTour({
-		page: 'overview',
-		steps,
-	})
+	const { startTour } = useAdminTour(steps)
 
 	useEffect(() => {
 		if (!pageRef.current) return

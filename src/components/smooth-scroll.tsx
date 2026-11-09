@@ -22,10 +22,10 @@ export default function SmoothScroll({
 				'(prefers-reduced-motion: reduce)',
 			).matches
 
-		if (prefersReducedMotion) return
+		if (prefersReducedMotion || window.matchMedia('(pointer: coarse)').matches) return
 
 		const lenis = new Lenis({
-			duration: 1.0,
+			duration: 0.75,
 			easing: (t: number) =>
 				Math.min(1, 1.001 - Math.pow(2, -10 * t)),
 			touchMultiplier: 1.5,

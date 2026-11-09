@@ -79,7 +79,7 @@ export default function PendingApproval({
 					className='flex justify-center mb-8'
 				>
 					<Image
-						src='/Logo (2).png'
+						src='/optimized/alpha-logo.webp'
 						alt='AWS Student Builder Group Logo'
 						width={56}
 						height={56}

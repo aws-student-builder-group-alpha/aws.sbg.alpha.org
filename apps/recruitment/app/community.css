@@ -1,0 +1,36 @@
+.community-admin-extras{position:relative;z-index:1;max-width:1200px;padding-bottom:64px;display:grid;gap:24px}
+.alpha-app .community-admin-panel{position:relative;padding:clamp(20px,3vw,32px);border:1px solid #d9e0e8;border-radius:18px;background:#fff;color:#232f3e;box-shadow:0 12px 32px rgb(8 14 22 / .12)}
+.alpha-app .community-admin-panel :is(h2,h3,label,summary,strong){color:#232f3e}
+.alpha-app .community-admin-panel h2{margin:0 0 12px;font-size:24px;line-height:1.2;letter-spacing:-.03em}
+.alpha-app .community-admin-panel h3{margin:0;font-size:18px}
+.alpha-app .community-admin-panel p{color:#536073;font-size:14px;line-height:1.7;max-width:78ch}
+.alpha-app .community-admin-panel :is(input,select,textarea){min-width:0;width:100%;border:1px solid #8392a3;border-radius:8px;background:#f8fafc;color:#232f3e}
+.alpha-app .community-admin-panel :is(a,.text-button){color:#945400}
+.alpha-app .community-admin-panel .button-orange{background:#ff9900;color:#101820}
+.alpha-app .community-admin-panel .button-secondary{background:#fff;color:#232f3e;border-color:#8392a3}
+.alpha-app .community-admin-panel .community-admin-eyebrow{margin:0 0 6px;color:#945400;font-size:10px;font-weight:650;letter-spacing:.13em;text-transform:uppercase}
+.community-member-steps{margin-block:20px;padding:16px;border:1px solid #e3d2b3;border-radius:12px;background:#fff8ec}
+.community-member-steps p{margin:6px 0 0}.community-member-steps a{text-decoration:underline;text-underline-offset:3px}
+.community-member-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.community-member-actions .button{white-space:normal;text-align:left}
+.community-member-form{margin-top:24px;padding-top:24px;border-top:1px solid #d9e0e8}
+.community-member-form fieldset{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.community-member-note,.community-member-form .community-member-actions{grid-column:1/-1}
+.alpha-app .community-admin-panel summary{cursor:pointer;min-height:44px;font-size:17px;font-weight:600}
+.community-security .community-audit li{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media(min-width:768px){.community-member-form fieldset{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.community-admin-extras>details>summary,.applicant-outreach details>summary{cursor:pointer;min-height:44px;padding:12px 0;font-weight:600}
+.community-admin-extras fieldset,.applicant-outreach fieldset,.membership-workspace fieldset{display:grid;gap:18px;border:0;padding:0;margin:20px 0}
+.community-admin-extras label,.applicant-outreach label,.membership-workspace label{display:grid;gap:8px;font-size:14px;font-weight:500}
+.enrollment-upload{padding-block:24px;border-block:1px dashed #d8dee7;margin-block:24px}
+.enrollment-upload h3{font-size:16px}
+.enrollment-upload input[type=file],.membership-workspace input[type=file]{width:100%;max-width:100%;min-height:48px;height:auto;padding:12px}
+.community-setup{padding:16px;border:1px solid #e2c493;border-radius:8px;background:#fff5e5;color:#704000;font-size:13px}
+.community-notifications,.community-messages,.community-audit{list-style:none;padding:0;margin:16px 0;display:grid;gap:14px}
+.community-notifications li,.community-messages li,.community-audit li{padding:16px;border:1px solid #d8dee7;border-radius:10px;overflow-wrap:anywhere}
+.community-notifications li[data-unread=true]{border-left:3px solid #c47700;background:#fffaf1}
+.community-notifications h3{font-size:16px}.community-notifications p,.community-messages p{white-space:pre-wrap;font-size:14px}.community-notifications time,.community-messages span,.community-audit time{display:block;font-size:12px;color:#526174;margin-top:8px}
+.community-inbox h2 .muted{font-size:12px;margin-left:8px}.community-inbox .subheading{flex-wrap:wrap;gap:12px}
+.community-audit li{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.community-audit time{grid-column:1/-1}.community-messages span{text-transform:capitalize}
+.membership-workspace{max-width:1280px;padding-block:64px 80px;position:relative;z-index:1}.membership-surface{padding:clamp(24px,4vw,48px);border-radius:24px;color:#232f3e;background:#fff}.membership-surface h1{font-size:clamp(30px,4vw,46px);margin:8px 0;letter-spacing:-.04em}.membership-surface .eyebrow{color:#965500;font-size:11px;letter-spacing:.15em;font-weight:600}.membership-columns{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(240px,.7fr);gap:40px;align-items:start;margin-top:32px}.membership-card-preview canvas{display:block;width:100%;height:auto;border-radius:20px;box-shadow:0 20px 40px -15px #192b4866;aspect-ratio:1012/638;background:#192b48}.membership-card-preview>.button{margin-top:28px}.membership-search{margin-top:32px;padding-top:24px;border-top:1px dashed #d8dee7}.membership-search input{flex:1;min-width:180px}.membership-surface .checkbox-label{display:flex;align-items:flex-start;gap:10px;font-weight:400}.membership-surface .checkbox-label input{width:18px;min-height:18px;height:18px;margin-top:2px}.membership-columns h2{font-size:21px}.membership-workspace .subheading{flex-wrap:wrap;gap:16px}
+@media(max-width:900px){.membership-columns{grid-template-columns:minmax(0,1fr);gap:28px}.membership-workspace{padding-block:32px}.community-audit li{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.membership-card-preview canvas{animation:membership-card-in .6s cubic-bezier(.22,1,.36,1) both}@keyframes membership-card-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}}

@@ -1,0 +1,27 @@
+.alpha-track-card { position:relative; display:flex; flex-direction:column; overflow:hidden; padding:36px; border:1px solid #607089; border-bottom:7px solid #111c29; border-radius:16px; background:linear-gradient(145deg,#334861,#1b293a 65%); color:#fff; box-shadow:0 2px 0 #6a7a90 inset,0 7px 0 #1a2635,0 8px 0 #6c7786,0 30px 48px -20px rgb(23 38 54 / .55); }
+.alpha-track-card::after { content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit; background:linear-gradient(135deg,rgb(255 255 255 / .07),transparent 50%); }
+.alpha-track-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 34%, rgb(255 205 131 / .12) 47%, rgb(255 235 199 / .22) 51%, transparent 64%);
+  background-size: 250% 100%;
+  opacity: 0;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .alpha-track-card:hover::before { animation: track-card-shine .95s ease-out both; }
+}
+@keyframes track-card-shine {
+  0% { background-position: 100% 0; opacity: 0; }
+  22%, 65% { opacity: 1; }
+  100% { background-position: 0 0; opacity: 0; }
+}
+.alpha-track-card > * { position:relative; z-index:1; }
+.alpha-track-card .track-card-index { position:absolute; z-index:0; right:24px; bottom:66px; color:rgb(255 255 255 / .055); font-size:130px; font-weight:650; letter-spacing:-.08em; line-height:1; }
+.track-card-crest { display:grid; place-items:center; width:60px; height:60px; flex:none; border:1px solid #ffc56e; border-bottom:5px solid #a56400; border-radius:15px; background:linear-gradient(145deg,#ffbb54,#ff9900); color:#172636; box-shadow:0 5px 0 #142031,0 12px 22px rgb(0 0 0 / .25),0 1px 0 #ffe0a3 inset; transform:translateZ(20px); }
+.alpha-track-card h3 { text-shadow:0 3px 12px rgb(0 0 0 / .2); }
+.alpha-track-card > p:first-of-type { color:#ffc56e; }
+.alpha-track-card a { color:#fff; }
+@media (max-width:599px) { .alpha-track-card { padding:28px; } .track-card-crest { width:52px; height:52px; } }

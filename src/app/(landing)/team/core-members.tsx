@@ -25,7 +25,7 @@ const MEMBERS: Member[] = [
 		role: "Founder, University Captain, and Chief Executive Officer",
 		description:
 			"Leading the AWS Student Builder Group - Alpha with vision and passion for cloud education.",
-		image: "/board-members/notado.webp",
+		image: "/optimized/board-members/notado.webp",
 		linkedin:
 			"https://www.linkedin.com/in/catherine-notado-679a29246",
 		email: "notadocath@gmail.com",
@@ -37,7 +37,7 @@ const MEMBERS: Member[] = [
 	// 	role: "Executive Secretary",
 	// 	description:
 	// 		"Ensuring smooth operations and organizational excellence.",
-	// 	image: "/board-members/fabella.webp",
+	// 	image: "/optimized/board-members/fabella.webp",
 	// 	linkedin:
 	// 		"https://www.linkedin.com/in/emmanuel-fabella/",
 	// 	email: "emmanuelfabella606@gmail.com",
@@ -49,7 +49,7 @@ const MEMBERS: Member[] = [
 		role: "Co-Founder, Co-Captain, and Chief Finance Officer",
 		description:
 			"Strategic financial management and co-leadership of the club.",
-		image: "/board-members/baarde.webp",
+		image: "/optimized/board-members/baarde.webp",
 		linkedin:
 			"https://www.linkedin.com/in/rambaarde-software",
 		email: "ramchrist20@gmail.com",
@@ -62,7 +62,7 @@ const MEMBERS: Member[] = [
 		role: "Chief Operations Officer",
 		description:
 			"Overseeing daily operations and ensuring club efficiency.",
-		image: "/board-members/pradas.webp",
+		image: "/optimized/board-members/pradas.webp",
 		linkedin:
 			"https://www.linkedin.com/in/jin-anthony-pradas/",
 		email: "jinanthonyy@gmail.com",
@@ -73,7 +73,7 @@ const MEMBERS: Member[] = [
 		role: "Executive Secretary of Operations",
 		description:
 			"Managing operational documentation and administrative excellence.",
-		image: "/board-members/garganera.webp",
+		image: "/optimized/board-members/garganera.webp",
 		linkedin:
 			"https://www.linkedin.com/in/mary-angela-kristel-garganera-a210942ba",
 		email: "maryangelakristel@gmail.com",
@@ -85,7 +85,7 @@ const MEMBERS: Member[] = [
 		role: "Chief Marketing Officer",
 		description:
 			"Leading marketing strategies and brand promotion.",
-		image: "/board-members/ardales.webp",
+		image: "/optimized/board-members/ardales.webp",
 		linkedin:
 			"https://www.linkedin.com/in/jogiofernesto-jr-ardales",
 		email: "giofernesto@gmail.com",
@@ -97,7 +97,7 @@ const MEMBERS: Member[] = [
 		role: "Vice-Chief Marketing Officer",
 		description:
 			"Supporting marketing initiatives and community outreach.",
-		image: "/board-members/marquez.webp",
+		image: "/optimized/board-members/marquez.webp",
 		linkedin:
 			"https://www.linkedin.com/in/david-aldreen-marquez-135683394/",
 		email: "aldreendavidmarquez@gmail.com",
@@ -109,7 +109,7 @@ const MEMBERS: Member[] = [
 		role: "Chief Relations Officer",
 		description:
 			"Building partnerships and managing external relationships.",
-		image: "/board-members/leviste.webp",
+		image: "/optimized/board-members/leviste.webp",
 		linkedin:
 			"https://www.linkedin.com/in/josefine-leviste-m134340/",
 		email: "josefine.leviste@gmail.com",
@@ -120,7 +120,7 @@ const MEMBERS: Member[] = [
 		role: "Chief Creatives Officer",
 		description:
 			"Leading creative direction and visual content development.",
-		image: "/board-members/gagui.webp",
+		image: "/optimized/board-members/gagui.webp",
 		linkedin:
 			"https://ph.linkedin.com/in/gagui-kyla-nicole-m-89424338a",
 		email: "kylanicole1330@gmail.com",
@@ -131,7 +131,7 @@ const MEMBERS: Member[] = [
 		role: "BUILDHERS+ Ambassador",
 		description:
 			"Representing the club in BUILDHERS+ initiatives and partnerships.",
-		image: "/board-members/ignas.webp",
+		image: "/optimized/board-members/ignas.webp",
 		linkedin:
 			"https://www.linkedin.com/in/kristine-jamelle-ignas-6b2457303",
 		email: "jamelleignas29@gmail.com",
@@ -143,7 +143,7 @@ const MEMBERS: Member[] = [
 		role: "Skillbuilders Chairperson",
 		description:
 			"Leading skill development programs and educational initiatives.",
-		image: "/board-members/tejam.webp",
+		image: "/optimized/board-members/tejam.webp",
 		linkedin:
 			"https://www.linkedin.com/in/tejam-jihad",
 		email: "jihadtejam@gmail.com",
@@ -295,26 +295,27 @@ export default function CoreMembers() {
 	const trackRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
-		const ctx = gsap.context(() => {
-			const track = trackRef.current
-			if (!track) return
-			const desktopQuery = window.matchMedia("(min-width: 1024px)")
-			if (!desktopQuery.matches) return
+		const section = sectionRef.current
+		const track = trackRef.current
+		if (!section || !track) return
 
-			const totalWidth = track.scrollWidth
-			const viewWidth = track.offsetWidth
-			const scrollDistance = totalWidth - viewWidth
+		const media = gsap.matchMedia(section)
+		media.add("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)", () => {
+			const scrollDistance = () =>
+				Math.max(0, track.scrollWidth - track.offsetWidth)
 
-			if (scrollDistance <= 0) return
+			if (scrollDistance() === 0) return
 
+			track.scrollLeft = 0
+			track.dataset.scrollDriven = ""
 			gsap.to(track, {
-				x: -scrollDistance,
+				x: () => -scrollDistance(),
 				ease: "none",
 				force3D: true,
 				scrollTrigger: {
-					trigger: sectionRef.current,
+					trigger: section,
 					start: "top top",
-					end: () => `+=${scrollDistance + 180}`,
+					end: () => `+=${scrollDistance() + 180}`,
 					scrub: 0.6,
 					pin: true,
 					anticipatePin: 1,
@@ -322,9 +323,12 @@ export default function CoreMembers() {
 					invalidateOnRefresh: true,
 				},
 			})
-		}, sectionRef)
+			return () => {
+				delete track.dataset.scrollDriven
+			}
+		})
 
-		return () => ctx.revert()
+		return () => media.revert()
 	}, [])
 
 	return (
@@ -358,7 +362,7 @@ export default function CoreMembers() {
 				<div
 					ref={trackRef}
 					className="flex gap-5 sm:gap-6 lg:gap-8
-						pl-4 sm:pl-8 overflow-x-auto lg:overflow-visible
+						pl-4 sm:pl-8 overflow-x-auto data-[scroll-driven]:overflow-visible
 						will-change-transform
 						lg:pl-[calc((100vw-72rem)/2+2rem)]"
 				>

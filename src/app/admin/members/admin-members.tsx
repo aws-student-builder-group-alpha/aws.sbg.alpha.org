@@ -55,10 +55,7 @@ export default function AdminMembers({
 	const pageRef = useRef<HTMLDivElement>(null)
 	const router = useRouter()
 	const steps = useMemo(() => MEMBERS_STEPS, [])
-	const { startTour } = useAdminTour({
-		page: 'members',
-		steps,
-	})
+	const { startTour } = useAdminTour(steps)
 	const [search, setSearch] = useState('')
 	const [tab, setTab] = useState<FilterTab>('all')
 	const [showInvite, setShowInvite] = useState(false)

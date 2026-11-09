@@ -10,6 +10,7 @@ import {
   Footer,
 } from "@/app/(landing)"
 import ServerNavigation from "@/app/(landing)/shared/server-navigation"
+import Recruitment from "@/app/(landing)/recruitment/recruitment"
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <ServerNavigation />
       <Hero />
       <Marquee />
+      <Recruitment />
       <About />
       <CoreVision />
       <Events />

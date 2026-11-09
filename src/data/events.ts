@@ -1,4 +1,6 @@
 import meetupEventsJson from './meetup-events.generated.json'
+import { eventHighlights } from './event-highlights'
+import workshopArchive from './alpha-workshops.json'
 
 export interface Event {
 	id: string
@@ -10,6 +12,7 @@ export interface Event {
 	type: string
 	image: string
 	registrationLink?: string
+	sourceUrl?: string
 }
 
 function isValidEvent(
@@ -31,8 +34,18 @@ function isValidEvent(
 	)
 }
 
-export const events: Event[] =
-	(meetupEventsJson as unknown[]).filter(isValidEvent)
+/** Retain verified history during a feed outage; current feed records win by ID. */
+export function mergeEventHistory(liveEvents: unknown[], archive: unknown[] = workshopArchive): Event[] {
+  const merged = new Map<string, Event>()
+  for (const event of [...archive, ...liveEvents]) {
+    if (isValidEvent(event) && !eventHighlights.some(highlight => highlight.replacesMeetupId === event.id)) {
+      merged.set(event.id, event)
+    }
+  }
+  return [...merged.values()]
+}
+
+export const events = mergeEventHistory(meetupEventsJson as unknown[])
 
 /**
  * Format an ISO date string to a readable format.

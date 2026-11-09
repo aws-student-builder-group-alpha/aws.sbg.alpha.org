@@ -113,37 +113,37 @@ export default function Testimonials() {
 
 	return (
 		<section
+			id="testimonials"
 			ref={sectionRef}
 			data-theme="light"
-			className="section-padding px-4 sm:px-6 lg:px-8"
+			className="overflow-hidden px-4 py-12 sm:px-6 sm:py-16 lg:px-8"
 			onMouseEnter={pauseAutoAdvance}
 			onMouseLeave={resumeAutoAdvance}
 		>
 			<div
 				className="testimonials-content container
-					mx-auto max-w-4xl text-center"
+					mx-auto max-w-3xl text-center"
 			>
 				<span
 					className="text-xs uppercase tracking-[0.3em]
-						text-[#ff9900] font-medium mb-4 block"
+						text-[#ff9900] font-medium mb-2 block"
 				>
 					Testimonials
 				</span>
 				<h2
-					className="text-3xl sm:text-4xl lg:text-5xl
-						font-bold text-[#232f3e] mb-20"
+					className="mb-5 text-2xl font-bold text-[#232f3e] sm:mb-7 sm:text-4xl"
 				>
 					Member Stories
 				</h2>
 
 				{/* Quote carousel */}
-				<div className="relative min-h-[350px]">
+				<div className="relative grid min-h-48 place-items-center sm:min-h-40">
 					{/* Decorative quote mark */}
 					<div
 						className="absolute top-0 left-1/2
 							-translate-x-1/2 -translate-y-4
-							urban-starblues text-[8rem]
-							sm:text-[10rem] text-[#ff9900]/8
+							urban-starblues text-[6rem]
+							sm:text-[8rem] text-[#ff9900]/8
 							select-none leading-none
 							pointer-events-none"
 					>
@@ -162,15 +162,13 @@ export default function Testimonials() {
 								duration: 0.5,
 								ease: [0.25, 1, 0.5, 1],
 							}}
-							className="absolute inset-0 flex flex-col
-								items-center justify-center"
+							className="relative flex flex-col items-center justify-center"
 						>
 							{/* Large quote */}
 							<p
-								className="text-xl sm:text-2xl
-									lg:text-4xl xl:text-5xl
+								className="text-base sm:text-xl lg:text-2xl
 									text-[#232f3e]
-									leading-relaxed mb-10
+									leading-relaxed mb-4
 									font-light italic"
 							>
 								&ldquo;{testimonial.quote}&rdquo;
@@ -179,14 +177,14 @@ export default function Testimonials() {
 							{/* Orange line */}
 							<div
 								className="w-8 h-0.5 bg-[#ff9900]
-									mb-4"
+									mb-3"
 							/>
 
 							{/* Author */}
 							<div>
 								<p
 									className="font-bold text-[#232f3e]
-										text-lg"
+									text-base"
 								>
 									{testimonial.author}
 								</p>
@@ -207,7 +205,7 @@ export default function Testimonials() {
 				{/* Navigation — dots only */}
 				<div
 					className="flex items-center justify-center
-						gap-3 mt-8"
+						gap-3 mt-4"
 				>
 					{TESTIMONIALS.map((_, i) => (
 						<button

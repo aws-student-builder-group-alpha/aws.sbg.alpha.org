@@ -26,9 +26,9 @@ export const metadata: Metadata = {
 		"Join the AWS Student Builder Group - Alpha at Rizal Technological University. Learn cloud computing, build projects, and grow your skills with AWS.",
 	generator: "v0.app",
 	icons: {
-		icon: "/favicon.png",
-		apple: "/apple-touch-icon.png",
-		shortcut: "/favicon.png",
+		icon: "/optimized/favicon.png",
+		apple: "/optimized/apple-touch-icon.png",
+		shortcut: "/optimized/favicon.png",
 	},
 	openGraph: {
 		title:

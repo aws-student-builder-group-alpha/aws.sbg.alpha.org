@@ -48,21 +48,17 @@ export default function Contact() {
 			id="contact"
 			ref={sectionRef}
 			data-theme="dark"
-			className="section-dark min-h-[70vh]
-				flex items-center justify-center
-				px-4 sm:px-6 lg:px-8
-				py-24 sm:py-32"
+			className="section-dark relative -mt-px px-4 py-12 sm:px-6 sm:py-16 lg:px-8"
 		>
 			<div className="text-center max-w-4xl mx-auto">
 				<a
 					ref={linkRef}
-					href="mailto:awslc.alpha@gmail.com"
+					href="https://www.facebook.com/AWSStudentBuilderGroupAlpha"
 					className="contact-heading group
 						inline-block will-change-transform"
 				>
 					<h2
-						className="text-5xl sm:text-7xl
-							lg:text-8xl xl:text-9xl
+						className="text-3xl sm:text-5xl
 							font-bold text-white
 							leading-[1.1]
 							group-hover:text-[#ff9900]
@@ -70,10 +66,8 @@ export default function Contact() {
 					>
 						Let&apos;s Connect
 						<ArrowUpRight
-							className="inline-block ml-2
-								sm:ml-4 w-8 h-8
-								sm:w-12 sm:h-12
-								lg:w-16 lg:h-16
+							aria-hidden="true"
+							className="inline-block ml-2 size-6 sm:size-8
 								opacity-40
 								group-hover:opacity-100
 								group-hover:translate-x-1
@@ -83,11 +77,9 @@ export default function Contact() {
 					</h2>
 				</a>
 				<p
-					className="contact-sub mt-6 sm:mt-8
-						text-sm sm:text-base
-						text-white/40 tracking-wide"
+					className="contact-sub mt-3 text-sm text-white/70"
 				>
-					awslc.alpha@gmail.com
+					AWS Student Builder Group – Alpha on Facebook
 				</p>
 			</div>
 		</section>

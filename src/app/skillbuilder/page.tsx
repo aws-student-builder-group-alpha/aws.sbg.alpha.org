@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import SkillbuilderLanding from './skillbuilder-landing'
 import { getCurrentUser } from '@/services/auth.service'
+import { COMBINED_PREVIEW } from '@/lib/recruitment'
 
 export const metadata: Metadata = {
 	title: 'Skillbuilder | AWS Student Builder Group - Alpha',
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function SkillbuilderPage() {
-	const user = await getCurrentUser()
+	const user = COMBINED_PREVIEW ? null : await getCurrentUser()
 
 	if (user) {
 		redirect('/skillbuilder/dashboard')
