@@ -36,8 +36,6 @@ jobs:
           cache-dependency-path: apps/recruitment/package-lock.json
       - name: Install locked dependencies
         run: npm ci
-      - name: Verify shared production routing
-        run: node --test ../../scripts/recruitment-routing.test.mjs
       - name: Install Chromium and system dependencies
         run: npx playwright install --with-deps chromium
       - name: Verify application

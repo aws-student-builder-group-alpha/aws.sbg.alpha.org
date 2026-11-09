@@ -1,15 +1,9 @@
 # Architecture
 
-## Canonical production origins — 10 November 2026
+## Standalone recruitment delivery — 10 November 2026
 
-The selected public main origin is https://aws-sbg-alpha.vercel.app and the recruitment upstream is https://aws-alpha-recruitment.vercel.app. The upstream root redirects to the main /recruitment entry. Older awsc-alpha.cloud recruitment requests redirect to the canonical main host before authentication so PKCE cookies and callback share one host. Server Actions explicitly allow the selected main host and existing main domains. No wildcard action origins are added.
+Recruitment deploys independently from apps/recruitment at https://aws-alpha-recruitment.vercel.app with APP_URL set to that origin. The production basePath is empty and output is .next. Only local combined previews use /recruitment and build/combined. Main-site Apply now links use the standalone hostname; main authentication, routes and session checks remain unchanged. Preserve existing backend data and do not replay migrations.
 
-
-## Combined production routing — 10 November 2026
-
-`NEXT_PUBLIC_ALPHA_COMBINED_SITE=1` mounts recruitment at `/recruitment` in production. The main app requires a verified HTTPS `ALPHA_RECRUITMENT_ORIGIN` and proxies the page/asset/API/callback namespace to that deployment. It rejects a missing or unsafe upstream, a main-site loop and static export mode. Keep the legacy `NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW` switch local: production does not use the preview-only Skillbuilder session shortcut. The global header uses recruitment's verified session endpoint in combined mode; Skillbuilder's existing server guards remain separate and unchanged.
-
-Recruitment's `APP_URL` is the public main-site origin only, without `/recruitment`; `recruitmentPath()` appends the namespace to the callback. The verified public callback must be on the selected recruitment project's Supabase allowlist. Deploy both apps from the same organization repository while preserving each existing backend's configuration/data. Do not silently replace production Supabase with a test project. Source configuration and local checks do not establish that production aliases, credentials or routing have been activated.
 
 ## Source consolidation and membership presentation — 9 November 2026
 

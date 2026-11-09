@@ -1,8 +1,7 @@
-const combinedSite = process.env.NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW === "1"
-  || process.env.NEXT_PUBLIC_ALPHA_COMBINED_SITE === "1";
+const combinedPreview = process.env.NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW === "1";
 
-export const recruitmentBasePath = combinedSite ? "/recruitment" : "";
-export const alphaSiteOrigin = combinedSite ? "" : "https://www.awsc-alpha.cloud";
+export const recruitmentBasePath = combinedPreview ? "/recruitment" : "";
+export const alphaSiteOrigin = combinedPreview ? "" : "https://www.awsc-alpha.cloud";
 
 export const chapterLinks = [
   { path: "/#about", label: "About" },

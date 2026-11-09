@@ -1,9 +1,5 @@
 # Manual testing flow
 
-## Combined production route verification — 10 November 2026
-
-From the public Alpha homepage, Apply now must open `/recruitment` on the same domain, show the updated chapter navigation and reveal the eight department cards. Open a role and verify Google handoff returns through `/recruitment/auth/callback` with that role retained. Use a designated test account to verify consent, draft save/resume through My application, required enrollment proof/resume, sign-out and private staff/member access. Check static assets, fonts and API responses for missing files, redirect loops or an unexpected hostname. Keep Skillbuilder's separate login/session guards active. Verify both the main site's path and the old recruitment hostname; a merged PR or a successful main-site preview alone does not prove that the recruitment deployment was updated.
-
 ## Existing-member administration — 9 November 2026
 
 1. Sign in once at Membership ID with a separate existing-member Google account that has no recruitment application. As an MFA-verified System Admin, open Organization members and choose Add existing member. Enter the same email, name, position, joining date and private reason. Cancel the confirmation and verify no record is created; confirm it explicitly to save.

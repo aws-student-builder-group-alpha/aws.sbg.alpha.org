@@ -1,7 +1,5 @@
 # Code Standards
 
-Use `NEXT_PUBLIC_ALPHA_COMBINED_SITE` for production routing; never turn on the local preview flag in production. Validate the configured upstream at build time and keep `APP_URL` origin-only. The dependency-free `scripts/recruitment-routing.test.mjs` at repository root covers standalone, local, production and rejected deployment configurations and runs in recruitment CI before application verification.
-
 The main-site repository keeps this app under `apps/recruitment` with its own lockfile, lint configuration and TypeScript scope. Run its checks from that directory or with `npm --prefix apps/recruitment`. Root main-site lint/types exclude the nested app so framework versions and generated types cannot leak between apps. Remove code only after checking callers, dynamic/framework entry points and current tests; preserve generated SDK types and applied migrations.
 
 Keep the explicit app-local Turbopack and tracing roots in `next.config.ts`. Verify the default Turbopack build through recruitment CI as well as the combined launcher's webpack build; one bundler passing does not establish configuration isolation for the other.

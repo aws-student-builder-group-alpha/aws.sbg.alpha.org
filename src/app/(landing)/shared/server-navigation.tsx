@@ -2,11 +2,11 @@ import {
 	getCurrentUser,
 	getUserRole,
 } from '@/services/auth.service'
-import { COMBINED_SITE } from '@/lib/recruitment'
+import { COMBINED_PREVIEW } from '@/lib/recruitment'
 import Navigation from './navigation'
 
 export default async function ServerNavigation() {
-	if (COMBINED_SITE) return <Navigation />
+	if (COMBINED_PREVIEW) return <Navigation />
 
 	const user = await getCurrentUser()
 
