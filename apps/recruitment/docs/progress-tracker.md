@@ -1,5 +1,11 @@
 # Progress Tracker
 
+## Applicant browser-fixture synchronization — 10 November 2026
+
+The next hosted CI run passed lint, all 184 Node tests, the default build, TypeScript, source integrity and seven browser suites, including the corrected evaluator/Intake fixtures. Applicant verification failed during its enlarged-navbar measurement because its asynchronous shell/navigation fixture mounts could still replace the main element between bounding-box reads. These two fixture helpers now use the same React `flushSync` mount pattern already used by the suite's other helpers. This changes test setup only and retains all layout, navigation, accessibility and security assertions. Targeted lint and the complete applicant browser suite passed locally against current production CSS after the correction. Hosted verification and the requested merge remain pending until the final handoff.
+
+Reviewed all six context documents. Only this evidence tracker needed an update: product scope, architecture, coding rules, workflow and UI behavior are unchanged. No application code, dependencies, schema, credentials, hosted data or repository protection settings changed in this correction.
+
 ## Merge verification and app-local build configuration — 9 November 2026
 
 The owner authorized merging the Alpha integration. PR #43 includes a later README-only edit from the remote branch; it is preserved. The first hosted recruitment CI run passed lint and all Node tests, then its default Turbopack build inherited the parent main-site PostCSS configuration and failed resolving the parent's Tailwind plugin. The earlier local production builds used webpack and did not exercise that path. Explicit app-local Turbopack and output tracing roots now keep each application's configuration/dependencies separate; no package upgrade or UI/domain change is required. Hosted re-verification and the merge remain pending until recorded in the handoff.
