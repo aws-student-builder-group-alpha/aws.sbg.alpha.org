@@ -1,5 +1,10 @@
 # Alpha Recruitment
 
+## Production delivery clarification — 10 November 2026
+
+The owner authorized merging and publishing the combined Alpha site. Use https://aws-sbg-alpha.vercel.app as the current main website and aws-alpha-recruitment.vercel.app as its free recruitment hostname. This supersedes earlier deployment-deferred statements only for the current delivery; preserve all existing application, membership and staff rules.
+
+
 ## Existing members and one Alpha source repository — 9 November 2026
 
 The owner clarified that recruitment and the main website are both Alpha main-site work. Maintain recruitment under `apps/recruitment` in the existing organization main-site repository, with separate locked dependencies and the existing `/recruitment` route integration. No second organization repository, deployment or automatic merge is part of this delivery.

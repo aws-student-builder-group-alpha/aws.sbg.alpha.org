@@ -17,7 +17,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
 import SignOutModal from "@/components/sign-out-modal"
-import { RECRUITMENT_URL, COMBINED_PREVIEW } from "@/lib/recruitment"
+import { RECRUITMENT_URL, COMBINED_SITE } from "@/lib/recruitment"
 import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS } from "@/lib/navigation"
 
 interface NavigationProps {
@@ -53,11 +53,11 @@ export default function Navigation({
 	const accountRef = useRef<HTMLDivElement>(null)
 	const [recruitmentSignedIn, setRecruitmentSignedIn] = useState<boolean | null>(null)
 	const [signOutError, setSignOutError] = useState('')
-	const pageLinks = COMBINED_PREVIEW ? recruitmentSignedIn === null ? [] : recruitmentSignedIn ? [{ href: '/recruitment/application?resume=1', label: 'My application' }] : MAIN_PAGE_LINKS : MAIN_PAGE_LINKS
+	const pageLinks = COMBINED_SITE && recruitmentSignedIn ? [{ href: '/recruitment/application?resume=1', label: 'My application' }] : MAIN_PAGE_LINKS
 
 	const mobileLinks = [...MAIN_SECTION_LINKS, ...pageLinks]
 	useEffect(() => {
-		if (!COMBINED_PREVIEW) return
+		if (!COMBINED_SITE) return
 		const controller = new AbortController()
 		const check = async () => {
 			try {
@@ -84,7 +84,7 @@ export default function Navigation({
 	}, [])
 
 	useEffect(() => {
-		if (COMBINED_PREVIEW) return
+		if (COMBINED_SITE) return
 		const supabase = getSupabaseBrowserClient()
 
 		const fetchProfile = async (
@@ -377,7 +377,7 @@ export default function Navigation({
 								})}
 
 								<div ref={accountRef} className="relative">
-									{COMBINED_PREVIEW ? recruitmentSignedIn && <><button type="button" className={`text-sm ${textColor}`} disabled={isSigningOut} onClick={() => void signOutRecruitment()}>Sign out</button>{signOutError&&<p role="alert">{signOutError}</p>}</> : isAuthenticated ? (
+									{COMBINED_SITE ? recruitmentSignedIn && <><button type="button" className={`text-sm ${textColor}`} disabled={isSigningOut} onClick={() => void signOutRecruitment()}>Sign out</button>{signOutError&&<p role="alert">{signOutError}</p>}</> : isAuthenticated ? (
 										<>
 											<button
 												type="button"
@@ -510,7 +510,7 @@ export default function Navigation({
 								</motion.a>
 							))}
 
-							{COMBINED_PREVIEW ? recruitmentSignedIn && <><button type="button" className="text-lg text-white" disabled={isSigningOut} onClick={() => void signOutRecruitment()}>Sign out</button>{signOutError&&<p role="alert" className="text-white">{signOutError}</p>}</> : isAuthenticated ? (
+							{COMBINED_SITE ? recruitmentSignedIn && <><button type="button" className="text-lg text-white" disabled={isSigningOut} onClick={() => void signOutRecruitment()}>Sign out</button>{signOutError&&<p role="alert" className="text-white">{signOutError}</p>}</> : isAuthenticated ? (
 								<>
 									{isAdmin && (
 										<motion.a

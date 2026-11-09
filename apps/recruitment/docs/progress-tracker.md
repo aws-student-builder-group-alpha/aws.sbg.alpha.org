@@ -1,5 +1,14 @@
 # Progress Tracker
 
+## Production recruitment routing — 10 November 2026
+
+PR #43 was merged as f6376ea after hosted verification passed all 184 Node tests, eight browser suites, build, lint and types. Production still used the previous standalone recruitment URL because the source integration had only enabled a local-preview flag. A separate production flag now activates the shared /recruitment namespace, session-aware navigation and HTTPS upstream rewrites without preview session shortcuts. Public-only vercel.json settings activate the main Git deployment. The owner-selected recruitment project was renamed aws-alpha-recruitment in the existing Hobby team; its verified alias is aws-alpha-recruitment.vercel.app, Node runtime is 24.x and APP_URL is the current main origin. Its existing public Supabase host matches the Alpha test backend already used locally. No schema replay or data migration occurred.
+
+The owner separately approved the new main sign-in destination. Saved Supabase Site URL https://aws-sbg-alpha.vercel.app and its exact /recruitment/auth/callback; verified both localhost and previously approved awsc-alpha.cloud callback remain. Six routing regressions passed before the final canonical-host adjustment; root production webpack build passed, and targeted lint/types passed before the final redirect changes. Final focused verification passed all six routing regressions, zero-warning main/recruitment targeted lint, both TypeScript checks and the real recruitment Next configuration loader (basePath, root redirect and exact Server Action origins). Branch deployment, hosted CI and merge remain pending. No real Google account login, application mutation or email delivery was performed. Hosted mail secrets were not uploaded.
+
+Reviewed all six context documents. Updated overview for the current delivery authorization, architecture for production boundaries, code standards/manual testing for routing verification and this tracker for evidence. Workflow and UI direction need no change because application rules, visual design and motion are preserved.
+
+
 ## Applicant browser-fixture synchronization — 10 November 2026
 
 The next hosted CI run passed lint, all 184 Node tests, the default build, TypeScript, source integrity and seven browser suites, including the corrected evaluator/Intake fixtures. Applicant verification failed during its enlarged-navbar measurement because its asynchronous shell/navigation fixture mounts could still replace the main element between bounding-box reads. These two fixture helpers now use the same React `flushSync` mount pattern already used by the suite's other helpers. This changes test setup only and retains all layout, navigation, accessibility and security assertions. Targeted lint and the complete applicant browser suite passed locally against current production CSS after the correction. Hosted verification and the requested merge remain pending until the final handoff.
