@@ -29,7 +29,8 @@ await installBrowserMotion(modules);
 await installRecruitmentUI(modules);
 const bundle=`(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([n,c])=>JSON.stringify(n)+":function(module,exports,require){"+c+"\n}").join(",")}};const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked module: '+name);const m=cache[name]={exports:{}};modules[name](m,m.exports,require);}return cache[name].exports;}const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let version=0;window.mount=props=>{window.shellPath=props.initialList.role==='administrator'?'/admin/applications':'/reviewer';root.render(jsx(require('recruitment-test-frame').Frame,{frame:props.initialList.role,staff:{role:props.initialList.role,status:'active',needsMfa:false},children:jsx(require('./access-guard').AccessGuard,{accountId:props.accountId,expected:props.initialList.role,children:jsx(require('workspace').EvaluationWorkspace,props)})},String(++version)));};})();`;
 const origin="https://evaluations.example.test",runtime=await evaluationRuntime(origin),created=await runtime.createApplication();
-const shell=await readFile(path.join(project,".next/server/app/admin.html"),"utf8"),styles=[...shell.matchAll(/href="([^"?]+\.css)(?:\?[^"]*)?"/g)].map(m=>m[1]);assert.ok(styles.length,"Run npm run build first");
+const buildDirectory=path.resolve(project,process.env.ALPHA_BROWSER_BUILD_DIR||".next");
+const shell=await readFile(path.join(buildDirectory,"server/app/admin.html"),"utf8"),styles=[...shell.matchAll(/href="([^"?]+\.css)(?:\?[^"]*)?"/g)].map(m=>m[1]);assert.ok(styles.length,"Run npm run build first");
 let browser,faults={posts:[]};const errors=[],passed=[];
 const output=path.join(project,".next/verification/evaluations");await mkdir(output,{recursive:true});
 async function until(predicate){const end=Date.now()+10000;while(!predicate()){if(Date.now()>end)throw Error("Request checkpoint timed out");await delay(10);}}
@@ -37,7 +38,7 @@ try{
  const {chromium}=await import(process.argv[2]?pathToFileURL(path.resolve(process.argv[2])).href:"playwright");browser=await chromium.launch({headless:true});const page=await browser.newPage({reducedMotion:"reduce"});page.setDefaultTimeout(10000);page.on("pageerror",e=>errors.push(e.message));
  await page.route(origin+"/**",async route=>{
   const incoming=route.request(),url=new URL(incoming.url());
-  if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css",body:await readFile(path.join(project,".next",url.pathname.slice("/_next/".length)))});
+  if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css",body:await readFile(path.join(buildDirectory,url.pathname.replace(/^\/recruitment(?=\/_next\/)/,"").slice("/_next/".length)))});
   if(url.pathname.startsWith("/brand/"))return route.fulfill({body:await readFile(path.join(project,"public",url.pathname))});
   if(url.pathname==="/api/access")return route.fulfill({json:faults.access||await runtime.access()});
   if(!["/api/evaluations","/api/decisions"].includes(url.pathname))return route.fulfill({contentType:"text/html",body:`<html lang="en" data-theme="light"><head>${styles.map(s=>`<link rel="stylesheet" href="${s}">`).join("")}</head><body class="alpha-app"><div id="root"></div></body></html>`});
@@ -68,7 +69,11 @@ try{
  await page.getByLabel('Private notes (optional)',{exact:true}).fill('Latest prior synthetic notes');passed.push('review next skips saved recommendations and blocks dirty navigation');
  const extra=await runtime.createApplication();runtime.as(runtime.admin);await runtime.rpc('manage_evaluation',{p_request:{action:'assign',applicationId:extra.app.id,evaluatorId:runtime.first.id,expectedApplicationVersion:1,expectedAssignmentId:null,reason:'Synthetic next assignment',mutationId:crypto.randomUUID()}});
  await mount(runtime.first);await choose();const writesBeforeNext=faults.posts.length;await page.getByRole('button',{name:'Review next application',exact:true}).click();await page.waitForFunction(reference=>document.querySelector('.record-identity')?.textContent.includes(reference),extra.app.reference);assert.equal(faults.posts.length,writesBeforeNext,'Next performs no writes');
- await runtime.db.query('delete from public.applications where id=$1',[extra.app.id]);await mount(runtime.first);await choose();passed.push('review next opens another verified unreviewed assignment without writing');
+ await runtime.db.transaction(async tx => {
+   await tx.query('delete from public.enrollment_documents where application_id=$1',[extra.app.id]);
+   await tx.query('delete from public.applications where id=$1',[extra.app.id]);
+ });
+ await mount(runtime.first);await choose();passed.push('review next opens another verified unreviewed assignment without writing');
 
 
  await mount(runtime.admin);await choose();await page.getByLabel("Evaluator",{exact:true}).selectOption(runtime.second.id);await page.getByRole("button",{name:"Review evaluator assignment",exact:true}).click();assert.equal(await page.getByRole("dialog").count(),0);await page.getByLabel("Reason for reassignment (required)",{exact:true}).fill("Private workload balancing reason");await page.getByRole("button",{name:"Review evaluator assignment",exact:true}).click();await page.getByRole("button",{name:"Confirm assignment",exact:true}).click();await page.getByText("Evaluator assignment confirmed.",{exact:true}).waitFor();assert.equal((await runtime.rpc("evaluation_detail",{p_application_id:created.app.id})).review,null);passed.push("required reassignment reason and fresh assignment generation");
