@@ -766,13 +766,14 @@ try {
   }
   const chapterLinks=['About','Events','Team','Connect','Skillbuilders'];
   for(const [props,expected] of [
-    [{},['Apply now']],
-    [{signedIn:true},['My application']],
-    [{signedIn:true,staff:{role:'administrator',status:'active',needsMfa:false}},['Applications','Intake','Staff management']],
-    [{signedIn:true,staff:{role:'evaluator',status:'active',needsMfa:false}},['Organization Head']],
-    [{signedIn:true,staff:{role:'administrator',status:'active',needsMfa:true}},['Staff sign-in']],
-    [{signedIn:true,staff:{role:'evaluator',status:'suspended',needsMfa:false}},['Staff sign-in']],
-    [{signedIn:true,staff:{role:'administrator',status:'revoked',needsMfa:false}},['Staff sign-in']],
+    [{},['Membership ID','Apply now']],
+    [{signedIn:true},['My application','Membership ID']],
+    [{signedIn:true,member:true},['Membership ID']],
+    [{signedIn:true,staff:{role:'administrator',status:'active',needsMfa:false}},['Applications','Intake','Staff management','Membership ID']],
+    [{signedIn:true,staff:{role:'evaluator',status:'active',needsMfa:false}},['Organization Head','Membership ID']],
+    [{signedIn:true,staff:{role:'administrator',status:'active',needsMfa:true}},['Staff sign-in','Membership ID']],
+    [{signedIn:true,staff:{role:'evaluator',status:'suspended',needsMfa:false}},['Staff sign-in','Membership ID']],
+    [{signedIn:true,staff:{role:'administrator',status:'revoked',needsMfa:false}},['Staff sign-in','Membership ID']],
   ]){
     for(const route of ['/','/privacy','/apply','/application','/staff','/admin','/admin/applications','/admin/intake','/reviewer','/404']){
       await page.evaluate(({route,props})=>window.mountShell(route,props),{route,props});
