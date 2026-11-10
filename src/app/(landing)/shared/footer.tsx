@@ -14,7 +14,7 @@ import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS } from "@/lib/navigation"
 
 const SOCIAL_LINKS = [
 	{
-		href: "https://www.facebook.com/AWSLearningClubAlpha",
+		href: "https://www.facebook.com/AWSStudentBuilderGroupAlpha",
 		label: "Facebook",
 		icon: Facebook,
 	},

@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {applicationRuntime} from './fixtures/application-runtime.mjs';
 import {createCommunityRoutes} from './fixtures/staff-http-runtime.mjs';
 import {validSimplifiedSubmission} from './fixtures/submission.mjs';
+import {uploadMemberPhoto} from '../lib/community-client.ts';
+import sharp from 'sharp';
 let rt,routes,original,admin,head,other,application;const origin='https://alpha.example.test',objects=new Map(),sent=[];let anonymous=false,uploads=0;
 async function sql(query,args=[]){return rt.db.transaction(async tx=>{await tx.exec('set local role authenticated');await tx.query("select set_config('request.jwt.claim.sub',$1,true),set_config('request.jwt.claims',$2,true)",[rt.identity.id,JSON.stringify({sub:rt.identity.id,aal:'aal2'})]);return(await tx.query(query,args)).rows})}
 async function rpc(name,args={}){
@@ -62,4 +64,22 @@ test('membership HTTP derives the invite recipient, requires admin access and se
  assert.equal(sent.length,before+1);assert.equal(sent.at(-1).to,other.email);assert.match(sent.at(-1).text,/https:\/\/alpha\.example\.test\/membership/);assert.equal(sent.at(-1).html,undefined);
  rt.setIdentity(other);assert.equal((await routes.route.POST(request('acceptMemberInvitation',{id}))).status,200);
  const own=await routes.route.GET(new Request(origin+'/api/community?action=member&accountId='+other.id));assert.equal((await own.json()).data.status,'active');
+});
+
+test('the membership photo client submits the server file field and reloads the processed portrait',async()=>{
+ rt.setIdentity(other);
+ const portrait=await sharp({create:{width:60,height:80,channels:3,background:'#2468ac'}}).jpeg().toBuffer();
+ const file=new File([portrait],'portrait.jpg',{type:'image/jpeg'});
+ const wrong=new FormData();wrong.set('accountId',other.id);wrong.set('kind','photo');wrong.set('name','Existing Builder');wrong.set('photo',file);
+ assert.equal((await routes.upload.POST(new Request(origin+'/api/community/upload',{method:'POST',headers:{origin},body:wrong}))).status,422);
+ const savedFetch=globalThis.fetch;
+ try{
+  globalThis.fetch=async(url,init)=>routes.upload.POST(new Request(origin+url,{...init,headers:{...init.headers,origin}}));
+  const member=await uploadMemberPhoto(other.id,'Existing Builder',file);
+  assert.match(member.photo_path,new RegExp('^'+other.id+'/.*\\.png$'));
+  const response=await routes.file.GET(new Request(origin+'/api/community/file?kind=photo&accountId='+other.id));
+  assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/png');
+  const image=await sharp(Buffer.from(await response.arrayBuffer())).metadata();assert.equal(image.width,512);assert.equal(image.height,640);
+  assert.equal((await sql('select public.alpha_member() as value'))[0].value.photo_path,member.photo_path);
+ }finally{globalThis.fetch=savedFetch}
 });

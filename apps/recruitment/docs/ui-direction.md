@@ -1,5 +1,10 @@
 # UI Direction
 
+## Quick links and member portraits — 10 November 2026
+
+Quick links to homepage sections must land on their visible section after animation pin spacing settles, including when returning from Events or another site. Keep Alpha’s existing scrolling/motion. Do not pull readers back to a hash target after they begin scrolling or interacting. Saved membership portraits must appear in the ID preview after the server confirms the upload; preserve the existing photo consent, size/type rules, private storage and canvas download.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 Membership uses an opaque white panel with explicit navy headings/labels and readable muted copy above the existing gradient. Show the verified account email, an account-switch action, pending invitation position/joining date and Accept membership. Existing active members see their card and portrait/download tools. Empty/error lookups are distinct; while no membership is loaded, recheck on focus/visibility and every visible 30 seconds. The header shows Membership ID for active/invited members instead of My application; others can still find Membership ID. Keep Staff management and Organization members in a normal-flow admin-page-stack with a 32px gap, no overlapping sibling panels. Admin invitation history distinguishes pending/accepted/canceled and delivery state, with explicit send/cancel actions and a shareable membership link.

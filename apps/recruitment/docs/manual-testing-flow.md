@@ -1,5 +1,10 @@
 # Manual testing flow
 
+## Quick links and photo persistence
+
+From the main homepage footer and Events footer, open About, Team and Connect; verify the destination section is visible after pin layout/fonts settle, and manual scrolling is not pulled back. Check recruitment footer links reach the main site, Events resolves to /events/, Skillbuilders retains its sign-in guard and Apply now reaches aws-alpha-recruitment.vercel.app. As an existing member, choose a valid JPG/PNG, give photo consent and save. Verify the actual private processed portrait appears in the card, remains after reload and is included in the canvas export. Invalid bytes/oversized files and another account must be denied. Use synthetic files for automated tests.
+
+
 ## Existing-member invitation checks
 
 As an MFA administrator, Add existing member saves an invitation even before first sign-in. Cancel confirmation and verify no write; retry an uncertain exact request and verify one invitation. Open Member invitations to send a confirmed email or share /membership. A different Google account must not see or accept the invitation. The invited account accepts once, gets an ID without an application, uploads its portrait and downloads the same preview. Existing active members should go directly to Membership ID when using Apply now or resuming a draft, while submitted receipts remain accessible. Check canceled/revoked invitations and private ID lookup. Treat Gmail acceptance separately from inbox delivery. Test empty/error states, focus refresh, account switching and panel contrast at 320/390/768/1440px. Open long staff-change/member forms and verify the Staff management panel ends above Organization members with a visible gap. Do not send real mail during automated checks.

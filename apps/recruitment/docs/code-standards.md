@@ -1,5 +1,10 @@
 # Code Standards
 
+## Quick links and member portraits — 10 November 2026
+
+Test multipart uploads through the actual client helper and actual upload handler; a successful mock that ignores FormData fields does not verify a browser/server contract. The membership photo regression reproduces the old photo-field rejection, then verifies private persistence and 512×640 processed PNG retrieval. The root section-navigation lifecycle test simulates pin refresh, user interruption and reduced motion and runs in recruitment CI with its installed SWC runtime.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 Use memberEntry for verified membership/invitation routing; a failed lookup must not be interpreted as no membership. Preserve submitted-application receipt access. Invitations do not create Auth identities or assume first sign-in. Keep request IDs stable across uncertain invitation creation and prohibit automatic email resends after a claim. Test the database boundary and actual HTTP transport using synthetic recipients, including wrong accounts, missing MFA, duplicate acceptance and forged delivery receipts. Regenerate schema.ts from the owning Supabase tool after additive DDL.
