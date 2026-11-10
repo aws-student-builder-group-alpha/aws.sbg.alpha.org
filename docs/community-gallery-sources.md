@@ -31,3 +31,5 @@ Cloud Series combines the May 4 and May 11 workshops with both Meetup records. S
 Gallery cards fan into view in sequence with a separate caption reveal. The full-bleed dialog advances every three seconds. Previous and next controls appear on the photo on hover or keyboard focus and stay available on touch. Manual navigation stops autoplay for the open dialog. Reduced motion starts the slideshow paused. The dialog scrolls with its scrollbar hidden. A single reflection sweeps across the inside of a recruitment card on hover. The card entrance takes inspiration from [Anagram’s Stacked Cards on Jitter](https://jitter.video/template/stacked-cards/).
 
 Validation is recorded in the handoff. The media manifest lists source-photo URLs, file names, dimensions and hashes.
+
+The Events page opens with List view selected so navigation links lead to the readable event rows. It reuses the homepage's list styling, category filters and details dialogs; the homepage still starts in the animated gallery. Visitors can switch either presentation with the existing view controls.

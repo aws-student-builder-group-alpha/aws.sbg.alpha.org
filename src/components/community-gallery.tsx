@@ -140,9 +140,9 @@ function StoryCard({ story, index }: { story: CommunityStory; index: number }) {
   </article>
 }
 
-export default function CommunityGallery({ stories, filterable = false, presentation = 'grid' }: { stories: CommunityStory[]; filterable?: boolean; presentation?: 'grid' | 'showcase' }) {
+export default function CommunityGallery({ stories, filterable = false, presentation = 'grid', initialView = 'gallery' }: { stories: CommunityStory[]; filterable?: boolean; presentation?: 'grid' | 'showcase'; initialView?: 'gallery' | 'list' }) {
   const [filter, setFilter] = useState('All stories')
-  const [view, setView] = useState<'gallery' | 'list'>('gallery')
+  const [view, setView] = useState(initialView)
   const root = useRef<HTMLDivElement>(null)
   const restoreViewPosition = useRef(false)
   function changeView(next: 'gallery' | 'list') {

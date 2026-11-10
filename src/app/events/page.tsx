@@ -16,7 +16,7 @@ export default function EventsPage() {
         <div className="mt-8 flex flex-wrap items-end justify-between gap-6"><p className="max-w-xl text-base leading-relaxed text-[#526174]">The events we help build. The people who go further. Explore Alpha’s chapter events, partnerships, member wins and learning opportunities.</p><a href="https://www.facebook.com/AWSStudentBuilderGroupAlpha" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-3 text-sm font-semibold text-[#965500] underline underline-offset-4">Follow Alpha<ArrowUpRight size={16} /><span className="sr-only"> (opens in a new tab)</span></a></div>
       </div>
     </header>
-    <section className="px-5 pb-24 sm:px-8 lg:px-16" aria-label="Alpha community gallery"><div className="mx-auto max-w-6xl"><CommunityGallery stories={getCommunityStories()} filterable /></div></section>
+    <section className="px-5 pb-24 sm:px-8 lg:px-16" aria-label="Alpha community gallery"><div className="mx-auto max-w-6xl"><CommunityGallery stories={getCommunityStories()} presentation="showcase" initialView="list" filterable /></div></section>
     <Footer />
   </main>
 }
