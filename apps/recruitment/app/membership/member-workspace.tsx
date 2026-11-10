@@ -19,7 +19,7 @@ export function MemberWorkspace({accountId,accountEmail,practice=false}:{account
   const controller=new AbortController();let active=true;let objectUrl:string|null=null;
   const load=async()=>{setLoading(true);setFailed(false);try{
    const data=practice?{id:'ALPHA-PREVIEW-000001',full_name:'Alpha Builder',position:'Committee Member',joined_on:'2026-11-09',photo_path:null,status:'active',version:1}:await communityRead(accountId,'member',{},controller.signal);
-   const pending=practice?{items:[]}:await communityRead(accountId,'memberInvitations',{},controller.signal);
+   const pending=practice||isMember(data)?{items:[]}:await communityRead(accountId,'memberInvitations',{},controller.signal);
    if(!record(pending)||!Array.isArray(pending.items)||!pending.items.every(isMemberInvitation))throw new Error('Invitations could not be verified.');if(active)setInvitations(pending.items);
    if(data!==null&&!isMember(data))throw new Error('Membership could not be verified.');if(!active)return;setMember(data);setName(data?.full_name||'');setPhoto(null);
    if(data?.photo_path){const response=await fetch(recruitmentPath('/api/community/file?kind=photo&accountId='+accountId),{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('Your saved photo could not be loaded.');objectUrl=URL.createObjectURL(await response.blob());if(active)setPhoto(objectUrl)}
