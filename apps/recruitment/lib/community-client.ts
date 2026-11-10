@@ -15,3 +15,8 @@ export async function communityFetch(url:string,init:RequestInit={}){
 export function communityCommand(accountId:string,action:string,body:Record<string,unknown>){
  return communityFetch('/api/community',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accountId,action,...body})});
 }
+export function uploadMemberPhoto(accountId:string,name:string,file:File){
+ const body=new FormData();
+ body.set('accountId',accountId);body.set('kind','photo');body.set('name',name);body.set('file',file);
+ return communityFetch('/api/community/upload',{method:'POST',body});
+}

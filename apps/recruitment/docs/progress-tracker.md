@@ -1,5 +1,10 @@
 # Progress Tracker
 
+## Quick links and member portraits — 10 November 2026
+
+Reproduced the Team footer link returning from Events with the correct /#members URL but its section about 1,440px below the viewport after animated pin layout. Added lifecycle-based hash alignment after pin refresh/fonts, with interruption cleanup and reduced-motion/native fallback. Verified other quick-link hrefs map to real sections/pages; updated the stale Facebook footer target in both apps to the owner-provided AWSStudentBuilderGroupAlpha page. Found the reported membership photo bug: the browser supplied photo while the real endpoint requires file. The explicit upload client now sends the server contract. All six focused community HTTP tests passed, including actual client → multipart handler → Sharp processing → owned Storage metadata → private photo retrieval at 512×640. Both source lifecycle navigation tests passed. Zero-warning targeted lint and TypeScript passed in both apps. Full CI, merge and production browser checks are pending. No live portrait, membership, email, database schema, credentials or plan was changed in this unit. Reviewed all six context documents; architecture, standards, UI direction and testing guidance were updated, while product scope and workflow policy remain unchanged.
+
+
 ## Navigation regression update — 10 November 2026
 
 The first hosted run passed all Node tests, lint, build, types, source integrity and seven browser suites. The StaffManager suite passed the new four-width non-overlap assertions using the real staff/member composition. Applicant browser verification correctly reported its old exact-menu expectation lacked Membership ID. Updated that expectation for every role and added an active-member case that has Membership ID without My application. No production behavior was changed for this correction. Replacement full CI and deployment remain pending.

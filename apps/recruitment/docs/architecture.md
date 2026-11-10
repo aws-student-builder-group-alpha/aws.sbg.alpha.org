@@ -1,5 +1,10 @@
 # Architecture
 
+## Quick links and member portraits — 10 November 2026
+
+Main-site hash navigation now realigns the requested section after ScrollTrigger refresh and font readiness, using the pin start where relevant. It synchronizes the existing Lenis instance, falls back to native scrolling for reduced motion/touch, and stops correcting after user input. It does not recreate the section animations. Membership portrait submission uses the explicit uploadMemberPhoto client contract (accountId, kind=photo, name, file), then reloads the acknowledged private photo through the existing owned-file endpoint. No schema, policy, authentication or storage grant changes are needed.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 The additive 20261110080000_membership_invitations.sql is installed in the Alpha test project as hosted migration 20261109232714 (membership_invitations). It adds an RLS-protected invitation table with no browser table grants. Guarded, empty-search-path RPCs enforce current MFA administrator access, verified exact-email acceptance, pending/canceled/accepted states, preserved existing IDs, application acceptance rules and private audit/history. Revocation cancels pending invitations. Acceptance shares the existing Auth-user row lock and is repeat-safe; it never grants a staff role. Gmail delivery has one claim per invitation, a rolling 100-email/day bound, and service-role-only completion. Sent means accepted by Gmail, not confirmed inbox delivery. The deployed server can use the existing integration secret to record receipts. SMTP password remains server-only. Security advisories identify intentionally denied direct-table access and authenticated SECURITY DEFINER gateways; guards and EXECUTE grants were reviewed instead of adding permissive policies. No claim of a complete security audit is made.

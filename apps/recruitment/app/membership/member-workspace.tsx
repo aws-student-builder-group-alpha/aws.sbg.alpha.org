@@ -4,7 +4,7 @@ import { signIn } from '@/app/auth/actions';
 import { alphaSiteOrigin } from '@/lib/site-paths';
 import { record } from '@/lib/drafts';
 import { useEffect,useRef,useState } from 'react';
-import { communityCommand,communityFetch,communityRead } from '@/lib/community-client';
+import { communityCommand,communityRead,uploadMemberPhoto } from '@/lib/community-client';
 import { isMember,isMemberInvitation,photoMaxBytes,uploadType,type Member,type MemberInvitation } from '@/lib/community';
 import { drawMemberCard } from '@/lib/member-card';
 import { recruitmentPath } from '@/lib/site-paths';
@@ -36,7 +36,7 @@ export function MemberWorkspace({accountId,accountEmail,practice=false}:{account
   const data=new FormData(form),file=data.get('photo');let result:unknown;
   if(file instanceof File&&file.size){if(file.size>photoMaxBytes)throw new Error('Choose a JPG or PNG image up to 2 MB.');const mime=uploadType(new Uint8Array(await file.arrayBuffer()));if(!mime||mime==='application/pdf'||mime!==file.type)throw new Error('Choose a JPG or PNG image up to 2 MB.');
    if(practice){const url=URL.createObjectURL(file);setPhoto(current=>{if(current)URL.revokeObjectURL(current);return url});result={...member,full_name:name,photo_path:'practice-photo'}}
-   else{data.set('accountId',accountId);data.set('kind','photo');result=await communityFetch('/api/community/upload',{method:'POST',body:data})}
+   else result=await uploadMemberPhoto(accountId,name,file);
   }else result=practice?{...member,full_name:name}:await communityCommand(accountId,'updateMember',{name});
   if(!isMember(result))throw new Error('The membership update could not be confirmed.');setMember(result);if(!practice)setRetry(value=>value+1);setMessage(practice?'Practice profile updated. Nothing was stored.':'Your membership profile was saved.');
  }catch(error){setMessage(error instanceof Error?error.message:'The update could not be confirmed.')}finally{setBusy(false)}}

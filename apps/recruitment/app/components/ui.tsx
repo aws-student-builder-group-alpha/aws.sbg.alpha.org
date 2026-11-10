@@ -267,7 +267,7 @@ export function Footer() {
   // Active route information remains correct when Activity retains hidden pages.
   if (frame || path === "/apply" || path.startsWith("/apply/")) return null;
   const socials = [
-    { name: "Facebook", icon: "facebook", href: "https://www.facebook.com/AWSLearningClubAlpha" },
+    { name: "Facebook", icon: "facebook", href: "https://www.facebook.com/AWSStudentBuilderGroupAlpha" },
     { name: "X (Twitter)", icon: "twitter", href: "https://x.com/awslc_alpha" },
     { name: "LinkedIn", icon: "linkedin", href: "https://linkedin.com/company/aws-learning-club-alpha" },
     { name: "Instagram", icon: "instagram", href: "https://instagram.com/awslc.alpha" },
