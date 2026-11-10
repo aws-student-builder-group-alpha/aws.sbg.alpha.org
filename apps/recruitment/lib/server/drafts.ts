@@ -2,6 +2,7 @@ import "server-only";
 import { draftFromRow } from "@/lib/drafts";
 import { applicantSession } from "./session";
 import { isApplicationState } from "@/lib/applications";
+import { memberEntry } from "@/lib/member-entry";
 
 export async function loadApplicantDraft() {
   const session = await applicantSession();
@@ -11,6 +12,9 @@ export async function loadApplicantDraft() {
     if (result.error || !isApplicationState(result.data)) return { kind: "unavailable" } as const;
     const { application, intake } = result.data;
     if (application) return { kind: "ready", applicant: session.applicant, draft: null, application, intake } as const;
+    const entry = await memberEntry(session.client);
+    if (entry === "membership") return { kind: "member" } as const;
+    if (entry === "unavailable") return { kind: "unavailable" } as const;
     const { data, error } = await session.client.from("applicant_drafts").select("id,data,status,version,updated_at").eq("owner_id", session.applicant.id).maybeSingle();
     if (error) return { kind: "unavailable" } as const;
     const draft = data ? draftFromRow(data, session.applicant.email) : null;

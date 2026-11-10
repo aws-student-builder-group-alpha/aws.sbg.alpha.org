@@ -1,5 +1,10 @@
 # Alpha Recruitment
 
+## Membership invitations and layout recovery — 10 November 2026
+
+Existing members can be invited by Google email before first sign-in. System Admins save a pending invitation, then explicitly send its email or share the Membership ID page. The verified invited account accepts before a new ID is issued. Existing active records retain their IDs and need no new application or repeated acceptance. Membership/invitation entry takes priority over a draft; a previously submitted application remains readable. ID Finder stays private to the signed-in member.
+
+
 ## Standalone recruitment delivery — 10 November 2026
 
 The latest owner instruction limits main-site integration to Apply now links. Deploy recruitment separately at https://aws-alpha-recruitment.vercel.app; preserve the main website and local combined preview. This supersedes the intermediate plan to add production proxy routing.

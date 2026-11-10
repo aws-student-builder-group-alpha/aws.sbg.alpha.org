@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useId, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { communityCommand, communityRead } from "@/lib/community-client";
 import { record } from "@/lib/drafts";
 import { formatDate } from "@/lib/format-date";
 import { Callout } from "./ui";
+import { MemberInvitations } from "./member-invitations";
 
 type MemberAdministrationProps = {
   accountId: string;
@@ -23,6 +23,8 @@ export function MemberAdministration({
   const [notice, setNotice] = useState<Notice | null>(null);
   const [mode, setMode] = useState<MemberFormMode | null>(null);
   const formId = useId();
+  const request = useRef({key:"",id:""});
+  const [revision,setRevision] = useState(0);
   const headingId = formId + "-heading";
   const today = new Date().toISOString().slice(0, 10);
 
@@ -37,7 +39,7 @@ export function MemberAdministration({
     const confirmation = [
       "Confirm " + (mode === "add" ? "existing member" : "membership change") + " for " + payload.email + "?",
       payload.name + " · " + payload.position + " · Joined " + payload.joined,
-      "Access: " + payload.status,
+      mode === "add" && !email ? "Creates a pending invitation; an ID is issued only after the member accepts." : "Access: " + payload.status,
       "Reason: " + payload.reason,
     ].join("\n");
     if (!window.confirm(confirmation)) return;
@@ -45,7 +47,15 @@ export function MemberAdministration({
     setBusy(true);
     setNotice(null);
     try {
-      const member = await communityCommand(accountId, "issueMember", payload);
+      const invite = mode === "add" && !email;
+      const key = JSON.stringify(payload);
+      if (request.current.key !== key) request.current = {key,id:crypto.randomUUID()};
+      const member = await communityCommand(accountId, invite ? "inviteMember" : "issueMember", {...payload,id:request.current.id});
+      if (invite) {
+        if (!record(member) || member.state !== "pending") throw new Error("Invitation could not be confirmed.");
+        setNotice({tone:"success",message:"Invitation saved. The member must sign in with the invited Google account and accept before an ID is issued. Open Member invitations below to send an email, or share the Membership ID link."});
+        setRevision(value=>value+1);setMode(null);return;
+      }
       if (!record(member) || typeof member.id !== "string"
         || !["active", "revoked"].includes(String(member.status))) {
         throw new Error("Membership could not be confirmed.");
@@ -74,8 +84,8 @@ export function MemberAdministration({
     </header>
     <p>Add people who already belong to Alpha without a recruitment application. System Admins control their position, date joined and membership access.</p>
     <div className="community-member-steps">
-      <strong>Before adding a member</strong>
-      <p>Ask them to <Link href="/membership">sign in with Google on Membership ID</Link> once. Then use that same verified email below. They do not need to fill out an application.</p>
+      <strong>Invite, accept, then download</strong>
+      <p>Invite their Google email, then send the invitation or share the Membership ID page. They can sign in and accept without filling out an application. First sign-in is not required before saving an invitation.</p>
     </div>
     <div className="community-member-actions">
       <button type="button" className="button button-orange" disabled={busy}
@@ -98,13 +108,14 @@ export function MemberAdministration({
           ? <label>Membership access<select name="status"><option value="active">Active</option><option value="revoked">Revoke membership</option></select></label>
           : <input type="hidden" name="status" value="active" />}
         <label>Private reason<textarea name="reason" required maxLength={500} rows={2} /></label>
-        <p className="community-member-note">Members manage their own name and photo after an ID is issued. An existing email keeps its membership ID; this form updates its position, date and access. Staff roles are assigned separately in Staff management.</p>
+        <p className="community-member-note">Invited existing members accept before an ID is issued. Members manage their own name and photo after an ID is issued. An existing email keeps its membership ID; this form updates its position, date and access. Staff roles are assigned separately in Staff management.</p>
         <div className="community-member-actions">
           <button type="submit" className="button button-orange">{busy ? "Saving…" : mode === "add" ? "Review and add member" : "Review membership change"}</button>
           <button type="button" className="text-button" disabled={busy} onClick={() => setMode(null)}>Cancel</button>
         </div>
       </fieldset>
     </form>}
+    <MemberInvitations accountId={accountId} revision={revision} />
     {notice && <Callout tone={notice.tone} role={notice.tone === "error" ? "alert" : "status"}>{notice.message}</Callout>}
   </section>;
 }

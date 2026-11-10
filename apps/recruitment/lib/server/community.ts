@@ -4,9 +4,17 @@ import nodemailer from "nodemailer";
 import type { Database } from "@/lib/supabase/schema";
 import { record } from "@/lib/drafts";
 import { accountSession } from "./session";
+import { getAppOrigin } from "@/lib/supabase/config";
+import { recruitmentPath } from "@/lib/site-paths";
 
 export const emailSender = "awslc.alpha@gmail.com";
-export function emailReady() { return !!process.env.ALPHA_GMAIL_APP_PASSWORD && !!process.env.ALPHA_SUPABASE_SECRET_KEY; }
+function emailSecretKey() { return process.env.ALPHA_SUPABASE_SECRET_KEY || process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY; }
+export function emailReady() { return !!process.env.ALPHA_GMAIL_APP_PASSWORD && !!emailSecretKey(); }
+function mailTransport() {
+  return nodemailer.createTransport({host:'smtp.gmail.com',port:465,secure:true,
+    auth:{user:emailSender,pass:process.env.ALPHA_GMAIL_APP_PASSWORD},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:15000,
+    disableFileAccess:true,disableUrlAccess:true});
+}
 export class CommunityError extends Error {
   status:number;
   constructor(message: string, status=422) { super(message); this.status=status; }
@@ -34,9 +42,7 @@ export async function deliverApplicantMessage(session: Awaited<ReturnType<typeof
   if (!record(data)||typeof data.id!=='string'||typeof data.recipient!=='string'||typeof data.subject!=='string'||typeof data.body!=='string') throw new CommunityError('Message could not be confirmed.',503);
   const claim=await session.client.rpc('alpha_claim_message',{p_id:data.id});checkRpc(claim.error);
   if (!claim.data) return {id:data.id,state:data.state==='sent'?'sent':'unconfirmed',replayed:true};
-  const transport=nodemailer.createTransport({host:'smtp.gmail.com',port:465,secure:true,
-    auth:{user:emailSender,pass:process.env.ALPHA_GMAIL_APP_PASSWORD},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:15000,
-    disableFileAccess:true,disableUrlAccess:true});
+  const transport=mailTransport();
   let state:'sent'|'failed'|'uncertain'='uncertain';
   try {
     const text=data.body+(typeof data.calendly_url==='string'?'\n\nChoose an interview schedule: '+data.calendly_url:'')+'\n\nAWS Student Builder Group – Alpha\nReply to this email if you need help.';
@@ -46,8 +52,30 @@ export async function deliverApplicantMessage(session: Awaited<ReturnType<typeof
   } catch { state='uncertain'; } finally { transport.close(); }
   const config=process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!config) throw new CommunityError('Delivery acknowledgement could not be recorded. Check history before sending another message.',503);
-  const server=createClient<Database>(config,process.env.ALPHA_SUPABASE_SECRET_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});
+  const server=createClient<Database>(config,emailSecretKey()!,{auth:{persistSession:false,autoRefreshToken:false}});
   const finished=await server.rpc('alpha_finish_message',{p_id:data.id,p_state:state});
   if (finished.error) throw new CommunityError('Delivery acknowledgement could not be recorded. Check history before sending another message.',503);
   return {id:data.id,state,replayed:false};
+}
+
+export async function deliverMemberInvitation(session: Awaited<ReturnType<typeof communitySession>>, id: string) {
+  if(session.kind!=='staff')throw new CommunityError('Administrator access required.',403);
+  if(!emailReady())throw new CommunityError('Invitation saved, but email is not connected on this deployment. Share the Membership ID link instead.',503);
+  const result=await session.client.rpc('alpha_claim_member_invitation',{p_id:id});checkRpc(result.error);
+  if(result.data===null)return {state:'already_claimed'};
+  const invitation=result.data;
+  if(!record(invitation)||typeof invitation.email!=='string'||typeof invitation.full_name!=='string'||typeof invitation.position!=='string')throw new CommunityError('Invitation could not be confirmed.',503);
+  const transport=mailTransport();let state:'sent'|'failed'|'uncertain'='uncertain';
+  try {
+    const receipt=await transport.sendMail({from:{name:'AWS SBG – Alpha',address:emailSender},to:invitation.email,
+      subject:'Accept your Alpha membership',
+      text:`Hello ${invitation.full_name},\n\nAlpha has invited you as ${invitation.position}.\n\nSign in with this invited Google account at ${getAppOrigin()+recruitmentPath('/membership')} and choose Accept membership. You do not need to fill out a recruitment application. After accepting, add your portrait and download your Alpha membership ID.\n\nAWS Student Builder Group – Alpha\nReply to this email if you need help.`,
+      messageId:'<alpha-member-'+id+'@gmail.com>',disableFileAccess:true,disableUrlAccess:true});
+    state=receipt.accepted.map(String).includes(invitation.email)?'sent':'failed';
+  } catch { state='uncertain'; } finally { transport.close(); }
+  const config=process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if(!config)throw new CommunityError('Delivery could not be recorded. Check invitation history before sending again.',503);
+  const server=createClient<Database>(config,emailSecretKey()!,{auth:{persistSession:false,autoRefreshToken:false}});
+  const finished=await server.rpc('alpha_finish_member_invitation',{p_id:id,p_state:state});checkRpc(finished.error);
+  return {state};
 }

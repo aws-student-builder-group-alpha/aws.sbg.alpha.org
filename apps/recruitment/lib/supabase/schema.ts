@@ -38,6 +38,62 @@ export type Database = {
         }
         Relationships: []
       }
+      alpha_member_invitations: {
+        Row: {
+          accepted_at: string | null
+          actor_id: string
+          claimed_at: string | null
+          created_at: string
+          delivery: string
+          email: string
+          full_name: string
+          id: string
+          joined_on: string
+          member_id: string | null
+          position: string
+          reason: string
+          state: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          actor_id: string
+          claimed_at?: string | null
+          created_at?: string
+          delivery?: string
+          email: string
+          full_name: string
+          id: string
+          joined_on: string
+          member_id?: string | null
+          position: string
+          reason: string
+          state?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          actor_id?: string
+          claimed_at?: string | null
+          created_at?: string
+          delivery?: string
+          email?: string
+          full_name?: string
+          id?: string
+          joined_on?: string
+          member_id?: string | null
+          position?: string
+          reason?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alpha_member_invitations_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "alpha_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       alpha_members: {
         Row: {
           application_id: string | null
@@ -831,12 +887,33 @@ export type Database = {
         Args: { p_filters?: Json; p_offset?: number }
         Returns: Json
       }
+      alpha_accept_membership: { Args: { p_id: string }; Returns: Json }
       alpha_can_review: { Args: { p_application: string }; Returns: boolean }
+      alpha_cancel_member_invitation: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
+      alpha_claim_member_invitation: { Args: { p_id: string }; Returns: Json }
       alpha_claim_message: { Args: { p_id: string }; Returns: boolean }
       alpha_enrollment: { Args: { p_application?: string }; Returns: Json }
+      alpha_finish_member_invitation: {
+        Args: { p_id: string; p_state: string }
+        Returns: undefined
+      }
       alpha_finish_message: {
         Args: { p_id: string; p_state: string }
         Returns: undefined
+      }
+      alpha_invite_member: {
+        Args: {
+          p_email: string
+          p_id: string
+          p_joined: string
+          p_name: string
+          p_position: string
+          p_reason: string
+        }
+        Returns: Json
       }
       alpha_issue_member: {
         Args: {
@@ -850,6 +927,7 @@ export type Database = {
         Returns: Json
       }
       alpha_member: { Args: { p_id?: string }; Returns: Json }
+      alpha_member_invitations: { Args: { p_admin?: boolean }; Returns: Json }
       alpha_messages: { Args: { p_application: string }; Returns: Json }
       alpha_notifications: { Args: { p_read?: string }; Returns: Json }
       alpha_prepare_message: {

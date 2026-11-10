@@ -27,6 +27,7 @@ async function ApplyContent({ searchParams }: { searchParams: Promise<Record<str
     return <DraftEditor key={opportunity?.id ?? draft.id} applicant={applicant} initialDraft={draft} practice intake={{ opensAt: "2026-11-01T00:00:00+08:00", closesAt: "2026-12-01T00:00:00+08:00", serverNow: "2026-11-07T00:00:00+08:00", state: "open", accepting: true }} />;
   }
   const result = await loadApplicantDraft();
+  if (result.kind === "member") redirect("/membership");
   if (result.kind === "staff") redirect("/staff");
   const requested = opportunity?.id;
   if (result.kind === "anonymous" || result.kind === "unconfigured") {

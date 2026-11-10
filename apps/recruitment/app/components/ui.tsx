@@ -193,12 +193,12 @@ function ApplicationActionButton({ children, className }: { children: ReactNode;
   </button>;
 }
 
-export function SiteHeader({ signedIn = false, staff, pendingSession = false }: { signedIn?: boolean; staff?: HeaderStaff; pendingSession?: boolean }) {
+export function SiteHeader({ signedIn = false, staff, pendingSession = false, member = false }: { signedIn?: boolean; staff?: HeaderStaff; pendingSession?: boolean; member?: boolean }) {
   const path = usePathname();
   const frame = useWorkspaceFrame();
-  return <HeaderContent key={path} path={path} frame={frame} signedIn={signedIn} staff={staff} pendingSession={pendingSession} />;
+  return <HeaderContent key={path} path={path} frame={frame} signedIn={signedIn} staff={staff} pendingSession={pendingSession} member={member} />;
 }
-function HeaderContent({ path, frame, signedIn, staff, pendingSession }: { path: string; frame?: WorkspaceFrame; signedIn: boolean; staff?: HeaderStaff; pendingSession: boolean }) {
+function HeaderContent({ path, frame, signedIn, staff, pendingSession, member }: { path: string; frame?: WorkspaceFrame; signedIn: boolean; staff?: HeaderStaff; pendingSession: boolean; member: boolean }) {
   const scrolled = useSyncExternalStore(
     subscribeHeaderScroll,
     () => window.scrollY > 0,
@@ -234,10 +234,11 @@ function HeaderContent({ path, frame, signedIn, staff, pendingSession }: { path:
     };
   }, []);
   const links: { href: string; label: string }[] = [];
-  if (!staff && signedIn) links.push({ href: "/application?resume=1", label: "My application" });
+  if (!staff && signedIn) links.push(member ? { href: "/membership", label: "Membership ID" } : { href: "/application?resume=1", label: "My application" });
   else if (staff && (staff.status !== "active" || staff.needsMfa)) links.push({ href: "/staff", label: "Staff sign-in" });
   else if (staff?.role === "administrator") links.push({ href: "/admin/applications", label: "Applications" }, { href: "/admin/intake", label: "Intake" }, { href: "/admin", label: "Staff management" });
   else if (staff) links.push({ href: "/reviewer", label: "Organization Head" });
+  if (!member) links.push({ href: "/membership", label: "Membership ID" });
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header ref={headerRef} className="site-header" data-workspace-frame={frame} data-scrolled={scrolled} data-adaptive={adaptiveMode} onKeyDown={event => { if (event.key === "Escape" && menuOpen) { setMenuOpen(false); menuButton.current?.focus(); } }}>

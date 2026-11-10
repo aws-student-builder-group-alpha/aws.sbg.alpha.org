@@ -1,5 +1,10 @@
 # Code Standards
 
+## Membership invitations and layout recovery — 10 November 2026
+
+Use memberEntry for verified membership/invitation routing; a failed lookup must not be interpreted as no membership. Preserve submitted-application receipt access. Invitations do not create Auth identities or assume first sign-in. Keep request IDs stable across uncertain invitation creation and prohibit automatic email resends after a claim. Test the database boundary and actual HTTP transport using synthetic recipients, including wrong accounts, missing MFA, duplicate acceptance and forged delivery receipts. Regenerate schema.ts from the owning Supabase tool after additive DDL.
+
+
 The main-site repository keeps this app under `apps/recruitment` with its own lockfile, lint configuration and TypeScript scope. Run its checks from that directory or with `npm --prefix apps/recruitment`. Root main-site lint/types exclude the nested app so framework versions and generated types cannot leak between apps. Remove code only after checking callers, dynamic/framework entry points and current tests; preserve generated SDK types and applied migrations.
 
 Keep the explicit app-local Turbopack and tracing roots in `next.config.ts`. Verify the default Turbopack build through recruitment CI as well as the combined launcher's webpack build; one bundler passing does not establish configuration isolation for the other.

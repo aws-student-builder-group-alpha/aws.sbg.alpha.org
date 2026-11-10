@@ -1,5 +1,10 @@
 # UI Direction
 
+## Membership invitations and layout recovery — 10 November 2026
+
+Membership uses an opaque white panel with explicit navy headings/labels and readable muted copy above the existing gradient. Show the verified account email, an account-switch action, pending invitation position/joining date and Accept membership. Existing active members see their card and portrait/download tools. Empty/error lookups are distinct; while no membership is loaded, recheck on focus/visibility and every visible 30 seconds. The header shows Membership ID for active/invited members instead of My application; others can still find Membership ID. Keep Staff management and Organization members in a normal-flow admin-page-stack with a 32px gap, no overlapping sibling panels. Admin invitation history distinguishes pending/accepted/canceled and delivery state, with explicit send/cancel actions and a shareable membership link.
+
+
 ## Existing-member administration — 9 November 2026
 
 Place Organization members and Security activity log on opaque white panels above Alpha's moving gradient. Use navy headings, readable labels and orange primary actions. Expose Add existing member and Update or revoke membership immediately; open a compact inline form with verified-email instructions and native confirmation. Retain failed input and display acknowledged success separately from errors. A revoked result must not invite an ID download. Keep the layout usable from 320px upward without horizontal overflow.

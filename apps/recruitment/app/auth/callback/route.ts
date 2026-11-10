@@ -4,6 +4,7 @@ import { getAppOrigin } from "@/lib/supabase/config";
 import { cookies } from "next/headers";
 import { authReturnPath } from "@/lib/auth-return";
 import { recruitmentPath } from "@/lib/site-paths";
+import { memberEntry } from "@/lib/member-entry";
 
 export async function GET(request: Request) {
   const code = new URL(request.url).searchParams.get("code");
@@ -17,7 +18,10 @@ export async function GET(request: Request) {
   if (code && client) {
     try {
       const { error } = await client.auth.exchangeCodeForSession(code);
-      if (!error) return NextResponse.redirect(new URL(recruitmentPath(authReturnPath(destination, selected)), getAppOrigin()), { headers: { "Cache-Control": "private, no-store" } });
+      if (!error) {
+        const path = destination === "apply" && await memberEntry(client) === "membership" ? "/membership" : authReturnPath(destination, selected);
+        return NextResponse.redirect(new URL(recruitmentPath(path), getAppOrigin()), { headers: { "Cache-Control": "private, no-store" } });
+      }
     } catch { /* Failed exchanges return to sign-in; no provider details leave the server. */ }
   }
   return NextResponse.redirect(new URL(recruitmentPath(authReturnPath(destination, selected, "failed")), getAppOrigin()), { headers: { "Cache-Control": "private, no-store" } });

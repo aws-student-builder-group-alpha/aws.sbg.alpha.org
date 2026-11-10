@@ -1,5 +1,10 @@
 # AI Workflow Rules
 
+## Membership invitations and layout recovery — 10 November 2026
+
+The owner authorized a pending invitation and member acceptance flow for existing members, plus fixing the overlapping Staff management and Organization members sections. The owner separately approved transferring the existing verified Gmail app password into Vercel production Secret ALPHA_GMAIL_APP_PASSWORD for aws-alpha-recruitment. This setting was saved without printing or committing its value. Do not send live invitations while verifying this task; administrators explicitly review/send them in the product. SMTP verification without sending passed. Existing active memberships must be preserved.
+
+
 The owner's 9 November expansion explicitly authorizes required enrollment uploads, staff-composed interview/decision emails, in-app notifications and approved membership IDs. It supersedes earlier out-of-scope/link-only/manual-email statements for these features. Preserve existing role/decision/capacity guards and free-only services. The nominated first System Admin is the verified Alpha mailbox account; do not silently elevate the separate applicant account to resolve a sign-in mistake. Record schema installation, account bootstrap, UI verification and actual email delivery as separate facts. Mail remains disabled until owner-provided server credentials are configured and verified. Never invent Calendly availability or a sent receipt.
 
 ## Start with the current context

@@ -42,7 +42,7 @@ const bundle = `(()=>{const process={env:{NODE_ENV:'development'}};const modules
 const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked browser module: '+name);const module=cache[name]={exports:{}};modules[name](module,module.exports,require);}return cache[name].exports;}
 const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let revision=0;
 window.mount=(accountId,members,expected='administrator',guardOnly=false)=>root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:jsx(require('@/app/components/access-guard').AccessGuard,{accountId,expected,children:guardOnly?jsx('input',{'aria-label':'Unsaved applicant answer',defaultValue:'Preserved synthetic answer'}):jsx(require('manager').StaffManager,{accountId,initialStaff:members})})},String(++revision)));
-window.mountMembers=accountId=>root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:require('react/jsx-runtime').jsxs('div',{className:'container community-admin-extras',children:[jsx(require('./member-administration').MemberAdministration,{accountId}),jsx(require('./member-administration').SecurityLog,{accountId})]})},String(++revision)));})();`;
+window.mountMembers=accountId=>root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:require('react/jsx-runtime').jsxs('div',{className:'admin-page-stack',children:[jsx(require('manager').StaffManager,{accountId,initialStaff:[]}),require('react/jsx-runtime').jsxs('div',{className:'container community-admin-extras',children:[jsx(require('./member-administration').MemberAdministration,{accountId}),jsx(require('./member-administration').SecurityLog,{accountId})]})]})},String(++revision)));})();`;
 
 const db = new PGlite();
 let browser;
@@ -114,11 +114,11 @@ try {
       return route.fulfill({ json: faults.access || { kind: "staff", accountId: owner, role: "administrator", status: "active", needsMfa: false } });
     }
     if (url.pathname === "/api/community") {
-      if (incoming.method() === "GET") return route.fulfill({ json: { ok: true, data: [] } });
+      if (incoming.method() === "GET") return route.fulfill({ json: { ok: true, data: url.searchParams.get("action")==="memberInvitations"?{items:[],emailReady:false}:[] } });
       const payload = JSON.parse(incoming.postData()); memberPosts.push(payload);
       return memberFailure
         ? route.fulfill({ status: 404, json: { ok: false, message: "The member must sign in with their verified Google account first" } })
-        : route.fulfill({ json: { ok: true, data: { id: "ALPHA-2026-ABCDEF123456", status: payload.status } } });
+        : route.fulfill({ json: { ok: true, data: payload.action==="inviteMember"?{id:payload.id,state:"pending"}:{ id: "ALPHA-2026-ABCDEF123456", status: payload.status } } });
     }
     if (url.pathname !== "/api/staff") return route.fulfill({ contentType: "text/html", body: `<html lang="en" data-theme="light"><head>${styles.map(style => `<link rel="stylesheet" href="${style}">`).join("")}</head><body class="alpha-app"><div id="root"></div></body></html>` });
     if (incoming.method() === "GET" && url.searchParams.has("targetId") && faults.historyUnavailable) return route.fulfill({status:503,json:{ok:false,code:"UNAVAILABLE",message:"Synthetic history outage"}});
@@ -304,8 +304,8 @@ try {
   memberFailure = false;
   page.once("dialog", dialog => dialog.accept());
   await page.getByRole("button", { name: "Review and add member", exact: true }).click();
-  await page.getByRole("status").filter({ hasText: "Membership saved. ID: ALPHA-2026-ABCDEF123456" }).waitFor();
-  assert.equal(memberPosts.at(-1).action, "issueMember");
+  await page.getByRole("status").filter({ hasText: "Invitation saved." }).waitFor();
+  assert.equal(memberPosts.at(-1).action, "inviteMember");
   assert.equal(memberPosts.at(-1).accountId, owner);
   assert.equal(memberPosts.at(-1).status, "active");
   assert.equal(await page.getByLabel("Verified Google email").count(), 0);
@@ -334,6 +334,8 @@ try {
       const luminance = rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
       assert.ok(1.05 / (luminance + .05) >= 4.5, "Admin headings and disclosure text remain readable");
     }
+    const stackBounds = await page.locator(".admin-page-stack").evaluate(node => ({staff:node.querySelector(".workspace-staff").getBoundingClientRect().bottom,members:node.querySelector(".member-administration").getBoundingClientRect().top}));
+    assert.ok(stackBounds.members >= stackBounds.staff + 24, "Staff management and Organization members must not overlap");
     await page.locator(".community-admin-extras").evaluate(node => node.scrollIntoView({ block: "start" }));
     if (width === 390 || width === 1440) await page.screenshot({ path: path.join(previewDir, "member-admin-" + width + ".png") });
   }

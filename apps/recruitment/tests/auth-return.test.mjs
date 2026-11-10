@@ -37,3 +37,11 @@ test("failed code exchange returns to the selected role and consumes the callbac
   assert.equal(result.headers.get("cache-control"), "private, no-store");
   assert.equal(context.size, 0);
 });
+
+
+test('a successful Google return routes an existing member to membership instead of an application',async()=>{
+ const context=new Map([['alpha-auth-destination','apply'],['alpha-opportunity','core-finance']]);
+ const {GET}=await createAuthCallback({origin:'https://recruitment.example.test',cookieStore:{get:key=>({value:context.get(key)}),delete:key=>context.delete(key)},client:{auth:{exchangeCodeForSession:async()=>({error:null})},rpc:async()=>({data:{id:'ALPHA-2026-000000000001',full_name:'Builder',position:'Member',joined_on:'2026-11-01',photo_path:null,status:'active',version:1},error:null})}});
+ const response=await GET(new Request('https://recruitment.example.test/auth/callback?code=synthetic'));
+ assert.equal(response.headers.get('location'),'https://recruitment.example.test/membership');assert.equal(context.size,0);
+});
