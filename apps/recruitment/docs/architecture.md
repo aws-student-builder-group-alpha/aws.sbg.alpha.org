@@ -1,5 +1,10 @@
 # Architecture
 
+## Membership invitations and layout recovery — 10 November 2026
+
+The additive 20261110080000_membership_invitations.sql is installed in the Alpha test project as hosted migration 20261109232714 (membership_invitations). It adds an RLS-protected invitation table with no browser table grants. Guarded, empty-search-path RPCs enforce current MFA administrator access, verified exact-email acceptance, pending/canceled/accepted states, preserved existing IDs, application acceptance rules and private audit/history. Revocation cancels pending invitations. Acceptance shares the existing Auth-user row lock and is repeat-safe; it never grants a staff role. Gmail delivery has one claim per invitation, a rolling 100-email/day bound, and service-role-only completion. Sent means accepted by Gmail, not confirmed inbox delivery. The deployed server can use the existing integration secret to record receipts. SMTP password remains server-only. Security advisories identify intentionally denied direct-table access and authenticated SECURITY DEFINER gateways; guards and EXECUTE grants were reviewed instead of adding permissive policies. No claim of a complete security audit is made.
+
+
 ## Standalone recruitment delivery — 10 November 2026
 
 Recruitment deploys independently from apps/recruitment at https://aws-alpha-recruitment.vercel.app with APP_URL set to that origin. The production basePath is empty and output is .next. Only local combined previews use /recruitment and build/combined. Main-site Apply now links use the standalone hostname; main authentication, routes and session checks remain unchanged. Preserve existing backend data and do not replay migrations.

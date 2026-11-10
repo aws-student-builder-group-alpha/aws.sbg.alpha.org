@@ -15,6 +15,7 @@ const sources = new Map();
 export async function createCommunityRoutes(accountSession,origin,{sendMail,serviceRpc}={}) {
   const community = await load('../../lib/server/community.ts',{
     'server-only':{},'@/lib/drafts':drafts,'./session':{accountSession},
+    '@/lib/supabase/config':{getAppOrigin:()=>origin},'@/lib/site-paths':{recruitmentPath:path=>path},
     '@supabase/supabase-js':{createClient:()=>({rpc:serviceRpc||(async()=>({data:null,error:null}))})},
     nodemailer:{createTransport:()=>({sendMail:sendMail||(async()=>{throw new Error('No synthetic mail transport')}),close:()=>{}})},
   });
@@ -60,6 +61,7 @@ export async function createAuthCallback({ client, cookieStore, origin }) {
     "next/server": require("next/server"),
     "next/headers": { cookies: async () => cookieStore },
     "@/lib/auth-return": await import("../../lib/auth-return.ts"),
+    "@/lib/member-entry": {memberEntry:async client=>client.rpc?(await import('../../lib/member-entry.ts')).memberEntry(client):'application'},
     "@/lib/site-paths": await import("../../lib/site-paths.ts"),
     "@/lib/supabase/server": { createSupabaseClient: async () => client },
     "@/lib/supabase/config": { getAppOrigin: () => origin },

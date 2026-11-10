@@ -8,13 +8,17 @@ import { createSupabaseClient } from "@/lib/supabase/server";
 import { getAppOrigin } from "@/lib/supabase/config";
 import { recruitmentBasePath, recruitmentPath } from "@/lib/site-paths";
 import { googleSession } from "@/lib/server/session";
+import { memberEntry } from "@/lib/member-entry";
 
 export async function startApplication(form: FormData) {
   const opportunity = form.get("opportunity");
   const returnPath = authReturnPath("apply", opportunity);
   if (recruitmentBasePath && process.env.ALPHA_PRACTICE_FORM === "1") redirect(returnPath);
   const session = await googleSession();
-  if (session.kind === "authenticated") redirect(returnPath);
+  if (session.kind === "authenticated") {
+    if (await memberEntry(session.client) === "membership") redirect("/membership");
+    redirect(returnPath);
+  }
   if (session.kind === "unconfigured") redirect(authReturnPath("apply", opportunity, "unconfigured"));
   if (session.kind === "unavailable") redirect(authReturnPath("apply", opportunity, "failed"));
   await beginGoogleSignIn("apply", opportunity);

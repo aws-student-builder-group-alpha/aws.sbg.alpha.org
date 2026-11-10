@@ -6,7 +6,7 @@ import {validSimplifiedSubmission} from './fixtures/submission.mjs';
 let rt,routes,original,admin,head,other,application;const origin='https://alpha.example.test',objects=new Map(),sent=[];let anonymous=false,uploads=0;
 async function sql(query,args=[]){return rt.db.transaction(async tx=>{await tx.exec('set local role authenticated');await tx.query("select set_config('request.jwt.claim.sub',$1,true),set_config('request.jwt.claims',$2,true)",[rt.identity.id,JSON.stringify({sub:rt.identity.id,aal:'aal2'})]);return(await tx.query(query,args)).rows})}
 async function rpc(name,args={}){
- const calls={alpha_enrollment:['select public.alpha_enrollment($1) value',[args.p_application||null]],alpha_notifications:['select public.alpha_notifications($1) value',[args.p_read||null]],alpha_member:['select public.alpha_member($1) value',[args.p_id||null]],alpha_save_enrollment:['select public.alpha_save_enrollment($1,$2,$3,$4) value',[args.p_path,args.p_filename,args.p_type,args.p_size]],alpha_update_member:['select public.alpha_update_member($1,$2) value',[args.p_name,args.p_photo||null]],alpha_messages:['select public.alpha_messages($1) value',[args.p_application]],alpha_prepare_message:['select public.alpha_prepare_message($1,$2,$3,$4,$5,$6,$7) value',[args.p_id,args.p_application,args.p_version,args.p_kind,args.p_subject,args.p_body,args.p_calendly||null]],alpha_claim_message:['select public.alpha_claim_message($1) value',[args.p_id]],alpha_issue_member:['select public.alpha_issue_member($1,$2,$3,$4,$5,$6) value',[args.p_email,args.p_name,args.p_position,args.p_joined,args.p_reason,args.p_status]]};
+ const calls={alpha_invite_member:["select public.alpha_invite_member($1,$2,$3,$4,$5,$6) value",[args.p_id,args.p_email,args.p_name,args.p_position,args.p_joined,args.p_reason]],alpha_member_invitations:["select public.alpha_member_invitations($1) value",[args.p_admin||false]],alpha_claim_member_invitation:["select public.alpha_claim_member_invitation($1) value",[args.p_id]],alpha_accept_membership:["select public.alpha_accept_membership($1) value",[args.p_id]],alpha_enrollment:['select public.alpha_enrollment($1) value',[args.p_application||null]],alpha_notifications:['select public.alpha_notifications($1) value',[args.p_read||null]],alpha_member:['select public.alpha_member($1) value',[args.p_id||null]],alpha_save_enrollment:['select public.alpha_save_enrollment($1,$2,$3,$4) value',[args.p_path,args.p_filename,args.p_type,args.p_size]],alpha_update_member:['select public.alpha_update_member($1,$2) value',[args.p_name,args.p_photo||null]],alpha_messages:['select public.alpha_messages($1) value',[args.p_application]],alpha_prepare_message:['select public.alpha_prepare_message($1,$2,$3,$4,$5,$6,$7) value',[args.p_id,args.p_application,args.p_version,args.p_kind,args.p_subject,args.p_body,args.p_calendly||null]],alpha_claim_message:['select public.alpha_claim_message($1) value',[args.p_id]],alpha_issue_member:['select public.alpha_issue_member($1,$2,$3,$4,$5,$6) value',[args.p_email,args.p_name,args.p_position,args.p_joined,args.p_reason,args.p_status]]};
  try{if(!calls[name])throw new Error('Unexpected fixture RPC');return{data:(await sql(...calls[name]))[0].value,error:null}}catch(error){return{data:null,error:{code:error.code,message:error.message}}}
 }
 const client={rpc,storage:{from(bucket){return{
@@ -19,7 +19,7 @@ before(async()=>{
  await rt.db.query("insert into public.staff_memberships(user_id,role,status,version) values($1,'administrator','active',1),($2,'evaluator','active',1)",[admin.id,head.id]);
  await rt.rpc('save_applicant_draft',{p_data:validSimplifiedSubmission(),p_expected_version:0,p_mutation_id:crypto.randomUUID()});
  routes=await createCommunityRoutes(async()=>{if(anonymous)return{kind:'anonymous'};const row=(await rt.db.query('select role,status,version from staff_memberships where user_id=$1',[rt.identity.id])).rows[0];return row?{kind:'staff',identity:rt.identity,membership:row,needsMfa:false,client}:{kind:'applicant',identity:rt.identity,client}},origin,{
-  sendMail:async message=>{sent.push(message);return{accepted:[message.to]}},serviceRpc:async(name,args)=>{await rt.db.query('select public.alpha_finish_message($1,$2)',[args.p_id,args.p_state]);return{data:null,error:null}},
+  sendMail:async message=>{sent.push(message);return{accepted:[message.to]}},serviceRpc:async(name,args)=>{await rt.db.query(name==='alpha_finish_member_invitation'?'select public.alpha_finish_member_invitation($1,$2)':'select public.alpha_finish_message($1,$2)',[args.p_id,args.p_state]);return{data:null,error:null}},
  });
 });
 after(async()=>{delete process.env.ALPHA_GMAIL_APP_PASSWORD;delete process.env.ALPHA_SUPABASE_SECRET_KEY;await rt?.db.close()});
@@ -51,4 +51,15 @@ test('email handler is disabled without credentials and exact retries call the t
  for(let i=0;i<2;i++){const response=await routes.route.POST(request('send',message));assert.equal(response.status,200);assert.equal((await response.json()).data.state,'sent')}
  assert.equal(sent.length,1);assert.equal(sent[0].from.address,'awslc.alpha@gmail.com');assert.equal(sent[0].to,original.email);assert.match(sent[0].text,/https:\/\/calendly.com\/alpha\/interview/);assert.equal(sent[0].html,undefined);assert.equal(sent[0].disableUrlAccess,true);
  assert.equal((await routes.route.POST(request('send',{...message,body:'Changed request'}))).status,409);
+});
+
+
+test('membership HTTP derives the invite recipient, requires admin access and sends once across exact retries',async()=>{
+ rt.setIdentity(admin);const id=crypto.randomUUID();const payload={id,email:other.email,name:'Existing Builder',position:'Member',joined:'2026-11-01',reason:'Verified existing member'};
+ const created=await routes.route.POST(request('inviteMember',payload));assert.equal(created.status,200);assert.equal((await created.json()).data.state,'pending');
+ const before=sent.length;rt.setIdentity(other);assert.equal((await routes.route.POST(request('sendMemberInvitation',{id}))).status,403);assert.equal(sent.length,before);
+ rt.setIdentity(admin);for(let n=0;n<2;n++)assert.equal((await routes.route.POST(request('sendMemberInvitation',{id,recipient:'attacker@example.test'}))).status,200);
+ assert.equal(sent.length,before+1);assert.equal(sent.at(-1).to,other.email);assert.match(sent.at(-1).text,/https:\/\/alpha\.example\.test\/membership/);assert.equal(sent.at(-1).html,undefined);
+ rt.setIdentity(other);assert.equal((await routes.route.POST(request('acceptMemberInvitation',{id}))).status,200);
+ const own=await routes.route.GET(new Request(origin+'/api/community?action=member&accountId='+other.id));assert.equal((await own.json()).data.status,'active');
 });

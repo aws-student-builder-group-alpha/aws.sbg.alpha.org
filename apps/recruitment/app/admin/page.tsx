@@ -18,7 +18,7 @@ async function AdminContent() {
   if (session.kind === "staff" && (session.membership.status !== "active" || session.needsMfa)) redirect("/staff");
   if (session.kind === "staff") {
     const result = await listStaff(session.identity.id);
-    if (result.ok) return <AccessGuard accountId={session.identity.id} expected="administrator"><StaffManager key={session.identity.id} accountId={session.identity.id} initialStaff={result.data} /><div className="container community-admin-extras"><MemberAdministration accountId={session.identity.id}/><SecurityLog accountId={session.identity.id}/></div></AccessGuard>;
+    if (result.ok) return <AccessGuard accountId={session.identity.id} expected="administrator"><div className="admin-page-stack"><StaffManager key={session.identity.id} accountId={session.identity.id} initialStaff={result.data} /><div className="container community-admin-extras"><MemberAdministration accountId={session.identity.id}/><SecurityLog accountId={session.identity.id}/></div></div></AccessGuard>;
   }
   return <main id="main-content" className="container portal narrow"><PageHeading title="Staff management is unavailable" description="Your access or staff details could not be verified. No changes have been confirmed." /><Link href="/staff" className="button button-orange">Check staff access</Link></main>;
 }

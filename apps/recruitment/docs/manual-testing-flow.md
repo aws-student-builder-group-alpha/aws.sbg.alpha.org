@@ -1,5 +1,10 @@
 # Manual testing flow
 
+## Existing-member invitation checks
+
+As an MFA administrator, Add existing member saves an invitation even before first sign-in. Cancel confirmation and verify no write; retry an uncertain exact request and verify one invitation. Open Member invitations to send a confirmed email or share /membership. A different Google account must not see or accept the invitation. The invited account accepts once, gets an ID without an application, uploads its portrait and downloads the same preview. Existing active members should go directly to Membership ID when using Apply now or resuming a draft, while submitted receipts remain accessible. Check canceled/revoked invitations and private ID lookup. Treat Gmail acceptance separately from inbox delivery. Test empty/error states, focus refresh, account switching and panel contrast at 320/390/768/1440px. Open long staff-change/member forms and verify the Staff management panel ends above Organization members with a visible gap. Do not send real mail during automated checks.
+
+
 ## Existing-member administration — 9 November 2026
 
 1. Sign in once at Membership ID with a separate existing-member Google account that has no recruitment application. As an MFA-verified System Admin, open Organization members and choose Add existing member. Enter the same email, name, position, joining date and private reason. Cancel the confirmation and verify no record is created; confirm it explicitly to save.

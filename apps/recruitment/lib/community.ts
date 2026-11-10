@@ -1,6 +1,10 @@
 import { record } from "./drafts.ts";
 export type Enrollment = { id: string; filename: string; size: number; createdAt: string };
 export type Member = { id: string; full_name: string; position: string; joined_on: string; photo_path: string | null; status: string; version: number };
+export type MemberInvitation = { id: string; full_name: string; position: string; joined_on: string; created_at: string; email?: string; state?: string; delivery?: string };
+export function isMemberInvitation(value: unknown): value is MemberInvitation {
+  return record(value) && ['id','full_name','position','joined_on','created_at'].every(key => typeof value[key] === 'string');
+}
 export type Notification = { id: string; kind: string; title: string; body: string; link: string | null; created_at: string; read_at: string | null };
 export type Message = { id: string; kind: string; subject: string; body: string; calendly_url: string | null; state: string; created_at: string; completed_at: string | null };
 export type AuditEvent = { id: string; actor_id: string | null; action: string; object_id: string; created_at: string };

@@ -1,4 +1,7 @@
 .community-admin-extras{position:relative;z-index:1;max-width:1200px;padding-bottom:64px;display:grid;gap:24px}
+.alpha-app .admin-page-stack{display:flex;flex-direction:column;gap:32px;min-width:0;padding-bottom:64px}
+.alpha-app .admin-page-stack>.portal{flex:none;margin-bottom:0;padding-bottom:0}
+.alpha-app .admin-page-stack>.community-admin-extras{flex:none;margin-block:0;padding-bottom:0}
 .alpha-app .community-admin-panel{position:relative;padding:clamp(20px,3vw,32px);border:1px solid #d9e0e8;border-radius:18px;background:#fff;color:#232f3e;box-shadow:0 12px 32px rgb(8 14 22 / .12)}
 .alpha-app .community-admin-panel :is(h2,h3,label,summary,strong){color:#232f3e}
 .alpha-app .community-admin-panel h2{margin:0 0 12px;font-size:24px;line-height:1.2;letter-spacing:-.03em}
@@ -32,5 +35,14 @@
 .community-inbox h2 .muted{font-size:12px;margin-left:8px}.community-inbox .subheading{flex-wrap:wrap;gap:12px}
 .community-audit li{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.community-audit time{grid-column:1/-1}.community-messages span{text-transform:capitalize}
 .membership-workspace{max-width:1280px;padding-block:64px 80px;position:relative;z-index:1}.membership-surface{padding:clamp(24px,4vw,48px);border-radius:24px;color:#232f3e;background:#fff}.membership-surface h1{font-size:clamp(30px,4vw,46px);margin:8px 0;letter-spacing:-.04em}.membership-surface .eyebrow{color:#965500;font-size:11px;letter-spacing:.15em;font-weight:600}.membership-columns{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(240px,.7fr);gap:40px;align-items:start;margin-top:32px}.membership-card-preview canvas{display:block;width:100%;height:auto;border-radius:20px;box-shadow:0 20px 40px -15px #192b4866;aspect-ratio:1012/638;background:#192b48}.membership-card-preview>.button{margin-top:28px}.membership-search{margin-top:32px;padding-top:24px;border-top:1px dashed #d8dee7}.membership-search input{flex:1;min-width:180px}.membership-surface .checkbox-label{display:flex;align-items:flex-start;gap:10px;font-weight:400}.membership-surface .checkbox-label input{width:18px;min-height:18px;height:18px;margin-top:2px}.membership-columns h2{font-size:21px}.membership-workspace .subheading{flex-wrap:wrap;gap:16px}
+.alpha-app .membership-workspace .membership-surface{padding:clamp(20px,4vw,40px);border-radius:20px;background:#fff;color:#232f3e;border:1px solid #d9e0e8;box-shadow:0 16px 40px #080e2226}
+.alpha-app .membership-workspace .membership-surface :is(h1,h2,h3,label,strong){color:#232f3e}
+.alpha-app .membership-workspace .membership-surface p{color:#536073;overflow-wrap:anywhere}
+.alpha-app .membership-workspace .membership-surface :is(input,select,textarea){background:#f8fafc;color:#232f3e;border-color:#8392a3;max-width:100%}
+.alpha-app .membership-workspace .membership-surface :is(input:not([type=checkbox]),select,textarea){width:100%;min-height:48px;padding:12px;border:1px solid #8392a3;border-radius:8px;font-size:16px}
+.membership-search .inline-actions{display:flex;flex-wrap:wrap;gap:12px}.membership-search input{flex:1 1 180px;min-width:0}
+.alpha-app .membership-workspace .membership-surface :is(a,.text-button){color:#945400}
+.alpha-app .membership-workspace .membership-surface .button-secondary{background:#fff;color:#232f3e;border-color:#8392a3}
+.community-invitation-history{margin-top:24px}.community-invitation-history summary{cursor:pointer;min-height:44px;padding-block:12px;font-weight:600}
 @media(max-width:900px){.membership-columns{grid-template-columns:minmax(0,1fr);gap:28px}.membership-workspace{padding-block:32px}.community-audit li{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:no-preference){.membership-card-preview canvas{animation:membership-card-in .6s cubic-bezier(.22,1,.36,1) both}@keyframes membership-card-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}}

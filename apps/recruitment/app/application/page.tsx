@@ -15,6 +15,7 @@ export default function ApplicationPage({ searchParams }: { searchParams: Applic
 }
 async function DraftPortal({ searchParams }: { searchParams: ApplicationSearchParams }) {
   const result = await loadApplicantDraft();
+  if (result.kind === "member") redirect("/membership");
   if (result.kind === "staff") redirect("/staff");
   if (result.kind !== "ready") return <ApplicantAccess redesign kind={result.kind} />;
   if (result.application) return <AccessGuard accountId={result.applicant.id} expected="applicant"><ApplicationPortal key={result.applicant.id} accountId={result.applicant.id} initialApplication={result.application} /></AccessGuard>;
