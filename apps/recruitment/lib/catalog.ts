@@ -1,4 +1,4 @@
-export type Track = "CORE_TEAM" | "COMMITTEE";
+export type Track = "CORE_TEAM" | "COMMITTEE" | "MEMBER";
 
 export type Opportunity = {
   id: string;
@@ -8,7 +8,7 @@ export type Opportunity = {
   specialization?: string;
   description: string;
   scenario: string;
-  capacity: number;
+  capacity: number | null;
   icon: string;
 };
 
@@ -76,6 +76,10 @@ const departments = [
 ];
 
 export const opportunities: Opportunity[] = [
+  { id: "general-member", track: "MEMBER", department: "Alpha Community", title: "General Member",
+    description: "Learn with peers, join community activities, and grow your cloud skills together.",
+    scenario: "How would you contribute to a welcoming learning community and support another member who is new to cloud computing?",
+    capacity: null, icon: "people" },
   ...departments.map((d) => ({
     id: `core-${d.key}`,
     track: "CORE_TEAM" as const,
@@ -147,14 +151,14 @@ export const opportunityLabel = (o?: Opportunity) =>
   o
     ? o.specialization
       ? `${o.specialization} · SkillBuilders`
-      : o.track === "CORE_TEAM"
+      : o.track === "CORE_TEAM" || o.track === "MEMBER"
         ? o.title
         : o.id === "buildher"
           ? "BuildHer+ Ambassador"
           : o.department
     : "Choose your opportunity";
 export const trackLabel = (track: Track) =>
-  track === "CORE_TEAM" ? "Core Team" : "Committee";
+  track === "CORE_TEAM" ? "Core Team" : track === "MEMBER" ? "Member" : "Committee";
 
 export const questionIds = [
   "motivation",

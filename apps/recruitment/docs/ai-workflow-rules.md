@@ -1,5 +1,10 @@
 # AI Workflow Rules
 
+## Owner-approved QA work - 14 November 2026
+
+The owner requested a feature branch and implementation of the reviewed PDF plan. Member means a new general-membership application track, with existing review/documents, no fixed acceptance cap and explicit staff ID issuance. Use existing site benefits, remaining vacancy counts, the existing recruitment hostname, required institution/enrollment and weekly-day calendar presentation without Calendar permissions. Google and consent stay before draft creation. Preserve unrelated Meetup edits. Branch creation and local implementation/testing are authorized; production migrations/deployment and Git publication remain separate. Follow the QA page mapping in the canonical manual guide and track actual results.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 The owner authorized a pending invitation and member acceptance flow for existing members, plus fixing the overlapping Staff management and Organization members sections. The owner separately approved transferring the existing verified Gmail app password into Vercel production Secret ALPHA_GMAIL_APP_PASSWORD for aws-alpha-recruitment. This setting was saved without printing or committing its value. Do not send live invitations while verifying this task; administrators explicitly review/send them in the product. SMTP verification without sending passed. Existing active memberships must be preserved.

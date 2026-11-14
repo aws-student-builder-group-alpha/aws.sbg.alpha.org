@@ -1,5 +1,15 @@
 # Architecture
 
+## QA entry and form implementation - 14 November 2026
+
+/opportunities is the canonical directory; the root redirects while preserving supported queries. Track/search/selected role live in URL history. Request-time verified draft loading supplies only entry identity/status. Google returns to the selected role; consent precedes draft creation. Existing draft role switching, submitted/member/staff routing remain. Direct /apply resumes a draft; /apply?entry=1 retains compact fallback. Evidence is edited in Your story; Review reloads private proof metadata read-only and submission rechecks Storage. Institution suggestions and weekly calendar reuse existing string/weekday formats, with legacy Other/year compatibility. No hosted migration is installed.
+
+
+## QA Member and public vacancy contract - 14 November 2026
+
+Forward migration 20261114080000_qa_member_opportunities is prepared locally, not installed remotely. It adds MEMBER/general-member, extends the current validators and queue/export filters without modifying applied migrations, and permits null capacity only for General Member. Existing serialized publication compares accepted occupancy to a nullable maximum, retaining account/application/capacity locks, MFA/current-review guards and receipts. No automatic ID issuance is added. GET /api/opportunities calls an anonymous empty-search-path SECURITY DEFINER aggregate RPC, exposes only IDs/capacity/remaining/snapshot time, and denies table access. Errors are unavailable counts, never invented zeros. Generated hosted SDK types require owning-tool regeneration after approved installation; existing generated files are preserved.
+
+
 ## Quick links and member portraits — 10 November 2026
 
 Main-site hash navigation now realigns the requested section after ScrollTrigger refresh and font readiness, using the pin start where relevant. It synchronizes the existing Lenis instance, falls back to native scrolling for reduced motion/touch, and stops correcting after user input. It does not recreate the section animations. Membership portrait submission uses the explicit uploadMemberPhoto client contract (accountId, kind=photo, name, file), then reloads the acknowledged private photo through the existing owned-file endpoint. No schema, policy, authentication or storage grant changes are needed.

@@ -3,7 +3,7 @@ import { validateSubmission } from "./applications.ts";
 
 export const fieldsByStep = [["processingConsent"], ["fullName", "preferredName", "mobile", "university", "otherUniversity", "campus", "program", "programLevel", "year", "yearExplanation", "enrolled"], ["opportunityId", "track", "eligibility"], ["availabilityDays", "experience", "motivation", "collaboration", "availability", "pathway", "scenario"], ["resumeUrl", "portfolioUrl"], ["accuracy", "processingConsent"]];
 export const simplifiedStages = [1, 2, 3, 5];
-export const simplifiedFields = [[], fieldsByStep[1], fieldsByStep[2], ["availabilityDays", "motivation", "collaboration", "scenario", "scenarioReviewedOpportunityId"], [], ["resumeUrl", "portfolioUrl", "accuracy", "processingConsent"]];
+export const simplifiedFields = [[], fieldsByStep[1], fieldsByStep[2], ["resumeUrl", "portfolioUrl", "proofOfEnrollment", "availabilityDays", "motivation", "collaboration", "scenario", "scenarioReviewedOpportunityId"], [], ["accuracy", "processingConsent"]];
 export const storyParts = ["background", "motivation", "collaboration", "availability", "pathway", "scenario"] as const;
 export type StoryPart = typeof storyParts[number];
 export const partFields = (part: StoryPart) => part === "background" ? ["availabilityDays", "experience"] : [part];

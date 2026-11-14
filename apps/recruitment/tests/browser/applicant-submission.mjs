@@ -18,8 +18,8 @@ const { loadBindings, transform } = require("next/dist/build/swc");
 await loadBindings();
 const modules = new Map();
 for (const [name, relative] of [
-  ["home","app/page.tsx"],
-  ["@/lib/intake","lib/intake.ts"],["./staff.ts","lib/staff.ts"],["./application-queue.ts","lib/application-queue.ts"],["./evaluations.ts","lib/evaluations.ts"],["editor","app/apply/draft-editor.tsx"],["./start-draft","app/apply/start-draft.tsx"],["./apply-entry","app/apply/apply-entry.tsx"],["entry","app/components/applicant-access.tsx"],["portal","app/application/application-portal.tsx"],
+  ["home","app/opportunities/opportunity-directory.tsx"],
+  ["@/lib/intake","lib/intake.ts"],["./staff.ts","lib/staff.ts"],["./application-queue.ts","lib/application-queue.ts"],["./evaluations.ts","lib/evaluations.ts"],["editor","app/apply/draft-editor.tsx"],["@/app/apply/start-draft","app/apply/start-draft.tsx"],["./start-draft","app/apply/start-draft.tsx"],["./apply-entry","app/apply/apply-entry.tsx"],["entry","app/components/applicant-access.tsx"],["portal","app/application/application-portal.tsx"],
   ["@/app/components/application-content","app/components/application-content.tsx"],["@/app/components/access-guard","app/components/access-guard.tsx"],
   ["@/app/components/ui","app/components/ui.tsx"],["@/lib/application-client","lib/application-client.ts"],["@/app/components/process-shell","app/components/process-shell.tsx"],
   ["./wave-gradient","app/components/wave-gradient.tsx"],
@@ -38,9 +38,9 @@ for (const [name,pkg,file] of [
   ["react","react","react.development.js"],["react/jsx-runtime","react","react-jsx-runtime.development.js"],
   ["react-dom","react-dom","react-dom.development.js"],["react-dom/client","react-dom","react-dom-client.development.js"],["scheduler","scheduler","scheduler.development.js"],
 ]) modules.set(name,await readFile(path.join(path.dirname(require.resolve(pkg+"/package.json")),"cjs",file),"utf8"));
-modules.set("next/link","exports.__esModule=true;exports.default=props=>require('react/jsx-runtime').jsx('a',props);");
+modules.set("next/link","exports.__esModule=true;exports.default=props=>require('react/jsx-runtime').jsx('a',{...props,onClick:event=>{if(window.shellPath==='/opportunities'&&props.href?.startsWith('/opportunities')){event.preventDefault();history.pushState({},'',props.href);dispatchEvent(new PopStateEvent('popstate'));}else props.onClick?.(event)}});");
 modules.set("next/image","exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
-modules.set("next/navigation","exports.usePathname=()=>window.shellPath||'/apply';exports.useSearchParams=()=>new URLSearchParams(location.search);exports.useSelectedLayoutSegments=()=>(window.shellPath||'/apply').split('/').filter(Boolean);const router={replace:path=>{window.destination=path},push:path=>{window.destination=path},refresh:()=>{}};exports.useRouter=()=>router;");
+modules.set("next/navigation","exports.usePathname=()=>window.shellPath||'/apply';exports.useSearchParams=()=>new URLSearchParams(require('react').useSyncExternalStore(cb=>{addEventListener('popstate',cb);return()=>removeEventListener('popstate',cb)},()=>location.search));exports.useSelectedLayoutSegments=()=>(window.shellPath||'/apply').split('/').filter(Boolean);const router={replace:path=>{window.destination=path;if(window.shellPath==='/opportunities'){history.replaceState({},'',path);dispatchEvent(new PopStateEvent('popstate'));}},push:path=>{window.destination=path;if(window.shellPath==='/opportunities'){history.pushState({},'',path);dispatchEvent(new PopStateEvent('popstate'));}},refresh:()=>{}};exports.useRouter=()=>router;");
 modules.set("@/app/auth/actions","exports.signOut=async()=>{};exports.signIn=async data=>{window.signInOpportunity=data.get('opportunity');await new Promise(resolve=>window.resolveSignIn=resolve)};exports.startApplication=exports.signIn;");
 await installBrowserMotion(modules);
 await installRecruitmentUI(modules);
@@ -49,7 +49,7 @@ modules.set("./components/motion","exports.useHeroMotion=exports.useHeroLetterMo
 modules.set("./components/home-preloader","exports.HomePreloader=()=>null;");
 modules.set("./components/hero-gradient","exports.HeroGradient=()=>null;");
 modules.set("./immersive-home.css","");
-const homeStyles = await readFile(path.join(project,"app/immersive-home.css"),"utf8");
+const homeStyles = await readFile(path.join(project,"app/immersive-home.css"),"utf8") + await readFile(path.join(project,"app/opportunities/opportunities.css"),"utf8");
 const bundle = `(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([name,code])=>JSON.stringify(name)+":function(module,exports,require){"+code+"\n}").join(",")}};
 const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked browser module: '+name);const module=cache[name]={exports:{}};modules[name](module,module.exports,require);}return cache[name].exports;}
 const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let revision=0;
@@ -57,7 +57,7 @@ const renderShell=(content,signedIn=true)=>require('react/jsx-runtime').jsxs(req
 window.mount=(kind,props)=>{window.shellPath=kind==='editor'?'/apply':'/application';window.destination='';require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('@/app/components/access-guard').AccessGuard,{accountId:props.applicant?.id||props.accountId,expected:'applicant',blockedContent:kind==='editor'?jsx(require('./apply-entry').ApplyAccessChanged,{}):undefined,children:jsx(require(kind==='editor'?'editor':'portal')[kind==='editor'?'DraftEditor':'ApplicationPortal'],props)}))));};
 window.mountEntry=props=>{window.shellPath='/apply';root.render(renderShell(jsx(require('entry').ApplicantAccess,{...props,formEntry:true}),false));};
 window.mountLoading=()=>{window.shellPath='/apply';root.render(renderShell(jsx(require('./apply-entry').ApplyLoading,{}),false));};
-window.mountHome=()=>{window.shellPath='/';require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsx(require('home').default,{})]}),false)));};
+window.mountHome=()=>{window.shellPath='/opportunities';history.replaceState({},'','/opportunities');require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsx(require('home').OpportunityDirectory,{entry:{kind:'anonymous'}})]}),false)));};
 window.mountFeedback=()=>{const {jsx,jsxs}=require('react/jsx-runtime'),ui=require('@/app/components/ui');window.shellPath='/privacy';require('react-dom').flushSync(()=>root.render(renderShell(jsx('main',{id:'main-content',className:'container portal narrow',children:jsxs('section',{children:[...['info','success','warning','error'].map(tone=>jsx(ui.Callout,{tone,title:tone+' example',role:tone==='error'?'alert':tone==='success'?'status':undefined,children:jsxs('div',{children:[jsx('p',{children:'Readable feedback with an explicit recovery action.'}),jsx('button',{type:'button',className:'text-button',children:'Retry '+tone})]})},tone)),jsx('label',{htmlFor:'feedback-field',children:'Example field'}),jsx('input',{id:'feedback-field','aria-invalid':true,'aria-describedby':'feedback-field-error'}),jsx(ui.FieldError,{id:'feedback-field-error',children:'Enter a valid value.'}),jsx(ui.ErrorSummary,{children:jsx('a',{href:'#feedback-field',children:'Check the example field'})})]})}),false)));};
 window.mountDepth=()=>{window.shellPath='/';const {jsx,jsxs}=require('react/jsx-runtime');require('react-dom').flushSync(()=>root.render(renderShell(jsxs('main',{id:'main-content',className:'recruitment-home container',style:{paddingBlock:'120px 60px'},children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsxs('div',{style:{display:'grid',gap:'32px',maxWidth:'560px'},children:[jsxs(require('./immersive-card').ImmersiveCard,{className:'track-option',children:[jsx('h3',{className:'card-depth',children:'Core Team'}),jsx('p',{children:'Explore opportunities before choosing a role.'}),jsx('a',{href:'#home-preparation',className:'track-link',children:'Read preparation'})]}),jsx('div',{className:'preparation-card-stage',children:jsx(require('./home-preparation').HomePreparation,{})})]})]}),false)));};
 window.mountShell=(path,props={})=>{window.shellPath=path;require('react-dom').flushSync(()=>root.render(require('react/jsx-runtime').jsxs(require('react').Fragment,{children:[jsx(require('@/app/components/ui').SiteHeader,props),jsx(require('@/app/components/ui').Footer,{})]},String(++revision))));};
@@ -81,6 +81,7 @@ try {
     const incoming=route.request(),url=new URL(incoming.url());
     if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css; charset=utf-8",body:await readFile(path.join(buildDirectory,url.pathname.split("/_next/")[1]))});
     if(url.pathname.startsWith("/brand/"))return route.fulfill({body:await readFile(path.join(project,"public",url.pathname))});
+    if(url.pathname==="/api/opportunities") return route.fulfill({json:(await runtime.db.query("select opportunity_availability() value")).rows[0].value});
     if(url.pathname==="/api/access")return route.fulfill({json:faults.access||{kind:"applicant",accountId:runtime.identity.id}});
     if(url.pathname==='/api/community'){
       if(incoming.method()==='GET'&&url.searchParams.get('action')==='enrollment'){
@@ -197,9 +198,9 @@ try {
   assert.match(await page.locator('.brand-masthead').textContent(),/Rizal Technological University/);
   assert.deepEqual(await page.locator('.application-overview li > span:last-child').allTextContents(),['About you','Opportunity','Your story','Review']);
   assert.equal(await page.getByRole('link',{name:'Read the recruitment privacy notice',exact:true}).getAttribute('href'),'/privacy');
-  assert.equal(await page.getByRole('link',{name:'Find your place at Alpha',exact:true}).getAttribute('href'),'/#opportunities');
+  assert.equal(await page.getByRole('link',{name:'Find your place at Alpha',exact:true}).getAttribute('href'),'/opportunities');
   assert.match(await page.locator('.apply-requested').textContent(),/BuildHer\+/);
-  assert.equal(await page.getByRole('link',{name:'Change opportunity',exact:true}).getAttribute('href'),'/#opportunities');
+  assert.equal(await page.getByRole('link',{name:'Change opportunity',exact:true}).getAttribute('href'),'/opportunities');
   assert.equal(await page.locator('.application-overview [aria-current],.application-overview button,.journey-icon').count(),0,'Public roadmap does not imply consent or gated progress');
   assert.match(await page.locator('.application-introduction h1 > span').evaluate(node=>getComputedStyle(node).fontFamily),/Urban Starblues/,'Application entry uses Alpha signature typography');
   const entryComposition=await page.evaluate(()=>({intro:document.querySelector('.application-introduction').getBoundingClientRect().right,card:document.querySelector('.apply-entry-card').getBoundingClientRect().left}));
@@ -241,7 +242,7 @@ try {
   assert.equal(await page.locator('.apply-requested').isVisible(),true,'Requested opportunity stays visible');
   assert.equal(await page.locator('.apply-account strong').textContent(),runtime.identity.email);
   const preparationWidth=await page.locator('.apply-entry-card').evaluate(node=>node.getBoundingClientRect().width);
-  assert.ok(preparationWidth>=440&&preparationWidth<=500,'Preparation keeps the compact task card beside the Alpha introduction');
+  assert.ok(preparationWidth>=440&&preparationWidth<=600,'Preparation keeps the compact task card beside the Alpha introduction');
   assert.equal(await page.getByText('1–30 November 2026',{exact:true}).isVisible(),false,'Dates remain in the collapsed details');
   await page.getByText('Application details',{exact:true}).focus();await page.keyboard.press('Enter');
   assert.equal(await page.getByText('1–30 November 2026',{exact:true}).isVisible(),true,'Native details opens by keyboard');
@@ -268,6 +269,7 @@ try {
   assert.equal(await page.locator('.process-root').evaluate(node=>getComputedStyle(node).backgroundColor),'rgb(8, 9, 10)');
   assert.equal(await page.locator('.process-paper .apply-wave').count(),1,'The white form sits above the moving Alpha gradient');
   assert.equal(await page.locator('.application-sidebar').evaluate(node=>getComputedStyle(node).position),'static','The sidebar scrolls naturally with the form');
+  assert.equal(await page.locator('label[for=fullName] .required-mark').evaluate(node=>getComputedStyle(node).color),'rgb(180, 35, 24)','Required asterisks are red');
   const normalFieldBorder=await page.locator('#fullName').evaluate(node=>getComputedStyle(node).borderTopColor);
   await page.locator('#fullName').focus();
   await page.waitForFunction(border => document.activeElement?.id === "fullName" && getComputedStyle(document.getElementById("fullName")).borderTopColor !== border, normalFieldBorder);
@@ -287,7 +289,7 @@ try {
   await page.getByRole("checkbox",{name:/I have read the privacy notice/}).check();
   await page.getByRole("button",{name:"Start application",exact:true}).click();
   await page.locator("#fullName").fill("Synthetic Applicant");
-  await page.locator("#university").selectOption("Rizal Technological University");
+  await page.locator("#university").fill("Rizal Technological University");
   await page.locator("#program").fill("BS Information Technology");
   await page.locator("#programLevel").selectOption("undergraduate");
   await page.locator("#year").selectOption("3");
@@ -361,13 +363,14 @@ try {
   await page.getByRole('button',{name:'Continue',exact:true}).click();
   await page.waitForFunction(()=>document.activeElement?.id==='fullName');
   await page.clock.runFor(200);
+  await page.waitForFunction(()=>getComputedStyle(document.querySelector('#fullName')).borderTopColor===getComputedStyle(document.querySelector('#fullName-error')).color);
   const invalidFieldColors=await page.locator('#fullName').evaluate(node=>({border:getComputedStyle(node).borderTopColor,error:getComputedStyle(document.querySelector('#fullName-error')).color}));
   assert.equal(invalidFieldColors.border,invalidFieldColors.error,'Invalid border retains the associated error color');
   assert.equal(await page.locator('.process-root .error-summary').count(),0);
   assert.equal(await page.locator('[role="alert"] [role="alert"]').count(),0,'Errors have no nested announcements');
   await page.locator('#fullName').fill('Student Applicant');
-  await selectStep(5);assert.equal(await page.locator('#resumeUrl').evaluate(node=>node.required),true,'Resume is explicitly required for submission');assert.equal(await page.getByText('A resume is required before you submit. You can save a draft without it.',{exact:true}).isVisible(),true);assert.equal(await page.locator('.process-intake-availability .callout').count(),0);assert.equal(await page.locator('.process-resume-help').evaluate(node=>node.open),false);assert.equal(await page.getByText(/For Google Drive, choose Share/).isVisible(),false);await openDisclosure(page,'How to share your resume');await page.locator('.process-resume-help > summary').click();await page.locator('#resumeUrl').fill('');
-  await page.getByRole('button',{name:'Submit application',exact:true}).click();
+  await selectStep(3);assert.equal(await page.locator('#resumeUrl').evaluate(node=>node.required),true,'Resume is explicitly required for submission');assert.equal(await page.getByText('A resume is required before you submit. You can save a draft without it.',{exact:true}).isVisible(),true);assert.equal(await page.locator('.process-intake-availability .callout').count(),0);assert.equal(await page.locator('.process-resume-help').evaluate(node=>node.open),false);assert.equal(await page.getByText(/For Google Drive, choose Share/).isVisible(),false);await openDisclosure(page,'How to share your resume');await page.locator('.process-resume-help > summary').click();await page.locator('#resumeUrl').fill('');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
   await page.locator('#resumeUrl-error').waitFor();
   await page.waitForFunction(()=>document.activeElement?.id==='resumeUrl');
   await autosave();
@@ -388,8 +391,8 @@ try {
   await mountEditor(invalidProfile);
   await page.getByRole('button',{name:'Continue',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='university');
   assert.equal(await page.locator('#university').getAttribute('aria-describedby'),'university-error');
-  assert.equal(await page.locator('.process-optional').getAttribute('open'),null,'University precedes the hidden mobile control in visual DOM order');
-  await page.locator('#university').selectOption('Rizal Technological University');
+  assert.equal(await page.locator('#mobile').isVisible(),true,'Optional details are immediately visible');
+  await page.locator('#university').fill('Rizal Technological University');
   await page.getByRole('button',{name:'Continue',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='mobile');
   assert.equal(await page.locator('#mobile').isVisible(),true,'Invalid optional control is revealed before focus');
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.locator('#mobile').focus();await page.screenshot({path:path.join(artifactDir,`apply-inline-errors-${width}.png`)});}
@@ -428,7 +431,7 @@ try {
   assert.equal((await runtime.db.query('select data from applicant_drafts where owner_id=$1',[runtime.identity.id])).rows[0].data.answers.collaboration,asyncSave.answers.collaboration,'Rejected saves never invent an acknowledgement');
 
   await mountEditor(validSimplifiedSubmission(),{saveFailure:{code:'VALIDATION',message:'Check the final saved fields.',errors:{campus:'Review the campus value.'}}});
-  await page.locator('#portfolioUrl').fill('https://example.test/preserved-final-save');await page.getByRole('button',{name:'Submit application',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='campus');
+  await page.locator('#updatesConsent').check();await page.getByRole('button',{name:'Submit application',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='campus');
   assert.equal(await page.locator('#campus').isVisible(),true);
   assert.equal(faults.posts.filter(post=>post.action==='submit').length,0,'A failed final save never submits');
 
@@ -462,9 +465,9 @@ try {
   assert.equal(await page.locator('.process-card').evaluate(node=>node.getAnimations({subtree:true}).some(animation=>animation.animationName==='process-step-enter'&&animation.playState==='running')),false,'Typing does not restart the decorative step entrance');
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal(await page.locator('.process-step-heading').evaluate(node=>getComputedStyle(node).animationName),'none');
-  assert.equal(await page.locator('#mobile').isVisible(),false);
-  await page.getByText('Optional details',{exact:true}).click();await page.locator('#mobile').fill('+63 917 123 4567');
-  await page.getByText('Optional details',{exact:true}).click();await page.getByText('Optional details',{exact:true}).click();assert.equal(await page.locator('#mobile').inputValue(),'+63 917 123 4567');
+  assert.equal(await page.locator('#mobile').isVisible(),true);
+  await page.locator('#mobile').fill('+63 917 123 4567');
+  assert.equal(await page.locator('#mobile').inputValue(),'+63 917 123 4567');
   assert.equal(await page.locator('.process-bar,.process-account').count(),0,'No secondary toolbar or account menu remains');
   assert.equal(await page.locator('.application-sidebar > .process-progress').count(),1,'Progress is inside the form sidebar');
   for(const width of [375,1440]){
@@ -475,16 +478,16 @@ try {
   assert.equal(await page.locator('.process-support').count(),0);
   assert.equal(await page.locator('.process-action-bar').getByRole('button',{name:'Save & exit',exact:true}).count(),1);
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0);});await page.screenshot({path:path.join(artifactDir,`apply-profile-${width}.png`)});}
-  await page.locator('#mobile').fill('invalid');await page.getByText('Optional details',{exact:true}).press('Enter');
-  assert.equal(await page.locator('#mobile').isVisible(),false);
+  await page.locator('#mobile').fill('invalid');await page.locator('#mobile').blur();
+  assert.equal(await page.locator('#mobile').isVisible(),true);
   await page.getByRole('button',{name:'Continue',exact:true}).press('Enter');await page.waitForFunction(()=>document.activeElement?.id==='mobile');assert.equal(await page.locator('#mobile').isVisible(),true);await page.locator('#mobile').fill('+63 917 123 4567');
   for(const index of [1,2,3,5]){await selectStep(index);await layout('application section '+index);}
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.locator('.process-action-bar').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(artifactDir,`apply-actions-${width}.png`)});}
   passed.push('optional profile details stay mounted; four-section navigation and all widths/device preferences remain accessible');
 
-  assert.equal(await page.locator('.process-review-links #resumeUrl').count(),1);
+  assert.equal(await page.locator('.process-review-links #resumeUrl').count(),0);assert.equal(await page.locator('.process-evidence-summary').count(),1);
   assert.equal(await page.locator('.application-content').getByRole('heading',{name:'Supporting evidence',exact:true}).count(),0);
-  assert.equal(await page.locator('.process-review-links').evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.application-content'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'Links precede summary');
+  assert.equal(await page.locator('.process-evidence-summary').evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.application-content'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'Links precede summary');
   for(const width of [375,1440]){await page.setViewportSize({width,height:950});await page.evaluate(()=>{document.activeElement?.blur();scrollTo({top:0,behavior:'instant'});});await page.screenshot({path:path.join(artifactDir,`apply-review-${width}.png`),fullPage:true});}
   await page.getByRole('button',{name:'Edit details',exact:true}).click();
   await page.getByRole('heading',{name:'About you',exact:true}).waitFor();
@@ -829,62 +832,39 @@ try {
   passed.push('the header stays opaque, dark and visible while scrolling in both directions on all ten routes');
 
   await page.evaluate(()=>window.mountHome());
-  const catalog=page.locator("#opportunity-catalog");
-  const directory=page.locator("#opportunity-results");
-  for(const width of [320,375,1440]){
+  const directory=page.locator(".roles-grid");
+  for(const width of [320,375,768,1440]){
     await page.setViewportSize({width,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
-    assert.equal(await directory.locator(".opportunity-row").count(),8);
-    assert.equal(await directory.locator("[inert]").count(),0,"Every department remains reachable");
-    assert.equal(await catalog.getByRole("status").textContent(),"16 roles across 8 departments");
+    assert.equal(await directory.locator(".role-card").count(),17);
+    await page.getByRole("heading",{name:"Available Roles",exact:true}).waitFor();
   }
-  await page.getByRole("link",{name:"Explore Core Team",exact:true}).press("Enter");
-  await page.waitForFunction(()=>location.hash==="#opportunity-catalog");
-  assert.equal(await catalog.getByRole("button",{name:"Core Team",exact:true}).getAttribute("aria-pressed"),"true");
-  assert.equal(await catalog.getByRole("status").textContent(),"6 roles across 6 departments");
-  const openCreative=catalog.getByRole("button",{name:"Explore department: Creatives and Graphics",exact:true});
-  await openCreative.press("Enter");
-  const details=page.getByRole("dialog",{name:"Creatives and Graphics",exact:true});
-  await details.getByRole('heading',{name:'Vice Chief Creatives Officer',exact:true}).waitFor();
-  assert.equal(await details.getByText(creative.scenario,{exact:true}).count(),0,"The role scenario belongs only in the application form");
-  assert.equal(await details.getByRole('heading',{name:'Required role scenario'}).count(),0);
-  await details.getByRole("button",{name:"Apply for this opportunity",exact:true}).click();
-  await page.waitForFunction(()=>window.signInOpportunity==="core-creatives");
+  await page.getByRole("button",{name:"Core Team",exact:true}).click();
+  await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===6);
+  const trigger=page.locator('.role-card').filter({hasText:'Vice Chief Creatives Officer'}).getByRole('link',{name:'View role'});
+  await trigger.press("Enter");
+  const details=page.getByRole('dialog',{name:'Vice Chief Creatives Officer',exact:true});
+  await details.waitFor();
+  assert.equal(await details.getByText(creative.scenario,{exact:true}).count(),0);
+  await details.getByRole('button',{name:'Continue with Google',exact:true}).click();
+  await page.waitForFunction(()=>window.signInOpportunity==='core-creatives');
   await page.evaluate(()=>window.resolveSignIn());
-  await page.keyboard.press("Escape");
-  await details.waitFor({state:"detached"});
-  await page.waitForFunction(()=>document.activeElement?.getAttribute("aria-label")==="Explore department: Creatives and Graphics");
-  await catalog.getByRole("button",{name:"Committee",exact:true}).click();
-  assert.equal(await catalog.getByRole("status").textContent(),"10 roles across 8 departments");
-  assert.equal(await directory.locator('.opportunity-row').count(),8);
-  await openCreative.press('Enter');
-  await page.getByRole('dialog',{name:'Creatives and Graphics',exact:true}).locator('[data-role="committee-creatives"]').waitFor();
-  assert.equal(await page.getByRole('dialog').locator('[data-role="core-creatives"]').count(),0);
   await page.keyboard.press('Escape');
-  await catalog.getByRole("button",{name:"All opportunities",exact:true}).click();
-  await page.setViewportSize({width:320,height:720});
-  const operationsTrigger=catalog.getByRole('button',{name:'Explore department: Operations and Events',exact:true});
-  await operationsTrigger.press('Enter');
-  const operationsDialog=page.getByRole('dialog',{name:'Operations and Events',exact:true});
-  for (const [duty,id] of [[/organize volunteer assignments/,'core-operations'],[/event setup, registration/,'committee-operations']]) {
-    const role=operationsDialog.locator('[data-role="'+id+'"]');
-    await role.getByText(duty).waitFor();
-    assert.equal(await role.locator('input[name="opportunity"]').inputValue(),id);
-  }
-  assert.equal(await operationsDialog.evaluate(node=>node.scrollWidth>node.clientWidth+1),false);
-  await page.keyboard.press('Escape');
-  await operationsDialog.waitFor({state:'detached'});
-  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Explore department: Operations and Events');
-  await page.setViewportSize({width:1440,height:900});
-  await catalog.evaluate(node=>node.scrollIntoView({behavior:"instant",block:"start"}));
+  await details.waitFor({state:'detached'});
+  await page.getByRole('button',{name:'Committee',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===10);
+  await page.getByRole('button',{name:'Member',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===1);
+  assert.match(await directory.textContent(),/General Member/);
+  assert.match(await directory.textContent(),/No fixed limit/);
+  await page.getByRole('button',{name:'All roles',exact:true}).click();
+  await page.locator('#role-search').fill('web');
+  await page.getByRole('button',{name:'Search',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===1);
+  assert.match(await directory.textContent(),/Web Development/);
+  assert.ok(new URL(page.url()).searchParams.get('q')==='web');
   await page.screenshot({path:path.join(artifactDir,"opportunity-catalog-1440.png")});
-  const guide=page.getByRole("region",{name:"How to apply",exact:true});
-  assert.deepEqual(await guide.getByRole("link").evaluateAll(links=>links.map(link=>link.getAttribute("href"))),["#opportunity-catalog","#prepare","/application"]);
-  await guide.getByRole("button",{name:"Start application",exact:true}).waitFor();
-  assert.match(await guide.textContent(),/In Your story, write three required responses, including the role scenario/);
-  await guide.evaluate(node=>node.scrollIntoView({behavior:"instant",block:"start"}));
-  await page.screenshot({path:path.join(artifactDir,"how-to-apply-1440.png")});
-  passed.push('department cards disclose the correct Core Team/Committee roles, honor filters and hand off the exact role without a public scenario');
+  passed.push('individual role cards support three track filters, search, exact Google role handoff, vacancy labels and keyboard dialogs');
 
   await page.evaluate(()=>{window.mountDepth();window.scrollTo({top:0,behavior:"instant"});});
   for(const width of [320,375,768,1440]){

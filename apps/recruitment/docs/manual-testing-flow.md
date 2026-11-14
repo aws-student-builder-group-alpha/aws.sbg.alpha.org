@@ -1,5 +1,21 @@
 # Manual testing flow
 
+## November QA report retest
+
+Use the feature preview with its matching forward migration installed in isolated staging. Do not replay historical migrations or use real applicant data. Report Pass/Fail/Blocked with the PDF page number.
+
+1. Pages 1-2: check the full group heading, secondary motto, requested description, waves, photo pause and three Start your journey cards. Each Apply action must select its own category. Benefits use existing content.
+2. Page 3: check alternating About photos/group wording, followed immediately by Testimonials.
+3. Pages 3-5: check viewport Gallery, larger images, absent filters, SCD audience finale and white-wash/collage message. Pause/reverse scroll. Filter List, switch back and confirm Gallery includes all stories; original details/credits remain. Reduced motion stays readable.
+4. Pages 5-7: check Available Roles, search/icons/individual cards and all three track filters. Reload and Back preserve URL state. Keyboard opens roles, Escape restores focus, and Google preserves the selected role.
+5. Page 7: verify no draft before consent, then Start opens /apply. Existing drafts require explicit role switching and preserve answers; submitted users keep receipts, members keep IDs, staff cannot use staff identities to apply.
+6. Pages 8-10: check larger text, required markers, no promotional hero/subheading, inset chevrons, required editable institution/suggestions, ordinal years and visible optional fields. Resume legacy Other/year data without loss.
+7. Page 11: publish/amend a synthetic acceptance and refresh/focus to confirm remaining counts. Full roles remain selectable for waitlist decisions; Member has no fixed limit. Outages show unavailable, never zero.
+8. Pages 11-12: evidence precedes the weekday calendar in Your story. Blank resume/proof/availability blocks Continue/Submit and focuses the right field, but unfinished drafts save. Proof survives navigation; Review shows acknowledged summary/Edit.
+9. Pages 12-13: receipt/history/notifications/withdrawal still work. Member follows assigned review/admin decision/explicit ID issuance, with one application across tracks.
+10. Check 320/390/768/1440px, both device preferences, 200% text, keyboard, short screens and reduced motion. Distinguish local/synthetic outcomes from real provider/staging verification.
+
+
 ## Quick links and photo persistence
 
 From the main homepage footer and Events footer, open About, Team and Connect; verify the destination section is visible after pin layout/fonts settle, and manual scrolling is not pulled back. Check recruitment footer links reach the main site, Events resolves to /events/, Skillbuilders retains its sign-in guard and Apply now reaches aws-alpha-recruitment.vercel.app. As an existing member, choose a valid JPG/PNG, give photo consent and save. Verify the actual private processed portrait appears in the card, remains after reload and is included in the canvas export. Invalid bytes/oversized files and another account must be denied. Use synthetic files for automated tests.

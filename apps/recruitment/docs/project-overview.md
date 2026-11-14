@@ -1,5 +1,10 @@
 # Alpha Recruitment
 
+## Accepted QA revision - 14 November 2026
+
+The owner approved the November QA report and clarified a third Member track with one General Member opportunity. Reuse the four-step, consented, enrollment/resume-required application, one application per account across all tracks, one assigned reviewer and administrator publication. General membership has no fixed seat limit; IDs remain explicitly issued by staff after acceptance. Core Team/Committee eligibility and existing capacities remain. Public entry moves to /opportunities on the current recruitment host with category handoff, search, role dialogs and Google/consent before draft creation. Existing site benefits supply the three joining cards; the receipt page needs no redesign. Weekly availability remains recurring weekdays without Calendar access. This supersedes older two-track/sixteen-role and promotional-entry presentation requirements. Implementation and actual evidence belong in the tracker.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 Existing members can be invited by Google email before first sign-in. System Admins save a pending invitation, then explicitly send its email or share the Membership ID page. The verified invited account accepts before a new ID is issued. Existing active records retain their IDs and need no new application or repeated acceptance. Membership/invitation entry takes priority over a draft; a previously submitted application remains readable. ID Finder stays private to the signed-in member.

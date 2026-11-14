@@ -20,11 +20,11 @@ export default function Home() {
       <Marquee />
       <Recruitment />
       <About />
+      <Testimonials />
       <CoreVision />
       <Events />
       <CoreMembers />
       <Contact />
-      <Testimonials />
       <Footer />
     </main>
   )

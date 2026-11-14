@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -47,108 +48,16 @@ const FEATURES: Feature[] = [
 ]
 
 function FeatureBlock({ feature }: { feature: Feature }) {
-	if (feature.align === "full") {
-		return (
-			<div
-				className="about-feature rounded-2xl bg-[#232f3e]
-					p-8 sm:p-12 lg:p-16"
-			>
-				<div
-					className="grid grid-cols-1 lg:grid-cols-2
-						gap-8 lg:gap-16 items-center"
-				>
-					<div>
-						<span
-							className="text-xs uppercase tracking-[0.3em]
-								text-[#ff9900] font-medium mb-4 block"
-						>
-							{feature.number}
-						</span>
-						<h3
-							className="text-2xl sm:text-3xl lg:text-4xl
-								font-bold text-white mb-4"
-						>
-							{feature.title}
-						</h3>
-						<p
-							className="text-base sm:text-lg text-white/60
-								leading-relaxed max-w-md"
-						>
-							{feature.description}
-						</p>
-					</div>
-					<div
-						className="hidden lg:flex items-center
-							justify-center"
-					>
-						<div
-							className="urban-starblues text-8xl
-								text-[#ff9900] select-none leading-none"
-						>
-							{feature.number}
-						</div>
-					</div>
-				</div>
-			</div>
-		)
-	}
-
-	const isLeft = feature.align === "left"
-
-	return (
-		<div
-			className={`about-feature grid grid-cols-1
-				lg:grid-cols-12 gap-8 lg:gap-16 items-start`}
-		>
-			{/* Number column */}
-			<div
-				className={`lg:col-span-2 ${
-					isLeft ? "lg:order-1" : "lg:order-2"
-				}`}
-			>
-				<span
-					className="urban-starblues text-6xl sm:text-7xl
-						lg:text-8xl text-[#ff9900] select-none
-						leading-none"
-				>
-					{feature.number}
-				</span>
-			</div>
-
-			{/* Content column */}
-			<div
-				className={`lg:col-span-5 ${
-					isLeft ? "lg:order-2" : "lg:order-1"
-				}`}
-			>
-				<span
-					className="text-xs uppercase tracking-[0.3em]
-						text-[#ff9900] font-medium mb-4 block"
-				>
-					{feature.number}
-				</span>
-				<h3
-					className="text-2xl sm:text-3xl lg:text-4xl
-						font-bold text-[#232f3e] mb-4"
-				>
-					{feature.title}
-				</h3>
-				<p
-					className="text-base sm:text-lg text-[#232f3e]/50
-						leading-relaxed max-w-md"
-				>
-					{feature.description}
-				</p>
-			</div>
-
-			{/* Empty spacer */}
-			<div
-				className={`hidden lg:block lg:col-span-5 ${
-					isLeft ? "lg:order-3" : "lg:order-3"
-				}`}
-			/>
-		</div>
-	)
+ const position = Number(feature.number) - 1
+ const photos = ["scd-2026-team", "scd-2026-audience", "scd-2026-certificates", "scd-2026-team"]
+ return <article className="about-feature grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-16">
+  <div className={position % 2 ? "lg:order-2" : ""}>
+   <p className="mb-4 text-sm font-semibold tracking-widest text-[#965500]">{feature.number}</p>
+   <h3 className="mb-4 text-3xl font-semibold text-[#232f3e]">{feature.title}</h3>
+   <p className="max-w-lg text-base leading-relaxed text-[#526174]">{feature.description}</p>
+  </div>
+  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl"><Image src={"/optimized/gallery/full/" + photos[position] + ".webp"} alt={feature.title + " with the Alpha community"} fill sizes="(min-width: 1024px) 45vw, 90vw" className="object-cover" /></div>
+ </article>
 }
 
 export default function About() {
@@ -206,7 +115,7 @@ export default function About() {
 						>
 							Why join
 							<br />
-							our club?
+							our group?
 						</h2>
 					</div>
 					<div className="flex items-end">

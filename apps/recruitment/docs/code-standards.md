@@ -1,5 +1,15 @@
 # Code Standards
 
+## QA verification implementation - 14 November 2026
+
+Browser fixtures compile the real directory/availability helper and use real isolated SQL aggregates. Retain consent/save/retry/withdrawal/account-loss coverage after moving evidence. Historical baseline tests compare their original catalog; current-schema tests include Member. Wait for computed CSS transitions rather than advancing only a mocked JavaScript clock. Production-page checks and synthetic authenticated checks remain separate from real provider evidence.
+
+
+## QA contracts - 14 November 2026
+
+Track handling must be exhaustive for CORE_TEAM, COMMITTEE and MEMBER, including validation, staff filters, CSV labels and UI readers. Unlimited capacity is null, allowed only for General Member; do not substitute a large numeric limit. Public vacancy data is aggregate-only and does not authorize writes or guarantee a place. Keep SQL and runtime tests for legacy records, new Member submissions, aggregate privacy, capacity release and exact retries. Existing generated SDK files and installed migrations remain untouched.
+
+
 ## Quick links and member portraits — 10 November 2026
 
 Test multipart uploads through the actual client helper and actual upload handler; a successful mock that ignores FormData fields does not verify a browser/server contract. The membership photo regression reproduces the old photo-field rejection, then verifies private persistence and 512×640 processed PNG retrieval. The root section-navigation lifecycle test simulates pin refresh, user interruption and reduced motion and runs in recruitment CI with its installed SWC runtime.

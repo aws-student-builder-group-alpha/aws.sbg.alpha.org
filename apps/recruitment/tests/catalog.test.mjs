@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 import { getOpportunity, isCoreEligible, opportunities, wordCount } from "../lib/catalog.ts";
 import { validSubmission } from "./fixtures/submission.mjs";
 
-test("approved catalog retains sixteen distinct opportunities and department routing", () => {
-  assert.equal(opportunities.length, 16);
-  assert.equal(new Set(opportunities.map(item => item.id)).size, 16);
+test("approved catalog retains existing roles and adds General Member and department routing", () => {
+  assert.equal(opportunities.length, 17);
+  assert.equal(new Set(opportunities.map(item => item.id)).size, 17);
   assert.equal(opportunities.filter(item => item.track === "CORE_TEAM").length, 6);
   assert.equal(opportunities.filter(item => item.track === "COMMITTEE").length, 10);
   assert.equal(getOpportunity("core-secretariat").department, "Secretariat");

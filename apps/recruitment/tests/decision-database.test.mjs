@@ -21,7 +21,7 @@ async function request(appId, outcome = "Waitlisted", action = "publish", reason
 const change = p_request => rpc("manage_decision", { p_request });
 const state = applicationId => rpc("decision_state", { p_application_id: applicationId });
 
-test("all sixteen server capacities exactly match the catalog and are inaccessible directly", async () => {
+test("all server capacities exactly match the catalog and are inaccessible directly", async () => {
   const rows = (await rt.db.query("select opportunity_id,capacity from opportunity_capacities order by opportunity_id")).rows;
   assert.deepEqual(rows, opportunities.map(o => ({ opportunity_id: o.id, capacity: o.capacity })).sort((a,b) => a.opportunity_id.localeCompare(b.opportunity_id)));
   for (const table of ["opportunity_capacities", "decision_history", "decision_commands"]) for (const role of ["anon", "authenticated"]) {
@@ -113,4 +113,20 @@ test("logical overlaps of publication with review, reassignment and withdrawal c
     const other=await Promise.allSettled([publishPromise,rival()]);assert.equal(other.filter(v=>v.status==="fulfilled").length,1);assert.equal(other.find(v=>v.status==="rejected").reason.code,"PT409");
     rt.as(rt.admin);const detail=await rpc("evaluation_detail",{p_application_id:app.id});assert.equal(detail.application.status,"Waitlisted");assert.equal(detail.application.history.length,3);
   }
+});
+
+
+test("General Member acceptance has no fixed cap and vacancy aggregates track capped amendments", async () => {
+  const { validSimplifiedSubmission } = await import("./fixtures/submission.mjs");
+  for (let index=0; index<3; index++) {
+    const input=validSimplifiedSubmission();
+    Object.assign(input,{track:"MEMBER",opportunityId:"general-member",scenarioReviewedOpportunityId:"general-member"});
+    const {app}=await rt.createApplication(input);rt.as(rt.admin);
+    const assignment=await rpc("manage_evaluation",{p_request:{action:"assign",applicationId:app.id,evaluatorId:rt.first.id,expectedApplicationVersion:1,expectedAssignmentId:null,reason:"",mutationId:crypto.randomUUID()}});
+    rt.as(rt.first);await rpc("manage_evaluation",{p_request:{action:"save_review",applicationId:app.id,assignmentId:assignment.assignmentId,expectedVersion:0,recommendation:"Accepted",notes:"",mutationId:crypto.randomUUID()}});
+    rt.as(rt.admin);await change(await request(app.id,"Accepted"));
+    const data=await state(app.id);assert.equal(data.capacity,null);assert.ok(data.accepted>=index+1);assert.ok(isDecisionState(data));
+  }
+  const item=(await rt.db.query("select opportunity_availability() value")).rows[0].value.items.find(item=>item.id==="general-member");
+  assert.deepEqual(item,{id:"general-member",capacity:null,remaining:null});
 });

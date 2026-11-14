@@ -11,6 +11,8 @@ import { RECRUITMENT_URL } from '@/lib/recruitment'
 const TRACKS = [
 	{
 		name: 'Core Team',
+        track: 'CORE_TEAM',
+        perks: ['Grow your leadership skills', 'Collaborate with peers', 'Learn from experienced mentors'],
 		label: 'Lead with purpose',
 		eligibility: '1st and 2nd year undergraduates',
 		description:
@@ -19,12 +21,15 @@ const TRACKS = [
 	},
 	{
 		name: 'Committee',
+        track: 'COMMITTEE',
+        perks: ['Build practical projects', 'Contribute to community events', 'Learn with a supportive team'],
 		label: 'Learn by contributing',
 		eligibility: 'All enrolled university year levels',
 		description:
 			'Find your people in events, creative work, partnerships, or technical projects. Bring your curiosity and grow with a team.',
 		icon: Users,
 	},
+ { name: 'Member', track: 'MEMBER', label: 'Find your community', eligibility: 'All enrolled students', description: 'Learn with fellow builders, share ideas, and grow your cloud skills in a supportive community.', perks: ['Hands-on learning', 'Community and peer support', 'Career development and guidance'], icon: Users },
 ]
 
 gsap.registerPlugin(ScrollTrigger)
@@ -56,17 +61,15 @@ export default function Recruitment() {
 							id='recruitment-heading'
 							className='text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl'
 						>
-							Build what comes next.
+							Start your journey.
 						</h2>
 					</div>
 					<p className='max-w-md text-base leading-relaxed text-[#526174] lg:justify-self-end'>
-						There is more than one way to be part of Alpha.
-						Explore the opportunities, see who can apply, and
-						get ready before starting your application.
+						New to cloud? Beginners are welcome. Find the way you want to learn, contribute, and grow with Alpha.
 					</p>
 				</div>
-				<div className='grid gap-5 md:grid-cols-2'>
-					{TRACKS.map(({ name, label, eligibility, description, icon: Icon }, index) => (
+				<div className='grid gap-5 md:grid-cols-3'>
+					{TRACKS.map(({ name, track, perks, label, eligibility, description, icon: Icon }, index) => (
 						<article
 							key={name}
 							className='recruitment-reveal'
@@ -84,11 +87,11 @@ export default function Recruitment() {
 							<p className='mb-8 flex-1 text-base leading-relaxed text-[#c1cbd8]'>
 								{description}
 							</p>
-							<a
-								href={`${RECRUITMENT_URL}/#opportunities`}
+							<ul className="mb-8 grid gap-2 text-sm text-[#c1cbd8]">{perks.map(perk => <li key={perk}><span aria-hidden="true">✓ </span>{perk}</li>)}</ul><a
+								href={`${RECRUITMENT_URL}/opportunities?track=${track}`}
 								className='inline-flex min-h-11 items-center justify-between gap-3 border-t border-[#657489] pt-5 font-semibold transition-colors hover:text-[#ffc56e] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#875000]'
 							>
-								Explore {name}
+								Apply now
 								<ArrowRight size={20} aria-hidden='true' />
 							</a>
                             </DepthSurface>
@@ -102,7 +105,7 @@ export default function Recruitment() {
 						Check the portal for current dates and requirements.
 					</p>
 					<a
-						href={RECRUITMENT_URL}
+						href={RECRUITMENT_URL + "/opportunities"}
 						className='inline-flex min-h-12 items-center gap-4 rounded-md bg-[#ff9900] px-6 py-3 font-semibold text-[#172636] transition-colors hover:bg-[#ffad33] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#875000]'
 					>
 						Explore recruitment

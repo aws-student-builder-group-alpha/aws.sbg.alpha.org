@@ -13,7 +13,7 @@ export const defaultQueueFilters: QueueFilters = { search: "", status: "all", tr
 export function isQueueFilters(v: unknown): v is QueueFilters {
   if (!record(v) || Object.keys(v).sort().join(",") !== "assignment,opportunityId,review,search,status,track") return false;
   if (typeof v.search !== "string" || v.search.length > 100 || !["all", ...applicationStatuses].includes(v.status as ApplicationStatus)
-    || !["all", "CORE_TEAM", "COMMITTEE"].includes(String(v.track)) || !["all", "assigned", "unassigned"].includes(String(v.assignment))
+    || !["all", "CORE_TEAM", "COMMITTEE", "MEMBER"].includes(String(v.track)) || !["all", "assigned", "unassigned"].includes(String(v.assignment))
     || !["all", "saved", "missing"].includes(String(v.review)) || typeof v.opportunityId !== "string") return false;
   const opportunity = getOpportunity(v.opportunityId);
   return v.opportunityId === "" || !!opportunity && (v.track === "all" || opportunity.track === v.track);

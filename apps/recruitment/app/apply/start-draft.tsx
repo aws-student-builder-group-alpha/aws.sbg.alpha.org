@@ -10,14 +10,14 @@ import { ApplicationOpportunity } from "@/app/components/application-introductio
 import { Callout, Icon } from "@/app/components/ui";
 import { ApplyEntry } from "./apply-entry";
 
-export function StartDraft({ applicant, onCreated, requestedOpportunity, signOutFailed = false }: { applicant: Applicant; onCreated: (draft: Draft) => void; requestedOpportunity?: string; signOutFailed?: boolean }) {
+export function StartDraft({ applicant, onCreated, requestedOpportunity, signOutFailed = false, embedded = false, onBusyChange }: { applicant: Applicant; onCreated: (draft: Draft) => void; requestedOpportunity?: string; signOutFailed?: boolean; embedded?: boolean; onBusyChange?: (busy: boolean) => void }) {
   const router = useRouter();
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const pending = useRef<SaveRequest | null>(null);
   const requested = getOpportunity(requestedOpportunity || "");
-  return <ApplyEntry preparation introduction>
+  const content = <>
     <div className="apply-entry-main">
       <h2>Ready to start?</h2>
       <p className="apply-lead">Four steps. Your progress saves automatically.</p>
@@ -34,15 +34,15 @@ export function StartDraft({ applicant, onCreated, requestedOpportunity, signOut
           if (requested) { payload.track = requested.track; payload.opportunityId = requested.id; payload.scenarioReviewedOpportunityId = requested.id; }
           pending.current = { accountId: applicant.id, payload, expectedVersion: 0, mutationId: crypto.randomUUID() };
         }
-        setBusy(true); setMessage("");
+        setBusy(true); onBusyChange?.(true); setMessage("");
         try {
           const result = await saveApplicantDraft(pending.current);
           if (result.ok) onCreated(result.draft);
           else { setMessage(result.message); if (result.code === "SUBMITTED") { router.replace("/application"); router.refresh(); } if (result.code === "VALIDATION") pending.current = null; }
         } catch { setMessage("Your draft could not be confirmed. Retry when your connection is available."); }
-        finally { setBusy(false); }
+        finally { setBusy(false); onBusyChange?.(false); }
       }}>
-        <label className="checkbox-row"><input type="checkbox" aria-required="true" checked={consent} disabled={busy} onChange={event => setConsent(event.target.checked)} /><span>I have read the <Link href="/privacy">privacy notice</Link> and agree to recruitment processing.</span></label>
+        <label className="checkbox-row"><input type="checkbox" aria-required="true" checked={consent} disabled={busy} onChange={event => setConsent(event.target.checked)} /><span className="required-label">I have read the <Link href="/privacy">privacy notice</Link> and agree to recruitment processing.</span></label>
         {message && <Callout tone="error" title="Something needs attention" className="apply-error" role="alert">{message} <button type="button" className="text-button" onClick={() => window.location.reload()}>Reload your saved draft</button></Callout>}
         <button className="button button-orange" type="submit" disabled={busy}>{busy ? "Starting…" : "Start application"}<Icon name="arrow" size={17} /></button>
       </form>
@@ -57,5 +57,6 @@ export function StartDraft({ applicant, onCreated, requestedOpportunity, signOut
         <p>Submit between <strong>1–30 November 2026</strong>, Philippine time. You can submit one application across all opportunities. Withdrawal is final.</p>
       </details>
     </div>
-  </ApplyEntry>;
+  </>;
+  return embedded ? content : <ApplyEntry preparation>{content}</ApplyEntry>;
 }

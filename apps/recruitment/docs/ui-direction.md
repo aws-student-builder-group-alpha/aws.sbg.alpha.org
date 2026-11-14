@@ -1,5 +1,15 @@
 # UI Direction
 
+## QA implemented layouts - 14 November 2026
+
+The role directory uses individual icon cards, search, three tracks and one role/consent dialog. Mobile cards/dialog sections stack. Apply labels/body/controls are 16px and supporting copy at least 14px. Under 600px progress uses two columns with readable labels. Optional fields stay visible. Required fields/groups have red markers and programmatic required state. Evidence precedes weekly availability in Your story; Review shows acknowledged evidence/Edit. Main Gallery spans the viewport and ends on the SCD audience photo, followed by a 36-cell collage containing all primary story photos before supplementary ones. Reduced motion retains normal flow.
+
+
+## QA presentation supersession - 14 November 2026
+
+Use Alpha fonts, palette and existing assets; sketches provide structure, not exact reproduction. The main hero prioritizes the full group name with a secondary Day One motto and stacked rotating community photos; retain its waves. Start your journey has three benefits cards with category-specific opportunities links. Alternate About photos and place Testimonials immediately afterward. Gallery expands to viewport width, hides category filters outside List, ends on the SCD audience photo and leads into a white-wash collage ending. Recruitment /opportunities becomes a searchable individual-role directory, without a promotional hero/preparation section; its accessible role dialog owns Google/consent entry. Apply keeps a readable white workspace over waves, required asterisks, visible optional fields, suggested free-text institution, inset select chevrons, ordinal year labels and weekly calendar days. Evidence moves before availability in Your story; Review shows its acknowledged summary. Preserve access, dirty/retry guards, keyboard and reduced-motion behavior. These accepted changes supersede older conflicting layouts; actual completion is in the tracker.
+
+
 ## Quick links and member portraits — 10 November 2026
 
 Quick links to homepage sections must land on their visible section after animation pin spacing settles, including when returning from Events or another site. Keep Alpha’s existing scrolling/motion. Do not pull readers back to a hash target after they begin scrolling or interacting. Saved membership portraits must appear in the ID preview after the server confirms the upload; preserve the existing photo consent, size/type rules, private storage and canvas download.
