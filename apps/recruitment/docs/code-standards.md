@@ -7,7 +7,7 @@ Browser fixtures compile the real directory/availability helper and use real iso
 
 ## QA contracts - 14 November 2026
 
-Track handling must be exhaustive for CORE_TEAM, COMMITTEE and MEMBER, including validation, staff filters, CSV labels and UI readers. Unlimited capacity is null, allowed only for General Member; do not substitute a large numeric limit. Public vacancy data is aggregate-only and does not authorize writes or guarantee a place. Keep SQL and runtime tests for legacy records, new Member submissions, aggregate privacy, capacity release and exact retries. Existing generated SDK files and installed migrations remain untouched.
+Track handling must be exhaustive for CORE_TEAM, COMMITTEE and MEMBER, including validation, staff filters, CSV labels and UI readers. Unlimited capacity is null, allowed only for General Member; do not substitute a large numeric limit. Public vacancy data is aggregate-only and does not authorize writes or guarantee a place. Keep SQL and runtime tests for legacy records, new Member submissions, aggregate privacy, capacity release and exact retries. Regenerate SDK types through the owning tool after installation; retain generated output unchanged. Never edit applied migration files.
 
 
 ## Quick links and member portraits — 10 November 2026

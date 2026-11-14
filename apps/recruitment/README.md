@@ -5,7 +5,7 @@
 
 The entry is now /opportunities: search roles, select Core Team/Committee/Member and open a role dialog for Google and processing consent. General Member uses the existing reviewed application without a fixed acceptance cap. Evidence is edited in Your story before weekly availability. Existing IDs and submissions remain compatible.
 
-Forward migration 20261114080000_qa_member_opportunities.sql is prepared/tested locally, not installed remotely. Reconcile the hosted ledger, install the forward migration and regenerate SDK types through the owning tool before configured staging/release checks. Missing aggregate configuration displays unavailable counts. No provider/domain/paid-plan change is required.
+Forward migration 20261114080000_qa_member_opportunities.sql is installed on confirmed recruitment project xndpudtctuqxnbkhhmre as hosted version 20261114010319. Database SDK types are regenerated. The architecture ledger records the verified mapping; do not replay historical migrations. Configured application/staging checks and website deployment remain separate. Missing aggregate configuration displays unavailable counts. No provider/domain/paid-plan change is required.
 
 
 This application is part of Alpha's main website and is delivered under `apps/recruitment` in the organization's `aws.sbg.alpha.org` repository. Use that repository's combined commands for a single local website on port 4300. Keep this application's separate lockfile and ignored environment; source consolidation does not change hosted accounts or permissions.

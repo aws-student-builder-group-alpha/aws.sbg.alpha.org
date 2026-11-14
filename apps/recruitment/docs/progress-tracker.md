@@ -1,5 +1,26 @@
 # Progress Tracker
 
+
+## QA migration applied and verified - 14 November 2026
+
+The installed Supabase connection resolved the earlier access blocker and verified the owner-confirmed Alpha Recruitment Test project xndpudtctuqxnbkhhmre. All four replaced function bodies matched the expected baseline after whitespace normalization. Verified the actual existing schema and sixteen-entry migration history; applied only the committed QA forward migration through the migration tool. Repository 20261114080000_qa_member_opportunities.sql maps to hosted version 20261114010319. No older migration/history was replayed or repaired.
+
+Post-install checks confirmed MEMBER/general-member, null capacity allowed only for General Member, unchanged sixteen existing capacities, empty RPC search path and denied direct capacity/application-table access. Anonymous HTTP returned 200 with seventeen aggregate records and only id/capacity/remaining fields, while direct application access returned 401. The live validator accepts a synthetic valid Member payload and still rejects missing enrollment; no synthetic application or identity was created. Before/after fingerprints match across all 21 tracked application/member/workflow tables (25 rows; ec29c933a6a8413c5f9d889f556e2e2a). No enrollment object, applicant record, membership, email, Auth setting or paid service changed.
+
+Generated database types through the Supabase tool and verified exact output preservation. The advisor delta is the intentional public aggregate SECURITY DEFINER function: only approved aggregate data is exposed, with no direct-table grants; its anon/authenticated execute advisories were reviewed, not suppressed by changing the access model. Existing denied-table and password-protection advisories remain unchanged. See [anonymous RPC advisory](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable) and [authenticated RPC advisory](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). This is not a complete security audit.
+
+Reviewed all six context documents. Architecture/current ledger, code standards, README and this tracker reflect installed state and regenerated types; overview, workflow and UI direction need no changes because product/authorization/presentation rules are unchanged. Follow-up TypeScript and zero-warning lint passed, and all 29 focused Member/capacity/queue/export regressions passed. Eight maintained documents and 82 local links passed UTF-8/structure/link checks; Git whitespace passed. QA application source remains committed as ca50650; this unit delivers regenerated types and the installed-migration handoff in a separate follow-up commit identified in the final response. No Git push or website deployment occurred.
+
+
+## QA commit and migration access check - 14 November 2026
+
+At the owner's request, committed the QA implementation and homepage heading removal as ca50650 on feat/qa-website-improvements (53 files). The prior Meetup edits and test remain outside the commit; no push or deployment occurred. The owner confirmed xndpudtctuqxnbkhhmre as the migration target and authorized application after the commit.
+
+Migration work remains incomplete. Verified the app's configured target, found no repository CLI link or connected Supabase management integration, and checked the existing CLI login. Its accessible project list excludes the confirmed recruitment project. The discovered Supabase integration is not installed/connected; setup was offered for an account that can access the target. No schema inspection, DDL, migration-history repair, data mutation or type regeneration was performed against the hosted target. Once access is available, resume at read-only schema/ledger/drift checks before applying only the prepared forward migration atomically. Never substitute a different accessible project.
+
+Reviewed all six context documents for this delivery/access unit. Only this tracker needs an update: product, architecture, code standards, workflow and UI contracts remain accurate, and the existing ledger/release prerequisites remain in force. No application tests were repeated for this documentation-only record. Git whitespace and UTF-8 structure checks passed. No qualifying new framework-feedback issue was found.
+
+
 ## QA report implementation - 14 November 2026
 
 Implemented on feat/qa-website-improvements: main hero/group hierarchy and photo stack, three benefits/category cards, alternating About photos and Testimonials order; viewport camera/gallery filters, explicit SCD finale and collage; searchable /opportunities with three tracks and selected-role Google/consent dialog; readable required-marked form, suggested editable institution, ordinal years, visible optional fields, remaining places, recurring weekday calendar and evidence moved into Your story. General Member reuses assigned review/admin publication without a fixed cap; membership IDs stay explicitly issued. Existing submissions, IDs, role guards and exact retries remain compatible. The original unrelated Meetup edits are preserved.
