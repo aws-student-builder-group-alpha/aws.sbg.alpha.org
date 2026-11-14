@@ -35,6 +35,8 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+Development startup and both build commands automatically prepare the Git-ignored Meetup event JSON. Each request has a 10-second timeout. If Meetup is unavailable, startup keeps the existing feed or creates an empty feed on first run; bundled event history remains available. Use `npm run fetch-events` to refresh the feed manually.
+
 ## Commands
 
 | Command | Description |
