@@ -171,3 +171,9 @@ Use typed shared Callout variants and explicit announcement roles. Do not derive
 Combined-preview transport regressions: run `node --test scripts/combined-dev-proxy.test.mjs` from the repository root to check HTTP paths, query preservation, asset isolation and both development WebSocket upgrades. Browser checks must verify hydration and a stable navigation count, since HTTP 200 alone did not detect the reload loop.
 
 The combined-preview regressions also assert recruitment-only development Webpack selection, unchanged build/start arguments and shared font path translation. Browser acceptance observes each route for at least 30 seconds, checks navigation counts and HMR reload messages, and verifies fonts and hydration.
+
+## Membership showcase - 14 November 2026
+
+The membership browser suite compiles the real workspace, shared frame, process shell, validation, client transport and canvas renderer with synthetic HTTP/account data. Cover loading/empty/error/invited/active states, acceptance, native consent, upload/save recovery, private lookup, real PNG download, 320/390/1440px bounds and 200% text. It runs with the normal browser pipeline; preview PNGs are generated under .next/membership-preview.
+
+Membership layout regressions measure wrapper-to-main and main-to-last-content gaps at 320/390/1440/1920px, requiring natural height and 32px bottom padding rather than only checking horizontal overflow.

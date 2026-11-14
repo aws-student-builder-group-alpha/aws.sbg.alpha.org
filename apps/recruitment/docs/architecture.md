@@ -399,3 +399,9 @@ A draft can hold an opportunity while its profile is incomplete or ineligible; t
 The development launcher places an HTTP/WebSocket gateway on 127.0.0.1:4300. Recruitment paths and its two shared font URLs route directly to 4301; other paths route to the main-site compiler on 4302. This preserves each app's own HMR protocol and avoids the main Next server intercepting recruitment upgrades. Production build/start and standalone routing remain unchanged.
 
 Recruitment combined development explicitly uses Webpack; main-site development retains its default compiler. Direct-port reproduction showed Turbopack HMR hash-mismatch reloads persist without the gateway, so transport separation alone is insufficient. The gateway translates the two root font paths into /recruitment/brand/ paths while preserving queries.
+
+## Membership showcase - 14 November 2026
+
+MembershipFrame and MembershipWelcome share presentation across server entry/loading and client membership states. MemberWorkspace retains its existing HTTP, ownership, invitation acceptance, polling, upload and canvas/download lifecycle. Identity artwork is unchanged; editing, help and private lookup use native disclosures.
+
+ProcessShell has an optional contentHeight presentation flag, defaulting to false. Membership opts in across loading, access and workspace states, clearing only its wrapper/page minimum heights. Existing form pages retain their viewport sizing.

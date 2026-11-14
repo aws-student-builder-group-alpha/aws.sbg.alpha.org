@@ -186,3 +186,7 @@ Operational automation is **deferred**, not active. Future targets remain encryp
 The latest owner direction removes redundant recruitment page-title banners, including the Apply editor title strip. Keep accessible page headings, status/reference information and functional access explanations within content; preserve the shared navbar, Home hero and Apply welcome.
 
 Application flow refinements: the reference section explains each current status and confirms server-acknowledged submission; Review warns that answers/URLs lock and withdrawal prevents reapplication. Administrator Unassigned, Awaiting recommendation and Ready for decision shortcuts preserve applied search/track/opportunity and reuse existing guards/filters. Evaluators can explicitly open the next unreviewed active assignment in the current search, using paginated reads and access rechecks; failures retain the current record. No new API, permission, notification or schema contract.
+
+## Membership showcase - 14 November 2026
+
+Membership workspace presentation now uses a compact Alpha card showcase for issued IDs and an Alphy-led empty/invitation/sign-in state. The downloaded card artwork, membership issuance, ownership and consent rules remain unchanged.
