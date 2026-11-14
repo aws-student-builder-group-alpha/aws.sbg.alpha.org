@@ -8,6 +8,7 @@ import "../tokens.css";
 import "./redesign.css";
 import "./application-workbench.css";
 import "./community.css";
+import "./header.css";
 
 export const metadata: Metadata = {
   title: {

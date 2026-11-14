@@ -1,5 +1,23 @@
 # Architecture
 
+## Role modal presentation - 14 November 2026
+
+The shared Modal accepts optional headerContent while keeping the title as its accessible name and owning close/Escape/backdrop behavior and focus restoration. Existing dialogs retain their default heading. The opportunity dialog alone supplies rich role identity and scoped backdrop/layout styles. StartDraft embedded presentation omits repeated selected-role/preparation blocks, while standalone entry is unchanged. Existing consent, selected-role draft payload, exact pending request, busy dismissal guard and access checks remain authoritative; no transport or storage contract changes.
+
+## Uniform recruitment header - 14 November 2026
+
+The shared header remains recruitment-owned and uses existing verified session/role inputs. SessionHeader passes a display-only account label (name, then email prefix); it grants no access. HeaderContent derives light/dark presentation from the active path/frame, ignoring retained inactive page DOM. A measured closed-row spacer reserves fixed-header space and owns the matching initial backing surface. The dedicated header stylesheet replaces prior redesign navigation rules. Desktop account disclosure and mobile overlay reuse the same permitted links and sign-out action; preserve unsaved confirmation. Mobile focus containment, restored sibling inert states/body overflow, observer/listener cleanup and route-key reset are presentation lifecycle responsibilities. No main-site imports, shared auth state, backend or schema changes are introduced.
+
+## QA entry and form implementation - 14 November 2026
+
+/opportunities is the canonical directory; the root redirects while preserving supported queries. Track/search/selected role live in URL history. Request-time verified draft loading supplies only entry identity/status. Google returns to the selected role; consent precedes draft creation. Existing draft role switching, submitted/member/staff routing remain. Direct /apply resumes a draft; /apply?entry=1 retains compact fallback. Evidence is edited in Your story; Review reloads private proof metadata read-only and submission rechecks Storage. Institution suggestions and weekly calendar reuse existing string/weekday formats, with legacy Other/year compatibility. The QA forward migration is installed; see the current hosted ledger below.
+
+
+## QA Member and public vacancy contract - 14 November 2026
+
+Forward migration 20261114080000_qa_member_opportunities was installed on confirmed project xndpudtctuqxnbkhhmre as hosted version 20261114010319 on 14 November 2026. It adds MEMBER/general-member, extends the current validators and queue/export filters without modifying applied migrations, and permits null capacity only for General Member. Existing serialized publication compares accepted occupancy to a nullable maximum, retaining account/application/capacity locks, MFA/current-review guards and receipts. No automatic ID issuance is added. GET /api/opportunities calls an anonymous empty-search-path SECURITY DEFINER aggregate RPC, exposes only IDs/capacity/remaining/snapshot time, and denies table access. Errors are unavailable counts, never invented zeros. Database SDK types were regenerated using the connected Supabase tool and retained unchanged. Existing applied migration files are preserved.
+
+
 ## Quick links and member portraits — 10 November 2026
 
 Main-site hash navigation now realigns the requested section after ScrollTrigger refresh and font readiness, using the pin start where relevant. It synchronizes the existing Lenis instance, falls back to native scrolling for reduced motion/touch, and stops correcting after user input. It does not recreate the section animations. Membership portrait submission uses the explicit uploadMemberPhoto client contract (accountId, kind=photo, name, file), then reloads the acknowledged private photo through the existing owned-file endpoint. No schema, policy, authentication or storage grant changes are needed.
@@ -313,23 +331,27 @@ $$;
 
 ### Hosted migration ledger
 
-Repository and hosted versions differ. The first baseline was manually installed without a history entry. Inspect actual schema and this mapping; preserve applied files and deliberately reconcile history before a generic CLI push. For new schema changes, add a forward migration and regenerate types using the owning tool.
+This ledger records the currently configured and owner-confirmed Alpha Recruitment Test project xndpudtctuqxnbkhhmre, verified on 14 November 2026. Earlier version mappings elsewhere in this historical document describe prior installations. Local filenames and hosted versions differ: do not replay old files or run a generic push without deliberate reconciliation. The QA migration was applied alone through the connected migration tool; no old history was repaired or replayed.
 
 | Repository migration | Hosted version | Installation |
 | --- | --- | --- |
-| `202610180001_applicant_drafts.sql` | No migration-history entry | Manually installed before connection; draft tables, catalog, validator, save RPC, and read policy observed before staff installation. Not replayed. |
-| `202610190001_staff_access.sql` | `20261019012439` | Applied through the connected Supabase migration tool. |
-| `202610190002_staff_reason_validation.sql` | `20261019012443` | Applied through the connected Supabase migration tool. |
-| `20261019053837_nonretryable_application_conflicts.sql` | `20261019054010` | Applied through the connected Supabase migration tool; replaces business-conflict SQLSTATEs in staff management and draft saves. |
-| `20261019060538_applicant_submission.sql` | `20261019061952` | Applied through the connected integration; immutable applications, public history, owner intake settings, and post-submission draft guard. |
-| `20261021110450_evaluator_workflow.sql` | `20261021112244` | Applied through the connected integration; assignment generations, private recommendations/history/receipts, Under Review and review-time withdrawal. |
-| `20261021112900_separate_evaluator_identity.sql` | `20261021113034` | Forward correction rejecting assignment of the applicant as their own evaluator after a staff grant; function signatures and generated types unchanged. |
-| `20261026120719_decision_publication.sql` | `20261026122247` | Publication/amendments, private decision audit/receipts, fixed capacities, published evaluator read access, and capacity-aware withdrawal. |
-| `20261026132311_admin_application_queue.sql` | `20261026133325` | Administrator/MFA-protected read-only queue filters, 25-row pages, and all-matching total/status counts. |
-| `20261026144314_intake_management.sql` | `20261026144942` | Intake state/history/commands; fixed November values preserved |
-| `20261026155212_application_csv_export.sql` | `20261026155823` | Read-only administrator/MFA-protected complete filtered export snapshot; no data/grant/settings changes. |
-| `20261031130046_required_resume_link.sql` | `20261031131551` | Required resume only for fresh submissions; historical snapshots, CHECK validation and receipts preserved. |
-| `20261031184003_simplify_applicant_form.sql` | `20261101061419` | Versioned three-response form, legacy validation/receipts, monotonic draft upgrade, retired draft-only text and mixed-version export. Rollback-only hosted assertions passed; existing public/Auth data and grants preserved. |
+| `202610180001_applicant_drafts.sql` | `20261106234910` | Verified installed on confirmed recruitment project |
+| `202610190001_staff_access.sql` | `20261106234919` | Verified installed on confirmed recruitment project |
+| `202610190002_staff_reason_validation.sql` | `20261106234922` | Verified installed on confirmed recruitment project |
+| `20261019053837_nonretryable_application_conflicts.sql` | `20261106234926` | Verified installed on confirmed recruitment project |
+| `20261019060538_applicant_submission.sql` | `20261106234928` | Verified installed on confirmed recruitment project |
+| `20261021110450_evaluator_workflow.sql` | `20261106234933` | Verified installed on confirmed recruitment project |
+| `20261021112900_separate_evaluator_identity.sql` | `20261106234936` | Verified installed on confirmed recruitment project |
+| `20261026120719_decision_publication.sql` | `20261106234939` | Verified installed on confirmed recruitment project |
+| `20261026132311_admin_application_queue.sql` | `20261106234940` | Verified installed on confirmed recruitment project |
+| `20261026144314_intake_management.sql` | `20261106234942` | Verified installed on confirmed recruitment project |
+| `20261026155212_application_csv_export.sql` | `20261106234945` | Verified installed on confirmed recruitment project |
+| `20261031130046_required_resume_link.sql` | `20261106234947` | Verified installed on confirmed recruitment project |
+| `20261031184003_simplify_applicant_form.sql` | `20261106234950` | Verified installed on confirmed recruitment project |
+| `20261109005924_alpha_membership_and_recruitment_services.sql` | `20261109013156` | Verified installed on confirmed recruitment project |
+| `20261109062617_enrollment_presence_guard.sql` | `20261109063128` | Verified installed on confirmed recruitment project |
+| `20261110080000_membership_invitations.sql` | `20261109232714` | Verified installed on confirmed recruitment project |
+| `20261114080000_qa_member_opportunities.sql` | `20261114010319` | Verified installed on confirmed recruitment project |
 
 ## Deferred operations
 

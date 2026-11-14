@@ -18,16 +18,18 @@ import { blockedDestination, simplifiedStages } from "@/lib/application-progress
 import { StartDraft } from "./start-draft";
 import { ApplyEntry } from "./apply-entry";
 import { ApplicationIntroduction } from "@/app/components/application-introduction";
+import { useOpportunityAvailability } from "@/app/components/use-opportunity-availability";
+import { availabilityLabel } from "@/lib/opportunity-availability";
 import { EnrollmentUpload } from "@/app/components/enrollment-upload";
 
 const steps = ["About you", "Opportunity", "Your story", "Review & submit"];
-const stepDescriptions = ["Your university & studies", "Find your place on the team", "Your ideas & role scenario", "Required resume & final review"];
+const stepDescriptions = ["Your school & studies", "Find your place on the team", "Your ideas & role scenario", "Check and submit your application"];
 const headings: Record<number, string> = { 1: "About you", 2: "Choose your opportunity", 3: "Your story", 5: "Review & submit" };
 const validationStages: Record<string, number> = Object.fromEntries(([
   [1, ["fullName", "email", "university", "otherUniversity", "program", "programLevel", "year", "yearExplanation", "preferredName", "mobile", "campus", "enrolled"]],
   [2, ["track", "eligibility", "opportunityId"]],
-  [3, ["availabilityDays", "motivation", "collaboration", "scenario", "scenarioReviewedOpportunityId"]],
-  [5, ["resumeUrl", "portfolioUrl", "proofOfEnrollment", "accuracy", "updatesConsent"]],
+  [3, ["resumeUrl", "portfolioUrl", "proofOfEnrollment", "availabilityDays", "motivation", "collaboration", "scenario", "scenarioReviewedOpportunityId"]],
+  [5, ["accuracy", "updatesConsent"]],
 ] as const).flatMap(([step, fields]) => fields.map(field => [field, step])));
 
 function Field({
@@ -48,7 +50,7 @@ function Field({
   return (
     <div className="field">
       <label htmlFor={id}>
-        {label} {optional && <span>(optional)</span>}
+        {label} {optional ? <span>(optional)</span> : <><span className="required-mark" aria-hidden="true">*</span></>}
       </label>
       {hint && (
         <p className="field-hint" id={`${id}-hint`}>
@@ -71,6 +73,7 @@ export function DraftEditor({ applicant, initialDraft, intake, requestedOpportun
 }
 function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOpportunity, signOutFailed, practice }: { applicant: Applicant; initialDraft: Draft; initialIntake: Intake; requestedOpportunity?: string; signOutFailed: boolean; practice: boolean }) {
   const router = useRouter();
+  const vacancies = useOpportunityAvailability();
   const [queue] = useState(() => {
     const persist: typeof saveApplicantDraft = practice ? async ({ payload, expectedVersion }) => {
       const errors = validateDraft(payload);
@@ -218,7 +221,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
     const message = validateSubmission(editableDraft(app))[key];
     setErrors(previous => { const next = { ...previous }; if (message) next[key] = message; else delete next[key]; return next; });
   };
-  const inputProps = (key: string) => ({ id: key, "data-validation-field": key, "aria-invalid": !!errors[key], "aria-describedby": [(["experience", "resumeUrl", "portfolioUrl"].includes(key) ? key + "-hint" : ""), errors[key] ? key + "-error" : ""].filter(Boolean).join(" ") || undefined, onBlur: (event: FocusEvent<HTMLElement>) => {
+  const inputProps = (key: string) => ({ id: key, required: !["preferredName", "mobile", "campus", "portfolioUrl"].includes(key), "aria-required": !["preferredName", "mobile", "campus", "portfolioUrl"].includes(key), "data-validation-field": key, "aria-invalid": !!errors[key], "aria-describedby": [(["experience", "resumeUrl", "portfolioUrl"].includes(key) ? key + "-hint" : ""), errors[key] ? key + "-error" : ""].filter(Boolean).join(" ") || undefined, onBlur: (event: FocusEvent<HTMLElement>) => {
     // Navigation validates on activation; avoid moving its target during pointerdown.
     if (event.relatedTarget instanceof Element && event.relatedTarget.closest(".process-action-bar,.process-track,.process-day-picker")) return;
     blur(key);
@@ -256,6 +259,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
     if (frozen) return;
     const blocked = next > stage ? blockedDestination(editableDraft(app), next) : null;
     if (blocked) { showBlocked(blocked); return; }
+    if (next === 5 && stage === 3 && !enrollmentReady) { showValidation({ proofOfEnrollment: "Upload your current proof of enrollment before continuing." }); return; }
     setStage(next); patch({ stage: next }); setErrors({}); window.scrollTo({ top: 0, behavior: "instant" });
     requestAnimationFrame(() => stepRef.current?.querySelector<HTMLElement>(".process-step-heading")?.focus({ preventScroll: true }));
   }
@@ -328,20 +332,12 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                     </Field>
                   </div>
                   <div className="process-group">
-                    <h3 className="process-group-title">University & studies</h3>
+
                     <div className="process-fields">
-                      <Field id="university" label="University" error={errors.university}>
-                        <select {...inputProps("university")} value={app.profile.university} onChange={(event) => profile("university", event.target.value)}>
-                          <option value="">Select your university</option>
-                          <option>Rizal Technological University</option>
-                          <option>Polytechnic University of the Philippines</option>
-                          <option>University of the Philippines</option>
-                          <option>Other</option>
-                        </select>
+                      <Field id="university" label="School / College / University" error={errors.university || errors.otherUniversity}>
+                        <input {...inputProps("university")} data-validation-field="university otherUniversity" aria-invalid={!!(errors.university || errors.otherUniversity)} aria-describedby={errors.university || errors.otherUniversity ? "university-error" : undefined} maxLength={160} list="school-suggestions" value={app.profile.university === "Other" ? app.profile.otherUniversity : app.profile.university} onChange={event => patch({ profile: { ...app.profile, university: event.target.value, otherUniversity: "" } })} placeholder="Enter your institution" />
+                        <datalist id="school-suggestions"><option value="Rizal Technological University" /><option value="Polytechnic University of the Philippines" /><option value="University of the Philippines" /></datalist>
                       </Field>
-                      {app.profile.university === "Other" && <Field id="otherUniversity" label="University name" error={errors.otherUniversity}>
-                        <input {...inputProps("otherUniversity")} maxLength={160} value={app.profile.otherUniversity} onChange={(event) => profile("otherUniversity", event.target.value)} />
-                      </Field>}
                       <Field id="program" label="Degree / program" error={errors.program}>
                         <input {...inputProps("program")} maxLength={160} value={app.profile.program} onChange={(event) => profile("program", event.target.value)} placeholder="e.g. BS Information Technology" />
                       </Field>
@@ -357,8 +353,8 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                         <Field id="year" label="Current academic year" error={errors.year}>
                           <select {...inputProps("year")} value={app.profile.year} onChange={(event) => profile("year", event.target.value)}>
                             <option value="">Select current year</option>
-                            {["1", "2", "3", "4", "5"].map((year) => <option key={year} value={year}>Year {year}</option>)}
-                            <option value="6+">Year 6 or later</option>
+                            {[["1","1st Year"],["2","2nd Year"],["3","3rd Year"],["4","4th Year"],["5","5th Year or later"]].map(([value,label]) => <option key={value} value={value}>{label}</option>)}
+                            {app.profile.year === "6+" && <option value="6+">5th Year or later (saved)</option>}
                             <option value="other">Other academic standing</option>
                           </select>
                         </Field>
@@ -368,8 +364,8 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                       </Field>}
                     </div>
                   </div>
-                  <details className="process-optional">
-                    <summary>Optional details</summary>
+                  <section className="process-optional">
+                    <h3 className="process-group-title">Optional details</h3>
                     <div className="process-fields process-optional-fields">
                       <Field id="preferredName" label="Preferred name" optional error={errors.preferredName}>
                         <input {...inputProps("preferredName")} value={app.profile.preferredName} onChange={(event) => profile("preferredName", event.target.value)} maxLength={60} placeholder="What should we call you?" />
@@ -381,10 +377,10 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                         <input {...inputProps("campus")} value={app.profile.campus} maxLength={120} onChange={(event) => profile("campus", event.target.value)} placeholder="Your campus" />
                       </Field>
                     </div>
-                  </details>
+                  </section>
                   <label className="checkbox-row">
-                    <input id="enrolled" data-validation-field="enrolled" aria-invalid={!!errors.enrolled} type="checkbox" checked={app.profile.enrolled} onChange={(event) => profile("enrolled", event.target.checked)} aria-describedby={errors.enrolled ? "enrolled-error" : undefined} />
-                    <span>I certify that I am currently enrolled at a university and will provide my current registration form or official enrollment certificate.</span>
+                    <input id="enrolled" aria-required="true" data-validation-field="enrolled" aria-invalid={!!errors.enrolled} type="checkbox" checked={app.profile.enrolled} onChange={(event) => profile("enrolled", event.target.checked)} aria-describedby={errors.enrolled ? "enrolled-error" : undefined} />
+                    <span>I certify that I am currently enrolled at a school, college, or university and will provide my current registration form or official enrollment certificate. <span className="required-mark" aria-hidden="true">*</span></span>
                   </label>
                   {errors.enrolled && <FieldError id="enrolled-error">{errors.enrolled}</FieldError>}
                   {app.track === "CORE_TEAM" && app.profile.enrolled && app.profile.year && app.profile.programLevel && !isCoreEligible(app.profile) && (
@@ -397,12 +393,12 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
               {stage === 2 && (
                 <div className="process-form-section">
                   <fieldset className="process-choices" id="track" data-validation-field="track eligibility" tabIndex={-1} aria-invalid={!!(errors.track || errors.eligibility)} aria-describedby={[errors.track ? "track-error" : "", errors.eligibility ? "eligibility-error" : ""].filter(Boolean).join(" ") || undefined}>
-                    <legend className="process-legend">Track</legend>
-                    {(["CORE_TEAM", "COMMITTEE"] as const).map((track) => (
+                    <legend className="process-legend">Track <span className="required-mark" aria-hidden="true">*</span></legend>
+                    {(["CORE_TEAM", "COMMITTEE", "MEMBER"] as const).map((track) => (
                       <label key={track} className={`process-choice${app.track === track ? " selected" : ""}`}>
-                        <input type="radio" name="track" aria-label={track === "CORE_TEAM" ? "Core Team" : "Committee"} aria-describedby={`${track}-eligibility`} checked={app.track === track} onChange={() => setPath(track)} />
+                        <input type="radio" required name="track" aria-label={track === "CORE_TEAM" ? "Core Team" : track === "MEMBER" ? "Member" : "Committee"} aria-describedby={`${track}-eligibility`} checked={app.track === track} onChange={() => setPath(track)} />
                         <span className="process-radio" aria-hidden="true" />
-                        <span className="process-choice-body"><strong>{track === "CORE_TEAM" ? "Core Team" : "Committee"}</strong><small id={`${track}-eligibility`}>{track === "CORE_TEAM" ? "1st & 2nd year undergraduates" : "All enrolled university year levels"}</small></span>
+                        <span className="process-choice-body"><strong>{track === "CORE_TEAM" ? "Core Team" : track === "MEMBER" ? "Member" : "Committee"}</strong><small id={`${track}-eligibility`}>{track === "CORE_TEAM" ? "1st & 2nd year undergraduates" : "All enrolled students"}</small></span>
                       </label>
                     ))}
                   </fieldset>
@@ -411,7 +407,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                     <div className="process-eligibility">{errors.eligibility ? <FieldError id="eligibility-error">{errors.eligibility}</FieldError> : <p className="field-hint">Your academic details do not meet Core Team eligibility. Select Committee to continue.</p>}<button className="text-button" type="button" onClick={() => setPath("COMMITTEE")}>Switch to Committee and keep my details<Icon name="arrow" size={15} /></button></div>
                   )}
                   <fieldset className="apply-opportunities" id="opportunityId" data-validation-field="opportunityId" tabIndex={-1} aria-invalid={!!errors.opportunityId} aria-describedby={errors.opportunityId ? "opportunityId-error" : undefined}>
-                    <legend className="process-legend">{app.track === "CORE_TEAM" ? "Core Team role" : "Committee opportunity"}</legend>
+                    <legend className="process-legend">{app.track === "CORE_TEAM" ? "Core Team role" : app.track === "MEMBER" ? "General membership" : "Committee opportunity"} <span className="required-mark" aria-hidden="true">*</span></legend>
 
                     <div className="process-opportunity-groups">
                       {[...new Set(opportunities.filter(choice => choice.track === app.track).map(choice => choice.department))].map(department => <section className="process-opportunity-group" key={department} aria-label={department}>
@@ -420,9 +416,9 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                           const selected = app.opportunityId === choice.id;
                           return <div className={`process-opportunity${selected ? " selected" : ""}`} key={choice.id}>
                             <label>
-                              <input type="radio" name="opportunity" aria-label={opportunityLabel(choice)} aria-describedby={selected ? `${choice.id}-description${choice.id === "buildher" ? " buildher-eligibility" : ""}` : undefined} value={choice.id} checked={selected} onChange={() => setPath(app.track, choice.id)} />
+                              <input type="radio" required name="opportunity" aria-label={opportunityLabel(choice)} aria-describedby={selected ? `${choice.id}-description${choice.id === "buildher" ? " buildher-eligibility" : ""}` : undefined} value={choice.id} checked={selected} onChange={() => setPath(app.track, choice.id)} />
                               <span className="process-radio" aria-hidden="true" />
-                              <span className="process-opportunity-body"><strong>{choice.specialization || choice.title}</strong>{selected && <small className="process-selected-badge">Selected</small>}</span>
+                              <span className="process-opportunity-body"><strong>{choice.specialization || choice.title}</strong><small>{availabilityLabel(vacancies, choice.id)}</small>{selected && <small className="process-selected-badge">Selected</small>}</span>
                               <Icon name={choice.icon} size={20} />
                             </label>
                             {selected && <div className="process-opportunity-detail" id={`${choice.id}-description`}>
@@ -445,10 +441,21 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                     <p className="process-context-line"><Icon name={opportunity.icon} size={16} /><span>Writing for <strong>{opportunityLabel(opportunity)}</strong></span></p>
                     <a href="#scenario-prompt" className="text-button">Go to the role scenario <Icon name="arrow" size={16} /></a>
                   </div>}
+                  <section className="process-review-links" aria-labelledby="process-links-title">
+                    <h3 className="process-group-title" id="process-links-title">Resume & portfolio</h3>
+                    <p className="field-hint">A resume is required before you submit. You can save a draft without it.</p>
+                    <Field id="resumeUrl" label="Resume link (required)" error={errors.resumeUrl} hint="View-only HTTPS link. It must open without signing in."><input {...inputProps("resumeUrl")} required aria-required="true" type="url" maxLength={2048} value={app.resumeUrl} onChange={event => patch({ resumeUrl: event.target.value })} placeholder="https://drive.google.com/file/d/…/view" /></Field>
+                    <details className="process-resume-help"><summary>How to share your resume</summary><p>For Google Drive, choose Share → General access → Anyone with the link → Viewer. Test it in a private browser window and keep it accessible throughout recruitment. We store the URL without checking document access.</p></details>
+                    {app.resumeUrl && isEvidenceUrl(app.resumeUrl) && <a className="text-button" href={app.resumeUrl} target="_blank" rel="noopener noreferrer">Open resume link<Icon name="external" size={16} /></a>}
+                    <EnrollmentUpload accountId={applicant.id} disabled={frozen || exiting} error={errors.proofOfEnrollment} onReady={setEnrollmentReady} practice={practice} />
+                    <Field id="portfolioUrl" label="Portfolio link" optional error={errors.portfolioUrl} hint="HTTPS link, if you have one.">
+                      <input {...inputProps("portfolioUrl")} type="url" maxLength={2048} value={app.portfolioUrl} onChange={(event) => patch({ portfolioUrl: event.target.value })} placeholder="https://your-portfolio.example" />
+                    </Field>
+                  </section>
                   <fieldset className="process-days" id="availabilityDays" data-validation-field="availabilityDays" tabIndex={-1} aria-describedby={`availabilityDays-hint${errors.availabilityDays ? " availabilityDays-error" : ""}`} aria-invalid={!!errors.availabilityDays}>
-                    <legend>When are you usually available?</legend>
-                    <p className="field-hint" id="availabilityDays-hint">Choose days, not a full class schedule.</p>
-                    <div className="process-day-picker">{["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => <label key={day}><input type="checkbox" aria-label={day} checked={app.profile.availability.includes(day)} onChange={event => profile("availability", event.target.checked ? [...app.profile.availability, day] : app.profile.availability.filter(value => value !== day))} /><span>{day.slice(0, 3)}</span></label>)}</div>
+                    <legend>When are you usually available? <span className="required-mark" aria-hidden="true">*</span></legend>
+                    <p className="field-hint" id="availabilityDays-hint">Select your recurring available days in this weekly calendar. No Google Calendar connection is needed.</p>
+                    <div className="process-day-picker weekly-calendar" role="group" aria-label="Weekly availability">{["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => <label key={day}><input type="checkbox" aria-label={day} checked={app.profile.availability.includes(day)} onChange={event => profile("availability", event.target.checked ? [...app.profile.availability, day] : app.profile.availability.filter(value => value !== day))} /><span><strong>{day.slice(0, 3)}</strong><small>{app.profile.availability.includes(day) ? "Available" : "Select day"}</small></span></label>)}</div>
                     {errors.availabilityDays && <FieldError id="availabilityDays-error">{errors.availabilityDays}</FieldError>}
                   </fieldset>
                   <p className="field-hint" id="story-instructions">All three responses are required. Use your own words and keep each answer to 150 words or fewer.</p>
@@ -461,7 +468,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                       <textarea {...inputProps(question.id)} aria-describedby={`story-instructions ${question.id}-count${question.id === "scenario" ? " scenario-help" : ""}${errors[question.id] ? ` ${question.id}-error` : ""}`} rows={5} value={app.answers[question.id]} onChange={event => changeResponse(question.id, event.target.value)} />
                       <span className={`word-count process-word-count ${wordCount(app.answers[question.id]) > 150 ? "over-limit" : ""}`} id={`${question.id}-count`}>{wordCount(app.answers[question.id])} / 150 words</span>
                     </Field>
-                    {question.id === "scenario" && (scenarioReviewVisible || app.scenarioReviewedOpportunityId !== app.opportunityId || errors.scenarioReviewedOpportunityId) && app.opportunityId && <label className="checkbox-row"><input id="scenarioReviewedOpportunityId" data-validation-field="scenarioReviewedOpportunityId" aria-invalid={!!errors.scenarioReviewedOpportunityId} type="checkbox" checked={app.scenarioReviewedOpportunityId === app.opportunityId} aria-describedby={errors.scenarioReviewedOpportunityId ? "scenarioReviewedOpportunityId-error" : undefined} onChange={event => patch({ scenarioReviewedOpportunityId: event.target.checked ? app.opportunityId : "" })} /><span>I reviewed my scenario response for {opportunityLabel(opportunity)}.</span></label>}
+                    {question.id === "scenario" && (scenarioReviewVisible || app.scenarioReviewedOpportunityId !== app.opportunityId || errors.scenarioReviewedOpportunityId) && app.opportunityId && <label className="checkbox-row"><input id="scenarioReviewedOpportunityId" data-validation-field="scenarioReviewedOpportunityId" aria-invalid={!!errors.scenarioReviewedOpportunityId} type="checkbox" checked={app.scenarioReviewedOpportunityId === app.opportunityId} aria-describedby={errors.scenarioReviewedOpportunityId ? "scenarioReviewedOpportunityId-error" : undefined} onChange={event => patch({ scenarioReviewedOpportunityId: event.target.checked ? app.opportunityId : "" })} /><span className="required-label">I reviewed my scenario response for {opportunityLabel(opportunity)}.</span></label>}
                     {question.id === "scenario" && errors.scenarioReviewedOpportunityId && <FieldError id="scenarioReviewedOpportunityId-error">{errors.scenarioReviewedOpportunityId}</FieldError>}
                   </section>)}
                   {(app.profile.experience || app.answers.availability || app.answers.pathway) && <details className="process-previous"><summary>Previous draft answers</summary><p>These earlier answers are saved for copying. They are not included in your new submission. Your retained responses may need shortening to 150 words.</p>{[["Experience & interests", app.profile.experience], ["Time commitment", app.answers.availability], ["Your contribution", app.answers.pathway]].map(([label, text]) => text && <div className="response-block" key={label}><h3>{label}</h3><p>{text}</p></div>)}</details>}
@@ -471,25 +478,15 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                 <div className="process-form-section">
                   {!practice && (intake.accepting ? <div className="process-intake-availability"><p>Intake is open · 1–30 November 2026, Philippine time.</p><button type="button" className="text-button" disabled={submitting} onClick={() => void checkLatest(true)}>Refresh intake availability</button></div> : <Callout tone="warning">{intakeAvailability(intake)}<button type="button" className="text-button" disabled={submitting} onClick={() => void checkLatest(true)}>Refresh intake availability</button></Callout>)}
                   {intakeFeedback?.kind === "status" && <p className="process-intake-status" role="status">{intakeFeedback.message}</p>}
-                  <section className="process-review-links" aria-labelledby="process-links-title">
-                    <h3 className="process-group-title" id="process-links-title">Resume & portfolio</h3>
-                    <p className="field-hint">A resume is required before you submit. You can save a draft without it.</p>
-                    <Field id="resumeUrl" label="Resume link (required)" error={errors.resumeUrl} hint="View-only HTTPS link. It must open without signing in."><input {...inputProps("resumeUrl")} required aria-required="true" type="url" maxLength={2048} value={app.resumeUrl} onChange={event => patch({ resumeUrl: event.target.value })} placeholder="https://drive.google.com/file/d/…/view" /></Field>
-                    <details className="process-resume-help"><summary>How to share your resume</summary><p>For Google Drive, choose Share → General access → Anyone with the link → Viewer. Test it in a private browser window and keep it accessible throughout recruitment. We store the URL without checking document access.</p></details>
-                    {app.resumeUrl && isEvidenceUrl(app.resumeUrl) && <a className="text-button" href={app.resumeUrl} target="_blank" rel="noopener noreferrer">Open resume link<Icon name="external" size={16} /></a>}
-                    <EnrollmentUpload accountId={applicant.id} disabled={frozen || exiting} error={errors.proofOfEnrollment} onReady={setEnrollmentReady} practice={practice} />
-                    <Field id="portfolioUrl" label="Portfolio link" optional error={errors.portfolioUrl} hint="HTTPS link, if you have one.">
-                      <input {...inputProps("portfolioUrl")} type="url" maxLength={2048} value={app.portfolioUrl} onChange={(event) => patch({ portfolioUrl: event.target.value })} placeholder="https://your-portfolio.example" />
-                    </Field>
-                  </section>
+                  <section className="process-evidence-summary"><h3>Supporting evidence</h3><p>Resume: {app.resumeUrl ? <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer">Open saved link</a> : "Not provided"}</p>{app.portfolioUrl && <p>Portfolio: <a href={app.portfolioUrl} target="_blank" rel="noopener noreferrer">Open saved link</a></p>}<EnrollmentUpload readOnly accountId={applicant.id} disabled error={errors.proofOfEnrollment} onReady={setEnrollmentReady} practice={practice} /><button className="text-button" type="button" disabled={frozen} onClick={() => goStage(3)}>Edit supporting evidence</button></section>
                   <ApplicationContent application={app} onEdit={next => goStage(next === 4 ? 5 : next)} excludeEvidence />
                   <div className="process-declarations">
                     <h3 className="process-group-title">Before you submit</h3>
                     <p>{practice ? "Use a sample HTTPS resume link to test the review step." : "One application per cycle. Submitted answers and links lock; withdrawal is final and does not allow reapplication."}</p>
                     <div className="declarations">
                       <label className="checkbox-row">
-                        <input id="accuracy" data-validation-field="accuracy" aria-invalid={!!errors.accuracy} type="checkbox" checked={app.accuracy} onChange={(event) => patch({ accuracy: event.target.checked })} aria-describedby={errors.accuracy ? "accuracy-error" : undefined} />
-                        <span>I confirm that the information in my application is accurate to the best of my knowledge, and that my uploaded enrollment document is my own and covers the current academic term.</span>
+                        <input id="accuracy" aria-required="true" data-validation-field="accuracy" aria-invalid={!!errors.accuracy} type="checkbox" checked={app.accuracy} onChange={(event) => patch({ accuracy: event.target.checked })} aria-describedby={errors.accuracy ? "accuracy-error" : undefined} />
+                        <span>I confirm that the information in my application is accurate to the best of my knowledge, and that my uploaded enrollment document is my own and covers the current academic term. <span className="required-mark" aria-hidden="true">*</span></span>
                       </label>
                       {errors.accuracy && <FieldError id="accuracy-error">{errors.accuracy}</FieldError>}
                       <label className="checkbox-row">

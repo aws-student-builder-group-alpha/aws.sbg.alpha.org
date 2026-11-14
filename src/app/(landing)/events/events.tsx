@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { Calendar, MapPin, Clock, ArrowRight } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -58,36 +57,7 @@ export default function Events() {
 			className="section-padding px-4 sm:px-6 lg:px-8"
 		>
 			<div className="container mx-auto max-w-6xl">
-				{/* Header — asymmetric */}
-				<div
-					className="grid grid-cols-1 lg:grid-cols-2
-						gap-6 mb-16 lg:mb-24"
-				>
-					<div>
-						<span
-							className="text-xs uppercase tracking-[0.3em]
-								text-[#ff9900] font-medium mb-4 block"
-						>
-							Events
-						</span>
-						<h2
-							className="text-3xl sm:text-4xl lg:text-6xl
-								font-bold text-[#232f3e] leading-tight"
-						>
-							{upcoming.length ? <>Upcoming<br />Events</> : <>Built<br />together.</>}
-						</h2>
-					</div>
-					<div className="flex items-end">
-						<Link
-							href="/events"
-							className="text-sm font-medium text-[#ff9900]
-								hover:text-[#ec8800] transition-colors
-								link-underline lg:ml-auto"
-						>
-							View events
-						</Link>
-					</div>
-				</div>
+				<h2 className="sr-only">Community events and highlights</h2>
 
 				{upcoming.length > 0 ? (
 					<div className="space-y-0">

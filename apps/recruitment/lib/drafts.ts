@@ -76,7 +76,7 @@ export function validateDraft(value: unknown): Record<string, string> {
   if (!Array.isArray(value.profile.availability) || value.profile.availability.length > 7 || value.profile.availability.some(day => typeof day !== "string" || !days.includes(day)) || new Set(value.profile.availability).size !== value.profile.availability.length) errors.availabilityDays = "Choose valid, distinct days.";
   if (!["", "undergraduate", "postgraduate", "other"].includes(String(value.profile.programLevel))) errors.programLevel = "Choose a supported program level.";
   if (!["", "1", "2", "3", "4", "5", "6+", "other"].includes(String(value.profile.year))) errors.year = "Choose a supported academic year.";
-  if (value.track !== "CORE_TEAM" && value.track !== "COMMITTEE") errors.track = "Choose a supported track.";
+  if (value.track !== "CORE_TEAM" && value.track !== "COMMITTEE" && value.track !== "MEMBER") errors.track = "Choose a supported track.";
   if (typeof value.opportunityId !== "string" || (value.opportunityId !== "" && getOpportunity(value.opportunityId)?.track !== value.track)) errors.opportunityId = "Choose an opportunity in your track.";
   if (!record(value.answers) || !exactKeys(value.answers, [...questionIds])) errors.form = "Use the approved application questions.";
   else for (const id of questionIds) if (typeof value.answers[id] !== "string" || value.answers[id].length > 10000) errors[id] = "Keep this answer under 10,000 characters. You can save an incomplete answer.";
@@ -96,7 +96,7 @@ export function hasDraftShape(value: unknown): value is DraftInput {
     && typeof value.profile.enrolled === "boolean" && Array.isArray(value.profile.availability) && value.profile.availability.every(day => typeof day === "string")
     && ["", "undergraduate", "postgraduate", "other"].includes(String(value.profile.programLevel))
     && ["", "1", "2", "3", "4", "5", "6+", "other"].includes(String(value.profile.year))
-    && (value.track === "CORE_TEAM" || value.track === "COMMITTEE") && typeof value.opportunityId === "string"
+    && (value.track === "CORE_TEAM" || value.track === "COMMITTEE" || value.track === "MEMBER") && typeof value.opportunityId === "string"
     && questionIds.every(key => typeof (value.answers as Record<string, unknown>)[key] === "string")
     && typeof value.resumeUrl === "string" && typeof value.portfolioUrl === "string"
     && typeof value.accuracy === "boolean" && typeof value.processingConsent === "boolean" && typeof value.updatesConsent === "boolean" && typeof value.stage === "number";

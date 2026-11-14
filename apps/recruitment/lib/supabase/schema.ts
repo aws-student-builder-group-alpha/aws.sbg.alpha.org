@@ -748,15 +748,15 @@ export type Database = {
       }
       opportunity_capacities: {
         Row: {
-          capacity: number
+          capacity: number | null
           opportunity_id: string
         }
         Insert: {
-          capacity: number
+          capacity?: number | null
           opportunity_id: string
         }
         Update: {
-          capacity?: number
+          capacity?: number | null
           opportunity_id?: string
         }
         Relationships: [
@@ -989,6 +989,7 @@ export type Database = {
       manage_evaluation: { Args: { p_request: Json }; Returns: Json }
       manage_intake: { Args: { p_request: Json }; Returns: Json }
       manage_staff_access: { Args: { p_request: Json }; Returns: Json }
+      opportunity_availability: { Args: never; Returns: Json }
       save_applicant_draft: {
         Args: {
           p_data: Json

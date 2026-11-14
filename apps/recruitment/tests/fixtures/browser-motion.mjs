@@ -12,13 +12,13 @@ export async function installRecruitmentUI(modules) {
   const { code: sitePaths } = await transform(await readFile(pathsFile, "utf8"), { filename: pathsFile, jsc: { parser: { syntax: "typescript" } }, module: { type: "commonjs" } });
   modules.set("@/lib/site-paths", sitePaths);
   modules.set("./site-paths.ts", sitePaths);
-  for (const name of ["inline-validation", "recruitment-shell", "wave-gradient", "enrollment-upload", "notification-inbox", "member-administration", "member-invitations", "applicant-outreach"]) {
-    const filename = fileURLToPath(new URL(`../../app/components/${name}.${name === "inline-validation" ? "ts" : "tsx"}`, import.meta.url));
+  for (const name of ["use-opportunity-availability", "inline-validation", "recruitment-shell", "wave-gradient", "enrollment-upload", "notification-inbox", "member-administration", "member-invitations", "applicant-outreach"]) {
+    const filename = fileURLToPath(new URL(`../../app/components/${name}.${["inline-validation", "use-opportunity-availability"].includes(name) ? "ts" : "tsx"}`, import.meta.url));
     const { code } = await transform(await readFile(filename, "utf8"), { filename, jsc: { parser: { syntax: "typescript", tsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
     modules.set(`./${name}`, code);
     modules.set(`@/app/components/${name}`, code);
   }
-  for(const name of ['community','community-client','http-request','format-date']){
+  for(const name of ['opportunity-availability','community','community-client','http-request','format-date']){
     const filename=fileURLToPath(new URL(`../../lib/${name}.ts`,import.meta.url));
     const {code}=await transform(await readFile(filename,'utf8'),{filename,jsc:{parser:{syntax:'typescript'}},module:{type:'commonjs'}});
     modules.set(`@/lib/${name}`,code);modules.set(`./${name}.ts`,code);
@@ -108,24 +108,27 @@ export async function assertEnlargedProcess(page, field) {
   await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
   await page.setViewportSize({ width: 375, height: 480 });
   if (field) {
-    // Resizing from 200% text can publish the new sticky-header height a frame
-    // after the viewport changes. Scroll using the current CSS scroll offset.
+    // Let responsive layout and the measured fixed-header row settle before
+    // explicitly positioning the field. Native focus scrolling can otherwise
+    // race this scroll when leaving the enlarged-text viewport.
+    await page.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); });
     await page.waitForFunction(() => {
-      const header = document.querySelector(".site-header");
+      const row = document.querySelector(".site-header .header-inner");
       const published = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--site-header-height"));
-      return !header || Math.abs(header.getBoundingClientRect().height - published) < 1;
+      return !row || Math.abs(row.getBoundingClientRect().height - published) < 1;
     });
-    await page.locator(`#${field}`).focus();
-    // The page enables smooth scrolling; measure only after an immediate scroll.
-    await page.locator(`#${field}`).evaluate(node => node.scrollIntoView({ block: "start", behavior: "instant" }));
-    await page.waitForFunction(id => { const bounds = document.getElementById(id)?.getBoundingClientRect(); return bounds && bounds.y >= 0 && bounds.y < innerHeight; }, field);
-    // Read and assert the same visible frame; navbar/reflow synchronization may follow.
+    await page.locator(`#${field}`).evaluate(node => {
+      node.focus({ preventScroll: true });
+      node.scrollIntoView({ block: "start", behavior: "instant" });
+    });
     const visible = await page.waitForFunction(id => {
       const bounds = document.getElementById(id)?.getBoundingClientRect();
-      return bounds && bounds.y >= 0 && bounds.y < innerHeight ? { y: bounds.y, height: innerHeight } : false;
+      const header = document.querySelector(".site-header")?.getBoundingClientRect();
+      const offset = header ? Math.max(0, header.bottom) : 0;
+      return bounds && bounds.y >= offset && bounds.y < innerHeight ? { y: bounds.y, offset, height: innerHeight } : false;
     }, field);
     const bounds = await visible.jsonValue();
-    assert.ok(bounds && bounds.y >= 0 && bounds.y < bounds.height, "focused field remains reachable in a short viewport");
+    assert.ok(bounds && bounds.y >= bounds.offset && bounds.y < bounds.height, "focused field remains visible below the fixed header in a short viewport");
   }
   await page.setViewportSize({ width: 1440, height: 950 });
 }

@@ -8,7 +8,7 @@ import { isUuid } from "./staff.ts";
 export type DecisionState = {
   applicationId: string; applicationVersion: number; status: ApplicationStatus;
   assignmentId: string | null; assignmentGeneration: number; reviewVersion: number; recommendation: Recommendation | null;
-  capacity: number; accepted: number; canPublish: boolean; canAmend: boolean;
+  capacity: number | null; accepted: number; canPublish: boolean; canAmend: boolean;
 };
 export type DecisionCommand = {
   action: "publish" | "amend"; applicationId: string; assignmentId: string;
@@ -29,7 +29,7 @@ export const decisionAccessLost = (code: DecisionFailure["code"]) => ["AUTH_REQU
 export function isDecisionState(v: unknown): v is DecisionState {
   return record(v) && isUuid(v.applicationId) && integer(v.applicationVersion, 1) && applicationStatuses.includes(v.status as ApplicationStatus)
     && (v.assignmentId === null || isUuid(v.assignmentId)) && integer(v.assignmentGeneration) && integer(v.reviewVersion) && (v.recommendation === null || isRecommendation(v.recommendation))
-    && integer(v.capacity, 1) && integer(v.accepted) && typeof v.canPublish === "boolean" && typeof v.canAmend === "boolean";
+    && (v.capacity === null || integer(v.capacity, 1)) && integer(v.accepted) && typeof v.canPublish === "boolean" && typeof v.canAmend === "boolean";
 }
 export function isDecisionCommand(v: unknown): v is DecisionCommand {
   return record(v) && Object.keys(v).sort().join(",") === "action,applicationId,assignmentId,expectedApplicationVersion,expectedReviewVersion,mutationId,outcome,reason"

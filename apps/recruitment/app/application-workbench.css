@@ -71,3 +71,34 @@
   .alpha-app .application-workbench-content { padding:28px 20px; }
   .alpha-app .application-workbench .process-response { padding:16px; }
 }
+
+
+/* QA readability and predictable, visible form controls. */
+.alpha-app .application-workbench :is(.field>label,.checkbox-row,.field input,.field select,.field textarea){font-size:16px;line-height:1.6}
+.alpha-app .application-workbench :is(.field-hint,.progress-description,.process-step-label,.application-sidebar-note,.application-applicant strong,.application-applicant div>span,.process-word-count){font-size:14px;line-height:1.7}
+.alpha-app .application-workbench .progress-name{font-size:16px}
+.alpha-app .required-mark{color:#b42318;font-weight:700;margin-left:3px}
+.alpha-app .application-workbench .field select{appearance:none;padding-right:44px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23526174' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
+.alpha-app .process-optional{margin-top:24px}
+.alpha-app .weekly-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;border:1px solid #c4ccd5;border-radius:12px;padding:12px}
+.alpha-app .weekly-calendar label{min-width:0;position:relative}
+.alpha-app .weekly-calendar label span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:90px;border-radius:8px;font-size:16px;padding:12px 4px}
+.alpha-app .weekly-calendar label small{font-size:12px}
+.alpha-app .weekly-calendar input:focus-visible+span{outline:3px solid #965500;outline-offset:3px}
+.alpha-app .process-evidence-summary{padding:24px;border:1px solid #d4d9df;border-radius:12px;margin-block:24px;overflow-wrap:anywhere}
+.alpha-app .process-evidence-summary h3{font-size:20px}
+.alpha-app .process-evidence-summary a{color:#875000;text-decoration:underline}
+@media(max-width:767px){.alpha-app .weekly-calendar{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:400px){.alpha-app .weekly-calendar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+@media(max-width:599px){
+ .alpha-app .application-sidebar .process-track{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .alpha-app .application-sidebar .process-segment{flex-direction:row;align-items:center;min-height:44px;gap:8px}
+ .alpha-app .application-sidebar .process-segment::after{display:none}
+ .alpha-app .application-sidebar .progress-name{font-size:14px;white-space:nowrap}
+}
+
+.alpha-app .required-label::after{content:" *";color:#b42318;font-weight:700}
+
+.alpha-app .application-workbench .field label .required-mark{color:#b42318}

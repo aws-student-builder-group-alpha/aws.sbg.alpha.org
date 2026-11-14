@@ -20,7 +20,7 @@
   --blue-bg: var(--color-info-soft);
   --danger: var(--color-danger);
   --shadow: none;
-  --site-header-height: 73px;
+  --site-header-height: 64px;
 }
 html, body.alpha-app { overflow-x: clip; }
 html { scroll-padding-top: calc(var(--site-header-height) + var(--space-6)); }
@@ -54,30 +54,11 @@ html { scroll-padding-top: calc(var(--site-header-height) + var(--space-6)); }
 .alpha-app .badge-blue { color: var(--blue); background: var(--blue-bg); }
 .alpha-app .badge-neutral { color: var(--muted); background: var(--surface-alt); }
 .alpha-app .tiny { font-size: var(--text-sm); }
-.alpha-app .site-header { position: sticky; top: 0; z-index: var(--z-header); height: auto; background: var(--color-hero); color: var(--color-white); border-bottom: var(--rule-width) solid transparent; backdrop-filter: none; container: site-navigation / inline-size; --nav-background: var(--color-hero); --nav-rule: color-mix(in oklch, var(--color-white) 12%, transparent); }
-.alpha-app .site-header[data-scrolled="true"] { border-bottom-color: color-mix(in oklch, var(--color-white) 12%, transparent); }
-.alpha-app .site-header[data-adaptive="home"] { position: fixed; inset: 0 0 auto; width: 100%; }
-.alpha-app .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); width: calc(100% - var(--space-8)); max-width: none; min-height: 72px; height: auto; padding: var(--space-3) 0; margin-inline: auto; }
 .alpha-app .brand { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; width: fit-content; color: inherit; }
 .alpha-app .brand img { width: 36px; height: 36px; flex-shrink: 0; }
 .alpha-app .brand strong { font-size: var(--text-lead); letter-spacing: -.03em; line-height: 1.2; color: inherit; }
 .alpha-app .brand small { font-size: var(--text-xs); letter-spacing: 0; line-height: 1.5; color: var(--muted); }
 .alpha-app .brand-full-name { display: none; }
-.alpha-app .brand-masthead > span { min-width: 0; }
-.alpha-app .brand-masthead strong { font-size: var(--text-sm); font-weight: 650; letter-spacing: -.02em; white-space: normal; overflow-wrap: anywhere; }
-.alpha-app .brand-masthead small { display: block; margin-top: var(--space-1); color: var(--color-orange); white-space: normal; overflow-wrap: anywhere; }
-.alpha-app .header-actions { display: flex; gap: var(--space-1); align-items: center; }
-.alpha-app .main-nav { display: none; position: absolute; inset-inline: 0; top: 100%; flex-direction: column; align-items: stretch; gap: 0; padding: var(--space-2) var(--space-4); margin: 0; max-height: calc(100dvh - var(--site-header-height)); overflow-y: auto; overscroll-behavior: contain; background: var(--nav-background); border-bottom: 1px solid var(--nav-rule); }
-.alpha-app .main-nav[data-open="true"] { display: flex; }
-.alpha-app .main-nav a { display: flex; align-items: center; padding: var(--space-3) var(--space-2); min-height: 44px; font-size: var(--text-sm); font-weight: 600; color: inherit; white-space: normal; overflow-wrap: anywhere; transition: color var(--dur-micro) var(--ease-out); }
-.alpha-app .main-nav a:not(.nav-apply):hover, .alpha-app .main-nav a:not(.nav-apply)[aria-current="page"] { color: var(--color-orange); }
-.alpha-app .main-nav a:active { opacity: .8; }
-.alpha-app .site-header :focus-visible { outline-color: var(--color-orange); }
-.alpha-app .site-header .icon-button { border-color: transparent; }
-.alpha-app .site-header .text-button { color: var(--color-orange); }
-.alpha-app .site-header .icon-button:hover { background: color-mix(in oklch, var(--color-white) 10%, transparent); }
-.alpha-app .site-header .icon-button:active { background: color-mix(in oklch, var(--color-white) 16%, transparent); }
-.alpha-app .mobile-menu-button { display: inline-flex; }
 .alpha-app .home-preloader { position: fixed; inset: 0; z-index: 10000; overflow: clip; background: var(--color-brand); color: var(--color-white); pointer-events: none; }
 .alpha-app .home-preloader-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .alpha-app .home-preloader-content { display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -441,8 +422,7 @@ html { scroll-padding-top: calc(var(--site-header-height) + var(--space-6)); }
 .alpha-app .search-input:focus-within { outline-color: var(--color-focus); }
 .alpha-app input:disabled, .alpha-app textarea:disabled, .alpha-app select:disabled { cursor: not-allowed; opacity: .65; }
 @media (min-width: 640px) {
-  :root { --site-header-height: 81px; }
-  .alpha-app .main-nav { padding-inline: var(--space-8); }
+  :root { --site-header-height: 64px; }
   .alpha-app .footer-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-block: var(--space-12); }
   .alpha-app .footer-chapter { grid-column: 1 / -1; }
   .alpha-app .footer-bottom { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-8); }
@@ -452,11 +432,6 @@ html { scroll-padding-top: calc(var(--site-header-height) + var(--space-6)); }
   .alpha-app .brand-short-name { display: none; }
   .alpha-app .brand strong { font-size: var(--text-sm); }
   .alpha-app .brand img { width: 44px; height: 44px; }
-  .alpha-app .header-inner { width: calc(100% - var(--space-16)); min-height: 80px; }
-  .alpha-app .brand-masthead { gap: var(--space-3); }
-  .alpha-app .brand-masthead strong { font-size: var(--text-body); }
-  .alpha-app .brand-masthead img { width: 48px; height: 48px; }
-  .alpha-app .header-actions { gap: var(--space-2); }
   .alpha-app .brand-hero-content { min-height: 100svh; padding-block: 128px var(--space-12); }
   .alpha-app .hero-mark { width: 32px; height: 32px; }
   .alpha-app .hero-description { font-size: var(--text-lead); }
@@ -497,13 +472,6 @@ html { scroll-padding-top: calc(var(--site-header-height) + var(--space-6)); }
 @media (min-width: 1024px) {
   .alpha-app .footer-inner { grid-template-columns: minmax(0, 2fr) minmax(0, .95fr) minmax(0, 1.1fr); gap: var(--space-16); }
   .alpha-app .footer-chapter { grid-column: auto; }
-}
-@container site-navigation (min-width: 90em) {
-  .alpha-app .header-inner { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-6); }
-  .alpha-app .main-nav, .alpha-app .main-nav[data-open="true"] { display: flex; position: static; flex-direction: row; align-items: center; gap: var(--space-6); padding: 0; max-height: none; overflow: visible; background: transparent; border: 0; }
-  .alpha-app .main-nav a { padding-inline: 0; white-space: nowrap; }
-  .alpha-app .header-actions { display: none; }
-  .alpha-app .mobile-menu-button { display: none; }
 }
 @media (min-width: 1200px) {
   .alpha-app .review-editor { grid-template-columns: minmax(0, 1fr) 330px; gap: var(--space-8); }
@@ -1264,8 +1232,6 @@ html { scroll-padding-top: calc(var(--site-header-height) + var(--space-6)); }
 .alpha-app .process-resume-help summary { min-height: 44px; padding-block: 12px; cursor: pointer; color: var(--process-accent-ink); }
 
 /* Chapter-wide navigation and the RTU Alpha application introduction. */
-.alpha-app .main-nav .nav-apply { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; padding: 10px 16px; border: 1px solid var(--color-orange); border-radius: 7px; background: var(--color-orange); color: #171717; font-size: var(--text-sm); font-weight: 600; }
-.alpha-app .main-nav .nav-apply:hover { background: #ffb13d; }
 /* Alpha's editorial entry; a compact task card alongside the signature headline. */
 .alpha-app .apply-page.application-welcome { display: grid; grid-template: "intro task" auto "guide task" auto / minmax(0, 1.15fr) minmax(0, 1fr); align-items: center; gap: 8px clamp(36px, 6vw, 88px); width: min(100%, 1240px); margin-inline: auto; padding: 64px 40px 80px; }
 .alpha-app .application-welcome .application-introduction { grid-area: intro; align-self: end; }

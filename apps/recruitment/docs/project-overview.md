@@ -1,5 +1,27 @@
 # Alpha Recruitment
 
+## Focused role-details modal - 14 November 2026
+
+The owner approved a glossy track-colored role header above a light details/application body. Show one role identity, existing description/eligibility and preparation, followed by the appropriate sign-in, consent, continuation, receipt, membership, staff or recovery action. This supersedes the older split navy-description/white-action modal. Application rules and destinations remain unchanged.
+
+## Uniform main-site header - 14 November 2026
+
+The owner approved applying the main website header presentation and behavior across every recruitment route, including applicant, membership and staff workspaces. Preserve recruitment-owned destinations and permissions; signed-in desktop actions use an account dropdown. This supersedes the opaque stationary recruitment masthead and abbreviated mobile branding.
+
+## Compact opportunity browsing - 14 November 2026
+
+The owner approved glossy, richly colored track cards for /opportunities: compact role identity and availability, with full descriptions in the existing modal. The whole card opens that role, preserving track/search context and the existing Google/consent/application flow.
+
+## Events navigation - 14 November 2026
+
+Events navigation returns to the homepage Events section (/#events) from both applications. Individual event-card behavior and direct access to the existing /events page remain available.
+
+
+## Accepted QA revision - 14 November 2026
+
+The owner approved the November QA report and clarified a third Member track with one General Member opportunity. Reuse the four-step, consented, enrollment/resume-required application, one application per account across all tracks, one assigned reviewer and administrator publication. General membership has no fixed seat limit; IDs remain explicitly issued by staff after acceptance. Core Team/Committee eligibility and existing capacities remain. Public entry moves to /opportunities on the current recruitment host with category handoff, search, role dialogs and Google/consent before draft creation. Existing site benefits supply the three joining cards; the receipt page needs no redesign. Weekly availability remains recurring weekdays without Calendar access. This supersedes older two-track/sixteen-role and promotional-entry presentation requirements. Implementation and actual evidence belong in the tracker.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 Existing members can be invited by Google email before first sign-in. System Admins save a pending invitation, then explicitly send its email or share the Membership ID page. The verified invited account accepts before a new ID is issued. Existing active records retain their IDs and need no new application or repeated acceptance. Membership/invitation entry takes priority over a draft; a previously submitted application remains readable. ID Finder stays private to the signed-in member.

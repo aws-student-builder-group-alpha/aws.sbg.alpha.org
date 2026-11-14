@@ -113,7 +113,7 @@ export function DecisionPanel({ accountId, applicationId, applicantName, referen
     {!state.verified && <Callout tone="warning"><p role="alert">Decision details are hidden until administrator access can be verified.</p><button type="button" className="text-button" onClick={() => void load()}>Retry decision access</button></Callout>}
     <div hidden={!state.verified} inert={!state.verified || undefined}>
       {data && <>
-        <p><strong>{data.accepted} / {data.capacity} accepted places filled</strong> for this opportunity.</p>
+        <p><strong>{data.capacity === null ? `${data.accepted} accepted · No fixed limit` : `${data.accepted} / ${data.capacity} accepted places filled`}</strong> for this opportunity.</p>
         <p>Current outcome: <strong>{data.status}</strong>. Saved recommendation: <strong>{data.recommendation ?? "Not saved"}</strong>.</p>
         <button type="button" className="text-button" disabled={state.busy} onClick={reload}>Reload decision details</button>
         {!data.canPublish && !data.canAmend && <p>{data.status === "Withdrawn" ? "This application is withdrawn. Further decisions are unavailable." : "Publication requires a saved recommendation from the current assigned evaluator."}</p>}

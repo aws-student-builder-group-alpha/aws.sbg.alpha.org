@@ -31,7 +31,8 @@ test("storage accepts unfinished v2 work, final gates retain availability, resum
   const data=validSimplifiedSubmission();data.answers.motivation="";data.resumeUrl="";data.scenarioReviewedOpportunityId="";
   assert.deepEqual(validateDraft(data),{});assert.equal(blockedDestination(data,5).stage,3);
   data.answers.motivation="Brief";data.scenarioReviewedOpportunityId=data.opportunityId;
-  assert.equal(blockedDestination(data,5),null);assert.ok(validateSubmission(data).resumeUrl);
+  assert.equal(blockedDestination(data,5).stage,3);assert.ok(blockedDestination(data,5).errors.resumeUrl);assert.ok(validateSubmission(data).resumeUrl);
+  data.resumeUrl="https://example.test/resume";assert.equal(blockedDestination(data,5),null);
   data.profile.availability=[];assert.ok(blockedDestination(data,5).errors.availabilityDays);
   assert.ok(validateDraft({...data,formVersion:3}).form);assert.ok(validateDraft({...data,unexpected:true}).form);
 });

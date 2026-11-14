@@ -36,5 +36,6 @@ async function ApplyContent({ searchParams }: { searchParams: Promise<Record<str
   }
   if (result.kind !== "ready") return <ApplicantAccess formEntry kind={result.kind} authError={params.auth === "signout-failed" ? "sign-out" : params.auth === "failed" ? "sign-in" : undefined} opportunity={requested} />;
   if (result.application) redirect("/application");
+  if (!result.draft && params.entry !== "1") redirect(applicationLandingPath(requested));
   return <AccessGuard accountId={result.applicant.id} expected="applicant" blockedContent={<ApplyAccessChanged />}><DraftEditor key={result.applicant.id + ":" + (result.draft?.id || "new")} applicant={result.applicant} initialDraft={result.draft} intake={result.intake} requestedOpportunity={requested} signOutFailed={params.auth === "signout-failed"} /></AccessGuard>;
 }

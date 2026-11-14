@@ -35,7 +35,7 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
         height = stage.clientHeight
         sizes = cards.map(card => ({ width: card.offsetWidth, height: card.offsetHeight }))
       }
-      const travel = 1600 + (cards.length - 1) * 320 + 500
+      const travel = 1600 + (cards.length - 1) * 320 + 900
 
       const render = (progress: number, force = false) => {
         if (!force && progress === lastProgress) return
@@ -43,8 +43,10 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
         gallery.style.setProperty('--zoom-progress', String(progress))
         cards.forEach((card, index) => {
           const z = -1600 - index * 320 + progress * travel
-          const scale = z < 800 ? 1000 / (1000 - z) : 0
-          const opacity = scale ? clamp((z + 8200) / 1800) * clamp((800 - z) / 350) : 0
+          const final = index === cards.length - 1
+          const fit = Math.min(width * .96 / sizes[index].width, height * .94 / sizes[index].height)
+          const scale = final ? Math.min(fit, 1000 / Math.max(100, 1000 - z)) : z < 800 ? 1000 / (1000 - z) : 0
+          const opacity = scale ? clamp((z + 8200) / 1800) * (final ? 1 : clamp((800 - z) / 350)) : 0
           const position = index === cards.length - 1 ? [0, 0] : positions[index % positions.length]
           const x = position[0] * width * 2.4 * scale
           const y = position[1] * height * 2 * scale

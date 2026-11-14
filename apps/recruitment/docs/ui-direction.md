@@ -1,4 +1,39 @@
+## Application continuation routing ? 14 November 2026
+
+Opportunities now resumes existing drafts directly through /application?resume=1, opens submitted receipts and routes staff/members to their workspaces. Signed-in applicants without a draft see Choose a role to apply, targeting the catalog. The application summary starts new drafts through /apply?entry=1 so the existing consent screen is reachable without redirecting back to Opportunities. Consent remains required before draft creation. TypeScript passed; browser/provider navigation is not verified. Reviewed all six context documents; architecture, product scope, code standards and workflow rules are unchanged.
+
+# Compact role modal ? 14 November 2026
+
+Implemented 1120px natural-height dialog, compact metadata/header, 24px body spacing and inline missing-consent feedback. The whole dialog owns fallback scrolling; server recovery and retry payloads remain intact. Verification incomplete: verify:ci preflight requires Node 24.22.1; installed Node is 26.12.1. Desktop fit matrix, screenshots and browser regressions remain pending. Reviewed all six context documents; no API, storage, scope or architecture changes required.
+
 # UI Direction
+
+## Glossy role-details modal - 14 November 2026
+
+Use a full-width glossy bronze/purple/teal header matching the selected card, with raised orange role icon, track/department, one white Geist title (32px desktop/26px phone) and pale-gold availability. The 960px dialog has 28px corners, a soft elevated shadow and a dimmed 10px-blurred backdrop. White details group About this role, Who can apply and Before you apply; a softly tinted action panel owns one account-appropriate action. At roomy widths use approximately 60/40 columns, 32px padding and a visible header with the body scrolling. Below 900px, short screens or enlarged-text layouts stack naturally with 20px body padding and whole-dialog scrolling; do not trap content below a large header. Keep 16px body/actions, 14px supporting copy and 44px close/focus targets. Embedded consent shows account/privacy/agreement without another role card or preparation accordion. Default dialogs and standalone preparation keep their presentation. Preserve existing 180ms entrance and static reduced-motion behavior, keyboard/Escape/focus return, URL context and busy dismissal guards.
+
+## Main-site header uniformity - 14 November 2026
+
+Recruitment matches the main-site logo/full organization and orange university subtitle, Geist navigation, orange animated underlines and full-screen navy mobile menu with Urban Starblues links. Use 40px logos below 1024px/44px above; closed rows have 64px/80px minimum height, with 16/24/32px gutters at 0/640/1024px. Desktop navigation starts at 1280px at normal text size and falls back to mobile when enlarged text needs room. The fixed header starts transparent over a reserved light/dark backing surface; after 20px scroll use white/80 or #0D1117/80 with 24px blur. Opportunities/Privacy/404 are light, process routes/Membership dark. After 100px, scroll-down hides and scroll-up reveals in 300ms; focus/open menus and reduced motion keep it visible. Signed-in role actions appear in a white desktop account dropdown with outside/Escape dismissal; mobile keeps all actions in the scrollable full-screen menu with close, circular reveal/stagger, keyboard containment, Escape/focus return and body scroll lock. Reduced motion removes reveal/stagger/scroll/logo motion. The closed row alone controls the measured offset; overlay opening does not move content. Preserve current destinations, pending/role-specific visibility, accessible targets, unsaved sign-out confirmation, and no-JavaScript navigation. This supersedes older opaque stationary-header/dropdown-mobile requirements.
+
+## Glossy opportunity cards - 14 November 2026
+
+The owner selected the supplied glossy-card reference and rich track colors, superseding flat white/pastel card treatments. Keep a white page and three/two/one-column grid. Core Team uses a bronze gradient #59442C to #2B2119, Committee purple #51416F to #241C35, and Member teal #285651 to #122D2B, assigned by track through filtering/search. Cards have beveled highlights, a dark bottom edge, layered shadows, a static reflective overlay and raised orange icon tiles. Track badges sit top-left, icons top-right. Keep small uppercase light department labels, white Alpha Geist role titles (28px desktop/24px phone, weight 650), gold 14px availability, and a divided View role/arrow footer. Padding is 28px desktop/24px phone; minimum height is 320px with natural growth for long titles. Gloss/shine must preserve text contrast. Fine-pointer hover lifts and briefly shines; reduced motion removes decorative animation while retaining the static material. Maintain whole-card semantic links, visible keyboard focus, modal-only descriptions, Escape focus restoration and query state.
+
+## Events navigation - 14 November 2026
+
+Shared desktop/mobile/header/footer Events links target /#events. Standalone recruitment prefixes the official main-site origin; combined preview uses the root homepage hash without /recruitment. Reuse the existing section alignment below navigation, including refresh/font settling and reduced-motion behavior.
+
+
+## QA implemented layouts - 14 November 2026
+
+The role directory uses individual icon cards, search, three tracks and one role/consent dialog. Mobile cards/dialog sections stack. Apply labels/body/controls are 16px and supporting copy at least 14px. Under 600px progress uses two columns with readable labels. Optional fields stay visible. Required fields/groups have red markers and programmatic required state. Evidence precedes weekly availability in Your story; Review shows acknowledged evidence/Edit. Main Gallery spans the viewport and ends on the SCD audience photo, followed by a 36-cell collage containing all primary story photos before supplementary ones. Reduced motion retains normal flow.
+
+
+## QA presentation supersession - 14 November 2026
+
+Use Alpha fonts, palette and existing assets; sketches provide structure, not exact reproduction. The main hero prioritizes the full group name with a secondary Day One motto and stacked rotating community photos; retain its waves. Start your journey has three benefits cards with category-specific opportunities links. Alternate About photos and place Testimonials immediately afterward. Gallery expands to viewport width, hides category filters outside List, ends on the SCD audience photo and leads into a white-wash collage ending. Recruitment /opportunities becomes a searchable individual-role directory, without a promotional hero/preparation section; its accessible role dialog owns Google/consent entry. Apply keeps a readable white workspace over waves, required asterisks, visible optional fields, suggested free-text institution, inset select chevrons, ordinal year labels and weekly calendar days. Evidence moves before availability in Your story; Review shows its acknowledged summary. Preserve access, dirty/retry guards, keyboard and reduced-motion behavior. These accepted changes supersede older conflicting layouts; actual completion is in the tracker.
+
 
 ## Quick links and member portraits — 10 November 2026
 

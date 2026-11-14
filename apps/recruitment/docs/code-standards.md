@@ -1,5 +1,23 @@
 # Code Standards
 
+## Role dialog verification - 14 November 2026
+
+Extend the existing applicant harness with real shared Modal and StartDraft components. Check track-specific headers, every access state, one visible title, modal/body bounds at four widths, enlarged text and keyboard reachability on short screens. Embedded consent must create no request before agreement, preserve exact retries and freeze dismissal during creation. Default-dialog regressions remain required when extending Modal. Inspect synthetic state previews separately from real provider evidence.
+
+## Uniform header verification - 14 November 2026
+
+Use the main-site navigation as the visual reference while retaining recruitment account/role guards. Keep name metadata display-only. Test closed-row measurement after responsive reflow, active-path light/dark states with retained pages, dropdown dismissal, focus containment/return, restored inert/overflow state and reduced motion. CSS reveal and stagger animations need explicit reduced-motion overrides at matching specificity. Compare actual desktop/mobile production views; synthetic identity tests remain separate from provider evidence.
+
+## QA verification implementation - 14 November 2026
+
+Browser fixtures compile the real directory/availability helper and use real isolated SQL aggregates. Retain consent/save/retry/withdrawal/account-loss coverage after moving evidence. Historical baseline tests compare their original catalog; current-schema tests include Member. Wait for computed CSS transitions rather than advancing only a mocked JavaScript clock. Production-page checks and synthetic authenticated checks remain separate from real provider evidence.
+
+
+## QA contracts - 14 November 2026
+
+Track handling must be exhaustive for CORE_TEAM, COMMITTEE and MEMBER, including validation, staff filters, CSV labels and UI readers. Unlimited capacity is null, allowed only for General Member; do not substitute a large numeric limit. Public vacancy data is aggregate-only and does not authorize writes or guarantee a place. Keep SQL and runtime tests for legacy records, new Member submissions, aggregate privacy, capacity release and exact retries. Regenerate SDK types through the owning tool after installation; retain generated output unchanged. Never edit applied migration files.
+
+
 ## Quick links and member portraits — 10 November 2026
 
 Test multipart uploads through the actual client helper and actual upload handler; a successful mock that ignores FormData fields does not verify a browser/server contract. The membership photo regression reproduces the old photo-field rejection, then verifies private persistence and 512×640 processed PNG retrieval. The root section-navigation lifecycle test simulates pin refresh, user interruption and reduced motion and runs in recruitment CI with its installed SWC runtime.

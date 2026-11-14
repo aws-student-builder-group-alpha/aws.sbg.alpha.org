@@ -1,5 +1,38 @@
 # Manual testing flow
 
+## Role modal redesign retest - 14 November 2026
+
+Open Core Team, Committee and Member cards at 320/375/768/1440px. Check matching glossy headers, one role title, readable eligibility/description/preparation, accurate availability and one clear action panel. Test anonymous, new applicant, saved draft, submitted applicant, member, staff and unavailable/unconfigured access; existing destinations must remain exact. For a new applicant, submit without consent (no request), agree, simulate an unavailable response, retry and confirm the same role/request creates one draft. Pending creation disables close and Escape. Check long names/emails, unavailable/zero/unlimited counts, 200% text, short screens, scrolling and keyboard access through consent/privacy/recovery to Start. Escape/backdrop restores card focus and preserves filters/search. Compare default staff confirmation dialogs and standalone preparation to ensure their layout and guards remain intact.
+
+## Uniform header retest - 14 November 2026
+
+Compare the main and recruitment headers at 375/640/1024/1280/1440/1920px: logo/full text, gutters, row heights, typography and desktop breakpoint. Check transparent initial and frosted scrolled light/dark surfaces, hide on scroll-down/reveal on scroll-up, and visibility while focused. Repeat with reduced motion (no reveal/stagger/scroll animation), 200% text and short screens. In the full-screen mobile menu, Tab/Shift+Tab must stay inside; Escape/Close restores focus and body scrolling. In the desktop account dropdown, check verified display label, keyboard entry, outside/Escape dismissal and correct applicant/member/admin/head/MFA-pending/inactive staff actions. Pending session must not flash unauthorized actions. Verify all recruitment routes, retained-page transitions, Events to main /#events, unsaved sign-out cancellation, and focused form errors clear of the header. Main authentication, destinations and permissions stay separate.
+
+## Whole-card opportunity retest - 14 November 2026
+
+At /opportunities (or /recruitment/opportunities in combined preview), check the glossy opportunity cards at 320, 375, 768 and 1440px. Core Team must stay bronze, Committee purple and Member teal in All roles, filtered and searched views, with readable white titles, light labels, gold availability, raised orange icons, a divided View role footer and a white page background. Check beveled edges and static gloss; hover adds a brief shine. Check one/two/three columns as appropriate, wrapped long titles, track badges and readable vacancy footers. Descriptions belong only in the modal. Click the icon, title, footer, arrow and blank padding; each opens the same role. Tab to a card, check its visible outline, press Enter, then Escape and confirm focus returns. Search/filter before opening; closing and browser Back must preserve that context. Verify full modal descriptions and exact Google role handoff. Hover should lift on a fine pointer and stay still without shine animation with reduced motion. Check numeric, zero, unlimited and unavailable counts without inventing vacancies.
+
+## Events navigation retest - 14 November 2026
+
+Click Events in desktop/mobile navigation and footer links from the homepage, another main-site page, and recruitment. Confirm the destination is the main homepage /#events and the Events section is visible below navigation. Repeat by keyboard and with reduced motion. In standalone recruitment, verify the main-site origin; in combined preview, verify the root homepage rather than /recruitment/#events. Individual cards and direct /events access retain their behavior.
+
+
+## November QA report retest
+
+Use the feature preview with its matching forward migration installed in isolated staging. Do not replay historical migrations or use real applicant data. Report Pass/Fail/Blocked with the PDF page number.
+
+1. Pages 1-2: check the full group heading, secondary motto, requested description, waves, photo pause and three Start your journey cards. Each Apply action must select its own category. Benefits use existing content.
+2. Page 3: check alternating About photos/group wording, followed immediately by Testimonials.
+3. Pages 3-5: check viewport Gallery, larger images, absent filters, SCD audience finale and white-wash/collage message. Pause/reverse scroll. Filter List, switch back and confirm Gallery includes all stories; original details/credits remain. Reduced motion stays readable.
+4. Pages 5-7: check Available Roles, search/icons/individual cards and all three track filters. Reload and Back preserve URL state. Keyboard opens roles, Escape restores focus, and Google preserves the selected role.
+5. Page 7: verify no draft before consent, then Start opens /apply. Existing drafts require explicit role switching and preserve answers; submitted users keep receipts, members keep IDs, staff cannot use staff identities to apply.
+6. Pages 8-10: check larger text, required markers, no promotional hero/subheading, inset chevrons, required editable institution/suggestions, ordinal years and visible optional fields. Resume legacy Other/year data without loss.
+7. Page 11: publish/amend a synthetic acceptance and refresh/focus to confirm remaining counts. Full roles remain selectable for waitlist decisions; Member has no fixed limit. Outages show unavailable, never zero.
+8. Pages 11-12: evidence precedes the weekday calendar in Your story. Blank resume/proof/availability blocks Continue/Submit and focuses the right field, but unfinished drafts save. Proof survives navigation; Review shows acknowledged summary/Edit.
+9. Pages 12-13: receipt/history/notifications/withdrawal still work. Member follows assigned review/admin decision/explicit ID issuance, with one application across tracks.
+10. Check 320/390/768/1440px, both device preferences, 200% text, keyboard, short screens and reduced motion. Distinguish local/synthetic outcomes from real provider/staging verification.
+
+
 ## Quick links and photo persistence
 
 From the main homepage footer and Events footer, open About, Team and Connect; verify the destination section is visible after pin layout/fonts settle, and manual scrolling is not pulled back. Check recruitment footer links reach the main site, Events resolves to /events/, Skillbuilders retains its sign-in guard and Apply now reaches aws-alpha-recruitment.vercel.app. As an existing member, choose a valid JPG/PNG, give photo consent and save. Verify the actual private processed portrait appears in the card, remains after reload and is included in the canvas export. Invalid bytes/oversized files and another account must be denied. Use synthetic files for automated tests.

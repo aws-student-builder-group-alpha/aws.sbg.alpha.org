@@ -67,7 +67,7 @@ export function createExportChunks(snapshot: ExportSnapshot, maxBytes = EXPORT_M
     if (!opportunity) throw new Error("Unknown export opportunity");
     add([row.reference, row.status, philippineTimestamp(row.submittedAt), philippineTimestamp(row.withdrawnAt),
       p.fullName, p.preferredName, row.email, p.mobile, p.university, p.otherUniversity, p.campus, p.program, p.programLevel, p.year, p.yearExplanation, p.enrolled,
-      row.track === "CORE_TEAM" ? "Core Team" : "Committee", row.opportunityId, opportunityLabel(opportunity), p.availability.join("; "), p.experience,
+      row.track === "CORE_TEAM" ? "Core Team" : row.track === "MEMBER" ? "Member" : "Committee", row.opportunityId, opportunityLabel(opportunity), p.availability.join("; "), p.experience,
       ...questionIds.map(id => row.answers[id]), row.accuracy, row.processingConsent, row.updatesConsent, String(row.formVersion ?? 1)]);
   }
   return { chunks, bytes };

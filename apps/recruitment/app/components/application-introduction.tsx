@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Icon } from "./ui";
-import { opportunityLabel, type Opportunity } from "@/lib/catalog";
+import { opportunityLabel, trackLabel, type Opportunity } from "@/lib/catalog";
 
 export function ApplicationOpportunity({ opportunity }: { opportunity: Opportunity }) {
   return <div className="apply-requested">
-    <p className="apply-requested-label">{opportunity.track === "CORE_TEAM" ? "Core Team" : "Committee"} · Selected opportunity</p>
+    <p className="apply-requested-label">{trackLabel(opportunity.track)} · Selected opportunity</p>
     <strong>{opportunityLabel(opportunity)}</strong>
-    <Link href="/#opportunities">Change opportunity</Link>
+    <Link href="/opportunities">Change opportunity</Link>
   </div>;
 }
 
@@ -23,7 +23,7 @@ export function ApplicationIntroduction({ compact = false }: { compact?: boolean
 /** Public orientation, never editable progress or persisted consent. */
 export function ApplicationGuide() {
   return <section className="application-guide" aria-label="Before you apply">
-    <Link href="/#opportunities" className="application-explore">Find your place at Alpha<Icon name="arrow" size={17} /></Link>
+    <Link href="/opportunities" className="application-explore">Find your place at Alpha<Icon name="arrow" size={17} /></Link>
     <div className="application-roadmap">
       <p>The path ahead</p>
       <ol className="application-overview" aria-label="Your application journey">
