@@ -190,3 +190,7 @@ Application flow refinements: the reference section explains each current status
 ## Membership showcase - 14 November 2026
 
 Membership workspace presentation now uses a compact Alpha card showcase for issued IDs and an Alphy-led empty/invitation/sign-in state. The downloaded card artwork, membership issuance, ownership and consent rules remain unchanged.
+
+## Recruitment document intro - 14 November 2026
+
+Recruitment now shares the main-site blue intro presentation across all recruitment routes. The owner selected replay on every full document load, including refresh and auth returns, rather than the main site's once-per-session behavior. Internal client navigation, filters and form steps do not replay it.

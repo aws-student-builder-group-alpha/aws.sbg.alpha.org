@@ -177,3 +177,7 @@ The combined-preview regressions also assert recruitment-only development Webpac
 The membership browser suite compiles the real workspace, shared frame, process shell, validation, client transport and canvas renderer with synthetic HTTP/account data. Cover loading/empty/error/invited/active states, acceptance, native consent, upload/save recovery, private lookup, real PNG download, 320/390/1440px bounds and 200% text. It runs with the normal browser pipeline; preview PNGs are generated under .next/membership-preview.
 
 Membership layout regressions measure wrapper-to-main and main-to-last-content gaps at 320/390/1440/1920px, requiring natural height and 32px bottom padding rather than only checking horizontal overflow.
+
+## Recruitment document intro - 14 November 2026
+
+The page-loader browser suite uses real SSR markup, React, GSAP, fonts and CSS. Check document replay despite existing session flags, internal navigation, history dismissal, reduced motion, blocked storage, missing hydration and no-JS. Inspect desktop/mobile previews and verify actual root-layout integration on live local routes.

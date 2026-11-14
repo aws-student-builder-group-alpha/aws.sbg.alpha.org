@@ -405,3 +405,7 @@ Recruitment combined development explicitly uses Webpack; main-site development 
 MembershipFrame and MembershipWelcome share presentation across server entry/loading and client membership states. MemberWorkspace retains its existing HTTP, ownership, invitation acceptance, polling, upload and canvas/download lifecycle. Identity artwork is unchanged; editing, help and private lookup use native disclosures.
 
 ProcessShell has an optional contentHeight presentation flag, defaulting to false. Membership opts in across loading, access and workspace states, clearing only its wrapper/page minimum heights. Existing form pages retain their viewport sizing.
+
+## Recruitment document intro - 14 November 2026
+
+A recruitment-owned PageLoader mounts once in the root layout outside session Suspense boundaries. It uses existing GSAP/local fonts and no main-site imports, storage, dependencies or auth state. It animates only on document entry, is decorative/inert, and cleans up its timeline/deadline/history/media listeners. Reduced motion and no-JS skip it; CSS releases the overlay after three seconds without hydration, and JS has a 2.5-second deadline. Existing route loading and error content remains independent.

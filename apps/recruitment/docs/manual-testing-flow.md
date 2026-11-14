@@ -364,3 +364,7 @@ Modern Apply/feedback checks: all seven process routes retain white working surf
 ## Membership showcase - 14 November 2026
 
 Membership showcase: inspect no-ID, pending invitation, signed-out and issued-ID states. Check the verified email and Switch account, invitation acceptance, portrait consent/save and Download ID. Completed cards start with editing collapsed; missing portraits open editing and disable download. Find ID is a secondary disclosure. Check phones, keyboard focus and enlarged text; confirm PNG artwork remains unchanged.
+
+## Recruitment document intro - 14 November 2026
+
+Recruitment intro: open/refresh Opportunities, Apply, Membership and Staff and observe the same navy/script/orange-line/upward reveal. Follow internal recruitment links and change filters/form steps: the intro must stay dismissed. Check browser Back/Forward, reduced motion and JavaScript disabled; the page must remain usable without focus/scroll changes. Recruitment replay is per full document load, independent of the main site's session flag.
