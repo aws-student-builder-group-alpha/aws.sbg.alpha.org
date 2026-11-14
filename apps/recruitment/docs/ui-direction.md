@@ -1,3 +1,7 @@
+## Application continuation routing ? 14 November 2026
+
+Opportunities now resumes existing drafts directly through /application?resume=1, opens submitted receipts and routes staff/members to their workspaces. Signed-in applicants without a draft see Choose a role to apply, targeting the catalog. The application summary starts new drafts through /apply?entry=1 so the existing consent screen is reachable without redirecting back to Opportunities. Consent remains required before draft creation. TypeScript passed; browser/provider navigation is not verified. Reviewed all six context documents; architecture, product scope, code standards and workflow rules are unchanged.
+
 # UI Direction
 
 ## QA implemented layouts - 14 November 2026
