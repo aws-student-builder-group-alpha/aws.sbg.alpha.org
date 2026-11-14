@@ -1,5 +1,22 @@
 # Manual testing flow
 
+## Role modal redesign retest - 14 November 2026
+
+Open Core Team, Committee and Member cards at 320/375/768/1440px. Check matching glossy headers, one role title, readable eligibility/description/preparation, accurate availability and one clear action panel. Test anonymous, new applicant, saved draft, submitted applicant, member, staff and unavailable/unconfigured access; existing destinations must remain exact. For a new applicant, submit without consent (no request), agree, simulate an unavailable response, retry and confirm the same role/request creates one draft. Pending creation disables close and Escape. Check long names/emails, unavailable/zero/unlimited counts, 200% text, short screens, scrolling and keyboard access through consent/privacy/recovery to Start. Escape/backdrop restores card focus and preserves filters/search. Compare default staff confirmation dialogs and standalone preparation to ensure their layout and guards remain intact.
+
+## Uniform header retest - 14 November 2026
+
+Compare the main and recruitment headers at 375/640/1024/1280/1440/1920px: logo/full text, gutters, row heights, typography and desktop breakpoint. Check transparent initial and frosted scrolled light/dark surfaces, hide on scroll-down/reveal on scroll-up, and visibility while focused. Repeat with reduced motion (no reveal/stagger/scroll animation), 200% text and short screens. In the full-screen mobile menu, Tab/Shift+Tab must stay inside; Escape/Close restores focus and body scrolling. In the desktop account dropdown, check verified display label, keyboard entry, outside/Escape dismissal and correct applicant/member/admin/head/MFA-pending/inactive staff actions. Pending session must not flash unauthorized actions. Verify all recruitment routes, retained-page transitions, Events to main /#events, unsaved sign-out cancellation, and focused form errors clear of the header. Main authentication, destinations and permissions stay separate.
+
+## Whole-card opportunity retest - 14 November 2026
+
+At /opportunities (or /recruitment/opportunities in combined preview), check the glossy opportunity cards at 320, 375, 768 and 1440px. Core Team must stay bronze, Committee purple and Member teal in All roles, filtered and searched views, with readable white titles, light labels, gold availability, raised orange icons, a divided View role footer and a white page background. Check beveled edges and static gloss; hover adds a brief shine. Check one/two/three columns as appropriate, wrapped long titles, track badges and readable vacancy footers. Descriptions belong only in the modal. Click the icon, title, footer, arrow and blank padding; each opens the same role. Tab to a card, check its visible outline, press Enter, then Escape and confirm focus returns. Search/filter before opening; closing and browser Back must preserve that context. Verify full modal descriptions and exact Google role handoff. Hover should lift on a fine pointer and stay still without shine animation with reduced motion. Check numeric, zero, unlimited and unavailable counts without inventing vacancies.
+
+## Events navigation retest - 14 November 2026
+
+Click Events in desktop/mobile navigation and footer links from the homepage, another main-site page, and recruitment. Confirm the destination is the main homepage /#events and the Events section is visible below navigation. Repeat by keyboard and with reduced motion. In standalone recruitment, verify the main-site origin; in combined preview, verify the root homepage rather than /recruitment/#events. Individual cards and direct /events access retain their behavior.
+
+
 ## November QA report retest
 
 Use the feature preview with its matching forward migration installed in isolated staging. Do not replay historical migrations or use real applicant data. Report Pass/Fail/Blocked with the PDF page number.

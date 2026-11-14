@@ -1,5 +1,13 @@
 # Code Standards
 
+## Role dialog verification - 14 November 2026
+
+Extend the existing applicant harness with real shared Modal and StartDraft components. Check track-specific headers, every access state, one visible title, modal/body bounds at four widths, enlarged text and keyboard reachability on short screens. Embedded consent must create no request before agreement, preserve exact retries and freeze dismissal during creation. Default-dialog regressions remain required when extending Modal. Inspect synthetic state previews separately from real provider evidence.
+
+## Uniform header verification - 14 November 2026
+
+Use the main-site navigation as the visual reference while retaining recruitment account/role guards. Keep name metadata display-only. Test closed-row measurement after responsive reflow, active-path light/dark states with retained pages, dropdown dismissal, focus containment/return, restored inert/overflow state and reduced motion. CSS reveal and stagger animations need explicit reduced-motion overrides at matching specificity. Compare actual desktop/mobile production views; synthetic identity tests remain separate from provider evidence.
+
 ## QA verification implementation - 14 November 2026
 
 Browser fixtures compile the real directory/availability helper and use real isolated SQL aggregates. Retain consent/save/retry/withdrawal/account-loss coverage after moving evidence. Historical baseline tests compare their original catalog; current-schema tests include Member. Wait for computed CSS transitions rather than advancing only a mocked JavaScript clock. Production-page checks and synthetic authenticated checks remain separate from real provider evidence.

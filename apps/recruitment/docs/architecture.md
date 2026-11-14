@@ -1,5 +1,13 @@
 # Architecture
 
+## Role modal presentation - 14 November 2026
+
+The shared Modal accepts optional headerContent while keeping the title as its accessible name and owning close/Escape/backdrop behavior and focus restoration. Existing dialogs retain their default heading. The opportunity dialog alone supplies rich role identity and scoped backdrop/layout styles. StartDraft embedded presentation omits repeated selected-role/preparation blocks, while standalone entry is unchanged. Existing consent, selected-role draft payload, exact pending request, busy dismissal guard and access checks remain authoritative; no transport or storage contract changes.
+
+## Uniform recruitment header - 14 November 2026
+
+The shared header remains recruitment-owned and uses existing verified session/role inputs. SessionHeader passes a display-only account label (name, then email prefix); it grants no access. HeaderContent derives light/dark presentation from the active path/frame, ignoring retained inactive page DOM. A measured closed-row spacer reserves fixed-header space and owns the matching initial backing surface. The dedicated header stylesheet replaces prior redesign navigation rules. Desktop account disclosure and mobile overlay reuse the same permitted links and sign-out action; preserve unsaved confirmation. Mobile focus containment, restored sibling inert states/body overflow, observer/listener cleanup and route-key reset are presentation lifecycle responsibilities. No main-site imports, shared auth state, backend or schema changes are introduced.
+
 ## QA entry and form implementation - 14 November 2026
 
 /opportunities is the canonical directory; the root redirects while preserving supported queries. Track/search/selected role live in URL history. Request-time verified draft loading supplies only entry identity/status. Google returns to the selected role; consent precedes draft creation. Existing draft role switching, submitted/member/staff routing remain. Direct /apply resumes a draft; /apply?entry=1 retains compact fallback. Evidence is edited in Your story; Review reloads private proof metadata read-only and submission rechecks Storage. Institution suggestions and weekly calendar reuse existing string/weekday formats, with legacy Other/year compatibility. The QA forward migration is installed; see the current hosted ledger below.

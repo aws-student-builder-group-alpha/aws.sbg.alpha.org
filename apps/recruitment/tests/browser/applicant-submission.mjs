@@ -57,7 +57,7 @@ const renderShell=(content,signedIn=true)=>require('react/jsx-runtime').jsxs(req
 window.mount=(kind,props)=>{window.shellPath=kind==='editor'?'/apply':'/application';window.destination='';require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('@/app/components/access-guard').AccessGuard,{accountId:props.applicant?.id||props.accountId,expected:'applicant',blockedContent:kind==='editor'?jsx(require('./apply-entry').ApplyAccessChanged,{}):undefined,children:jsx(require(kind==='editor'?'editor':'portal')[kind==='editor'?'DraftEditor':'ApplicationPortal'],props)}))));};
 window.mountEntry=props=>{window.shellPath='/apply';root.render(renderShell(jsx(require('entry').ApplicantAccess,{...props,formEntry:true}),false));};
 window.mountLoading=()=>{window.shellPath='/apply';root.render(renderShell(jsx(require('./apply-entry').ApplyLoading,{}),false));};
-window.mountHome=()=>{window.shellPath='/opportunities';history.replaceState({},'','/opportunities');require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsx(require('home').OpportunityDirectory,{entry:{kind:'anonymous'}})]}),false)));};
+window.mountHome=(entry={kind:'anonymous'})=>{window.shellPath='/opportunities';history.replaceState({},'','/opportunities');require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsx(require('home').OpportunityDirectory,{entry})]}),false)));};
 window.mountFeedback=()=>{const {jsx,jsxs}=require('react/jsx-runtime'),ui=require('@/app/components/ui');window.shellPath='/privacy';require('react-dom').flushSync(()=>root.render(renderShell(jsx('main',{id:'main-content',className:'container portal narrow',children:jsxs('section',{children:[...['info','success','warning','error'].map(tone=>jsx(ui.Callout,{tone,title:tone+' example',role:tone==='error'?'alert':tone==='success'?'status':undefined,children:jsxs('div',{children:[jsx('p',{children:'Readable feedback with an explicit recovery action.'}),jsx('button',{type:'button',className:'text-button',children:'Retry '+tone})]})},tone)),jsx('label',{htmlFor:'feedback-field',children:'Example field'}),jsx('input',{id:'feedback-field','aria-invalid':true,'aria-describedby':'feedback-field-error'}),jsx(ui.FieldError,{id:'feedback-field-error',children:'Enter a valid value.'}),jsx(ui.ErrorSummary,{children:jsx('a',{href:'#feedback-field',children:'Check the example field'})})]})}),false)));};
 window.mountDepth=()=>{window.shellPath='/';const {jsx,jsxs}=require('react/jsx-runtime');require('react-dom').flushSync(()=>root.render(renderShell(jsxs('main',{id:'main-content',className:'recruitment-home container',style:{paddingBlock:'120px 60px'},children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsxs('div',{style:{display:'grid',gap:'32px',maxWidth:'560px'},children:[jsxs(require('./immersive-card').ImmersiveCard,{className:'track-option',children:[jsx('h3',{className:'card-depth',children:'Core Team'}),jsx('p',{children:'Explore opportunities before choosing a role.'}),jsx('a',{href:'#home-preparation',className:'track-link',children:'Read preparation'})]}),jsx('div',{className:'preparation-card-stage',children:jsx(require('./home-preparation').HomePreparation,{})})]})]}),false)));};
 window.mountShell=(path,props={})=>{window.shellPath=path;require('react-dom').flushSync(()=>root.render(require('react/jsx-runtime').jsxs(require('react').Fragment,{children:[jsx(require('@/app/components/ui').SiteHeader,props),jsx(require('@/app/components/ui').Footer,{})]},String(++revision))));};
@@ -81,7 +81,11 @@ try {
     const incoming=route.request(),url=new URL(incoming.url());
     if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css; charset=utf-8",body:await readFile(path.join(buildDirectory,url.pathname.split("/_next/")[1]))});
     if(url.pathname.startsWith("/brand/"))return route.fulfill({body:await readFile(path.join(project,"public",url.pathname))});
-    if(url.pathname==="/api/opportunities") return route.fulfill({json:(await runtime.db.query("select opportunity_availability() value")).rows[0].value});
+    if(url.pathname==="/api/opportunities") {
+      if(faults.vacanciesUnavailable)return route.fulfill({status:503,json:{ok:false}});
+      const value=(await runtime.db.query("select opportunity_availability() value")).rows[0].value;
+      return route.fulfill({json:faults.zeroVacancies?{...value,items:value.items.map(item=>item.capacity===null?item:{...item,remaining:0})}:value});
+    }
     if(url.pathname==="/api/access")return route.fulfill({json:faults.access||{kind:"applicant",accountId:runtime.identity.id}});
     if(url.pathname==='/api/community'){
       if(incoming.method()==='GET'&&url.searchParams.get('action')==='enrollment'){
@@ -449,6 +453,7 @@ try {
   const opportunityLines=await page.locator(".process-track").getByText("Opportunity",{exact:true}).evaluate(node=>{const text=document.createRange();text.selectNodeContents(node);return text.getClientRects().length;});
   assert.equal(opportunityLines,1,"Mobile progress keeps Opportunity on one line");
   await page.setViewportSize({width:375,height:812});await page.evaluate(()=>scrollTo(0,0));
+  await page.waitForFunction(()=>Math.abs(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height'))-document.querySelector('.header-inner').getBoundingClientRect().height)<1);
   const firstField=await page.locator('#fullName').boundingBox();assert.ok(firstField&&firstField.y>=73&&firstField.y+firstField.height<=812);
   const actionsBefore=await page.locator('.process-action-bar').evaluate(node=>({top:node.getBoundingClientRect().top,scroll:scrollY,viewport:innerHeight}));
   assert.ok(actionsBefore.top>actionsBefore.viewport,'Long-form actions do not overlay the viewport');
@@ -518,6 +523,7 @@ try {
   await page.locator('.site-header').getByRole('link',{name:'Alpha home',exact:true}).click();assert.equal(navbarHomePrompt,true,'Home warns before losing unsaved input');assert.equal(await page.locator('#fullName').inputValue(),'Local conflict text');
   let navbarSignOutPrompt=false;
   page.once('dialog',dialog=>{navbarSignOutPrompt=true;return dialog.dismiss();});
+  await page.locator('.site-header .account-trigger').click();
   await page.locator('.site-header').getByRole('button',{name:'Sign out',exact:true}).click();
   assert.equal(navbarSignOutPrompt,true,'The restored navbar warns before losing unsaved answers');
   assert.equal(await page.locator('#fullName').inputValue(),'Local conflict text');
@@ -708,8 +714,7 @@ try {
   for(const [route,frame] of [['/',null],['/privacy',null],['/apply','applicant'],['/application','applicant'],['/staff','staff'],['/admin','administrator'],['/admin/intake','administrator'],['/reviewer','evaluator'],['/admin/applications','administrator'],['/404',null]]){
     await page.evaluate(path=>window.mountShell(path),route);
     await page.locator(frame?`.site-header[data-workspace-frame="${frame}"]`:'.site-header:not([data-workspace-frame])').waitFor();
-    const color=await page.locator('.site-header').evaluate(node=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=1;const context=canvas.getContext('2d');context.fillStyle=getComputedStyle(node).backgroundColor;context.fillRect(0,0,1,1);return [...context.getImageData(0,0,1,1).data].slice(0,3);});
-    assert.deepEqual(color,[8,9,10],route+' retains the black masthead despite retained hidden content');
+    assert.equal(await page.locator('.site-header').getAttribute('data-tone'),frame||route==='/'?'dark':'light',route+' derives its tone from the active route despite retained content');
     assert.equal(await page.locator('.workspace-footer').count(),frame?0:1);
     assert.equal(await page.locator('.footer-standard').isVisible(),!frame);
     assert.equal(await page.locator('.site-footer').count(),frame?0:1);
@@ -720,7 +725,7 @@ try {
     }
     for(const width of [320,375,414,639,640,768,1024,1199,1200,1440,1920]){
       await page.setViewportSize({width,height:950});
-      const gutter=width<640?16:32,label=route+' at '+width+'px';
+      const gutter=width<640?16:width<1024?24:32,label=route+' at '+width+'px';
       const inner=await page.locator('.site-header .header-inner').boundingBox();
       const logo=await page.locator('.site-header .brand img').boundingBox();
       const compactMenu=await page.locator('.site-header .mobile-menu-button').isVisible();
@@ -729,14 +734,16 @@ try {
       assert.ok(Math.abs(inner.x-gutter)<=1,label+' shares the left gutter');
       assert.ok(Math.abs(inner.width-(width-2*gutter))<=1,label+' uses the full shared header width');
       assert.ok(Math.abs(logo.x-gutter)<=1,label+' anchors the logo to the shared gutter');
-      assert.equal(logo.width,width<640?36:48,label+' uses the landing logo size');
-      assert.equal(await page.locator('.site-header').evaluate(node=>node.offsetHeight),width<640?73:81,label+' uses the landing navbar height');
+      assert.equal(logo.width,width<1024?40:44,label+' uses the landing logo size');
+      assert.ok(await page.locator('.site-header').evaluate(node=>node.offsetHeight)>=(width<1024?64:80),label+' uses the main-site navbar minimum height');
+      assert.equal(compactMenu,width<1280,label+' uses the main-site desktop breakpoint');
       assert.ok(Math.abs(end.x+end.width-(width-gutter))<=1,label+' anchors navigation/menu to the shared right gutter');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,label+' has no horizontal overflow');
       if(width===375||width===1199){
         const menu=page.locator('.site-header .mobile-menu-button');
         await menu.focus();await page.keyboard.press('Enter');
         assert.equal(await menu.getAttribute('aria-expanded'),'true');
+        assert.equal(await page.locator('.main-nav').evaluate(node=>getComputedStyle(node).animationName),'none','Reduced motion disables the circular reveal');
         await page.keyboard.press('Tab');
         assert.equal(await page.locator('.main-nav a').first().evaluate(node=>node===document.activeElement),true,'Tab enters the opened menu');
         await page.keyboard.press('Escape');
@@ -765,7 +772,15 @@ try {
     assert.ok(ratio>=4.5,selector+' meets 4.5:1 foreground contrast, got '+ratio);
   }
   async function assertApplyContrast() {
-    if (await page.locator('.nav-apply').count()) await assertTextContrast('.nav-apply');
+    if (!await page.locator('.nav-apply:visible').count()) return;
+    const ratio=await page.locator('.nav-apply').evaluate(node=>{
+      const context=document.createElement('canvas').getContext('2d');
+      const lum=color=>{context.clearRect(0,0,1,1);context.fillStyle=color;context.fillRect(0,0,1,1);const [r,g,b]=context.getImageData(0,0,1,1).data;const linear=[r,g,b].map(v=>{const s=v/255;return s<=.04045?s/12.92:((s+.055)/1.055)**2.4;});return linear[0]*.2126+linear[1]*.7152+linear[2]*.0722;};
+      const header=node.closest('.site-header'),mobile=node.closest('.main-nav').dataset.open==='true';
+      const fg=lum(getComputedStyle(node).color),bg=lum(mobile?'#232f3e':header.dataset.tone==='dark'?'#08090a':'#fff');
+      return (Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05);
+    });
+    assert.ok(ratio>=4.5,'Header action retains 4.5:1 contrast');
   }
   const chapterLinks=['About','Events','Team','Connect','Skillbuilders'];
   for(const [props,expected] of [
@@ -782,12 +797,21 @@ try {
       await page.evaluate(({route,props})=>window.mountShell(route,props),{route,props});
       await page.waitForFunction(expected=>[...document.querySelectorAll('.main-nav a,.main-nav .nav-apply')].at(-1)?.textContent===expected,expected.at(-1));
       assert.deepEqual(await page.locator('.main-nav a,.main-nav .nav-apply').allTextContents(),[...chapterLinks,...expected],'Chapter navigation plus preserved role tools on '+route);
-      for(const [label,href] of [['About','https://www.awsc-alpha.cloud/#about'],['Events','https://www.awsc-alpha.cloud/events/'],['Team','https://www.awsc-alpha.cloud/#members'],['Connect','https://www.awsc-alpha.cloud/#contact'],['Skillbuilders','https://www.awsc-alpha.cloud/skillbuilder/']]) assert.equal(await page.locator('.main-nav').getByRole('link',{name:label,exact:true}).getAttribute('href'),href);
+      for(const [label,href] of [['About','https://www.awsc-alpha.cloud/#about'],['Events','https://www.awsc-alpha.cloud/#events'],['Team','https://www.awsc-alpha.cloud/#members'],['Connect','https://www.awsc-alpha.cloud/#contact'],['Skillbuilders','https://www.awsc-alpha.cloud/skillbuilder/']]) assert.equal(await page.locator('.main-nav').getByRole('link',{name:label,exact:true}).getAttribute('href'),href);
         await assertApplyContrast();
+        if(props.signedIn) { await page.locator('.account-trigger').click(); assert.equal(await page.locator('.account-trigger').getAttribute('aria-expanded'),'true'); }
         assert.equal(await page.locator('.main-nav').getByRole('button',{name:'Sign out',exact:true}).count(),props.signedIn?1:0);
+        if(props.signedIn) { await page.keyboard.press('Escape');assert.equal(await page.locator('.account-trigger').evaluate(node=>document.activeElement===node),true); }
     }
   }
   passed.push('anonymous, applicant, administrator, evaluator, MFA-pending and inactive staff menus stay consistent across ten routes');
+
+  await page.evaluate(()=>window.mountShell('/opportunities',{signedIn:true,accountLabel:'Alex Example'}));
+  const account=page.getByRole('button',{name:'Alex Example',exact:true});await account.click();
+  await page.keyboard.press('Tab');assert.equal(await page.getByRole('link',{name:'My application',exact:true}).evaluate(node=>document.activeElement===node),true,'Keyboard enters the account actions');
+  await page.locator('body').click({position:{x:5,y:200}});assert.equal(await account.getAttribute('aria-expanded'),'false','Outside pointer dismisses account actions');
+  await page.evaluate(()=>window.mountShell('/opportunities',{pendingSession:true}));
+  assert.equal(await page.locator('.account-trigger,.nav-apply').count(),0,'Pending session exposes no account or apply action');
 
   const adminMenu={signedIn:true,staff:{role:'administrator',status:'active',needsMfa:false}};
   for(const width of [320,375,768,1200,1440]){
@@ -796,14 +820,22 @@ try {
     await page.evaluate(()=>document.documentElement.style.fontSize='32px');
     await page.waitForFunction(()=>{const header=document.querySelector('.site-header');return header.offsetHeight>100&&parseFloat(getComputedStyle(header.querySelector('.brand strong')).fontSize)>20&&Math.abs(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height'))-header.offsetHeight)<1;});
     const menu=page.getByRole('button',{name:'Open menu',exact:true});await menu.waitFor();
+    const overflowBefore=await page.evaluate(()=>document.body.style.overflow);
     const before=await page.locator('main').boundingBox(),height=await page.locator('.site-header').evaluate(node=>node.offsetHeight);
     await menu.click();assert.equal((await page.locator('main').boundingBox()).y,before.y,'Menu overlays without moving page content');
-    assert.equal(await page.locator('.site-header').evaluate(node=>node.offsetHeight),height,'Dropdown does not change the measured navbar row');
+    assert.equal(await page.locator('.site-header').evaluate(node=>node.offsetHeight),height,'Full-screen menu does not change the measured navbar row');
     const clipped=await page.locator('.site-header a,.site-header button').evaluateAll(nodes=>nodes.filter(node=>{const box=node.getBoundingClientRect();return box.width>0&&box.height>0&&(box.left<-.5||box.right>innerWidth+.5);}).map(node=>node.textContent));
     assert.deepEqual(clipped,[],'Navbar controls fit enlarged text at '+width);
-    const signOut=page.locator('.site-header').getByRole('button',{name:'Sign out',exact:true});await signOut.focus();
-    const box=await signOut.boundingBox();assert.ok(box.y>=height&&box.y+box.height<=501,'Short menu scrolls to its final action');
+    assert.equal(await page.locator('main').evaluate(node=>node.inert),true,'Background is inert while the mobile menu is open');
+    await page.keyboard.press('Shift+Tab');
+    const signOut=page.locator('.site-header').getByRole('button',{name:'Sign out',exact:true});
+    assert.equal(await signOut.evaluate(node=>document.activeElement===node),true,'Shift+Tab wraps to the last mobile action');
+    await page.keyboard.press('Tab');assert.equal(await page.getByRole('button',{name:'Close menu',exact:true}).evaluate(node=>document.activeElement===node),true,'Tab wraps to Close');
+    await signOut.focus();
+    const box=await signOut.boundingBox();assert.ok(box.y>=0&&box.y+box.height<=501,'Full-screen menu scrolls to its final action');
     await page.keyboard.press('Escape');assert.equal(await menu.evaluate(node=>node===document.activeElement),true);
+    assert.equal(await page.locator('main').evaluate(node=>node.inert),false,'Closing restores background interaction');
+    assert.equal(await page.evaluate(()=>document.body.style.overflow),overflowBefore,'Closing restores body scrolling');
     await page.evaluate(()=>document.documentElement.style.removeProperty('font-size'));
   }
   passed.push('navbar reflows into its mobile menu at 200% text size, measures its actual height, overlays without shifting content and scrolls within short viewports');
@@ -811,50 +843,84 @@ try {
   await page.clock.resume();
   for (const width of [375,1440]) {
     await page.setViewportSize({width,height:900});
-    for (const route of ['/','/privacy','/apply','/application','/staff','/admin','/admin/applications','/admin/intake','/reviewer','/404']) {
+    for (const route of ['/','/opportunities','/privacy','/apply','/application','/membership','/staff','/admin','/admin/applications','/admin/intake','/reviewer','/404']) {
       await page.evaluate(path=>{window.scrollTo({top:0,behavior:'instant'});window.mountNavigation(path);},route);
+      const dark=!['/opportunities','/privacy','/404'].includes(route);
       for (const y of [0,400,1400,300,1700,0]) {
-        const painted=await page.evaluate(async y=>{
-          window.scrollTo({top:y,behavior:'instant'});
-          await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-          const header=document.querySelector('.site-header'),style=getComputedStyle(header);
-          const context=document.createElement('canvas').getContext('2d');
-          context.fillStyle=style.backgroundColor;context.fillRect(0,0,1,1);
-          return {rgba:[...context.getImageData(0,0,1,1).data],top:header.getBoundingClientRect().top,transform:style.transform};
-        },y);
-        assert.ok(painted.rgba[3]===255&&painted.rgba.slice(0,3).every(channel=>channel<32),route+' header stays opaque and dark');
-        assert.ok(Math.abs(painted.top)<.5,route+' header stays at the top while scrolling');
-        assert.equal(painted.transform,'none',route+' header does not slide on scroll');
+        await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),y);
+        await page.waitForFunction(scrolled=>document.querySelector('.site-header').dataset.scrolled===String(scrolled),y>20);
+        const painted=await page.locator('.site-header').evaluate(node=>{const style=getComputedStyle(node);return {background:style.backgroundColor,top:node.getBoundingClientRect().top,transform:style.transform};});
+        assert.equal(painted.background,y>20?dark?'rgba(13, 17, 23, 0.8)':'rgba(255, 255, 255, 0.8)':'rgba(0, 0, 0, 0)',route+' matches the main-site transparent/frosted surface');
+        assert.ok(Math.abs(painted.top)<.5,route+' remains visible under reduced motion');
+        assert.equal(painted.transform,'none',route+' disables scroll motion for reduced motion');
       }
       await assertApplyContrast();
     }
   }
-  passed.push('the header stays opaque, dark and visible while scrolling in both directions on all ten routes');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.evaluate(()=>{window.mountNavigation('/opportunities');window.scrollTo({top:0,behavior:'instant'});document.activeElement?.blur();});
+  await page.evaluate(()=>window.scrollTo({top:800,behavior:'instant'}));
+  await page.waitForFunction(()=>document.querySelector('.site-header').dataset.hidden==='true');
+  await page.evaluate(()=>window.scrollTo({top:400,behavior:'instant'}));
+  await page.waitForFunction(()=>document.querySelector('.site-header').dataset.hidden==='false');
+  await page.locator('.site-header .brand').focus();
+  await page.evaluate(()=>window.scrollTo({top:1000,behavior:'instant'}));
+  await page.waitForFunction(()=>document.querySelector('.site-header').dataset.hidden==='false');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  passed.push('all twelve routes match transparent/frosted light/dark header states; scroll hides/reveals with focus and reduced-motion guards');
 
   await page.evaluate(()=>window.mountHome());
   const directory=page.locator(".roles-grid");
+  async function assertTrackColors() {
+    const colors={CORE_TEAM:['rgb(89, 68, 44)','rgb(43, 33, 25)'],COMMITTEE:['rgb(81, 65, 111)','rgb(36, 28, 53)'],MEMBER:['rgb(40, 86, 81)','rgb(18, 45, 43)']};
+    for(const card of await directory.locator('.role-card').all()) {
+      const gradient=await card.evaluate(node=>getComputedStyle(node).backgroundImage);
+      for(const color of colors[await card.getAttribute('data-track')]) assert.ok(gradient.includes(color),'Glossy gradient follows its track');
+    }
+  }
+  await assertTrackColors();
   for(const width of [320,375,768,1440]){
     await page.setViewportSize({width,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     assert.equal(await directory.locator(".role-card").count(),17);
     await page.getByRole("heading",{name:"Available Roles",exact:true}).waitFor();
+    assert.deepEqual(await directory.locator('.role-card').evaluateAll(nodes=>nodes.filter(node=>{const box=node.getBoundingClientRect();return box.left<0||box.right>innerWidth+1;}).map(node=>node.textContent)),[], 'Whole cards fit '+width+'px');
+    assert.equal(await directory.evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width>=1024?3:width>=640?2:1);
+    if(width===375||width===1440) await page.screenshot({path:path.join(artifactDir,'opportunity-cards-'+width+'.png')});
   }
   await page.getByRole("button",{name:"Core Team",exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===6);
-  const trigger=page.locator('.role-card').filter({hasText:'Vice Chief Creatives Officer'}).getByRole('link',{name:'View role'});
+  await assertTrackColors();
+  const trigger=page.getByRole('link',{name:'View role: Vice Chief Creatives Officer',exact:true});
+  assert.equal(await directory.locator('.role-description').count(),0,'Descriptions appear only in the modal');
+  assert.equal(await directory.locator('.role-card a,.role-card button').count(),0,'Each card is one link without nested controls');
+  await trigger.focus();
+  await page.keyboard.press('Shift+Tab');await page.keyboard.press('Tab');
+  assert.equal(await trigger.evaluate(node=>getComputedStyle(node).outlineStyle),'solid','Whole card has visible keyboard focus');
+  await trigger.hover();
+  assert.equal(await trigger.evaluate(node=>getComputedStyle(node).transform),'none','Reduced motion keeps the hovered card still');
+  assert.equal(await trigger.evaluate(node=>getComputedStyle(node,'::before').animationName),'none','Reduced motion disables shine');
   await trigger.press("Enter");
   const details=page.getByRole('dialog',{name:'Vice Chief Creatives Officer',exact:true});
   await details.waitFor();
   assert.equal(await details.getByText(creative.scenario,{exact:true}).count(),0);
+  assert.equal(await details.getByText(creative.description,{exact:true}).isVisible(),true,'Modal keeps the complete description');
   await details.getByRole('button',{name:'Continue with Google',exact:true}).click();
   await page.waitForFunction(()=>window.signInOpportunity==='core-creatives');
   await page.evaluate(()=>window.resolveSignIn());
   await page.keyboard.press('Escape');
   await details.waitFor({state:'detached'});
+  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='View role: Vice Chief Creatives Officer');
+  for(const target of ['.role-symbol','.role-card-heading','.role-card-footer']){
+    await trigger.locator(target).click();await details.waitFor();await page.keyboard.press('Escape');await details.waitFor({state:'detached'});
+  }
+  await trigger.click({position:{x:12,y:12}});await details.waitFor();await page.keyboard.press('Escape');await details.waitFor({state:'detached'});
   await page.getByRole('button',{name:'Committee',exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===10);
+  await assertTrackColors();
   await page.getByRole('button',{name:'Member',exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===1);
+  await assertTrackColors();
   assert.match(await directory.textContent(),/General Member/);
   assert.match(await directory.textContent(),/No fixed limit/);
   await page.getByRole('button',{name:'All roles',exact:true}).click();
@@ -862,9 +928,105 @@ try {
   await page.getByRole('button',{name:'Search',exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===1);
   assert.match(await directory.textContent(),/Web Development/);
+  await assertTrackColors();
   assert.ok(new URL(page.url()).searchParams.get('q')==='web');
+  await directory.locator('.role-card').click();
+  const webDetails=page.getByRole('dialog');await webDetails.waitFor();
+  assert.equal(new URL(page.url()).searchParams.get('q'),'web','Opening a card preserves search');
+  await page.keyboard.press('Escape');await webDetails.waitFor({state:'detached'});
+  assert.equal(new URL(page.url()).searchParams.get('q'),'web','Closing a card preserves search');
   await page.screenshot({path:path.join(artifactDir,"opportunity-catalog-1440.png")});
-  passed.push('individual role cards support three track filters, search, exact Google role handoff, vacancy labels and keyboard dialogs');
+  async function mountRole(entry, id='core-creatives') {
+    await page.evaluate(({entry,id})=>{window.mountHome(entry);history.replaceState({},'','/opportunities?opportunity='+id);dispatchEvent(new PopStateEvent('popstate'));},{entry,id});
+    await page.getByRole('dialog').waitFor();
+  }
+  async function assertRoleBounds(label) {
+    const issues=await page.getByRole('dialog').evaluate(node=>{
+      const box=node.getBoundingClientRect();const issues=[];
+      if(box.left<0||box.right>innerWidth+1||box.top<0||box.bottom>innerHeight+1)issues.push('dialog bounds');
+      if(node.scrollWidth>node.clientWidth+1)issues.push('dialog horizontal overflow');
+      for(const child of node.querySelectorAll('a,button,input,h2,h3,p,li')){const b=child.getBoundingClientRect();if(b.width&&b.height&&(b.left<box.left||b.right>box.right+1))issues.push(child.tagName+' horizontal overflow');}
+      return issues;
+    });
+    assert.deepEqual(issues,[],label);
+  }
+  for(const id of ['core-creatives','skillbuilders-web','general-member']) {
+    for(const width of [320,375,768,1440]) {
+      await page.setViewportSize({width,height:900});await mountRole({kind:'anonymous'},id);
+      await assertRoleBounds(id+' '+width);
+      const panel=page.getByRole('dialog');
+      assert.equal(await panel.getByRole('heading',{name:'About this role',exact:true}).count(),1);
+      assert.equal(await panel.getByRole('heading',{name:'Build with Alpha.',exact:true}).count(),0);
+      assert.equal(await panel.locator('h2').count(),1,'Role title appears once');
+      if(width===1440||width===375)await page.screenshot({path:path.join(artifactDir,'role-modal-'+id+'-'+width+'.png')});
+      await page.keyboard.press('Escape');await panel.waitFor({state:'detached'});
+    }
+  }
+  faults.zeroVacancies=true;await mountRole({kind:'anonymous'});
+  await page.getByRole('dialog').getByText('0 places remaining',{exact:true}).waitFor();
+  assert.equal(await page.getByRole('dialog').getByRole('button',{name:'Continue with Google',exact:true}).isEnabled(),true,'Full roles remain selectable');
+  await page.keyboard.press('Escape');delete faults.zeroVacancies;
+  faults.vacanciesUnavailable=true;await mountRole({kind:'anonymous'});
+  await page.getByRole('dialog').getByText('Vacancies temporarily unavailable',{exact:true}).waitFor();
+  await page.keyboard.press('Escape');delete faults.vacanciesUnavailable;
+  const modalApplicant=await runtime.addIdentity();runtime.setIdentity(modalApplicant);runtime.setKind('authenticated');delete faults.access;
+  const accessStates=[
+    [{kind:'applicant',applicant:modalApplicant,hasDraft:true,submitted:false},'Continue application','/apply?opportunity=core-creatives'],
+    [{kind:'applicant',applicant:modalApplicant,hasDraft:true,submitted:true},'View your application','/application'],
+    [{kind:'member'},'Open Membership ID','/membership'],
+    [{kind:'staff'},'Staff workspace','/staff'],
+    [{kind:'unconfigured'},'Retry access',null],
+    [{kind:'unavailable'},'Retry access',null],
+  ];
+  for(const [entry,label,href] of accessStates) for(const width of [375,1440]) {
+    await page.setViewportSize({width,height:900});await mountRole(entry);
+    const panel=page.getByRole('dialog');await assertRoleBounds(entry.kind+' '+width);
+    const action=panel.getByRole(href?'link':'button',{name:label,exact:true});assert.equal(await action.count(),1);
+    if(href)assert.equal(await action.getAttribute('href'),href);
+    assert.equal(await panel.getByRole('checkbox').count(),0,'Non-start states do not render new-draft consent');
+    if(width===375)await action.scrollIntoViewIfNeeded();
+    await page.screenshot({path:path.join(artifactDir,'role-modal-'+label.toLowerCase().replaceAll(' ','-')+'-'+width+'.png')});
+    await page.keyboard.press('Escape');await panel.waitFor({state:'detached'});
+  }
+  await page.setViewportSize({width:1440,height:950});
+  const freshEntry={kind:'applicant',applicant:modalApplicant,hasDraft:false,submitted:false};
+  await mountRole(freshEntry,'general-member');
+  let panel=page.getByRole('dialog');
+  assert.equal(await panel.locator('.apply-requested,.apply-details').count(),0,'Embedded consent omits repeated role/preparation');
+  const beforeConsent=faults.posts.length;
+  await panel.getByRole('button',{name:'Start application',exact:true}).click();
+  await panel.getByRole('alert').waitFor();assert.equal(faults.posts.length,beforeConsent,'No draft request before consent');
+  for(const width of [320,375,1440]) {
+    await page.setViewportSize({width,height:900});await assertRoleBounds('consent '+width);
+    await page.screenshot({path:path.join(artifactDir,'role-modal-consent-'+width+'.png')});
+  }
+  await page.setViewportSize({width:1440,height:950});await page.evaluate(()=>document.documentElement.style.fontSize='32px');
+  await assertRoleBounds('consent desktop at 200% text');
+  await page.setViewportSize({width:375,height:480});
+  await assertRoleBounds('consent short screen at 200% text');
+  await page.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
+  const start=panel.getByRole('button',{name:'Start application',exact:true});
+  await panel.getByRole('checkbox').focus();
+  for(let index=0;index<3;index++)await page.keyboard.press('Tab');
+  assert.equal(await start.evaluate(node=>document.activeElement===node),true,'Keyboard reaches Start through consent, privacy and recovery');
+  await page.waitForFunction(()=>{const node=document.querySelector('.role-entry-action .apply-start-form > button');const b=node?.getBoundingClientRect(),dialog=node?.closest('dialog').getBoundingClientRect();return b&&dialog&&b.top>=dialog.top&&b.bottom<=dialog.bottom+1;}).catch(async error=>{await page.screenshot({path:path.join(artifactDir,'role-modal-short-screen-failure.png')});throw error;});
+  assert.ok(await start.evaluate(node=>{const b=node.getBoundingClientRect();return b.top>=0&&b.bottom<=innerHeight+1;}),'Action can be reached on a short enlarged screen');
+  await page.screenshot({path:path.join(artifactDir,'role-modal-consent-short-enlarged.png')});
+  await page.evaluate(()=>document.documentElement.style.removeProperty('font-size'));await page.setViewportSize({width:1440,height:950});
+  await panel.getByRole('checkbox').check();faults.saveUnavailable=true;
+  await start.click();await panel.getByRole('alert').waitFor();
+  const failedStart=faults.posts.at(-1);faults.saveUnavailable=false;delete faults.releaseSave;faults.waitForSave=true;
+  await start.click();await until(()=>faults.releaseSave);
+  assert.deepEqual(faults.posts.at(-1),failedStart,'Embedded retry retains the exact draft request');
+  assert.equal(await panel.getByRole('button',{name:'Close dialog',exact:true}).isDisabled(),true);
+  await page.keyboard.press('Escape');assert.equal(await panel.isVisible(),true,'Pending draft creation blocks dismissal');
+  await page.mouse.click(2,2);assert.equal(await panel.isVisible(),true,'Pending draft creation blocks backdrop dismissal');
+  faults.releaseSave();delete faults.waitForSave;
+  await page.waitForFunction(()=>window.destination==='/apply');
+  assert.equal((await savedDraftData()).opportunityId,'general-member','Embedded creation preserves the exact selected role');
+  passed.push('glossy role dialogs fit three tracks/four widths and all access states; embedded consent gates creation, preserves exact retries and busy dismissal, and fits short enlarged screens');
+
+  passed.push('whole-card links fit four widths, support clicks across the surface, keyboard focus restoration, reduced motion, modal descriptions, three track filters, URL search, exact Google role handoff and vacancy labels');
 
   await page.evaluate(()=>{window.mountDepth();window.scrollTo({top:0,behavior:"instant"});});
   for(const width of [320,375,768,1440]){
