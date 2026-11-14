@@ -167,3 +167,7 @@ Version application JSON and question definitions when requirements change. Pres
 ### Shared feedback verification
 
 Use typed shared Callout variants and explicit announcement roles. Do not derive assertive announcements from color or nest live regions when migrating existing messages. Keep routine loading/count/save status quiet. Preserve field-error IDs and existing linked-summary consumers; Apply instead focuses its first invalid control and uses compact recovery. Preserve command freezing, input retention and exact retries. Test severity appearance and announcement ownership as well as recovery interactions; appearance changes do not authorize new notifications or validation rules.
+
+Combined-preview transport regressions: run `node --test scripts/combined-dev-proxy.test.mjs` from the repository root to check HTTP paths, query preservation, asset isolation and both development WebSocket upgrades. Browser checks must verify hydration and a stable navigation count, since HTTP 200 alone did not detect the reload loop.
+
+The combined-preview regressions also assert recruitment-only development Webpack selection, unchanged build/start arguments and shared font path translation. Browser acceptance observes each route for at least 30 seconds, checks navigation counts and HMR reload messages, and verifies fonts and hydration.

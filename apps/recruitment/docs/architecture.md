@@ -393,3 +393,9 @@ Callout accepts typed severity, optional title/actions/id and an explicit option
 Applicant OAuth initiation and callback return paths preserve only catalog-approved opportunity IDs on both success and failure. Callback redirects stay on the configured app origin and are not cacheable. Existing short-lived context cookies are cleared after the callback and on initiation failure; staff redirects ignore applicant opportunity IDs. The Google provider, callback, session exchange and access checks are unchanged.
 
 A draft can hold an opportunity while its profile is incomplete or ineligible; the current validation still blocks moving past the Opportunity step and submitting an ineligible application. A different requested ID is advisory and cannot replace a saved choice without an explicit action. Accepting it returns the applicant to Opportunity if they were on a later step, retains draft fields and clears any prior role-specific scenario confirmation.
+
+## Combined development transport - 14 November 2026
+
+The development launcher places an HTTP/WebSocket gateway on 127.0.0.1:4300. Recruitment paths and its two shared font URLs route directly to 4301; other paths route to the main-site compiler on 4302. This preserves each app's own HMR protocol and avoids the main Next server intercepting recruitment upgrades. Production build/start and standalone routing remain unchanged.
+
+Recruitment combined development explicitly uses Webpack; main-site development retains its default compiler. Direct-port reproduction showed Turbopack HMR hash-mismatch reloads persist without the gateway, so transport separation alone is insufficient. The gateway translates the two root font paths into /recruitment/brand/ paths while preserving queries.

@@ -82,3 +82,7 @@ The main website deploys through **Vercel** on pushes to `main`. Recruitment req
 ## Recruitment deployment
 
 The owner selected standalone recruitment at https://aws-alpha-recruitment.vercel.app. Only the main-site Apply now links point there; main routes, account navigation and backend stay unchanged. Build the recruitment Vercel project from apps/recruitment with Node 24.x. Keep NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW=0 and NEXT_PUBLIC_ALPHA_COMBINED_SITE=0; production uses the standard .next output directory. Set APP_URL=https://aws-alpha-recruitment.vercel.app (origin only), and allow its exact /auth/callback in the existing recruitment Supabase project. Local combined preview remains separate. No paid upgrade or schema replay is required.
+
+Combined development preview uses an HTTP/WebSocket gateway on port 4300, with the main-site compiler on 4302 and recruitment on 4301. Restart `npm run dev:combined` after updating this launcher. Both apps retain separate development sockets; production build/start routing is unchanged.
+
+Recruitment uses Webpack in combined development to avoid a reproduced Turbopack HMR hash-mismatch reload loop. The main site retains its default development compiler. Shared root font requests are translated to recruitment's base path by the gateway.
