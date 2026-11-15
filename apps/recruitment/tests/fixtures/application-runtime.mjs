@@ -4,7 +4,7 @@ import { createApplicationRoute } from "./staff-http-runtime.mjs";
 import { communityStorage, enrollmentFixture } from "./community-storage.mjs";
 
 /** Isolated PostgreSQL and the real HTTP/server code, with synthetic verified identity only. */
-export async function applicationRuntime(origin = "https://application.example.test") {
+export async function applicationRuntime(origin = "https://application.example.test", { throughMigration } = {}) {
   const db = new PGlite();
   await db.exec(`create role anon;create role authenticated;create schema auth;
     create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
@@ -14,7 +14,7 @@ export async function applicationRuntime(origin = "https://application.example.t
     grant usage on schema auth to anon,authenticated;`);
   await communityStorage(db);
   const directory = new URL("../../supabase/migrations/", import.meta.url);
-  for (const file of (await readdir(directory)).filter(file => file.endsWith(".sql")).sort()) await db.exec(await readFile(new URL(file, directory), "utf8"));
+  for (const file of (await readdir(directory)).filter(file => file.endsWith(".sql") && (!throughMigration || file <= throughMigration)).sort()) await db.exec(await readFile(new URL(file, directory), "utf8"));
   let identity, kind = "authenticated";
   async function addIdentity() {
     const id = crypto.randomUUID();

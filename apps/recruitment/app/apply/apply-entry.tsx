@@ -2,15 +2,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ProcessShell } from "@/app/components/process-shell";
 import { Icon } from "@/app/components/ui";
-import { ApplicationGuide, ApplicationIntroduction } from "@/app/components/application-introduction";
 
 /** Shared entry and recovery frame for the application process. */
 export function ApplyEntry({ children, appearance = "navy", preparation = false, introduction = false }: { children: ReactNode; appearance?: "navy" | "dark"; preparation?: boolean; introduction?: boolean }) {
-  return <ProcessShell appearance={appearance}>
-    <main id="main-content" className={`apply-page apply-entry${appearance === "dark" ? " apply-auth" : ""}${preparation ? " apply-preparation" : ""}${introduction ? " application-welcome" : ""}`}>
-      {introduction && <ApplicationIntroduction />}
+  return <ProcessShell contentHeight appearance="navy">
+    <main id="main-content" className={`apply-page apply-entry apply-step-entry${appearance === "dark" ? " apply-auth" : ""}${preparation ? " apply-preparation" : ""}${introduction ? " application-welcome" : ""}`}>
       <div className="apply-entry-card">{children}</div>
-      {introduction && <ApplicationGuide />}
     </main>
   </ProcessShell>;
 }
@@ -18,7 +15,6 @@ export function ApplyEntry({ children, appearance = "navy", preparation = false,
 export function ApplyLoading() {
   return <ApplyEntry>
     <div className="apply-entry-main" role="status">
-      <p className="apply-kicker">November 2026 recruitment</p>
       <h1>Loading your application…</h1>
       <p className="apply-lead">Getting your latest details ready.</p>
       <div className="apply-loading-lines" aria-hidden="true"><span /><span /><span /></div>

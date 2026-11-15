@@ -29,7 +29,7 @@ test("CI workflow parses with pinned tools, ordinary triggers, read-only permiss
  const upload=job.steps.find(step=>step.uses?.startsWith("actions/upload-artifact@"));assert.equal(upload.with["retention-days"],7);assert.equal(upload.with["include-hidden-files"],true);
  for(const entry of upload.with.path.trim().split("\n"))assert.match(entry,/^\.next\/verification\/(?:ci\/\*\.(?:log|json)|(?:staff-confirmation|applicant-submission|evaluations|decisions|application-queue|intake|application-export)\/\*\.png)$/);
  assert.equal(JSON.stringify(workflow).includes("secrets."),false);assert.deepEqual(job.steps.filter(step=>step.run).map(step=>step.run),["npm ci","npx playwright install --with-deps chromium","npm run verify:ci"]);
- const manifest=JSON.parse(await readFile(new URL("../package.json",import.meta.url),"utf8"));assert.equal(manifest.devDependencies.playwright,"1.63.0");assert.match(manifest.scripts["test:ci"],/--test-concurrency=2/);assert.equal((await readFile(new URL("../.node-version",import.meta.url),"utf8")).trim(),"24.22.1");assert.equal(browserSuites.length,8);
+ const manifest=JSON.parse(await readFile(new URL("../package.json",import.meta.url),"utf8"));assert.equal(manifest.devDependencies.playwright,"1.63.0");assert.match(manifest.scripts["test:ci"],/--test-concurrency=2/);assert.equal((await readFile(new URL("../.node-version",import.meta.url),"utf8")).trim(),"24.22.1");assert.deepEqual(browserSuites,["page-loader","membership","authenticator","staff-manager","applicant-submission","evaluations","decisions","application-queue","intake","application-export"]);
 });
 
 test("CI subprocess environment disables hosted configuration and uses the invoking Node on Windows and Linux",()=>{

@@ -8,6 +8,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 import { applicationRuntime } from "../fixtures/application-runtime.mjs";
+import { createCommunityRoutes } from "../fixtures/staff-http-runtime.mjs";
 import { validSubmission, validSimplifiedSubmission } from "../fixtures/submission.mjs";
 import { blockedDestination } from "../../lib/application-progress.ts";
 import { draftFromRow, upgradeDraft } from "../../lib/drafts.ts";
@@ -55,6 +56,8 @@ const cache={};function require(name){if(!cache[name]){if(!modules[name])throw E
 const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let revision=0;
 const renderShell=(content,signedIn=true)=>require('react/jsx-runtime').jsxs(require('react').Fragment,{children:[jsx(require('@/app/components/ui').SiteHeader,{signedIn}),window.shellPath==='/application'?jsx(require('./recruitment-shell').RecruitmentShell,{frame:'applicant',children:content}):content,jsx(require('@/app/components/ui').Footer,{})]},String(++revision));
 window.mount=(kind,props)=>{window.shellPath=kind==='editor'?'/apply':'/application';window.destination='';require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('@/app/components/access-guard').AccessGuard,{accountId:props.applicant?.id||props.accountId,expected:'applicant',blockedContent:kind==='editor'?jsx(require('./apply-entry').ApplyAccessChanged,{}):undefined,children:jsx(require(kind==='editor'?'editor':'portal')[kind==='editor'?'DraftEditor':'ApplicationPortal'],props)}))));};
+function EnrollmentProbe({accountId}){const React=require('react'),[account,setAccount]=React.useState(accountId),[ready,setReady]=React.useState(false),[revision,setRevision]=React.useState(0);window.changeEnrollmentAccount=setAccount;window.rotateEnrollmentCallback=()=>setRevision(value=>value+1);const onReady=React.useCallback(value=>{window.enrollmentCallbacks.push(value);setReady(value)},[revision]);return require('react/jsx-runtime').jsxs('main',{id:'main-content',className:'container portal narrow',children:[jsx(require('@/app/components/enrollment-upload').EnrollmentUpload,{accountId:account,onReady}),jsx('output',{id:'enrollment-ready',children:String(ready)})]});}
+window.mountEnrollment=accountId=>{window.shellPath='/apply';window.enrollmentCallbacks=[];require('react-dom').flushSync(()=>root.render(renderShell(jsx(EnrollmentProbe,{accountId}))));};
 window.mountEntry=props=>{window.shellPath='/apply';root.render(renderShell(jsx(require('entry').ApplicantAccess,{...props,formEntry:true}),false));};
 window.mountLoading=()=>{window.shellPath='/apply';root.render(renderShell(jsx(require('./apply-entry').ApplyLoading,{}),false));};
 window.mountHome=(entry={kind:'anonymous'})=>{window.shellPath='/opportunities';history.replaceState({},'','/opportunities');require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsx(require('home').OpportunityDirectory,{entry})]}),false)));};
@@ -63,6 +66,21 @@ window.mountDepth=()=>{window.shellPath='/';const {jsx,jsxs}=require('react/jsx-
 window.mountShell=(path,props={})=>{window.shellPath=path;require('react-dom').flushSync(()=>root.render(require('react/jsx-runtime').jsxs(require('react').Fragment,{children:[jsx(require('@/app/components/ui').SiteHeader,props),jsx(require('@/app/components/ui').Footer,{})]},String(++revision))));};
 window.mountNavigation=(path,props)=>{window.shellPath=path;const {jsx,jsxs}=require('react/jsx-runtime'),ui=require('@/app/components/ui'),home=path==='/';const staff=path.startsWith('/admin')?{role:'administrator',status:'active',needsMfa:false}:path==='/reviewer'?{role:'evaluator',status:'active',needsMfa:false}:undefined;require('react-dom').flushSync(()=>root.render(jsxs(require('react').Fragment,{children:[jsx(ui.SiteHeader,props||{signedIn:!!staff,staff}),jsx('main',{id:'main-content',className:'workspace-redesign',children:home?jsxs(require('react').Fragment,{children:[jsx('section',{className:'brand-hero',style:{height:'100vh'}}),jsx('section',{className:'home-recruitment-overlay',style:{height:'1800px'}})]}):jsx('section',{style:{height:'3000px'}})}),jsx(ui.Footer,{})]},String(++revision))));};})();`;
 const runtime = await applicationRuntime(), origin = "https://application.example.test";
+const uploadObjects=new Map();
+async function uploadSql(query,args=[]){return runtime.db.transaction(async tx=>{await tx.exec('set local role authenticated');await tx.query("select set_config('request.jwt.claim.sub',$1,true),set_config('request.jwt.claims',$2,true)",[runtime.identity.id,JSON.stringify({sub:runtime.identity.id,aal:'aal1'})]);return(await tx.query(query,args)).rows;});}
+const uploadClient={
+  async rpc(name,args={}){
+    const calls={alpha_enrollment:['select public.alpha_enrollment($1) value',[args.p_application||null]],alpha_save_enrollment:['select public.alpha_save_enrollment($1,$2,$3,$4) value',[args.p_path,args.p_filename,args.p_type,args.p_size]]};
+    assert.ok(calls[name],'Expected enrollment RPC');
+    try{return{data:(await uploadSql(...calls[name]))[0].value,error:null};}catch(error){return{data:null,error:{code:error.code,message:error.message}};}
+  },
+  storage:{from(bucket){return{
+    async upload(name,bytes,options){try{await uploadSql('insert into storage.objects values($1,$2,$3)',[bucket,name,{size:bytes.byteLength,mimetype:options.contentType}]);uploadObjects.set(bucket+'/'+name,new Blob([bytes],{type:options.contentType}));return{error:null};}catch(error){return{error};}},
+    async remove(names){for(const name of names){if((await uploadSql('delete from storage.objects where bucket_id=$1 and name=$2 returning name',[bucket,name])).length)uploadObjects.delete(bucket+'/'+name);}return{error:null};},
+    async download(name){const rows=await uploadSql('select name from storage.objects where bucket_id=$1 and name=$2',[bucket,name]);return{data:rows.length?uploadObjects.get(bucket+'/'+name)||null:null,error:null};},
+  };}},
+};
+const enrollmentRoutes=await createCommunityRoutes(async()=>({kind:'applicant',identity:runtime.identity,client:uploadClient}),origin);
 const buildDirectory = path.resolve(project, process.env.ALPHA_BROWSER_BUILD_DIR || ".next");
 const shell = await readFile(path.join(buildDirectory,"server/app/admin.html"),"utf8");
 const styles = [...shell.matchAll(/href="([^"?]+\.css)(?:\?[^"]*)?"/g)].map(match=>match[1]);
@@ -90,9 +108,23 @@ try {
     if(url.pathname==='/api/community'){
       if(incoming.method()==='GET'&&url.searchParams.get('action')==='enrollment'){
         const row=faults.enrollmentMissing?null:(await runtime.db.query('select id,filename,size_bytes as size,created_at as "createdAt" from public.enrollment_documents where owner_id=$1',[url.searchParams.get('accountId')])).rows[0];
+        const failure=faults.enrollmentReadFailure;
+        if(faults.holdEnrollmentRead)await new Promise(resolve=>{faults.releaseEnrollmentRead=resolve;});
+        if(failure)return route.fulfill({status:503,json:{ok:false,message:'Saved document lookup failed.'}});
         return route.fulfill({json:{ok:true,data:row||null}});
       }
       return route.fulfill({json:{ok:true,data:[]}});
+    }
+    if(url.pathname==='/api/community/upload'){
+      if(faults.enrollmentUploadFailure)return route.fulfill({status:503,json:{ok:false,message:'Synthetic upload was not confirmed.'}});
+      const response=await enrollmentRoutes.upload.POST(new Request(incoming.url(),{method:'POST',headers:await incoming.allHeaders(),body:incoming.postDataBuffer()}));
+      const body=await response.text();
+      if(faults.holdEnrollmentUpload)await new Promise(resolve=>{faults.releaseEnrollmentUpload=resolve;});
+      return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body});
+    }
+    if(url.pathname==='/api/community/file'){
+      const response=await enrollmentRoutes.file.GET(new Request(incoming.url()));
+      return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:Buffer.from(await response.arrayBuffer())});
     }
     if(url.pathname!=="/api/application")return route.fulfill({contentType:"text/html; charset=utf-8",body:`<html lang="en" data-theme="light"><head><meta charset="utf-8">${styles.map(style=>`<link rel="stylesheet" href="${style}">`).join("")}</head><body class="alpha-app"><div id="root"></div></body></html>`});
     if(incoming.method()==='GET'){
@@ -102,7 +134,7 @@ try {
     const body=incoming.method()==="POST"?JSON.parse(incoming.postData()):null;
     if(body)faults.posts.push(body);
     if(body?.action==='save'&&faults.saveUnavailable)return route.fulfill({status:503,json:{ok:false,code:'UNAVAILABLE',message:'Saving could not be confirmed. Your input is preserved; retry saving.'}});
-    if(body?.action==='save'&&faults.saveFailure)return route.fulfill({status:409,json:{ok:false,...faults.saveFailure}});
+    if(body?.action==='save'&&faults.saveFailure)return route.fulfill({status:faults.saveFailure.code==='DENIED'?403:409,json:{ok:false,...faults.saveFailure}});
     if(body?.action==='submit'&&faults.submitFailure)return route.fulfill({status:422,json:{ok:false,...faults.submitFailure}});
     if(body?.action==="save"&&faults.waitForSave)await new Promise(resolve=>{faults.releaseSave=resolve;});
     if(body?.action==="submit"&&faults.stallBeforeSubmit){faults.waiting=true;return;}
@@ -121,7 +153,7 @@ try {
     const state=await runtime.rpc("get_application_state");
     faults={posts:[],...options};
     await page.evaluate(props=>window.mount("editor",props),{applicant:runtime.identity,initialDraft:draftFromRow(saved,runtime.identity.email),intake:state.intake,requestedOpportunity:options.requestedOpportunity});
-    await page.getByRole("heading",{name:["Ready to start?","About you","Choose your opportunity","Your story","Links","Review & submit"][blockedDestination(upgradeDraft(data),upgradeDraft(data).stage)?.stage??upgradeDraft(data).stage],exact:true}).waitFor();
+    await page.getByRole("heading",{name:["Start your application","About you","Choose your opportunity","Your story","Links","Review & submit"][blockedDestination(upgradeDraft(data),upgradeDraft(data).stage)?.stage??upgradeDraft(data).stage],exact:true}).waitFor();
   }
   async function selectStep(index) {
     const target=[1,2,3,5].indexOf(index);
@@ -157,15 +189,33 @@ try {
       assert.equal(await page.locator('.process-root .error-summary').count(),0,label+' uses field errors without a repeated summary');
       if(await page.locator('.process-action-bar').count()){
         assert.equal(await page.locator('.application-workbench-content > .process-action-bar').count(),1,label+' keeps actions inside the white form content');
-        assert.equal(await page.locator('.process-action-bar').evaluate(node=>getComputedStyle(node).position),'static',label+' actions stay in document flow');
         assert.equal(await page.locator('.process-action-bar').evaluate(node=>node.previousElementSibling?.id),'application-draft-form');
         assert.equal(await page.getByRole('button',{name:/^(Continue|Submit application)$/,exact:true}).getAttribute('form'),'application-draft-form');
       }
     }
-    for(const colorScheme of ["light","dark"])for(const width of [320,375,414,768,1024,1440]){
+    for(const colorScheme of ["light","dark"])for(const width of [320,375,390,414,768,1023,1024,1440,1920]){
       await page.setViewportSize({width,height:950});await page.emulateMedia({colorScheme});
       if(await page.locator(".process-root").count())await assertProcessAppearance(page,".process-root",label);
       assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),"light");
+      if(await page.locator('.application-workbench').count()) {
+        const geometry=await page.locator('.application-workbench').evaluate(n=>({width:n.getBoundingClientRect().width,minHeight:getComputedStyle(n).minHeight}));
+        assert.ok(geometry.width<=(width>=1024?1121:861),label+' workspace stays within its responsive max width');assert.equal(geometry.minHeight,'0px');
+        const placement=await page.locator('.application-workbench').evaluate(node=>{const nav=node.querySelector('.application-step-navigation'),sidebar=nav.getBoundingClientRect(),content=node.querySelector('.application-workbench-content').getBoundingClientRect();return {sidebarRight:sidebar.right,sidebarBottom:sidebar.bottom,contentLeft:content.left,contentTop:content.top,position:getComputedStyle(innerWidth>=1024?node.querySelector('.application-progress-panel'):nav).position};});
+        assert.equal(placement.position,width>=1024?'sticky':'static',label+' progress uses the responsive position');
+        if(width>=1024){
+          assert.ok(placement.sidebarRight<=placement.contentLeft+1,label+' progress sits beside the form');
+          const fill=await page.locator('.application-progress-panel').evaluate(panel=>{const box=panel.getBoundingClientRect(),track=panel.querySelector('.process-track').getBoundingClientRect(),count=panel.querySelector('.process-step-label').getBoundingClientRect(),steps=[...panel.querySelectorAll('.process-segment')].map(node=>node.getBoundingClientRect());return {height:box.height,expected:innerHeight-parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height'))-64,inset:track.left-box.left,rightInset:box.right-track.right,bottomInset:box.bottom-count.bottom,heights:steps.map(step=>step.height),widths:steps.map(step=>step.width),trackWidth:track.width,marker:panel.querySelector('.progress-icon').getBoundingClientRect().width,connector:getComputedStyle(panel.querySelector('.process-segment'),'::after').display};});
+          assert.ok(Math.abs(fill.height-fill.expected)<1,label+' progress fills the available desktop height');
+          assert.ok(Math.abs(fill.inset-12)<1&&Math.abs(fill.rightInset-12)<1,label+' progress uses the sidebar width with 12px insets');
+          assert.ok(Math.abs(fill.bottomInset-24)<1,label+' step count is anchored at the sidebar bottom');
+          assert.ok(Math.max(...fill.heights)-Math.min(...fill.heights)<1,label+' step sections have equal heights');
+          assert.ok(fill.heights.every(height=>height>=72)&&fill.widths.every(value=>Math.abs(value-fill.trackWidth)<1),label+' each step fills its sidebar section');
+          assert.equal(fill.marker,32);assert.equal(fill.connector,'block');
+        }
+        else assert.ok(placement.sidebarBottom<=placement.contentTop+1,label+' progress sits above the form');
+        assert.equal(await page.locator('.process-action-bar').evaluate(n=>getComputedStyle(n).position),width>=900&&!await page.locator('.process-action-bar .process-recovery,.process-action-bar .notice').count()?'sticky':'static');
+      }
+
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,label+" "+colorScheme+" "+width);
       const clipped=await page.locator('.process-root :is(button,input,textarea,select)').evaluateAll(nodes=>nodes.filter(node=>{const box=node.getBoundingClientRect();return box.width>0&&box.height>0&&(box.left<-.5||box.right>innerWidth+.5);}).map(node=>({tag:node.tagName,id:node.id})));
       assert.deepEqual(clipped,[],label+" controls stay inside "+width+"px");
@@ -176,6 +226,51 @@ try {
     }
   }
   const artifactDir=path.join(project,".next/verification/applicant-submission");await mkdir(artifactDir,{recursive:true});
+  const initialIdentity=runtime.identity,uploadApplicant=await runtime.addIdentity();runtime.setIdentity(uploadApplicant);
+  await runtime.db.query('delete from enrollment_documents where owner_id=$1',[uploadApplicant.id]);
+  await runtime.db.query("delete from storage.objects where name like $1",[uploadApplicant.id+'/%']);
+  await runtime.rpc('save_applicant_draft',{p_data:validSimplifiedSubmission(),p_expected_version:0,p_mutation_id:crypto.randomUUID()});
+  const chooseProof=name=>page.locator('#proofOfEnrollment').setInputFiles({name,mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.7 synthetic enrollment '+name)});
+  const proofReady=()=>page.waitForFunction(()=>document.getElementById('enrollment-ready')?.textContent==='true');
+  async function mountProof(options={}){faults={posts:[],...options};await page.evaluate(id=>window.mountEnrollment(id),runtime.identity.id);await page.locator('#proofOfEnrollment').waitFor();}
+  for(const outcome of ['empty','error']){
+    await mountProof({enrollmentMissing:true,enrollmentReadFailure:outcome==='error',holdEnrollmentRead:true});
+    await until(()=>faults.releaseEnrollmentRead);
+    await chooseProof('proof-'+outcome+'.pdf');await proofReady();
+    const release=faults.releaseEnrollmentRead;faults.holdEnrollmentRead=false;release();await delay(50);
+    assert.equal(await page.locator('#enrollment-ready').textContent(),'true','Late '+outcome+' read cannot undo a confirmed upload');
+    assert.equal(await page.getByRole('status').filter({hasText:'proof-'+outcome+'.pdf'}).count(),1);
+    assert.equal(await page.getByRole('alert').count(),0);
+  }
+  faults={posts:[]};
+  const downloaded=await page.locator('.enrollment-upload a').evaluate(async link=>{const response=await fetch(link.href);return{status:response.status,body:await response.text(),cache:response.headers.get('cache-control')};});
+  assert.equal(downloaded.status,200);assert.match(downloaded.body,/%PDF-1.7 synthetic enrollment proof-error.pdf/);assert.equal(downloaded.cache,'private, no-store');
+  faults.enrollmentUploadFailure=true;await chooseProof('replacement-fails.pdf');
+  await page.getByRole('alert').filter({hasText:'Synthetic upload was not confirmed.'}).waitFor();
+  assert.equal(await page.getByRole('status').filter({hasText:'proof-error.pdf'}).count(),1,'Failed replacement keeps the confirmed document');
+  assert.equal(await page.locator('#enrollment-ready').textContent(),'true');
+  faults.enrollmentUploadFailure=false;await page.getByRole('button',{name:'Reload saved document',exact:true}).click();await proofReady();
+  assert.equal(await page.getByRole('alert').count(),0,'Explicit reload recovers the saved document');
+  faults.holdEnrollmentUpload=true;await chooseProof('callback-change.pdf');await until(()=>faults.releaseEnrollmentUpload);
+  await page.evaluate(()=>window.rotateEnrollmentCallback());faults.holdEnrollmentUpload=false;faults.releaseEnrollmentUpload();await proofReady();
+  assert.equal(await page.locator('#proofOfEnrollment').isDisabled(),false,'A changed readiness callback cannot strand an upload');
+  assert.equal(await page.getByRole('status').filter({hasText:'callback-change.pdf'}).count(),1);
+  delete faults.releaseEnrollmentUpload;faults.holdEnrollmentUpload=true;await chooseProof('old-account.pdf');await until(()=>faults.releaseEnrollmentUpload);
+  const releaseOldAccount=faults.releaseEnrollmentUpload,otherUploadAccount=await runtime.addIdentity();runtime.setIdentity(otherUploadAccount);
+  faults.holdEnrollmentUpload=false;faults.enrollmentMissing=true;
+  await page.evaluate(id=>window.changeEnrollmentAccount(id),otherUploadAccount.id);
+  await page.waitForFunction(()=>document.getElementById('enrollment-ready')?.textContent==='false');
+  releaseOldAccount();await delay(50);
+  assert.equal(await page.getByRole('status').filter({hasText:'old-account.pdf'}).count(),0,'Old-account upload responses stay out of the new account');
+  assert.equal(await page.locator('#enrollment-ready').textContent(),'false');
+  runtime.setIdentity(uploadApplicant);await mountProof();await proofReady();
+  faults.holdEnrollmentUpload=true;await chooseProof('unmounted.pdf');await until(()=>faults.releaseEnrollmentUpload);
+  const releaseUnmounted=faults.releaseEnrollmentUpload;await page.evaluate(()=>window.mountFeedback());
+  const callbacksAtUnmount=await page.evaluate(()=>window.enrollmentCallbacks.length);
+  releaseUnmounted();await delay(50);
+  assert.equal(await page.evaluate(()=>window.enrollmentCallbacks.length),callbacksAtUnmount,'Unmounted uploads do not call readiness callbacks');
+  runtime.setIdentity(initialIdentity);faults={posts:[]};
+  passed.push('real enrollment widget uploads/downloads through multipart HTTP and isolated SQL; stale empty/error reads, failed replacements, reloads, callback changes, account switches and unmounts preserve the correct document/readiness');
   await page.evaluate(()=>window.mountFeedback());
   assert.equal(await page.locator('.notice').count(),4);
   assert.equal(await page.locator('.notice[role="alert"]').count(),1,'Only an explicitly urgent notice announces an alert');
@@ -197,21 +292,17 @@ try {
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.screenshot({path:path.join(artifactDir,`apply-loading-${width}.png`)});}
   await page.evaluate(()=>window.mountEntry({kind:"anonymous",opportunity:"buildher"}));
   await page.getByRole('heading',{name:'Start your application',exact:true}).waitFor();
-  assert.equal(await page.getByRole('heading',{name:'Your next chapter starts here.',exact:true}).count(),1);
+  assert.equal(await page.getByRole('heading',{name:'Your next chapter starts here.',exact:true}).count(),0,'Entry has one task heading without a promotional hero');
   assert.equal(await page.locator('.application-chapter').count(),0,'Chapter identity appears in the masthead without a repeated application label');
   assert.match(await page.locator('.brand-masthead').textContent(),/Rizal Technological University/);
-  assert.deepEqual(await page.locator('.application-overview li > span:last-child').allTextContents(),['About you','Opportunity','Your story','Review']);
+  assert.equal(await page.locator('.application-guide,.application-introduction').count(),0,'Entry omits the separate introduction and roadmap');
   assert.equal(await page.getByRole('link',{name:'Read the recruitment privacy notice',exact:true}).getAttribute('href'),'/privacy');
-  assert.equal(await page.getByRole('link',{name:'Find your place at Alpha',exact:true}).getAttribute('href'),'/opportunities');
   assert.match(await page.locator('.apply-requested').textContent(),/BuildHer\+/);
   assert.equal(await page.getByRole('link',{name:'Change opportunity',exact:true}).getAttribute('href'),'/opportunities');
   assert.equal(await page.locator('.application-overview [aria-current],.application-overview button,.journey-icon').count(),0,'Public roadmap does not imply consent or gated progress');
-  assert.match(await page.locator('.application-introduction h1 > span').evaluate(node=>getComputedStyle(node).fontFamily),/Urban Starblues/,'Application entry uses Alpha signature typography');
-  const entryComposition=await page.evaluate(()=>({intro:document.querySelector('.application-introduction').getBoundingClientRect().right,card:document.querySelector('.apply-entry-card').getBoundingClientRect().left}));
-  assert.ok(entryComposition.intro<entryComposition.card,'Desktop application pairs Alpha branding and compact access card');
-  await assertTextContrast('.application-card-label','.apply-entry-card');
+  assert.equal(await page.locator('.apply-entry-card').evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(255, 255, 255)');
   await assertTextContrast('.application-privacy-summary h3','.apply-entry-card');
-  assert.equal(await page.locator('.process-root').getAttribute('data-appearance'),'dark');
+  assert.equal(await page.locator('.process-root').getAttribute('data-appearance'),'navy');
   assert.equal(await page.locator('.apply-auth .apply-kicker,.apply-auth .apply-dates,.apply-auth .apply-entry-side').count(),0,'Promotional entry omits dates, checklist and recruitment labels');
   assert.equal(await page.locator('.apply-auth .apply-lead').textContent(),'Sign in to save your progress and come back when you’re ready.');
   assert.equal(await page.locator('.apply-auth form').count(),1,'One authentication action');
@@ -220,9 +311,9 @@ try {
   for(const width of [375,1440]){
     await page.setViewportSize({width,height:width===375?812:950});
     if(width===375){
-      const positions=await page.evaluate(()=>({role:document.querySelector(".apply-requested").getBoundingClientRect().bottom,card:document.querySelector(".apply-entry-card").getBoundingClientRect().bottom,guide:document.querySelector(".application-guide").getBoundingClientRect().top}));
+      const positions=await page.evaluate(()=>({role:document.querySelector(".apply-requested").getBoundingClientRect().bottom,card:document.querySelector(".apply-entry-card").getBoundingClientRect().bottom,guide:document.querySelector(".apply-entry-card").getBoundingClientRect().bottom+1}));
       assert.ok(positions.role<=812,"The selected role is visible on the first mobile screen");
-      assert.ok(positions.card<positions.guide,"Sign-in precedes the orientation guide on mobile");
+      assert.ok(positions.card<positions.guide,"Selected role stays within the task card on mobile");
     }
     await page.screenshot({path:path.join(artifactDir,`apply-entry-${width}.png`)});
   }
@@ -236,7 +327,7 @@ try {
 
   runtime.setIdentity(await runtime.addIdentity());faults={posts:[]};
   await page.evaluate(props=>window.mount("editor",props),{applicant:runtime.identity,initialDraft:null,intake:(await runtime.rpc("get_application_state")).intake,requestedOpportunity:"buildher"});
-  await page.getByRole('heading',{name:'Ready to start?',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Start your application',exact:true}).waitFor();
   assert.equal(await page.locator('.apply-lead').textContent(),'Four steps. Your progress saves automatically.');
   assert.equal(await page.getByRole('checkbox').getAttribute('type'),'checkbox');
   assert.equal(await page.locator('.apply-start-form .checkbox-row').textContent(),'I have read the privacy notice and agree to recruitment processing.');
@@ -246,7 +337,7 @@ try {
   assert.equal(await page.locator('.apply-requested').isVisible(),true,'Requested opportunity stays visible');
   assert.equal(await page.locator('.apply-account strong').textContent(),runtime.identity.email);
   const preparationWidth=await page.locator('.apply-entry-card').evaluate(node=>node.getBoundingClientRect().width);
-  assert.ok(preparationWidth>=440&&preparationWidth<=600,'Preparation keeps the compact task card beside the Alpha introduction');
+  assert.ok(preparationWidth>=700&&preparationWidth<=860,'Preparation shares the centered editor card width');
   assert.equal(await page.getByText('1–30 November 2026',{exact:true}).isVisible(),false,'Dates remain in the collapsed details');
   await page.getByText('Application details',{exact:true}).focus();await page.keyboard.press('Enter');
   assert.equal(await page.getByText('1–30 November 2026',{exact:true}).isVisible(),true,'Native details opens by keyboard');
@@ -272,7 +363,7 @@ try {
   assert.deepEqual(await page.locator('#fullName').evaluate(node=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=1;const context=canvas.getContext('2d');context.fillStyle=getComputedStyle(node).backgroundColor;context.fillRect(0,0,1,1);return [...context.getImageData(0,0,1,1).data];}),[255,255,255,255]);
   assert.equal(await page.locator('.process-root').evaluate(node=>getComputedStyle(node).backgroundColor),'rgb(8, 9, 10)');
   assert.equal(await page.locator('.process-paper .apply-wave').count(),1,'The white form sits above the moving Alpha gradient');
-  assert.equal(await page.locator('.application-sidebar').evaluate(node=>getComputedStyle(node).position),'static','The sidebar scrolls naturally with the form');
+  assert.equal(await page.locator('.application-step-navigation').count(),1,'Editor reuses one responsive progress navigation');
   assert.equal(await page.locator('label[for=fullName] .required-mark').evaluate(node=>getComputedStyle(node).color),'rgb(180, 35, 24)','Required asterisks are red');
   const normalFieldBorder=await page.locator('#fullName').evaluate(node=>getComputedStyle(node).borderTopColor);
   await page.locator('#fullName').focus();
@@ -474,19 +565,47 @@ try {
   await page.locator('#mobile').fill('+63 917 123 4567');
   assert.equal(await page.locator('#mobile').inputValue(),'+63 917 123 4567');
   assert.equal(await page.locator('.process-bar,.process-account').count(),0,'No secondary toolbar or account menu remains');
-  assert.equal(await page.locator('.application-sidebar > .process-progress').count(),1,'Progress is inside the form sidebar');
+  assert.equal(await page.locator('.application-step-navigation > .process-progress').count(),1,'Progress stays inside the application workspace');
   for(const width of [375,1440]){
     await page.setViewportSize({width,height:950});
-    const placement=await page.locator('.application-workbench').evaluate(node=>{const sidebar=node.querySelector('.application-sidebar').getBoundingClientRect(),content=node.querySelector('.application-workbench-content').getBoundingClientRect();return {sidebarRight:sidebar.right,sidebarBottom:sidebar.bottom,contentLeft:content.left,contentTop:content.top};});
-    assert.ok(width>=900?placement.sidebarRight<=placement.contentLeft+1:placement.sidebarBottom<=placement.contentTop+1,'Progress stays beside desktop fields and above phone fields');
+    const placement=await page.locator('.application-workbench').evaluate(node=>{const sidebar=node.querySelector('.application-step-navigation').getBoundingClientRect(),content=node.querySelector('.application-workbench-content').getBoundingClientRect();return {sidebarRight:sidebar.right,sidebarBottom:sidebar.bottom,contentLeft:content.left,contentTop:content.top};});
+    if(width>=1024)assert.ok(placement.sidebarRight<=placement.contentLeft+1,'Desktop progress sits beside the fields');
+    else assert.ok(placement.sidebarBottom<=placement.contentTop+1,'Mobile progress stays above the fields');
   }
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(()=>{document.activeElement?.blur();scrollTo({top:400,behavior:'instant'});});
+  const sticky=await page.locator('.application-progress-panel').evaluate(node=>({top:node.getBoundingClientRect().top,offset:parseFloat(getComputedStyle(node).top),header:document.querySelector('.header-inner').getBoundingClientRect().bottom,scroll:scrollY}));
+  assert.ok(sticky.scroll>=399,'The long form scrolls far enough to exercise sticky progress');
+  assert.ok(Math.abs(sticky.top-sticky.offset)<1,'Progress stays at the sticky offset while the form scrolls');
+  assert.ok(sticky.top>=sticky.header+23,'Progress clears the visible site header');
+  await page.screenshot({path:path.join(artifactDir,'sticky-progress-desktop.png')});
+  await page.evaluate(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));
+  assert.ok(await page.locator('.application-progress-panel').evaluate(node=>node.getBoundingClientRect().bottom<=node.closest('.application-workbench').getBoundingClientRect().bottom+1),'Sticky progress stops within the application card');
+  await page.setViewportSize({width:1440,height:600});
+  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
+  const shortBefore=await page.locator('.application-progress-panel').evaluate(node=>({top:node.getBoundingClientRect().top+scrollY,position:getComputedStyle(node).position,height:node.getBoundingClientRect().height}));
+  assert.equal(shortBefore.position,'static','Short desktop windows keep progress in document flow');
+  assert.ok(shortBefore.height<600,'Short-window progress uses its natural height');
+  await page.evaluate(()=>scrollTo({top:200,behavior:'instant'}));
+  assert.ok(Math.abs(await page.locator('.application-progress-panel').evaluate(node=>node.getBoundingClientRect().top+scrollY)-shortBefore.top)<1,'Short-window progress follows document scrolling');
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(()=>{document.documentElement.style.fontSize='32px';scrollTo({top:400,behavior:'instant'});});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Desktop progress fits with 200% text');
+  await page.waitForFunction(()=>{const b=document.querySelector('.application-progress-panel').getBoundingClientRect();return b.top>=0&&b.bottom<=innerHeight;});
+  await page.evaluate(()=>{document.documentElement.style.removeProperty('font-size');scrollTo({top:0,behavior:'instant'});});
+  passed.push('desktop progress stays below the header and inside the card while scrolling; short windows use document flow; enlarged text and mobile layouts remain accessible');
   assert.equal(await page.locator('.process-support').count(),0);
   assert.equal(await page.locator('.process-action-bar').getByRole('button',{name:'Save & exit',exact:true}).count(),1);
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0);});await page.screenshot({path:path.join(artifactDir,`apply-profile-${width}.png`)});}
   await page.locator('#mobile').fill('invalid');await page.locator('#mobile').blur();
   assert.equal(await page.locator('#mobile').isVisible(),true);
   await page.getByRole('button',{name:'Continue',exact:true}).press('Enter');await page.waitForFunction(()=>document.activeElement?.id==='mobile');assert.equal(await page.locator('#mobile').isVisible(),true);await page.locator('#mobile').fill('+63 917 123 4567');
-  for(const index of [1,2,3,5]){await selectStep(index);await layout('application section '+index);}
+  for(const index of [1,2,3,5]){await selectStep(index);await layout('application section '+index);for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:1440,height:900}]){await page.setViewportSize(viewport);await page.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0)});await page.screenshot({path:path.join(artifactDir,`centered-step-${index}-${viewport.width}.png`),fullPage:true});}}
+  await page.getByRole('button',{name:'Go back to step 1: About you',exact:true}).focus();
+  await page.keyboard.press('Enter');
+  await page.getByRole('heading',{name:'About you',exact:true}).waitFor();
+  assert.equal(await page.locator('.process-segment[aria-current=step]').textContent(),'01About you','Keyboard navigation updates the same current step');
+  await selectStep(5);
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.locator('.process-action-bar').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(artifactDir,`apply-actions-${width}.png`)});}
   passed.push('optional profile details stay mounted; four-section navigation and all widths/device preferences remain accessible');
 
@@ -513,6 +632,16 @@ try {
   assert.equal((await runtime.db.query('select data from applicant_drafts where owner_id=$1',[runtime.identity.id])).rows[0].data.profile.fullName,'Final exit value');
   passed.push('review is links-first without duplicate evidence; autosave errors retain input and exact retries; Save & exit waits for acknowledgement');
 
+  const deniedDraft=validSimplifiedSubmission();deniedDraft.stage=1;
+  await mountEditor(deniedDraft,{saveFailure:{code:'DENIED',message:'Use the application from its original website.'}});
+  await page.locator('#fullName').fill('Local answers preserved after origin rejection');await page.clock.runFor(1100);
+  await page.getByRole('alert').filter({hasText:'Use the application from its original website.'}).waitFor();
+  await page.getByRole('button',{name:'Save & exit',exact:true}).click();
+  assert.equal(await page.evaluate(()=>window.destination),'','A denied save never exits the editor');
+  assert.equal(await page.locator('#fullName').inputValue(),'Local answers preserved after origin rejection');
+  assert.equal(await page.getByText('The change could not be confirmed and may have completed.',{exact:false}).count(),0,'An explicit denial is not presented as an uncertain write');
+  delete faults.saveFailure;await page.getByRole('button',{name:'Retry save',exact:true}).click();await autosave();
+  passed.push('explicit draft-origin rejection is visible, retains answers and stays in the editor until an acknowledged retry');
   const conflictDraft=validSimplifiedSubmission();conflictDraft.stage=1;
   await mountEditor(conflictDraft,{saveFailure:{code:'CONFLICT',message:'This draft changed in another tab. Reload the saved draft or keep these edits.'}});
   await page.locator('#fullName').fill('Local conflict text');await page.clock.runFor(1100);
@@ -872,7 +1001,7 @@ try {
   await page.evaluate(()=>window.mountHome());
   const directory=page.locator(".roles-grid");
   async function assertTrackColors() {
-    const colors={CORE_TEAM:['rgb(89, 68, 44)','rgb(43, 33, 25)'],COMMITTEE:['rgb(81, 65, 111)','rgb(36, 28, 53)'],MEMBER:['rgb(40, 86, 81)','rgb(18, 45, 43)']};
+    const colors={CORE_TEAM:['rgb(89, 68, 44)','rgb(43, 33, 25)'],COMMITTEE:['rgb(81, 65, 111)','rgb(36, 28, 53)']};
     for(const card of await directory.locator('.role-card').all()) {
       const gradient=await card.evaluate(node=>getComputedStyle(node).backgroundImage);
       for(const color of colors[await card.getAttribute('data-track')]) assert.ok(gradient.includes(color),'Glossy gradient follows its track');
@@ -882,7 +1011,7 @@ try {
   for(const width of [320,375,768,1440]){
     await page.setViewportSize({width,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
-    assert.equal(await directory.locator(".role-card").count(),17);
+    assert.equal(await directory.locator(".role-card").count(),16);
     await page.getByRole("heading",{name:"Available Roles",exact:true}).waitFor();
     assert.deepEqual(await directory.locator('.role-card').evaluateAll(nodes=>nodes.filter(node=>{const box=node.getBoundingClientRect();return box.left<0||box.right>innerWidth+1;}).map(node=>node.textContent)),[], 'Whole cards fit '+width+'px');
     assert.equal(await directory.evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width>=1024?3:width>=640?2:1);
@@ -918,11 +1047,7 @@ try {
   await page.getByRole('button',{name:'Committee',exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===10);
   await assertTrackColors();
-  await page.getByRole('button',{name:'Member',exact:true}).click();
-  await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===1);
-  await assertTrackColors();
-  assert.match(await directory.textContent(),/General Member/);
-  assert.match(await directory.textContent(),/No fixed limit/);
+  assert.equal(await page.getByRole('button',{name:'Member',exact:true}).count(),0);
   await page.getByRole('button',{name:'All roles',exact:true}).click();
   await page.locator('#role-search').fill('web');
   await page.getByRole('button',{name:'Search',exact:true}).click();
@@ -950,7 +1075,7 @@ try {
     });
     assert.deepEqual(issues,[],label);
   }
-  for(const id of ['core-creatives','skillbuilders-web','general-member']) {
+  for(const id of ['core-creatives','skillbuilders-web']) {
     for(const width of [320,375,768,1440]) {
       await page.setViewportSize({width,height:900});await mountRole({kind:'anonymous'},id);
       await assertRoleBounds(id+' '+width);
@@ -990,7 +1115,7 @@ try {
   }
   await page.setViewportSize({width:1440,height:950});
   const freshEntry={kind:'applicant',applicant:modalApplicant,hasDraft:false,submitted:false};
-  await mountRole(freshEntry,'general-member');
+  await mountRole(freshEntry,'committee-finance');
   let panel=page.getByRole('dialog');
   assert.equal(await panel.locator('.apply-requested,.apply-details').count(),0,'Embedded consent omits repeated role/preparation');
   const beforeConsent=faults.posts.length;
@@ -1007,8 +1132,10 @@ try {
   await page.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
   const start=panel.getByRole('button',{name:'Start application',exact:true});
   await panel.getByRole('checkbox').focus();
-  for(let index=0;index<3;index++)await page.keyboard.press('Tab');
-  assert.equal(await start.evaluate(node=>document.activeElement===node),true,'Keyboard reaches Start through consent, privacy and recovery');
+  for(let index=0;index<2;index++)await page.keyboard.press('Tab');
+  assert.equal(await start.evaluate(node=>document.activeElement===node),true,'Keyboard reaches Start through consent and privacy with inline missing-consent feedback');
+  // Settle the newly sized whole-dialog scroll container after the text/viewport change.
+  await start.scrollIntoViewIfNeeded();
   await page.waitForFunction(()=>{const node=document.querySelector('.role-entry-action .apply-start-form > button');const b=node?.getBoundingClientRect(),dialog=node?.closest('dialog').getBoundingClientRect();return b&&dialog&&b.top>=dialog.top&&b.bottom<=dialog.bottom+1;}).catch(async error=>{await page.screenshot({path:path.join(artifactDir,'role-modal-short-screen-failure.png')});throw error;});
   assert.ok(await start.evaluate(node=>{const b=node.getBoundingClientRect();return b.top>=0&&b.bottom<=innerHeight+1;}),'Action can be reached on a short enlarged screen');
   await page.screenshot({path:path.join(artifactDir,'role-modal-consent-short-enlarged.png')});
@@ -1023,10 +1150,10 @@ try {
   await page.mouse.click(2,2);assert.equal(await panel.isVisible(),true,'Pending draft creation blocks backdrop dismissal');
   faults.releaseSave();delete faults.waitForSave;
   await page.waitForFunction(()=>window.destination==='/apply');
-  assert.equal((await savedDraftData()).opportunityId,'general-member','Embedded creation preserves the exact selected role');
-  passed.push('glossy role dialogs fit three tracks/four widths and all access states; embedded consent gates creation, preserves exact retries and busy dismissal, and fits short enlarged screens');
+  assert.equal((await savedDraftData()).opportunityId,'committee-finance','Embedded creation preserves the exact selected role');
+  passed.push('glossy role dialogs fit both tracks/four widths and all access states; embedded consent gates creation, preserves exact retries and busy dismissal, and fits short enlarged screens');
 
-  passed.push('whole-card links fit four widths, support clicks across the surface, keyboard focus restoration, reduced motion, modal descriptions, three track filters, URL search, exact Google role handoff and vacancy labels');
+  passed.push('whole-card links fit four widths, support clicks across the surface, keyboard focus restoration, reduced motion, modal descriptions, two track filters, URL search, exact Google role handoff and vacancy labels');
 
   await page.evaluate(()=>{window.mountDepth();window.scrollTo({top:0,behavior:"instant"});});
   for(const width of [320,375,768,1440]){

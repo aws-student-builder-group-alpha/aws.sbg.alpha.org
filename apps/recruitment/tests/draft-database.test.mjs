@@ -37,7 +37,7 @@ async function save(id, input, version = 0, mutation = crypto.randomUUID()) {
 }
 test("historical draft baseline retains its original opportunity IDs and tracks", async () => {
   const result = await db.query("select id,track from public.draft_opportunities order by id");
-  assert.deepEqual(result.rows, opportunities.filter(role => role.track !== "MEMBER").map(({ id, track }) => ({ id, track })).sort((a,b) => a.id.localeCompare(b.id)));
+  assert.deepEqual(result.rows, opportunities.map(({ id, track }) => ({ id, track })).sort((a,b) => a.id.localeCompare(b.id)));
 });
 test("one consented draft is created per Google identity with server-owned email and timestamps", async () => {
   const id = await identity(); const input = payload(); const mutation = crypto.randomUUID();

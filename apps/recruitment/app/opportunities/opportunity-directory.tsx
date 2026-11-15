@@ -18,7 +18,7 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
  const availability = useOpportunityAvailability();
  const [busy, setBusy] = useState(false);
  const track = params.get("track");
- const filter = ["CORE_TEAM","COMMITTEE","MEMBER"].includes(track || "") ? track as Track : "ALL";
+ const filter = ["CORE_TEAM","COMMITTEE"].includes(track || "") ? track as Track : "ALL";
  const query = params.get("q") || "";
  const selected = getOpportunity(params.get("opportunity") || "");
  function change(key: string, value: string) {
@@ -30,9 +30,9 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
  const visible = opportunities.filter(role => (filter === "ALL" || role.track === filter) && (role.title + " " + role.department + " " + (role.specialization || "")).toLowerCase().includes(query.trim().toLowerCase()));
  const close = () => change("opportunity","");
  return <main id="main-content" className="roles-page">
-  <header className="roles-heading"><div><p className="roles-kicker">Your place at Alpha</p><h1>Available Roles</h1><p>Beginners are welcome. Find a team to build with, or join our learning community.</p></div>{entry.kind === "applicant" && !entry.hasDraft && !entry.submitted ? <a href="#available-roles" className="button button-secondary">Choose a role to apply <Icon name="arrow" /></a> : <Link href={entry.kind === "member" ? "/membership" : entry.kind === "staff" ? "/staff" : "/application?resume=1"} className="button button-secondary">{entry.kind === "member" ? "Membership ID" : entry.kind === "staff" ? "Staff workspace" : entry.kind === "applicant" && entry.submitted ? "View your application" : "Continue application"} <Icon name="arrow" /></Link>}</header>
+  <header className="roles-heading"><div><p className="roles-kicker">Your place at Alpha</p><h1>Available Roles</h1><p>Beginners are welcome. Find a team to learn and build with.</p></div>{entry.kind === "applicant" && !entry.hasDraft && !entry.submitted ? <a href="#available-roles" className="button button-secondary">Choose a role to apply <Icon name="arrow" /></a> : <Link href={entry.kind === "member" ? "/membership" : entry.kind === "staff" ? "/staff" : "/application?resume=1"} className="button button-secondary">{entry.kind === "member" ? "Membership ID" : entry.kind === "staff" ? "Staff workspace" : entry.kind === "applicant" && entry.submitted ? "View your application" : "Continue application"} <Icon name="arrow" /></Link>}</header>
   <div className="roles-tools"><form role="search" onSubmit={event => { event.preventDefault(); const value = new FormData(event.currentTarget).get("q"); change("q", typeof value === "string" ? value : ""); }}><label htmlFor="role-search">Search roles</label><div className="roles-search"><input key={query} id="role-search" name="q" type="search" defaultValue={query} maxLength={120} placeholder="Role, department, or specialization" /><button className="button button-orange" type="submit">Search</button></div></form>
-   <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL","CORE_TEAM","COMMITTEE","MEMBER"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track",value === "ALL" ? "" : value)}>{value === "ALL" ? "All roles" : trackLabel(value)}</button>)}</div>
+   <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL","CORE_TEAM","COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track",value === "ALL" ? "" : value)}>{value === "ALL" ? "All roles" : trackLabel(value)}</button>)}</div>
   </div>
   <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
   <div className="roles-grid" id="available-roles">{visible.map(role => <article key={role.id} className="role-card-item">

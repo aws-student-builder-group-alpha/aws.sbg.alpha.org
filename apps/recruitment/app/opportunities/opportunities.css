@@ -15,7 +15,6 @@
 }
 .role-card[data-track="CORE_TEAM"],.role-entry-core_team { --role-light:#59442c; --role-dark:#2b2119; --role-edge:#18130e; --role-rule:#8a7355; }
 .role-card[data-track="COMMITTEE"],.role-entry-committee { --role-light:#51416f; --role-dark:#241c35; --role-edge:#171020; --role-rule:#84719e; }
-.role-card[data-track="MEMBER"],.role-entry-member { --role-light:#285651; --role-dark:#122d2b; --role-edge:#0b1d1b; --role-rule:#5b8b82; }
 .role-card::before,.role-card::after { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:0; }
 .role-card::after { background:linear-gradient(135deg,rgb(255 255 255 / .05),transparent 55%); }
 .role-card::before { background:linear-gradient(110deg,transparent 34%,rgb(255 255 255 / .04) 47%,rgb(255 255 255 / .08) 51%,transparent 64%); background-size:250% 100%; opacity:0; }
@@ -64,7 +63,6 @@
 }
 .alpha-app .role-entry-modal.role-entry-core_team { --role-light:#59442c; --role-dark:#2b2119; }
 .alpha-app .role-entry-modal.role-entry-committee { --role-light:#51416f; --role-dark:#241c35; }
-.alpha-app .role-entry-modal.role-entry-member { --role-light:#285651; --role-dark:#122d2b; }
 .alpha-app .role-entry-modal:not([open]) { display:none; }
 .alpha-app .role-entry-modal::backdrop { background:rgb(8 15 25 / .65); backdrop-filter:blur(10px); }
 .alpha-app .role-entry-modal .modal-heading {

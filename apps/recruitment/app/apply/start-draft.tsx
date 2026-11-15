@@ -20,12 +20,12 @@ export function StartDraft({ applicant, onCreated, requestedOpportunity, signOut
   const requested = getOpportunity(requestedOpportunity || "");
   const content = <>
     <div className="apply-entry-main">
-      {embedded ? <h3>Start your application</h3> : <h2>Ready to start?</h2>}
+      {embedded ? <h3>Start your application</h3> : <h1>Start your application</h1>}
       <p className="apply-lead">Four steps. Your progress saves automatically.</p>
       <p className="apply-account">Signed in as <strong>{applicant.email}</strong></p>
       {signOutFailed && <Callout tone="warning"><p role="alert">Sign-out could not be confirmed. Please retry using Sign out in the navigation.</p></Callout>}
       {!embedded && requested && <ApplicationOpportunity opportunity={requested} />}
-      <div className="application-privacy-summary"><Icon name="shield" size={22} /><div>{!embedded && <h3>Recruitment processing consent</h3>}<p>{embedded ? "Alpha uses your academic details, role choice, availability and answers to review your application. Agree below before a draft is created." : "Your academic details, opportunity choice, availability and answers help Alpha review your application. A draft is created only after you agree below. Read the full privacy notice for your choices and contact information."}</p></div></div>
+      <div className="application-privacy-summary"><Icon name="shield" size={22} /><div>{!embedded && <h3>Recruitment processing consent</h3>}<p>{embedded ? "Alpha uses your academic details, role choice, availability and answers to review your application. Agree below before a draft is created." : "Alpha uses your academic details, role choice, availability and answers to review your application. A draft is created only after you agree."}</p></div></div>
       <form className="apply-start-form" onSubmit={async event => {
         event.preventDefault();
         if (busy) return;

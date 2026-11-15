@@ -3,7 +3,7 @@
 
 ## QA revision - 14 November 2026
 
-The entry is now /opportunities: search roles, select Core Team/Committee/Member and open a role dialog for Google and processing consent. General Member uses the existing reviewed application without a fixed acceptance cap. Evidence is edited in Your story before weekly availability. Existing IDs and submissions remain compatible.
+The entry is /opportunities: search sixteen roles across Core Team and Committee, then open a role dialog for Google and processing consent. All opportunities have fixed capacities. Evidence is edited in Your story before weekly availability. Membership IDs and invitations remain separate from application tracks.
 
 Forward migration 20261114080000_qa_member_opportunities.sql is installed on confirmed recruitment project xndpudtctuqxnbkhhmre as hosted version 20261114010319. Database SDK types are regenerated. The architecture ledger records the verified mapping; do not replay historical migrations. Configured application/staging checks and website deployment remain separate. Missing aggregate configuration displays unavailable counts. No provider/domain/paid-plan change is required.
 

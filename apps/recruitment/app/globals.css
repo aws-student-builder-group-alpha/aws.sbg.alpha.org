@@ -42,6 +42,29 @@
 * {
   box-sizing: border-box;
 }
+/* Match the main site's native scrollbar on desktop; retain system touch/high-contrast controls. */
+@media (pointer: fine) and (forced-colors: none) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #232f3e;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #ff9900;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #ec8800;
+  }
+  @supports not selector(::-webkit-scrollbar) {
+    html, body, body * {
+      scrollbar-width: thin;
+      scrollbar-color: #ff9900 #232f3e;
+    }
+  }
+}
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 110px;

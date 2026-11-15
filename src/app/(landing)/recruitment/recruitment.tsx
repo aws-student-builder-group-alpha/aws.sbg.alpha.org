@@ -29,7 +29,6 @@ const TRACKS = [
 			'Find your people in events, creative work, partnerships, or technical projects. Bring your curiosity and grow with a team.',
 		icon: Users,
 	},
- { name: 'Member', track: 'MEMBER', label: 'Find your community', eligibility: 'All enrolled students', description: 'Learn with fellow builders, share ideas, and grow your cloud skills in a supportive community.', perks: ['Hands-on learning', 'Community and peer support', 'Career development and guidance'], icon: Users },
 ]
 
 gsap.registerPlugin(ScrollTrigger)
@@ -68,7 +67,7 @@ export default function Recruitment() {
 						New to cloud? Beginners are welcome. Find the way you want to learn, contribute, and grow with Alpha.
 					</p>
 				</div>
-				<div className='grid gap-5 md:grid-cols-3'>
+				<div className='grid gap-5 md:grid-cols-2'>
 					{TRACKS.map(({ name, track, perks, label, eligibility, description, icon: Icon }, index) => (
 						<article
 							key={name}

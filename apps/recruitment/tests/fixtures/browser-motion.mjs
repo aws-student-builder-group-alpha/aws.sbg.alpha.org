@@ -61,7 +61,7 @@ export async function assertProcessAppearance(page, selector = ".process-root", 
     for (const node of root.querySelectorAll("input:not([type=hidden]):not([type=checkbox]):not([type=radio]), select, textarea, .notice, .badge, .field-error, .modal")) {
       if (!node.getClientRects().length || getComputedStyle(node).visibility === "hidden") continue;
       const style = getComputedStyle(node), background = rgba(style.backgroundColor), foreground = rgba(style.color);
-      if (node.closest(".apply-auth, .workspace-anonymous") && background[3] && luminance(background) > .15) issues.push((node.id || node.className) + " auth surface is too light");
+      if (node.closest(".apply-auth:not(.apply-step-entry), .workspace-anonymous") && background[3] && luminance(background) > .15) issues.push((node.id || node.className) + " auth surface is too light");
       if (background[3] === 255 && contrast(foreground, background) < 4.5) issues.push((node.id || node.className) + " text contrast");
       if (node.matches("input,select,textarea") && !node.matches(":disabled")) {
         if (style.colorScheme !== "light") issues.push(node.id + " native control scheme");

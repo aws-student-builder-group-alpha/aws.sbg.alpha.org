@@ -1,5 +1,13 @@
 # Code Standards
 
+## Draft and enrollment recovery verification - 16 November 2026
+
+Keep explicit DENIED responses in the typed draft-save contract. Regress the actual client and editor: show the server message, retain entered answers, block Save & exit and recover through Retry save. Unknown acknowledgements remain unavailable. Do not solve a development-origin mismatch by broadening server trust.
+
+Run the root gateway regression with node --test scripts/combined-dev-proxy.test.mjs. It covers alias GET/HEAD document redirects with path/query preservation and noncached responses, canonical/other hosts, unchanged mutation Origin, assets and existing HTTP/HMR routing. The redirect belongs only to the combined development gateway.
+
+The applicant-submission browser harness also mounts the real EnrollmentUpload component and sends its real multipart payload through the upload/download handlers into isolated SQL. Synthetic storage uses real ownership policies/metadata plus an in-memory Blob map; it is not the hosted Storage service. Cover delayed empty/error lookups after upload, retained proof after failed replacement, explicit reload, callback changes during upload, account switching, unmount and private download bytes/cache headers. Use controlled request gates rather than relying on natural network timing. Preserve existing save, validation, submission, account-loss, keyboard and responsive checks. Real Google sessions, provider networking and hosted files require separate verification.
+
 ## Role dialog verification - 14 November 2026
 
 Extend the existing applicant harness with real shared Modal and StartDraft components. Check track-specific headers, every access state, one visible title, modal/body bounds at four widths, enlarged text and keyboard reachability on short screens. Embedded consent must create no request before agreement, preserve exact retries and freeze dismissal during creation. Default-dialog regressions remain required when extending Modal. Inspect synthetic state previews separately from real provider evidence.
@@ -10,12 +18,12 @@ Use the main-site navigation as the visual reference while retaining recruitment
 
 ## QA verification implementation - 14 November 2026
 
-Browser fixtures compile the real directory/availability helper and use real isolated SQL aggregates. Retain consent/save/retry/withdrawal/account-loss coverage after moving evidence. Historical baseline tests compare their original catalog; current-schema tests include Member. Wait for computed CSS transitions rather than advancing only a mocked JavaScript clock. Production-page checks and synthetic authenticated checks remain separate from real provider evidence.
+Browser fixtures compile the real directory/availability helper and use real isolated SQL aggregates. Retain consent/save/retry/withdrawal/account-loss coverage after moving evidence. Historical baseline tests compare their original catalog; current-schema tests enforce the two-track catalog and retired-value rejection. Wait for computed CSS transitions rather than advancing only a mocked JavaScript clock. Production-page checks and synthetic authenticated checks remain separate from real provider evidence.
 
 
 ## QA contracts - 14 November 2026
 
-Track handling must be exhaustive for CORE_TEAM, COMMITTEE and MEMBER, including validation, staff filters, CSV labels and UI readers. Unlimited capacity is null, allowed only for General Member; do not substitute a large numeric limit. Public vacancy data is aggregate-only and does not authorize writes or guarantee a place. Keep SQL and runtime tests for legacy records, new Member submissions, aggregate privacy, capacity release and exact retries. Regenerate SDK types through the owning tool after installation; retain generated output unchanged. Never edit applied migration files.
+Track handling must be exhaustive for CORE_TEAM and COMMITTEE across validation, filters, CSV labels and UI readers. All sixteen capacities are positive non-null integers. Keep retirement-migration preservation/refusal tests and reject retired track/role values through client, HTTP and SQL boundaries. Public vacancy data stays aggregate-only; counts do not grant a place. Regenerate SDK types through Supabase after installation and retain its output unchanged. Never edit applied migration files.
 
 
 ## Quick links and member portraits — 10 November 2026
@@ -181,3 +189,13 @@ Membership layout regressions measure wrapper-to-main and main-to-last-content g
 ## Recruitment document intro - 14 November 2026
 
 The page-loader browser suite uses real SSR markup, React, GSAP, fonts and CSS. Check document replay despite existing session flags, internal navigation, history dismissal, reduced motion, blocked storage, missing hydration and no-JS. Inspect desktop/mobile previews and verify actual root-layout integration on live local routes.
+
+## Centered Apply step cards - 15 November 2026
+
+Applicant browser coverage asserts responsive card max width/natural height, top progress below 1024px and side progress from 1024px, white entry/consent surfaces, responsive sticky/static actions, label/icon containment and prior form behavior. Include both sides of the 1024px breakpoint and 1920px; measure sticky progress while scrolling, header clearance, the application-card boundary and static short-window fallback. Capture all four stages at 390x844, 768x1024 and 1440x900; retain 320px, short-screen and 200% text checks. The CI suite-list assertion now includes the previously added page-loader and membership suites. Role-dialog keyboard tests follow the inline missing-consent feedback tab order and settle whole-dialog scrolling after a text/viewport change before measuring the focused action.
+
+## Native scrollbar review - 16 November 2026
+
+For scrollbar screenshots and native thumb dragging, launch Chromium with ignoreDefaultArgs:['--hide-scrollbars']; Playwright otherwise hides native scrollbars. Check compiled page/panel/dialog styles, mouse dragging, panel keyboard scrolling, dialog wheel/Escape, coarse-pointer touch scrolling and forced-colors fallback. Keep Firefox/native-platform verification distinct from Chromium evidence and source review of the standards fallback.
+
+Expanded progress checks measure the application-progress-panel wrapper for sticky/header/card containment. At roomy desktop sizes assert its viewport-derived height, 12px track insets, equal full-width step sections of at least 72px, 32px markers/connectors and a bottom counter 24px above the group edge. Keep short-window natural-flow, enlarged-text, mobile ordering and completed-step keyboard checks, using existing four-stage screenshots for visual review.

@@ -1,5 +1,9 @@
 # Alpha Recruitment
 
+## Draft and enrollment recovery - 16 November 2026
+
+Draft failures preserve entered answers and distinguish an explicit website-origin rejection from an unconfirmed write. Confirmed enrollment documents remain visible if a replacement fails; delayed document lookups cannot undo a successful upload. Switching accounts clears the previous account's upload state. The combined development preview uses http://127.0.0.1:4300 as its canonical origin and redirects document visits from local hostname aliases there before authentication or editing. Standalone deployment and application requirements remain unchanged.
+
 ## Focused role-details modal - 14 November 2026
 
 The owner approved a glossy track-colored role header above a light details/application body. Show one role identity, existing description/eligibility and preparation, followed by the appropriate sign-in, consent, continuation, receipt, membership, staff or recovery action. This supersedes the older split navy-description/white-action modal. Application rules and destinations remain unchanged.
@@ -19,7 +23,7 @@ Events navigation returns to the homepage Events section (/#events) from both ap
 
 ## Accepted QA revision - 14 November 2026
 
-The owner approved the November QA report and clarified a third Member track with one General Member opportunity. Reuse the four-step, consented, enrollment/resume-required application, one application per account across all tracks, one assigned reviewer and administrator publication. General membership has no fixed seat limit; IDs remain explicitly issued by staff after acceptance. Core Team/Committee eligibility and existing capacities remain. Public entry moves to /opportunities on the current recruitment host with category handoff, search, role dialogs and Google/consent before draft creation. Existing site benefits supply the three joining cards; the receipt page needs no redesign. Weekly availability remains recurring weekdays without Calendar access. This supersedes older two-track/sixteen-role and promotional-entry presentation requirements. Implementation and actual evidence belong in the tracker.
+The approved recruitment flow has Core Team and Committee tracks with sixteen opportunities and unchanged eligibility/capacities. Reuse the four-step, consented, enrollment/resume-required application, one application per account, one assigned reviewer and administrator publication. Public entry uses /opportunities with category handoff, search, role dialogs and Google/consent before draft creation. The two main-site joining cards reuse existing benefits. Weekly availability means recurring weekdays without Calendar access. Membership IDs remain explicitly issued by staff and invitations remain available. The 16 November track-removal decision supersedes the original QA expansion.
 
 
 ## Membership invitations and layout recovery — 10 November 2026
@@ -194,3 +198,11 @@ Membership workspace presentation now uses a compact Alpha card showcase for iss
 ## Recruitment document intro - 14 November 2026
 
 Recruitment now shares the main-site blue intro presentation across all recruitment routes. The owner selected replay on every full document load, including refresh and auth returns, rather than the main site's once-per-session behavior. Internal client navigation, filters and form steps do not replay it.
+
+## Centered Apply step cards - 15 November 2026
+
+Apply now uses the owner-selected centered step-card presentation across its editor, consent/start, loading and recovery states. The four stages and every existing applicant requirement, account guard, route destination and submission rule remain unchanged. The receipt/status page is outside this redesign.
+
+The owner's subsequent desktop refinement places progress vertically beside the editor at widths of at least 1024px and keeps it visible below the header on windows at least 768px tall. Narrow layouts retain top progress; short windows scroll normally. Consent/start and other entry states retain the centered single-card layout.
+
+The later clarification expands the progress control itself across the visible desktop sidebar: larger connected step sections share its height, the application label/Draft badge sits above them, and the step count sits at the bottom. Existing applicant requirements, navigation permissions and mobile presentation remain.

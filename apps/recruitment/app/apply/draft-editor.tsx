@@ -17,13 +17,11 @@ import type { ApplicationCommand, Intake } from "@/lib/applications";
 import { blockedDestination, simplifiedStages } from "@/lib/application-progress";
 import { StartDraft } from "./start-draft";
 import { ApplyEntry } from "./apply-entry";
-import { ApplicationIntroduction } from "@/app/components/application-introduction";
 import { useOpportunityAvailability } from "@/app/components/use-opportunity-availability";
 import { availabilityLabel } from "@/lib/opportunity-availability";
 import { EnrollmentUpload } from "@/app/components/enrollment-upload";
 
-const steps = ["About you", "Opportunity", "Your story", "Review & submit"];
-const stepDescriptions = ["Your school & studies", "Find your place on the team", "Your ideas & role scenario", "Check and submit your application"];
+const steps = ["About you", "Opportunity", "Your story", "Review"];
 const headings: Record<number, string> = { 1: "About you", 2: "Choose your opportunity", 3: "Your story", 5: "Review & submit" };
 const validationStages: Record<string, number> = Object.fromEntries(([
   [1, ["fullName", "email", "university", "otherUniversity", "program", "programLevel", "year", "yearExplanation", "preferredName", "mobile", "campus", "enrolled"]],
@@ -296,21 +294,22 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
     {intakeFeedback?.kind === "error" && <div className="process-recovery"><p role="alert">{intakeFeedback.message}</p><button type="button" className="text-button" disabled={submitting} onClick={() => void checkLatest()}>Retry intake refresh</button></div>}
   </>;
   return (
-    <ProcessShell surface="paper" unsaved={!practice && (state.phase !== "saved" || frozen)}>
+    <ProcessShell contentHeight surface="paper" unsaved={!practice && (state.phase !== "saved" || frozen)}>
       <main id="main-content" className="apply-page application-workbench-page">
         <div className="process-card application-workbench" ref={stepRef}>
-          <header className="application-workbench-header"><ApplicationIntroduction compact /><span className="application-workbench-label">Recruitment / Draft</span></header>
-          <aside className="application-sidebar" aria-label="Application steps and account">
-            <div className="application-sidebar-title"><Icon name="sparkles" size={20} /><div><strong>Build with Alpha</strong><span>Your next chapter starts here.</span></div></div>
-            <ProcessProgress steps={steps} descriptions={stepDescriptions} current={simplifiedStages.indexOf(stage)} onStep={index => goStage(simplifiedStages[index])} disabled={frozen || exiting} />
-            <p className="application-sidebar-note">Take it one step at a time. You can save your draft and return later.</p>
-            <div className="application-applicant"><span className="application-applicant-initial" aria-hidden="true">{(applicant.name || app.profile.fullName || "A").slice(0, 1).toUpperCase()}</span><div><strong>{applicant.name || app.profile.fullName || "Your account"}</strong><span>{applicant.email}</span></div></div>
-          </aside>
+          <div className="application-progress-panel">
+            <header className="application-workbench-header"><span className="application-workbench-label">Your application</span><span className="application-draft-badge">Draft</span></header>
+            <div className="application-step-navigation">
+              <ProcessProgress steps={steps} current={simplifiedStages.indexOf(stage)} onStep={index => goStage(simplifiedStages[index])} disabled={frozen || exiting} />
+            </div>
+          </div>
           <div className="application-workbench-content">
           {practice && <Callout title="Practice application"><p>Use sample details as you try the form. Your answers stay on this page and are never submitted to Alpha.</p></Callout>}
           {signOutFailed && <Callout tone="warning"><p role="alert">Sign-out could not be confirmed. Please retry using Sign out in the navigation.</p></Callout>}
           <div className="process-step-heading" tabIndex={-1} key={stage}>
-            <h2>{headings[stage]}</h2>
+            <h1>{headings[stage]}</h1>
+            <p className="application-account">{applicant.email}</p>
+            {opportunity && <p className="application-role-summary"><Icon name={opportunity.icon} size={18} /><span>{opportunityLabel(opportunity)}</span></p>}
           </div>
           {showRequested && <Callout title="Keep or change your opportunity">
             <p>Your draft is for <strong>{opportunity ? opportunityLabel(opportunity) : "an opportunity you haven’t chosen yet"}</strong>. You opened <strong>{opportunityLabel(requested)}</strong>.</p>
@@ -323,6 +322,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
             <fieldset className="application-fields" disabled={frozen}>
               {stage === 1 && (
                 <div className="process-form-section">
+                  <h2 className="process-group-title">Your details</h2>
                   <div className="process-fields">
                     <Field id="fullName" label="Full name" error={errors.fullName}>
                       <input {...inputProps("fullName")} value={app.profile.fullName} onChange={(event) => profile("fullName", event.target.value)} maxLength={120} autoComplete="name" placeholder="Alex Rivera" />
@@ -332,7 +332,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                     </Field>
                   </div>
                   <div className="process-group">
-
+                    <h2 className="process-group-title">Academic details</h2>
                     <div className="process-fields">
                       <Field id="university" label="School / College / University" error={errors.university || errors.otherUniversity}>
                         <input {...inputProps("university")} data-validation-field="university otherUniversity" aria-invalid={!!(errors.university || errors.otherUniversity)} aria-describedby={errors.university || errors.otherUniversity ? "university-error" : undefined} maxLength={160} list="school-suggestions" value={app.profile.university === "Other" ? app.profile.otherUniversity : app.profile.university} onChange={event => patch({ profile: { ...app.profile, university: event.target.value, otherUniversity: "" } })} placeholder="Enter your institution" />
@@ -394,11 +394,11 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                 <div className="process-form-section">
                   <fieldset className="process-choices" id="track" data-validation-field="track eligibility" tabIndex={-1} aria-invalid={!!(errors.track || errors.eligibility)} aria-describedby={[errors.track ? "track-error" : "", errors.eligibility ? "eligibility-error" : ""].filter(Boolean).join(" ") || undefined}>
                     <legend className="process-legend">Track <span className="required-mark" aria-hidden="true">*</span></legend>
-                    {(["CORE_TEAM", "COMMITTEE", "MEMBER"] as const).map((track) => (
+                    {(["CORE_TEAM", "COMMITTEE"] as const).map((track) => (
                       <label key={track} className={`process-choice${app.track === track ? " selected" : ""}`}>
-                        <input type="radio" required name="track" aria-label={track === "CORE_TEAM" ? "Core Team" : track === "MEMBER" ? "Member" : "Committee"} aria-describedby={`${track}-eligibility`} checked={app.track === track} onChange={() => setPath(track)} />
+                        <input type="radio" required name="track" aria-label={track === "CORE_TEAM" ? "Core Team" : "Committee"} aria-describedby={`${track}-eligibility`} checked={app.track === track} onChange={() => setPath(track)} />
                         <span className="process-radio" aria-hidden="true" />
-                        <span className="process-choice-body"><strong>{track === "CORE_TEAM" ? "Core Team" : track === "MEMBER" ? "Member" : "Committee"}</strong><small id={`${track}-eligibility`}>{track === "CORE_TEAM" ? "1st & 2nd year undergraduates" : "All enrolled students"}</small></span>
+                        <span className="process-choice-body"><strong>{track === "CORE_TEAM" ? "Core Team" : "Committee"}</strong><small id={`${track}-eligibility`}>{track === "CORE_TEAM" ? "1st & 2nd year undergraduates" : "All enrolled students"}</small></span>
                       </label>
                     ))}
                   </fieldset>
@@ -407,7 +407,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                     <div className="process-eligibility">{errors.eligibility ? <FieldError id="eligibility-error">{errors.eligibility}</FieldError> : <p className="field-hint">Your academic details do not meet Core Team eligibility. Select Committee to continue.</p>}<button className="text-button" type="button" onClick={() => setPath("COMMITTEE")}>Switch to Committee and keep my details<Icon name="arrow" size={15} /></button></div>
                   )}
                   <fieldset className="apply-opportunities" id="opportunityId" data-validation-field="opportunityId" tabIndex={-1} aria-invalid={!!errors.opportunityId} aria-describedby={errors.opportunityId ? "opportunityId-error" : undefined}>
-                    <legend className="process-legend">{app.track === "CORE_TEAM" ? "Core Team role" : app.track === "MEMBER" ? "General membership" : "Committee opportunity"} <span className="required-mark" aria-hidden="true">*</span></legend>
+                    <legend className="process-legend">{app.track === "CORE_TEAM" ? "Core Team role" : "Committee opportunity"} <span className="required-mark" aria-hidden="true">*</span></legend>
 
                     <div className="process-opportunity-groups">
                       {[...new Set(opportunities.filter(choice => choice.track === app.track).map(choice => choice.department))].map(department => <section className="process-opportunity-group" key={department} aria-label={department}>

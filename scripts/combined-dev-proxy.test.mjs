@@ -41,3 +41,41 @@ test("combined launcher selects Webpack only for recruitment development", () =>
     assert.deepEqual(combinedNextArgs("start", 4301, recruitment), ["start", "-H", "127.0.0.1", "-p", "4301"]);
   }
 });
+
+test("combined preview canonicalizes document aliases without redirecting mutations or assets", async () => {
+  let forwarded = 0;
+  const upstream = http.createServer((request, response) => {
+    forwarded++;
+    response.end(JSON.stringify({ method: request.method, origin: request.headers.origin }));
+  });
+  const upstreamPort = await listen(upstream);
+  const proxy = createCombinedDevProxy({ mainPort: upstreamPort, recruitmentPort: upstreamPort });
+  const port = await listen(proxy);
+  const request = (host, method = "GET", headers = {}, pathname = "/recruitment/apply?opportunity=core-finance&entry=1") => new Promise((resolve, reject) => {
+    const call = http.request({ hostname: "127.0.0.1", port, path: pathname, method, headers: { host, ...headers } }, response => {
+      let body = "";
+      response.on("data", part => { body += part; });
+      response.on("end", () => resolve({ status: response.statusCode, headers: response.headers, body }));
+    });
+    call.on("error", reject);call.end();
+  });
+  try {
+    for (const alias of [`localhost:${port}`, `[::1]:${port}`]) for (const method of ["GET", "HEAD"]) {
+      const response = await request(alias, method, { accept: "text/html" });
+      assert.equal(response.status, 307);
+      assert.equal(response.headers.location, `http://127.0.0.1:${port}/recruitment/apply?opportunity=core-finance&entry=1`);
+      assert.equal(response.headers["cache-control"], "no-store");
+    }
+    assert.equal(forwarded, 0, "Alias documents redirect before reaching either app");
+    assert.equal((await request(`localhost:${port}`, "GET", { "sec-fetch-dest": "document" }, "/")).status, 307);
+    assert.equal((await request(`127.0.0.1:${port}`, "GET", { accept: "text/html" })).status, 200);
+    assert.equal((await request(`untrusted.example:${port}`, "GET", { accept: "text/html" })).headers.location, undefined);
+    assert.equal((await request(`localhost:${port}`, "GET", { "sec-fetch-dest": "script", accept: "text/html" }, "/recruitment/_next/static/test.js")).status, 200);
+    assert.equal((await request(`localhost:${port}`, "GET", { "sec-fetch-dest": "empty", accept: "text/html" }, "/recruitment/api/application")).status, 200);
+    const mutation = await request(`localhost:${port}`, "POST", { origin: `http://localhost:${port}`, accept: "text/html" });
+    assert.equal(mutation.status, 200);
+    assert.deepEqual(JSON.parse(mutation.body), { method: "POST", origin: `http://localhost:${port}` });
+  } finally {
+    for (const server of [proxy, upstream]) { server.closeAllConnections();server.close(); }
+  }
+});

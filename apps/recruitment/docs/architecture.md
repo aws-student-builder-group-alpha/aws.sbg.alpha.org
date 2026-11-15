@@ -1,5 +1,17 @@
 # Architecture
 
+## Two-track catalog retirement - 16 November 2026
+
+The live catalog and all draft/form-version validators, queue/export filters and DTOs support CORE_TEAM and COMMITTEE only. There are sixteen opportunities, each with a fixed positive capacity. The forward migration 20261115210230_remove_member_track locks affected tables, refuses submitted retired-track records/additional drafts/cross-track scenario references, deletes at most the approved single retired draft, removes its catalog/capacity entries and restores two-track/non-null constraints. It preserves identity, enrollment storage, membership, other drafts/submissions and intake settings. Installed on the confirmed test project as hosted version 20261115211649 after isolated upgrade/replay checks. Post-install counts, fingerprints and public HTTP checks are recorded in the tracker. Unknown URL choices retain existing invalid-parameter fallbacks. Membership IDs/invitations remain independent.
+
+## Draft and enrollment recovery - 16 November 2026
+
+The development-only HTTP gateway canonicalizes GET/HEAD document visits from localhost or [::1] on its listening port to 127.0.0.1 on that port with a noncached 307, preserving path/query. Document detection uses Sec-Fetch-Dest: document, falling back to Accept: text/html only when the destination header is absent. Canonical requests, other hosts, assets, mutations and WebSocket upgrades keep their existing forwarding behavior. The combined launcher still fixes the external port at 4300, matching recruitment APP_URL and its Google callback; restart dev:combined after gateway source changes. Production combined start and standalone delivery do not use this gateway. Origin/CSRF checks remain exact; the proxy never rewrites a mutation's Origin to make it pass.
+
+DraftCode and saveApplicantDraft retain the API's DENIED response/message. The existing serialized save queue keeps local answers and the pending operation for explicit retry; Save & exit cannot navigate after rejection. Unknown or malformed replies still produce UNAVAILABLE rather than an invented acknowledgement.
+
+EnrollmentUpload keys its stateful session by account and practice mode. Each document lookup/upload has an operation generation and AbortController; only the current mounted operation may update the document, error, busy state or readiness callback. Upload supersedes an initial/reload lookup; account changes/unmount abort pending work and isolate its completion. Callback identity changes do not restart reads or cancel uploads. Failed replacement retains the last confirmed document/readiness; explicit Reload saved document rechecks server metadata and is unavailable while uploading. Cancellation does not roll back a server write: an unconfirmed operation may require reloading metadata. Existing multipart fields, content limits, private storage/RLS and submission rechecks are unchanged.
+
 ## Role modal presentation - 14 November 2026
 
 The shared Modal accepts optional headerContent while keeping the title as its accessible name and owning close/Escape/backdrop behavior and focus restoration. Existing dialogs retain their default heading. The opportunity dialog alone supplies rich role identity and scoped backdrop/layout styles. StartDraft embedded presentation omits repeated selected-role/preparation blocks, while standalone entry is unchanged. Existing consent, selected-role draft payload, exact pending request, busy dismissal guard and access checks remain authoritative; no transport or storage contract changes.
@@ -13,9 +25,9 @@ The shared header remains recruitment-owned and uses existing verified session/r
 /opportunities is the canonical directory; the root redirects while preserving supported queries. Track/search/selected role live in URL history. Request-time verified draft loading supplies only entry identity/status. Google returns to the selected role; consent precedes draft creation. Existing draft role switching, submitted/member/staff routing remain. Direct /apply resumes a draft; /apply?entry=1 retains compact fallback. Evidence is edited in Your story; Review reloads private proof metadata read-only and submission rechecks Storage. Institution suggestions and weekly calendar reuse existing string/weekday formats, with legacy Other/year compatibility. The QA forward migration is installed; see the current hosted ledger below.
 
 
-## QA Member and public vacancy contract - 14 November 2026
+## Historical QA migration and public vacancy contract - 14 November 2026
 
-Forward migration 20261114080000_qa_member_opportunities was installed on confirmed project xndpudtctuqxnbkhhmre as hosted version 20261114010319 on 14 November 2026. It adds MEMBER/general-member, extends the current validators and queue/export filters without modifying applied migrations, and permits null capacity only for General Member. Existing serialized publication compares accepted occupancy to a nullable maximum, retaining account/application/capacity locks, MFA/current-review guards and receipts. No automatic ID issuance is added. GET /api/opportunities calls an anonymous empty-search-path SECURITY DEFINER aggregate RPC, exposes only IDs/capacity/remaining/snapshot time, and denies table access. Errors are unavailable counts, never invented zeros. Database SDK types were regenerated using the connected Supabase tool and retained unchanged. Existing applied migration files are preserved.
+Historical migration 20261114080000_qa_member_opportunities was installed as hosted version 20261114010319 on 14 November 2026. Its temporary third-track and nullable-capacity support is superseded by the forward retirement migration; retain that applied file and ledger entry. GET /api/opportunities remains an anonymous empty-search-path SECURITY DEFINER aggregate RPC exposing only catalog IDs/capacity/remaining/snapshot time, with direct table access denied. Errors mean unavailable counts, never invented zeros.
 
 
 ## Quick links and member portraits — 10 November 2026
@@ -352,6 +364,7 @@ This ledger records the currently configured and owner-confirmed Alpha Recruitme
 | `20261109062617_enrollment_presence_guard.sql` | `20261109063128` | Verified installed on confirmed recruitment project |
 | `20261110080000_membership_invitations.sql` | `20261109232714` | Verified installed on confirmed recruitment project |
 | `20261114080000_qa_member_opportunities.sql` | `20261114010319` | Verified installed on confirmed recruitment project |
+| `20261115210230_remove_member_track.sql` | `20261115211649` | Verified installed on confirmed test project; two-track restoration and approved single-draft deletion |
 
 ## Deferred operations
 
@@ -409,3 +422,15 @@ ProcessShell has an optional contentHeight presentation flag, defaulting to fals
 ## Recruitment document intro - 14 November 2026
 
 A recruitment-owned PageLoader mounts once in the root layout outside session Suspense boundaries. It uses existing GSAP/local fonts and no main-site imports, storage, dependencies or auth state. It animates only on document entry, is decorative/inert, and cleans up its timeline/deadline/history/media listeners. Reduced motion and no-JS skip it; CSS releases the overlay after three seconds without hydration, and JS has a 2.5-second deadline. Existing route loading and error content remains independent.
+
+## Centered Apply step cards - 15 November 2026
+
+The Apply editor retains DraftEditor/ApplicationWizard state, queue, validation, focus and command ownership. Only presentation changed: a top ProcessProgress replaces the sidebar, current-step headings use h1, and account/selected-role summaries sit with the form. ApplyEntry is a centered white surface with no promotional hero/roadmap. Both opt into content-height ProcessShell. Form actions remain in the existing owner; CSS makes their footer sticky only at min-width 900px/min-height 768px, reverting to reading flow for recovery messages. No API, schema, auth or data-shape changes.
+
+## Responsive Apply progress - 15 November 2026
+
+The subsequent desktop refinement reuses the same ProcessProgress DOM and DraftEditor callbacks. Scoped application-workbench CSS switches to a two-column grid at 1024px, with the header spanning both columns; no duplicated navigation or scroll listeners are introduced. The progress grid item uses align-self:start and sticky positioning below the measured header only at min-height 768px, bounded by its application card. Narrow layouts retain top progress and short windows retain static positioning. Workspace maximum width is 1120px on desktop and 860px below it; the form keeps its existing reading-width limit. Existing action-footer behavior and all command, access, validation and persistence contracts are unchanged.
+
+## Expanded Apply progress group - 16 November 2026
+
+DraftEditor now groups its existing label/Draft header and single ProcessProgress in application-progress-panel. On desktop this wrapper owns sticky positioning and viewport-based height; the form occupies the adjacent grid column from the first row. Flex/grid distributes the four step sections and bottom counter without timers or scroll listeners. The wrapper becomes display:contents below 1024px, retaining the existing mobile order; a text-relative 48em height gate selects roomy-window sizing, with natural height otherwise. The full-column background/divider is still painted by the card. ProcessProgress's public props and all state, validation, command and persistence ownership are unchanged.

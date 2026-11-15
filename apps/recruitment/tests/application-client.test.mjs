@@ -39,3 +39,10 @@ test("application reads are bounded and malformed responses never become success
     assert.equal((await applicationCommand({})).code, "UNAVAILABLE");
   }
 });
+
+test("draft saves preserve explicit origin rejections instead of reporting an uncertain write", async t => {
+  const denied = { ok: false, code: "DENIED", message: "Use the application from its original website." };
+  t.mock.method(globalThis, "fetch", async () => Response.json(denied, { status: 403 }));
+  const request = { accountId: id, payload: validSubmission(), expectedVersion: 0, mutationId: crypto.randomUUID() };
+  assert.deepEqual(await saveApplicantDraft(request), denied);
+});

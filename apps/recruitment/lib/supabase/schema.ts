@@ -748,15 +748,15 @@ export type Database = {
       }
       opportunity_capacities: {
         Row: {
-          capacity: number | null
+          capacity: number
           opportunity_id: string
         }
         Insert: {
-          capacity?: number | null
+          capacity: number
           opportunity_id: string
         }
         Update: {
-          capacity?: number | null
+          capacity?: number
           opportunity_id?: string
         }
         Relationships: [
