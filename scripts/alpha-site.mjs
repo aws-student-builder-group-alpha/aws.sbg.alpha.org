@@ -1,3 +1,5 @@
+import { createCombinedDevProxy } from "./combined-dev-proxy.mjs";
+import { combinedNextArgs } from "./combined-next-args.mjs";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -16,15 +18,18 @@ for (const project of projects) {
 }
 const children = new Set();
 let stopping = false;
+let devProxy;
 function stop() {
   stopping = true;
+  devProxy?.close();
+  devProxy?.closeAllConnections();
   for (const child of children) child.kill();
 }
 process.once("SIGINT", stop);
 process.once("SIGTERM", stop);
 
 function run(project, port) {
-  const args = mode === "build" ? ["build", "--webpack"] : [mode, "-H", "127.0.0.1", "-p", String(port)];
+  const args = combinedNextArgs(mode, port, project === projects[1]);
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [path.join(project, "node_modules/next/dist/bin/next"), ...args], {
       cwd: project,
@@ -46,7 +51,14 @@ try {
     for (const project of projects) await run(project);
   } else {
     console.log("Alpha website: http://127.0.0.1:4300 — recruitment is available at /recruitment");
-    await Promise.all(projects.map((project, index) => run(project, 4300 + index)));
+    if (mode === "dev") {
+      devProxy = createCombinedDevProxy();
+      await new Promise((resolve, reject) => {
+        devProxy.once("error", reject);
+        devProxy.listen(4300, "127.0.0.1", resolve);
+      });
+    }
+    await Promise.all(projects.map((project, index) => run(project, mode === "dev" && index === 0 ? 4302 : 4300 + index)));
   }
 } catch (error) {
   console.error(error.message);

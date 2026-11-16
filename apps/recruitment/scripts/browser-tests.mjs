@@ -3,7 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { ciEnvironment, resetDiagnostics, runSuites, saveResults } from "./ci-tools.mjs";
 
-export const browserSuites = ["authenticator", "staff-manager", "applicant-submission", "evaluations", "decisions", "application-queue", "intake", "application-export"];
+export const browserSuites = ["page-loader", "membership", "authenticator", "staff-manager", "applicant-submission", "evaluations", "decisions", "application-queue", "intake", "application-export"];
 export async function browserTests() {
   await resetDiagnostics();
   const controller = new AbortController(), abort = () => controller.abort();

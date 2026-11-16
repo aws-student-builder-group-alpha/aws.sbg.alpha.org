@@ -14,7 +14,7 @@ export async function saveApplicantDraft(request: SaveRequest): Promise<SaveResu
       const draft = draftFromRow({ id, version, status, data: { ...input, profile }, updated_at: savedAt }, email);
       if (draft) return { ok: true, draft };
     }
-    if (!response.ok && isApplicationFailure(data) && ["VALIDATION","UNAUTHENTICATED","ACCOUNT_CHANGED","STAFF_ACCOUNT","CONFLICT","SUBMITTED","UNAVAILABLE"].includes(data.code)) return data as Extract<SaveResult, { ok: false }>;
+    if (!response.ok && isApplicationFailure(data) && ["VALIDATION","UNAUTHENTICATED","ACCOUNT_CHANGED","STAFF_ACCOUNT","DENIED","CONFLICT","SUBMITTED","UNAVAILABLE"].includes(data.code)) return data as Extract<SaveResult, { ok: false }>;
     return unavailable();
   } catch { return unavailable(); }
 }

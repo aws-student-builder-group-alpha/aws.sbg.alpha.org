@@ -23,7 +23,7 @@ _Avoid_: Candidate account, member
 **Application**: One applicant's profile, selected opportunity, answers, declarations, and supporting evidence for a cycle.
 _Avoid_: Registration, membership renewal
 
-**Track**: One of the two recruitment pathways: Core Team or Committee.
+**Track**: One of three recruitment pathways: Core Team, Committee or Member.
 _Avoid_: Department, specialization
 
 **Department**: The organizational group associated with an opportunity, including SkillBuilders and BuildHer+ under Committee.

@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import { Footer, SiteHeader } from "./components/ui";
 import { SessionHeader } from "./components/session-header";
+import { PageLoader } from "./components/page-loader";
 import { recruitmentPath } from "@/lib/site-paths";
 import "./globals.css";
 import "../tokens.css";
 import "./redesign.css";
 import "./application-workbench.css";
 import "./community.css";
+import "./header.css";
+import "./page-loader.css";
 
 export const metadata: Metadata = {
   title: {
@@ -31,6 +34,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="alpha-app">
+        <noscript><style>{`.recruitment-page-loader{display:none!important}`}</style></noscript>
+        <PageLoader />
         <Suspense fallback={<SiteHeader pendingSession />}>
           <SessionHeader />
         </Suspense>

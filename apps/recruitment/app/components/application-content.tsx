@@ -39,7 +39,7 @@ export function ApplicationContent({
             <dd>{app.profile.email}</dd>
           </div>
           <div>
-            <dt>University</dt>
+            <dt>School / College / University</dt>
             <dd>
               {app.profile.university === "Other"
                 ? app.profile.otherUniversity
@@ -121,7 +121,7 @@ export function ApplicationContent({
         <div className="subheading">
           <h3>Supporting evidence</h3>
           {onEdit && (
-            <button type="button" className="text-button" onClick={() => onEdit(4)}>
+            <button type="button" className="text-button" onClick={() => onEdit(app.formVersion === 2 ? 3 : 4)}>
               Edit evidence
             </button>
           )}

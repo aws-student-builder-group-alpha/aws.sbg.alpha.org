@@ -21,7 +21,7 @@ async function request(appId, outcome = "Waitlisted", action = "publish", reason
 const change = p_request => rpc("manage_decision", { p_request });
 const state = applicationId => rpc("decision_state", { p_application_id: applicationId });
 
-test("all sixteen server capacities exactly match the catalog and are inaccessible directly", async () => {
+test("all server capacities exactly match the catalog and are inaccessible directly", async () => {
   const rows = (await rt.db.query("select opportunity_id,capacity from opportunity_capacities order by opportunity_id")).rows;
   assert.deepEqual(rows, opportunities.map(o => ({ opportunity_id: o.id, capacity: o.capacity })).sort((a,b) => a.opportunity_id.localeCompare(b.opportunity_id)));
   for (const table of ["opportunity_capacities", "decision_history", "decision_commands"]) for (const role of ["anon", "authenticated"]) {

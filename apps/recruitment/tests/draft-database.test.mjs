@@ -35,7 +35,7 @@ const payload = () => ({ ...emptyDraftInput(), processingConsent: true });
 async function save(id, input, version = 0, mutation = crypto.randomUUID()) {
   return actor(id, async tx => (await tx.query("select public.save_applicant_draft($1::jsonb,$2::int,$3::uuid) as draft", [JSON.stringify(input), version, mutation])).rows[0].draft);
 }
-test("database catalog contains the exact approved opportunity IDs and tracks", async () => {
+test("historical draft baseline retains its original opportunity IDs and tracks", async () => {
   const result = await db.query("select id,track from public.draft_opportunities order by id");
   assert.deepEqual(result.rows, opportunities.map(({ id, track }) => ({ id, track })).sort((a,b) => a.id.localeCompare(b.id)));
 });

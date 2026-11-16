@@ -26,7 +26,7 @@ export type Draft = Omit<DraftInput, "profile"> & {
   savedAt: string;
   status: "Draft";
 };
-export type DraftCode = "VALIDATION" | "UNAUTHENTICATED" | "ACCOUNT_CHANGED" | "STAFF_ACCOUNT" | "CONFLICT" | "SUBMITTED" | "UNAVAILABLE";
+export type DraftCode = "VALIDATION" | "UNAUTHENTICATED" | "ACCOUNT_CHANGED" | "STAFF_ACCOUNT" | "DENIED" | "CONFLICT" | "SUBMITTED" | "UNAVAILABLE";
 export type SaveResult = { ok: true; draft: Draft } | { ok: false; code: DraftCode; message: string; errors?: Record<string, string> };
 export type SaveRequest = { accountId: string; payload: DraftInput; expectedVersion: number; mutationId: string };
 

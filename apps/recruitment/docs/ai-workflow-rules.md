@@ -1,5 +1,18 @@
 # AI Workflow Rules
 
+## Owner-approved track removal - 16 November 2026
+
+Remove the Member application track throughout both apps and the configured Supabase test database. The owner explicitly selected deletion of its one unfinished draft, preserving accounts, uploads, other applications, membership IDs and invitations. Verify a forward migration locally before applying it only to the confirmed test project. Abort on new submissions, additional drafts or cross-track retired-scenario references. Retain applied migrations and dated evidence; no production deployment or Git publication is included.
+
+## Owner-approved header uniformity - 14 November 2026
+
+The latest owner decision applies the main website header layout, adaptive frosted appearance, scroll behavior, full-screen mobile navigation and desktop account dropdown to all recruitment pages. This supersedes older always-opaque/always-visible header requirements. Preserve role-specific recruitment routes, sign-out/unsaved guards, main-site section destinations and isolated application dependencies. Main-site source is the visual reference and remains unchanged by this unit. No new authentication, database, deployment or Git publication is included.
+
+## Owner-approved QA work - 14 November 2026
+
+The owner requested a feature branch and implementation of the reviewed PDF plan. Use existing benefits, remaining vacancy counts, the current recruitment hostname, required institution/enrollment and weekly-day calendar without Calendar permissions. Google and consent precede draft creation. The latest 16 November decision restores two application tracks; preserve the other QA improvements and unrelated Meetup edits. Follow the canonical manual guide and track actual results.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 The owner authorized a pending invitation and member acceptance flow for existing members, plus fixing the overlapping Staff management and Organization members sections. The owner separately approved transferring the existing verified Gmail app password into Vercel production Secret ALPHA_GMAIL_APP_PASSWORD for aws-alpha-recruitment. This setting was saved without printing or committing its value. Do not send live invitations while verifying this task; administrators explicitly review/send them in the product. SMTP verification without sending passed. Existing active memberships must be preserved.

@@ -4,14 +4,14 @@ import { authReturnPath } from "../lib/auth-return.ts";
 import { createAuthCallback } from "./fixtures/staff-http-runtime.mjs";
 
 test("OAuth return keeps the selected role through success, failure and unavailable setup", () => {
-  assert.equal(authReturnPath("apply", "core-finance"), "/apply?opportunity=core-finance");
-  assert.equal(authReturnPath("apply", "core-finance", "failed"), "/?opportunity=core-finance&auth=failed");
-  assert.equal(authReturnPath("apply", "core-finance", "unconfigured"), "/?opportunity=core-finance&auth=unconfigured");
+  assert.equal(authReturnPath("apply", "core-finance"), "/opportunities?opportunity=core-finance");
+  assert.equal(authReturnPath("apply", "core-finance", "failed"), "/opportunities?opportunity=core-finance&auth=failed");
+  assert.equal(authReturnPath("apply", "core-finance", "unconfigured"), "/opportunities?opportunity=core-finance&auth=unconfigured");
 });
 
 test("OAuth return drops unknown role IDs and keeps the staff route separate", () => {
-  assert.equal(authReturnPath("apply", "//other.example", "failed"), "/?auth=failed");
-  assert.equal(authReturnPath("apply", ["core-finance"]), "/apply");
+  assert.equal(authReturnPath("apply", "//other.example", "failed"), "/opportunities?auth=failed");
+  assert.equal(authReturnPath("apply", ["core-finance"]), "/opportunities");
   assert.equal(authReturnPath("staff", "core-finance"), "/staff");
   assert.equal(authReturnPath("staff", "core-finance", "failed"), "/staff?auth=failed");
   assert.equal(authReturnPath("membership", "core-finance"), "/membership");
@@ -33,7 +33,7 @@ test("failed code exchange returns to the selected role and consumes the callbac
   const result = await GET(new Request("https://untrusted.example/auth/callback?code=synthetic-code"));
   assert.equal(exchangedCode, "synthetic-code");
   assert.equal(result.status, 307);
-  assert.equal(result.headers.get("location"), origin + "/?opportunity=core-finance&auth=failed");
+  assert.equal(result.headers.get("location"), origin + "/opportunities?opportunity=core-finance&auth=failed");
   assert.equal(result.headers.get("cache-control"), "private, no-store");
   assert.equal(context.size, 0);
 });

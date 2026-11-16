@@ -31,7 +31,7 @@ async function DraftPortal({ searchParams }: { searchParams: ApplicationSearchPa
         <p>{result.draft
           ? `Saved ${formatDate(result.draft.savedAt)} Philippine time. This draft is private to your account.`
           : "Create one application draft after reading the privacy notice and agreeing to recruitment processing."}</p>
-        <Link href="/apply" className="button button-orange">
+        <Link href={result.draft ? "/apply" : "/apply?entry=1"} className="button button-orange">
           {result.draft ? "Continue my draft" : "Start my application"}
         </Link>
       </section>

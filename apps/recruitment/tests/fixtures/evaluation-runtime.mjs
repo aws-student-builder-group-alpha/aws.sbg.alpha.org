@@ -27,7 +27,7 @@ export async function evaluationRuntime(origin="https://evaluations.example.test
   const handlers=await createEvaluationRoute(session,origin);
   const intakeHandlers=await createIntakeRoute(session,origin);
   const decisionHandlers=await createDecisionRoute(session,origin);
-  async function createApplication(){const previous=base.identity;const owner=await base.addIdentity();base.setIdentity(owner);await base.rpc("save_applicant_draft",{p_data:validSubmission(),p_expected_version:0,p_mutation_id:crypto.randomUUID()});const app=await base.rpc("submit_applicant_application",{p_expected_version:1,p_mutation_id:crypto.randomUUID()});base.setIdentity(previous);return {owner,app};}
+  async function createApplication(input=validSubmission()){const previous=base.identity;const owner=await base.addIdentity();base.setIdentity(owner);await base.rpc("save_applicant_draft",{p_data:input,p_expected_version:0,p_mutation_id:crypto.randomUUID()});const app=await base.rpc("submit_applicant_application",{p_expected_version:1,p_mutation_id:crypto.randomUUID()});base.setIdentity(previous);return {owner,app};}
   base.setIdentity(admin);
   return {db:base.db,admin,first,second,handlers,decisionHandlers,intakeHandlers,exportHandlers,applicationHandlers:base.handlers,rpc,createApplication,addIdentity:base.addIdentity,get identity(){return base.identity;},as(person,level="aal2"){base.setIdentity(person);aal=level;availability="auto";},setAvailability(value){availability=value;},
     async access(){const s=await session();return s.kind==="staff"?{kind:"staff",accountId:base.identity.id,role:s.membership.role,status:s.membership.status,needsMfa:s.needsMfa}:s.kind==="applicant"?{kind:"applicant",accountId:base.identity.id}:{kind:s.kind};},

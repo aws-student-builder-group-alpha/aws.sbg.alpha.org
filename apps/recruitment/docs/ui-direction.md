@@ -1,4 +1,51 @@
+## Application continuation routing ? 14 November 2026
+
+Opportunities now resumes existing drafts directly through /application?resume=1, opens submitted receipts and routes staff/members to their workspaces. Signed-in applicants without a draft see Choose a role to apply, targeting the catalog. The application summary starts new drafts through /apply?entry=1 so the existing consent screen is reachable without redirecting back to Opportunities. Consent remains required before draft creation. TypeScript passed; browser/provider navigation is not verified. Reviewed all six context documents; architecture, product scope, code standards and workflow rules are unchanged.
+
+# Compact role modal ? 14 November 2026
+
+Implemented 1120px natural-height dialog, compact metadata/header, 24px body spacing and inline missing-consent feedback. The whole dialog owns fallback scrolling; server recovery and retry payloads remain intact. Verification incomplete: verify:ci preflight requires Node 24.22.1; installed Node is 26.12.1. Desktop fit matrix, screenshots and browser regressions remain pending. Reviewed all six context documents; no API, storage, scope or architecture changes required.
+
 # UI Direction
+
+## Two application tracks - 16 November 2026
+
+Show only Core Team and Committee in recruitment cards, role directory filters/dialogs, application choices and staff filters. The main-site joining section uses two equal desktop columns and stacks on phones; preserve the existing card styling, perks and links. All role counts use sixteen opportunities with fixed capacities. Remove the retired teal track treatment and unlimited-capacity copy. Preserve Committee Member titles and the independent membership ID/invitation screens.
+
+## Draft and enrollment recovery - 16 November 2026
+
+An explicit origin rejection shows the server's original-website instruction beside save recovery, preserves answers and keeps Save & exit in the editor. Reserve uncertain-write copy for missing/unusable acknowledgements. Enrollment shows only confirmed metadata; a late initial lookup must not erase a newly confirmed filename/readiness. During upload disable file replacement and saved-document reload. If replacement fails, retain the last confirmed filename/download and readiness alongside the error; allow explicit reload afterward. Account changes clear the old document and pending feedback; old completions cannot update the new account. Existing inline feedback, focus and required-proof validation remain.
+
+## Branded desktop scrollbars - 16 November 2026
+
+Recruitment page, panel and dialog scrollbars match the main site's native desktop treatment: 6px width/height, #232f3e track, #ff9900 thumb, 3px thumb corners and #ec8800 hover. Apply this only for fine pointers with forced colors inactive. Browsers without WebKit scrollbar selectors use native thin scrollbars with the same thumb/track colors; retain their browser-controlled geometry. Coarse-pointer touch devices and forced-colors mode keep system scrollbars. Styling belongs in recruitment's global CSS and changes neither scrolling behavior nor the responsive sticky application stepper.
+
+## Glossy role-details modal - 14 November 2026
+
+Use a full-width glossy bronze/purple header matching the selected card, with raised orange role icon, track/department, one white Geist title (32px desktop/26px phone) and pale-gold availability. The 960px dialog has 28px corners, a soft elevated shadow and a dimmed 10px-blurred backdrop. White details group About this role, Who can apply and Before you apply; a softly tinted action panel owns one account-appropriate action. At roomy widths use approximately 60/40 columns, 32px padding and a visible header with the body scrolling. Below 900px, short screens or enlarged-text layouts stack naturally with 20px body padding and whole-dialog scrolling; do not trap content below a large header. Keep 16px body/actions, 14px supporting copy and 44px close/focus targets. Embedded consent shows account/privacy/agreement without another role card or preparation accordion. Default dialogs and standalone preparation keep their presentation. Preserve existing 180ms entrance and static reduced-motion behavior, keyboard/Escape/focus return, URL context and busy dismissal guards.
+
+## Main-site header uniformity - 14 November 2026
+
+Recruitment matches the main-site logo/full organization and orange university subtitle, Geist navigation, orange animated underlines and full-screen navy mobile menu with Urban Starblues links. Use 40px logos below 1024px/44px above; closed rows have 64px/80px minimum height, with 16/24/32px gutters at 0/640/1024px. Desktop navigation starts at 1280px at normal text size and falls back to mobile when enlarged text needs room. The fixed header starts transparent over a reserved light/dark backing surface; after 20px scroll use white/80 or #0D1117/80 with 24px blur. Opportunities/Privacy/404 are light, process routes/Membership dark. After 100px, scroll-down hides and scroll-up reveals in 300ms; focus/open menus and reduced motion keep it visible. Signed-in role actions appear in a white desktop account dropdown with outside/Escape dismissal; mobile keeps all actions in the scrollable full-screen menu with close, circular reveal/stagger, keyboard containment, Escape/focus return and body scroll lock. Reduced motion removes reveal/stagger/scroll/logo motion. The closed row alone controls the measured offset; overlay opening does not move content. Preserve current destinations, pending/role-specific visibility, accessible targets, unsaved sign-out confirmation, and no-JavaScript navigation. This supersedes older opaque stationary-header/dropdown-mobile requirements.
+
+## Glossy opportunity cards - 14 November 2026
+
+The owner selected the supplied glossy-card reference and rich track colors, superseding flat white/pastel card treatments. Keep a white page and three/two/one-column grid. Core Team uses a bronze gradient #59442C to #2B2119 and Committee purple #51416F to #241C35, assigned by track through filtering/search. Cards have beveled highlights, a dark bottom edge, layered shadows, a static reflective overlay and raised orange icon tiles. Track badges sit top-left, icons top-right. Keep small uppercase light department labels, white Alpha Geist role titles (28px desktop/24px phone, weight 650), gold 14px availability, and a divided View role/arrow footer. Padding is 28px desktop/24px phone; minimum height is 320px with natural growth for long titles. Gloss/shine must preserve text contrast. Fine-pointer hover lifts and briefly shines; reduced motion removes decorative animation while retaining the static material. Maintain whole-card semantic links, visible keyboard focus, modal-only descriptions, Escape focus restoration and query state.
+
+## Events navigation - 14 November 2026
+
+Shared desktop/mobile/header/footer Events links target /#events. Standalone recruitment prefixes the official main-site origin; combined preview uses the root homepage hash without /recruitment. Reuse the existing section alignment below navigation, including refresh/font settling and reduced-motion behavior.
+
+
+## QA implemented layouts - 14 November 2026
+
+The role directory uses individual icon cards, search, two tracks and one role/consent dialog. Mobile cards/dialog sections stack. Apply labels/body/controls are 16px and supporting copy at least 14px. Under 600px progress uses two columns with readable labels. Optional fields stay visible. Required fields/groups have red markers and programmatic required state. Evidence precedes weekly availability in Your story; Review shows acknowledged evidence/Edit. Main Gallery spans the viewport and ends on the SCD audience photo, followed by a 36-cell collage containing all primary story photos before supplementary ones. Reduced motion retains normal flow.
+
+
+## QA presentation supersession - 14 November 2026
+
+Use Alpha fonts, palette and existing assets; sketches provide structure, not exact reproduction. The main hero prioritizes the full group name with a secondary Day One motto and stacked rotating community photos; retain its waves. Start your journey has two benefits cards with category-specific opportunities links. Alternate About photos and place Testimonials immediately afterward. Gallery expands to viewport width, hides category filters outside List, ends on the SCD audience photo and leads into a white-wash collage ending. Recruitment /opportunities becomes a searchable individual-role directory, without a promotional hero/preparation section; its accessible role dialog owns Google/consent entry. Apply keeps a readable white workspace over waves, required asterisks, visible optional fields, suggested free-text institution, inset select chevrons, ordinal year labels and weekly calendar days. Evidence moves before availability in Your story; Review shows its acknowledged summary. Preserve access, dirty/retry guards, keyboard and reduced-motion behavior. These accepted changes supersede older conflicting layouts; actual completion is in the tracker.
+
 
 ## Quick links and member portraits — 10 November 2026
 
@@ -400,3 +447,31 @@ Use the shared Callout variants info/success/warning/error with distinct icons, 
 Apply omits generic step leads. Show one required/nonblank, at-most-150-word story instruction with approved prompts and individual counters. Review shows routine accepting intake as quiet text with Refresh; blockers/errors retain notices. Keep a short view-only HTTPS resume hint and collapse detailed sharing under How to share your resume. Keep finality once beside declarations; preparation retains account, consent, requested opportunity and Start application. Portal status/reference/opportunity/time have one short guidance sentence; status history starts collapsed and withdrawal remains separate.
 
 The administrator queue starts with Search and its submit action, Filters with applied count, quiet Refresh and Export CSV. Put advanced selects and Apply/Clear inside Filters; Search uses the existing explicit apply handler and preserves all current filter values/guards. Keep the shown/matching summary visible; Status breakdown and Queue views start closed with all counts/three existing shortcuts mounted. Preserve unapplied-change feedback, applied export scope, pagination and dirty/frozen guards. MFA and staff help stay short; required reasons/counters, current recommendation/outcome, capacity and restrictions stay visible. Intake keeps configured/effective state and dates visible, discloses supporting help and standalone history, and places final Close consequences beside the action and confirmation.
+
+## Membership showcase - 14 November 2026
+
+Membership uses a compact 32px desktop/28px phone heading and one verified-email row over the existing gradient. A navy/orange Alphy showcase accompanies a white action panel for empty, invitation, loading and sign-in states. Empty copy is No ID linked yet plus one invitation instruction. Active membership places the real ID canvas and Download ID first, with a white Card details disclosure alongside it. Editing starts open without a portrait and closed for completed cards. Private Find ID and position/date help are secondary disclosures. Preserve invitation acceptance, photo requirements/consent, save/recovery and download gating. Two columns stack below 800px, with readable text, visible focus and 44px controls. This supersedes the oversized white membership panel.
+
+Membership uses content height for both its page and process wrapper, with 32px bottom padding. Do not inherit the full-viewport form minimum heights; the gradient remains decorative and must not add a scrollable blank tail.
+
+## Recruitment document intro - 14 November 2026
+
+All recruitment document loads show a navy #232f3e intro with the white Urban Starblues chapter name, a 192px thin orange #ff9900 line and upward reveal. Match the main-site timing: title .3s, line .5s with .1s overlap, reveal .6s. Use 48px desktop/30px phone script text with wrapping. Replay on refresh/direct entry/auth return; skip internal client navigation and restored browser-history pages. Ignore the main-site session flag. Reduced motion/no-JS skip the overlay; do not take focus, lock scroll or make network-progress claims. This supersedes the older Home-only/once-per-session recruitment intro requirements.
+
+## Centered Apply step cards - 15 November 2026
+
+The latest owner direction supersedes the former sidebar workspace and split entry hero. Apply uses an 860px centered white card over Alpha waves, natural content height, a compact application label/Draft badge and four labeled progress items above the form. Below 600px progress uses a two-column grid with 14px single-line labels; Review is the short progress label while its heading remains Review & submit. The form has a roughly 720px reading width, 40px desktop/24px tablet/20px phone padding, 32px section spacing, 24px field-group spacing and 8px label/control gaps. Use 28px desktop/24px phone headings, 16px controls/body, supporting text at least 14px and 48px controls. Pair only short related fields from 600px upward. Show the verified email and compact selected-role summary, preserving role-change confirmation. Story responses use dividers rather than nested cards. Consent, access/loading and recovery share the white card; keep supporting preparation in a disclosure. Back/Continue and quiet Save & exit sit with save status in a consistent footer; sticky only on roomy desktop windows, static on mobile/short screens or with recovery notices. Give the longer primary label more space on narrow phones. Required fields, consent, retries, errors and actions remain unchanged.
+
+## Responsive Apply progress - 15 November 2026
+
+The owner's subsequent desktop refinement supersedes the all-width top progress above. At widths of 1024px and above, the editor becomes a centered workspace up to 1120px wide with a 240px vertical step column beside the existing readable form. The application label/Draft badge spans both columns. At heights of at least 768px the progress column sticks 24px below the measured site header and stops within the application card; shorter windows retain normal document scrolling. Below 1024px retain the 860px card and progress above the form, including the existing two-column phone stepper. Entry/consent cards and form action placement stay as specified above. Keep one semantic progress navigation, current/completed/future states, keyboard access and existing stage/save/validation behavior.
+
+## Full-height Apply progress panel - 16 November 2026
+
+The owner selected a full-height light sidebar rather than spreading the steps vertically. On desktop, fill the entire 240px left column with #f8fafc and a 1px #e5e9ee divider from the card's top to its bottom, including behind Your application. The background follows the rounded left corners and the form stays white. Paint the panel as the card's desktop background, independently of the existing compact sticky step navigation; do not stretch the steps, add fixed heights or clip the sticky container. Preserve navy labels, orange current-step styling, the 1024px breakpoint and short-window/mobile behavior.
+
+## Expanded Apply progress control - 16 November 2026
+
+The owner's clarification supersedes the compact-step restriction above: the progress control itself fills the desktop sidebar's width and visible height. Group Your application/Draft at the top, four equal vertical step sections in the middle and Step X of 4 at the bottom. Use 12px side insets, 24px vertical padding, 32px numbered/check markers, connected vertical lines, navy labels and a full-width rounded orange current section. Each section has a 72px minimum height. Keep the existing 240px light column and full-height divider.
+
+At desktop widths from 1024px and heights from 48em (768px at the default text size), the sidebar group sticks 24px below the measured header and uses calc(100dvh - var(--site-header-height) - 64px). It supplies a viewport-sized minimum card height while long forms grow independently. Short windows and larger default text settings that fail this media condition use natural-height, static progress. Below 1024px the group uses display:contents so the existing header and compact top progress keep their placement. Preserve one progress navigation, stage permissions, current/completed/future semantics, keyboard focus, save state and recovery.

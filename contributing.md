@@ -29,7 +29,7 @@ This runs ESLint on `src`, `scripts`, and `next.config.ts`, then checks TypeScri
 npm run build
 ```
 
-The build runs `npm run fetch-events` first and needs network access to retrieve public Meetup event data. The generated event JSON is ignored by Git; make source changes in the event data layer or fetch script instead of editing generated output.
+Development startup (`dev` and `dev:combined`) and both build commands run `npm run fetch-events` first to prepare the required event JSON. Fetching fresh public Meetup data needs network access; each request times out after 10 seconds. If fetching fails, the script keeps the existing feed or creates an empty feed on first run, and bundled event history remains available. The generated event JSON is ignored by Git; make source changes in the event data layer or fetch script instead of editing generated output.
 
 ## Make a focused change
 

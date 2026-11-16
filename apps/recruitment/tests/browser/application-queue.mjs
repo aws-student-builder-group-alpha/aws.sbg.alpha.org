@@ -68,7 +68,7 @@ try{
  await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>scrollTo(0,0));
  const firstRow=await page.locator('.evaluation-list-item').first().boundingBox();
  assert.ok(firstRow && firstRow.y>=81 && firstRow.y+firstRow.height<=900,'Applications appear below the landing navbar and above the fold without expanding filters');
- assert.equal(await page.locator('.site-header').evaluate(node=>node.getBoundingClientRect().height),81);
+ assert.equal(await page.locator('.site-header').evaluate(node=>node.getBoundingClientRect().height),80);
  assert.equal(await page.locator('.queue-count-disclosure').evaluate(node=>node.open),false);assert.equal(await page.locator('.queue-views-disclosure').evaluate(node=>node.open),false);assert.equal(await page.getByRole('button',{name:'Apply filters',exact:true}).isVisible(),false);await page.getByRole('button',{name:'Search',exact:true}).waitFor();
  await openDisclosure(page,'Queue views');
  for (const width of [320,375,768,1440,1920]) {

@@ -5,8 +5,8 @@ import { WaveGradient } from "./wave-gradient";
 import { Icon } from "./ui";
 
 /** The Apply canvas; the shared site navbar owns account navigation. */
-export function ProcessShell({ children, unsaved = false, appearance = "navy", surface }: { children: ReactNode; unsaved?: boolean; appearance?: "navy" | "dark"; surface?: "paper" }) {
-  return <div className={`process-root${surface === "paper" ? " process-paper" : ""}`} data-appearance={appearance} data-unsaved={unsaved ? "true" : undefined}>
+export function ProcessShell({ children, unsaved = false, appearance = "navy", surface, contentHeight = false }: { children: ReactNode; unsaved?: boolean; appearance?: "navy" | "dark"; surface?: "paper"; contentHeight?: boolean }) {
+  return <div className={`process-root${surface === "paper" ? " process-paper" : ""}`} data-content-height={contentHeight || undefined} data-appearance={appearance} data-unsaved={unsaved ? "true" : undefined}>
     <div className="apply-atmosphere" aria-hidden="true"><WaveGradient hostSelector=".apply-atmosphere" className="apply-wave" pointerResponse={false} backgroundColor="#08090a" speed={.35} /></div>
     {children}
   </div>;

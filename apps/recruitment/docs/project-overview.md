@@ -1,5 +1,31 @@
 # Alpha Recruitment
 
+## Draft and enrollment recovery - 16 November 2026
+
+Draft failures preserve entered answers and distinguish an explicit website-origin rejection from an unconfirmed write. Confirmed enrollment documents remain visible if a replacement fails; delayed document lookups cannot undo a successful upload. Switching accounts clears the previous account's upload state. The combined development preview uses http://127.0.0.1:4300 as its canonical origin and redirects document visits from local hostname aliases there before authentication or editing. Standalone deployment and application requirements remain unchanged.
+
+## Focused role-details modal - 14 November 2026
+
+The owner approved a glossy track-colored role header above a light details/application body. Show one role identity, existing description/eligibility and preparation, followed by the appropriate sign-in, consent, continuation, receipt, membership, staff or recovery action. This supersedes the older split navy-description/white-action modal. Application rules and destinations remain unchanged.
+
+## Uniform main-site header - 14 November 2026
+
+The owner approved applying the main website header presentation and behavior across every recruitment route, including applicant, membership and staff workspaces. Preserve recruitment-owned destinations and permissions; signed-in desktop actions use an account dropdown. This supersedes the opaque stationary recruitment masthead and abbreviated mobile branding.
+
+## Compact opportunity browsing - 14 November 2026
+
+The owner approved glossy, richly colored track cards for /opportunities: compact role identity and availability, with full descriptions in the existing modal. The whole card opens that role, preserving track/search context and the existing Google/consent/application flow.
+
+## Events navigation - 14 November 2026
+
+Events navigation returns to the homepage Events section (/#events) from both applications. Individual event-card behavior and direct access to the existing /events page remain available.
+
+
+## Accepted QA revision - 14 November 2026
+
+The approved recruitment flow has Core Team and Committee tracks with sixteen opportunities and unchanged eligibility/capacities. Reuse the four-step, consented, enrollment/resume-required application, one application per account, one assigned reviewer and administrator publication. Public entry uses /opportunities with category handoff, search, role dialogs and Google/consent before draft creation. The two main-site joining cards reuse existing benefits. Weekly availability means recurring weekdays without Calendar access. Membership IDs remain explicitly issued by staff and invitations remain available. The 16 November track-removal decision supersedes the original QA expansion.
+
+
 ## Membership invitations and layout recovery — 10 November 2026
 
 Existing members can be invited by Google email before first sign-in. System Admins save a pending invitation, then explicitly send its email or share the Membership ID page. The verified invited account accepts before a new ID is issued. Existing active records retain their IDs and need no new application or repeated acceptance. Membership/invitation entry takes priority over a draft; a previously submitted application remains readable. ID Finder stays private to the signed-in member.
@@ -164,3 +190,19 @@ Operational automation is **deferred**, not active. Future targets remain encryp
 The latest owner direction removes redundant recruitment page-title banners, including the Apply editor title strip. Keep accessible page headings, status/reference information and functional access explanations within content; preserve the shared navbar, Home hero and Apply welcome.
 
 Application flow refinements: the reference section explains each current status and confirms server-acknowledged submission; Review warns that answers/URLs lock and withdrawal prevents reapplication. Administrator Unassigned, Awaiting recommendation and Ready for decision shortcuts preserve applied search/track/opportunity and reuse existing guards/filters. Evaluators can explicitly open the next unreviewed active assignment in the current search, using paginated reads and access rechecks; failures retain the current record. No new API, permission, notification or schema contract.
+
+## Membership showcase - 14 November 2026
+
+Membership workspace presentation now uses a compact Alpha card showcase for issued IDs and an Alphy-led empty/invitation/sign-in state. The downloaded card artwork, membership issuance, ownership and consent rules remain unchanged.
+
+## Recruitment document intro - 14 November 2026
+
+Recruitment now shares the main-site blue intro presentation across all recruitment routes. The owner selected replay on every full document load, including refresh and auth returns, rather than the main site's once-per-session behavior. Internal client navigation, filters and form steps do not replay it.
+
+## Centered Apply step cards - 15 November 2026
+
+Apply now uses the owner-selected centered step-card presentation across its editor, consent/start, loading and recovery states. The four stages and every existing applicant requirement, account guard, route destination and submission rule remain unchanged. The receipt/status page is outside this redesign.
+
+The owner's subsequent desktop refinement places progress vertically beside the editor at widths of at least 1024px and keeps it visible below the header on windows at least 768px tall. Narrow layouts retain top progress; short windows scroll normally. Consent/start and other entry states retain the centered single-card layout.
+
+The later clarification expands the progress control itself across the visible desktop sidebar: larger connected step sections share its height, the application label/Draft badge sits above them, and the step count sits at the bottom. Existing applicant requirements, navigation permissions and mobile presentation remain.

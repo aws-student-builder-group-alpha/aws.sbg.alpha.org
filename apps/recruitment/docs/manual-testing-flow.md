@@ -1,5 +1,52 @@
 # Manual testing flow
 
+## Two-track removal retest - 16 November 2026
+
+Confirm the main site has two joining cards, the directory has All roles/Core Team/Committee filters and sixteen roles, and the form/staff queue expose only the two supported tracks. Check 320/375/768/1440px, keyboard and reduced motion; both role colors, consent/Google handoff, search/back navigation, draft/upload recovery, capped vacancy counts, submission, review and CSV export must still work. Old track/role links must not restore a retired role. The deleted draft owner can start a new supported application; preserve their account and uploads. Membership ID, existing-member invitation acceptance and portrait/download remain available. Verify live zero retired drafts/applications/catalog entries and unchanged other records through counts/fingerprints, not personal data output. Keep real-provider testing distinct from synthetic checks.
+
+## Draft and enrollment recovery retest - 16 November 2026
+
+1. Restart npm run dev:combined after applying the gateway fix. Open http://localhost:4300/recruitment/apply with a supported query; confirm document navigation lands at the same path/query on http://127.0.0.1:4300. Use that canonical origin for Google/session testing. Keep APP_URL and the allowed callback aligned; standalone development follows its separately configured exact origin. Redirects do not transfer cookies or unsaved answers between hosts, so copy any unsaved text before leaving an existing alias tab.
+2. With an authorized test account, change an answer, wait for acknowledged autosave, then Save & exit and resume; confirm the saved answer. Simulate an explicit 403 DENIED: the original-website instruction appears, the answer remains and Save & exit stays put. Restore transport and Retry save. Test an unacknowledged response separately; it must retain uncertain-write recovery and exact retry behavior.
+3. In Your story choose a synthetic PDF/JPG/PNG within 3 MB. Confirm the acknowledged filename, private download bytes and proof readiness; reload the page and confirm persistence. Invalid bytes/types or oversized files must fail without replacing confirmed proof.
+4. Delay the initial document read, upload successfully, then release an empty or failed read. The uploaded filename remains and Continue does not report missing proof. Repeat with a failed replacement: the previous confirmed document remains usable and Reload saved document recovers it.
+5. Change account or leave the component while an upload response is held; release the old response and confirm it cannot set a document/readiness in the new account or departed page. Changing only the readiness callback during upload must not strand the disabled input. Repeat existing keyboard/mobile/Review and required-proof submission checks.
+
+Automated coverage uses synthetic identities, actual multipart handlers and isolated SQL/Blob storage. It does not establish live Google/cookie behavior or hosted Storage delivery. Do not submit real applications or send messages as part of this regression without authorization.
+
+## Role modal redesign retest - 14 November 2026
+
+Open Core Team and Committee cards at 320/375/768/1440px. Check matching glossy headers, one role title, readable eligibility/description/preparation, accurate availability and one clear action panel. Test anonymous, new applicant, saved draft, submitted applicant, member, staff and unavailable/unconfigured access; existing destinations must remain exact. For a new applicant, submit without consent (no request), agree, simulate an unavailable response, retry and confirm the same role/request creates one draft. Pending creation disables close and Escape. Check long names/emails, unavailable/zero/capped counts, 200% text, short screens, scrolling and keyboard access through consent/privacy/recovery to Start. Escape/backdrop restores card focus and preserves filters/search. Compare default staff confirmation dialogs and standalone preparation to ensure their layout and guards remain intact.
+
+## Uniform header retest - 14 November 2026
+
+Compare the main and recruitment headers at 375/640/1024/1280/1440/1920px: logo/full text, gutters, row heights, typography and desktop breakpoint. Check transparent initial and frosted scrolled light/dark surfaces, hide on scroll-down/reveal on scroll-up, and visibility while focused. Repeat with reduced motion (no reveal/stagger/scroll animation), 200% text and short screens. In the full-screen mobile menu, Tab/Shift+Tab must stay inside; Escape/Close restores focus and body scrolling. In the desktop account dropdown, check verified display label, keyboard entry, outside/Escape dismissal and correct applicant/member/admin/head/MFA-pending/inactive staff actions. Pending session must not flash unauthorized actions. Verify all recruitment routes, retained-page transitions, Events to main /#events, unsaved sign-out cancellation, and focused form errors clear of the header. Main authentication, destinations and permissions stay separate.
+
+## Whole-card opportunity retest - 14 November 2026
+
+At /opportunities (or /recruitment/opportunities in combined preview), check the glossy opportunity cards at 320, 375, 768 and 1440px. Core Team must stay bronze, Committee purple in All roles, filtered and searched views, with readable white titles, light labels, gold availability, raised orange icons, a divided View role footer and a white page background. Check beveled edges and static gloss; hover adds a brief shine. Check one/two/three columns as appropriate, wrapped long titles, track badges and readable vacancy footers. Descriptions belong only in the modal. Click the icon, title, footer, arrow and blank padding; each opens the same role. Tab to a card, check its visible outline, press Enter, then Escape and confirm focus returns. Search/filter before opening; closing and browser Back must preserve that context. Verify full modal descriptions and exact Google role handoff. Hover should lift on a fine pointer and stay still without shine animation with reduced motion. Check numeric, zero and unavailable counts without inventing vacancies.
+
+## Events navigation retest - 14 November 2026
+
+Click Events in desktop/mobile navigation and footer links from the homepage, another main-site page, and recruitment. Confirm the destination is the main homepage /#events and the Events section is visible below navigation. Repeat by keyboard and with reduced motion. In standalone recruitment, verify the main-site origin; in combined preview, verify the root homepage rather than /recruitment/#events. Individual cards and direct /events access retain their behavior.
+
+
+## November QA report retest
+
+Use the feature preview with its matching forward migration installed in isolated staging. Do not replay historical migrations or use real applicant data. Report Pass/Fail/Blocked with the PDF page number.
+
+1. Pages 1-2: check the full group heading, secondary motto, requested description, waves, photo pause and three Start your journey cards. Each Apply action must select its own category. Benefits use existing content.
+2. Page 3: check alternating About photos/group wording, followed immediately by Testimonials.
+3. Pages 3-5: check viewport Gallery, larger images, absent filters, SCD audience finale and white-wash/collage message. Pause/reverse scroll. Filter List, switch back and confirm Gallery includes all stories; original details/credits remain. Reduced motion stays readable.
+4. Pages 5-7: check Available Roles, search/icons/individual cards and all two track filters. Reload and Back preserve URL state. Keyboard opens roles, Escape restores focus, and Google preserves the selected role.
+5. Page 7: verify no draft before consent, then Start opens /apply. Existing drafts require explicit role switching and preserve answers; submitted users keep receipts, members keep IDs, staff cannot use staff identities to apply.
+6. Pages 8-10: check larger text, required markers, no promotional hero/subheading, inset chevrons, required editable institution/suggestions, ordinal years and visible optional fields. Resume legacy Other/year data without loss.
+7. Page 11: publish/amend a synthetic acceptance and refresh/focus to confirm remaining counts. Full roles remain selectable for waitlist decisions; all roles retain their fixed capacities. Outages show unavailable, never zero.
+8. Pages 11-12: evidence precedes the weekday calendar in Your story. Blank resume/proof/availability blocks Continue/Submit and focuses the right field, but unfinished drafts save. Proof survives navigation; Review shows acknowledged summary/Edit.
+9. Pages 12-13: receipt/history/notifications/withdrawal still work. Both tracks follow assigned review/admin decisions, with one application per account and explicit membership ID issuance.
+10. Check 320/390/768/1440px, both device preferences, 200% text, keyboard, short screens and reduced motion. Distinguish local/synthetic outcomes from real provider/staging verification.
+
+
 ## Quick links and photo persistence
 
 From the main homepage footer and Events footer, open About, Team and Connect; verify the destination section is visible after pin layout/fonts settle, and manual scrolling is not pulled back. Check recruitment footer links reach the main site, Events resolves to /events/, Skillbuilders retains its sign-in guard and Apply now reaches aws-alpha-recruitment.vercel.app. As an existing member, choose a valid JPG/PNG, give photo consent and save. Verify the actual private processed portrait appears in the card, remains after reload and is included in the canvas export. Invalid bytes/oversized files and another account must be denied. Use synthetic files for automated tests.
@@ -327,3 +374,25 @@ Flow refinement walkthrough: confirm submission warnings and server-confirmed re
 Compact-content checks: generic step leads are absent; all approved prompts/counters remain, resume sharing is collapsed and routine open-intake status is quiet. Portal Status history, staff Access history and Private intake history start collapsed but remain mounted; new history failures reveal recovery. Queue defaults show Search, Filters, Refresh and Export CSV; advanced Apply/Clear stay inside Filters and Status breakdown/Queue views start closed. Collapse/reopen must preserve data and trigger no reset. Search still applies current values through dirty/uncertain guards.
 
 Modern Apply/feedback checks: all seven process routes retain white working surfaces and dark anonymous entry under both device preferences. Check light working selects, placeholders, read-only email, disabled controls, autofill, selected light-tint rows, all four notice severities and native confirmation dialogs for readable text/borders; only the MFA QR backing stays white. Home and Privacy retain their own colors.  anonymous entry has a dark translucent card over slow orange/violet waves; preparation/editor/loading/recovery use white working surfaces. Google shows Connecting only while its action is pending. Reduced motion and no JavaScript retain a readable static background and support links. Across staff, MFA, portal, intake, evaluation/decision and CSV, verify severity icons/titles, field associations and wrapping recovery actions. Errors and summaries remain immediate; save/count/loading text stays quiet. Confirm recovery preserves input and the same operation, without duplicate live announcements or auto-dismissal.
+
+## Membership showcase - 14 November 2026
+
+Membership showcase: inspect no-ID, pending invitation, signed-out and issued-ID states. Check the verified email and Switch account, invitation acceptance, portrait consent/save and Download ID. Completed cards start with editing collapsed; missing portraits open editing and disable download. Find ID is a secondary disclosure. Check phones, keyboard focus and enlarged text; confirm PNG artwork remains unchanged.
+
+## Recruitment document intro - 14 November 2026
+
+Recruitment intro: open/refresh Opportunities, Apply, Membership and Staff and observe the same navy/script/orange-line/upward reveal. Follow internal recruitment links and change filters/form steps: the intro must stay dismissed. Check browser Back/Forward, reduced motion and JavaScript disabled; the page must remain usable without focus/scroll changes. Recruitment replay is per full document load, independent of the main site's session flag.
+
+## Centered Apply step cards - 15 November 2026
+
+Apply responsive-card walkthrough: inspect consent/start, About you, Opportunity, Your story, Review, loading and recovery. Check one task heading, compact email/role summary, four labeled progress items above the form below 1024px (two columns on phones) and vertically beside the form from 1024px. On desktop at least 768px tall, scroll a long step and confirm progress stays 24px below the site header and stops at the card bottom. At 1440x600 it scrolls naturally. Check past-step keyboard navigation, role-change confirmation, required/optional fields and private proof. Verify white inputs, visible error focus, counters, autosave, exact retries, save/exit and submission. At 390x844, 768x1024 and 1440x900 inspect spacing and action labels; also check 1023/1024px and 1920px, and at 320px ensure Submit fits. Mobile/short-window actions stay in document flow; roomy desktop actions may stick, while long recovery stays in reading flow. Check 200% text, reduced motion and mobile keyboard reachability. Receipt/status is unchanged.
+
+## Recruitment scrollbars - 16 November 2026
+
+On desktop, inspect the page edge and an overflowing role dialog/panel: the slim orange thumb uses a navy track and darkens on hover. Drag the thumb, scroll with the wheel, and use keyboard scrolling in a focused panel. Confirm dialog Escape/focus handling and sticky application progress still work. Check a touch device and Windows high contrast retain usable system scrollbars; Firefox uses the native thin/color fallback. Record real browser/device evidence separately from emulated Chromium checks.
+
+## Full-height Apply progress panel - 16 November 2026
+
+Inspect all four steps on desktop: the light left panel and divider must extend from the card's top to its bottom, including below the progress text and behind Your application. Check both rounded left corners, short and long steps, and scrolling while the compact progress stays sticky. Confirm the form remains white, completed-step keyboard navigation still works, and narrow screens keep their original single-card/top-progress layout. Retain short-window and enlarged-text checks.
+
+The expanded-control refinement replaces the compact desktop list: verify the title/Draft badge at the top, four large connected step sections filling the visible sidebar and the step count at the bottom. Check current/completed/future styling on every stage and Enter activation of a completed step. The whole sidebar group sticks below the header and stops within the card; short windows use natural flow. Phones retain the existing compact top progress and header.

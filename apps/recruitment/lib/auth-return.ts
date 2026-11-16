@@ -11,7 +11,7 @@ function applicationPath(path: string, opportunity: unknown, error?: Application
 }
 
 export function applicationLandingPath(opportunity: unknown, error?: ApplicationAuthError) {
-  return applicationPath("/", opportunity, error);
+  return applicationPath("/opportunities", opportunity, error);
 }
 
 export function authReturnPath(
@@ -21,5 +21,5 @@ export function authReturnPath(
 ) {
   if (destination === "staff") return error ? `/staff?auth=${error}` : "/staff";
   if (destination === "membership") return error ? `/membership?auth=${error}` : "/membership";
-  return error ? applicationLandingPath(opportunity, error) : applicationPath("/apply", opportunity);
+  return error ? applicationLandingPath(opportunity, error) : applicationPath("/opportunities", opportunity);
 }

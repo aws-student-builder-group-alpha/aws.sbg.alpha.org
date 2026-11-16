@@ -1,5 +1,5 @@
 /**
- * Build-time script: Fetches events from the Meetup
+ * Startup/build script: Fetches events from the Meetup
  * group page for AWS Cloud Club at RTU and writes
  * them to a generated JSON file consumed by the
  * data layer.
@@ -27,6 +27,7 @@ const OUTPUT_PATH = resolve(
 )
 const FALLBACK_IMAGE = '/Banner.png'
 const TIMEZONE = 'Asia/Manila'
+const REQUEST_TIMEOUT_MS = 10_000
 
 // ---- Meetup Apollo Cache Types ----
 
@@ -90,6 +91,7 @@ async function fetchPageData(
 	url: string,
 ): Promise<ApolloCache | null> {
 	const response = await fetch(url, {
+		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
 		headers: {
 			'User-Agent':
 				'Mozilla/5.0 (compatible; AWSLCAlpha/1.0)',
@@ -237,10 +239,7 @@ async function main(): Promise<void> {
 		const cache = await fetchPageData(url)
 
 		if (!cache) {
-			console.error(
-				`[fetch-events] Skipping ${url} (no data)`,
-			)
-			continue
+			throw new Error(`No usable Meetup data from ${url}`)
 		}
 
 		const rawEvents =

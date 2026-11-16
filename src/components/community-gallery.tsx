@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Image from 'next/image'
+import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, ChevronLeft, ChevronRight, Images, MapPin, Play, X } from 'lucide-react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -107,7 +108,7 @@ function StoryDetails({ story, open }: { story: CommunityStory; open: boolean })
   </>
 }
 
-function StoryCard({ story, index }: { story: CommunityStory; index: number }) {
+function StoryCard({ story, index, largeImage = false }: { story: CommunityStory; index: number; largeImage?: boolean }) {
   const [open, setOpen] = useState(false)
   return <article className="gallery-item" aria-label={story.title}>
     <h3 className="sr-only">{story.title}</h3>
@@ -116,7 +117,7 @@ function StoryCard({ story, index }: { story: CommunityStory; index: number }) {
         <DepthSurface className="gallery-depth">
           <DialogTrigger asChild><button type="button" className="gallery-trigger" aria-label={'View details: '+story.title}>
             <span className="gallery-photo">
-              <Image src={galleryImage(story.images[0].src, "card")} alt={story.images[0].alt} fill sizes="(min-width: 1024px) 33vw, (min-width: 600px) 50vw, 100vw" className="object-cover" />
+              <Image src={galleryImage(story.images[0].src, largeImage ? "full" : "card")} alt={story.images[0].alt} fill sizes="(min-width: 1024px) 33vw, (min-width: 600px) 50vw, 100vw" className="object-cover" />
               <span className="gallery-image-count"><Images size={14} aria-hidden="true" />{story.images.length}</span>
             </span>
             <span className="gallery-caption">
@@ -155,7 +156,13 @@ export default function CommunityGallery({ stories, filterable = false, presenta
     restoreViewPosition.current = presentation === 'showcase'
     setFilter(next)
   }
-  const visible = useMemo(()=>filter==='All stories'?stories:stories.filter(story=>story.category===filter),[stories,filter])
+  const visible = useMemo(() => {
+    if (view === 'list') return filter === 'All stories' ? stories : stories.filter(story => story.category === filter)
+    const finale = stories.find(story => story.id === 'student-community-day-2026')
+    if (!finale || presentation !== 'showcase') return stories
+    const audience = finale.images.find(photo => photo.src.includes('scd-2026-audience'))
+    return [...stories.filter(story => story !== finale), { ...finale, images: audience ? [audience, ...finale.images.filter(photo => photo !== audience)] : finale.images }]
+  }, [stories, filter, view, presentation])
   useGalleryZoom(root, presentation === 'showcase' && view === 'gallery', visible.map(story => story.id).join('|'))
   useEffect(() => {
     const gallery = root.current
@@ -199,11 +206,29 @@ export default function CommunityGallery({ stories, filterable = false, presenta
       cards.forEach(card => card.removeAttribute('data-in-view'))
     }
   }, [visible, view])
-  return <div className={`community-gallery${presentation === 'showcase' ? ' gallery-showcase' : ''}`} data-gallery-view={view} ref={root}>
+  return <><div className={`community-gallery${presentation === 'showcase' ? ' gallery-showcase' : ''}`} data-gallery-view={view} ref={root}>
     {presentation === 'showcase' && <div className="gallery-showcase-toolbar"><p>{String(visible.length).padStart(2, '0')} moments. One Alpha community.</p><div className="gallery-view-controls" role="group" aria-label="Event presentation"><button type="button" aria-pressed={view === 'gallery'} onClick={() => changeView('gallery')}>Gallery view</button><button type="button" aria-pressed={view === 'list'} onClick={() => changeView('list')}>List view</button></div></div>}
-    {filterable && <div className="gallery-filters" role="group" aria-label="Filter community stories">{['All stories',...storyCategories].map(category=><button key={category} type="button" aria-pressed={filter===category} onClick={()=>changeFilter(category)}>{category}<span>{category==='All stories'?stories.length:stories.filter(story=>story.category===category).length}</span></button>)}</div>}
-    {filterable && <p className="gallery-result-count" role="status" aria-live="polite">{visible.length} {visible.length===1?'story':'stories'} · {filter}</p>}
-    <div className="gallery-grid" key={view}>{visible.map((story,index)=><StoryCard key={story.id} story={story} index={index} />)}</div>
+    {filterable && view === 'list' && <div className="gallery-filters" role="group" aria-label="Filter community stories">{['All stories',...storyCategories].map(category=><button key={category} type="button" aria-pressed={filter===category} onClick={()=>changeFilter(category)}>{category}<span>{category==='All stories'?stories.length:stories.filter(story=>story.category===category).length}</span></button>)}</div>}
+    {filterable && view === 'list' && <p className="gallery-result-count" role="status" aria-live="polite">{visible.length} {visible.length===1?'story':'stories'} · {filter}</p>}
+    <div className="gallery-grid" key={view}>{visible.map((story,index)=><StoryCard key={story.id} story={story} index={index} largeImage={presentation === 'showcase' && view === 'gallery'} />)}</div>
     {presentation === 'showcase' && <div className="gallery-zoom-guide"><p>Scroll to explore. Select an image for details.</p><span className="gallery-zoom-progress" aria-hidden="true" /><span className="sr-only">Use List view to browse every event without the zoom animation.</span></div>}
-  </div>
+  </div>{presentation === 'showcase' && view === 'gallery' && <GalleryCollage stories={stories} />}</>
+}
+
+function GalleryCollage({ stories }: { stories: CommunityStory[] }) {
+ const root = useRef<HTMLElement>(null)
+ useEffect(() => {
+  const media = gsap.matchMedia()
+  media.add('(prefers-reduced-motion: no-preference)', () => {
+   const context = gsap.context(() => { gsap.fromTo('.gallery-collage-grid', { opacity: .15, scale: 1.03 }, { opacity: 1, scale: 1, ease: 'none', scrollTrigger: { trigger: root.current, start: 'top 85%', end: 'top 15%', scrub: true } }) }, root)
+   return () => context.revert()
+  })
+  return () => media.revert()
+ }, [])
+ const photos = [...stories.map(story => story.images[0]), ...stories.flatMap(story => story.images.slice(1))]
+ if (!photos.length) return null
+ return <section ref={root} className="gallery-collage" aria-label="Our community, together">
+  <div className="gallery-collage-grid" aria-hidden="true">{Array.from({ length: 36 }, (_, index) => <div key={index}><Image src={galleryImage(photos[index % photos.length].src, 'card')} alt="" fill sizes="(min-width: 768px) 17vw, 34vw" /></div>)}</div>
+  <div className="gallery-collage-message"><h3>This is what we’ve<br />built together.</h3></div>
+ </section>
 }

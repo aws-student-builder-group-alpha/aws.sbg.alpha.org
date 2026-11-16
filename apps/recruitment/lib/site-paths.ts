@@ -5,7 +5,7 @@ export const alphaSiteOrigin = combinedPreview ? "" : "https://www.awsc-alpha.cl
 
 export const chapterLinks = [
   { path: "/#about", label: "About" },
-  { path: "/events/", label: "Events" },
+  { path: "/#events", label: "Events" },
   { path: "/#members", label: "Team" },
   { path: "/#contact", label: "Connect" },
   { path: "/skillbuilder/", label: "Skillbuilders" },

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSelectedLayoutSegments } from "next/navigation";
 import { useFormStatus } from "react-dom";
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode, type Ref } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from "react";
 import { motionPresets, useEntrance, useGSAP } from "./motion";
 import { signOut, startApplication } from "@/app/auth/actions";
 import { alphaSiteOrigin, chapterLinks, recruitmentPath } from "@/lib/site-paths";
@@ -152,22 +152,6 @@ export function Brand({ compact = false }: { compact?: boolean }) {
   </a>;
 }
 
-function subscribeHeaderScroll(callback: () => void) {
-  let frame = 0;
-  const onScroll = () => {
-    if (frame) return;
-    frame = requestAnimationFrame(() => {
-      frame = 0;
-      callback();
-    });
-  };
-  window.addEventListener("scroll", onScroll, { passive: true });
-  return () => {
-    if (frame) cancelAnimationFrame(frame);
-    window.removeEventListener("scroll", onScroll);
-  };
-}
-
 type HeaderStaff = { role: StaffRole; status: StaffStatus; needsMfa: boolean };
 type WorkspaceFrame = "applicant" | "administrator" | "evaluator" | "staff";
 function useWorkspaceFrame(): WorkspaceFrame | undefined {
@@ -193,46 +177,83 @@ function ApplicationActionButton({ children, className }: { children: ReactNode;
   </button>;
 }
 
-export function SiteHeader({ signedIn = false, staff, pendingSession = false, member = false }: { signedIn?: boolean; staff?: HeaderStaff; pendingSession?: boolean; member?: boolean }) {
+type HeaderProps = { signedIn?: boolean; staff?: HeaderStaff; pendingSession?: boolean; member?: boolean; accountLabel?: string };
+export function SiteHeader(props: HeaderProps) {
   const path = usePathname();
   const frame = useWorkspaceFrame();
-  return <HeaderContent key={path} path={path} frame={frame} signedIn={signedIn} staff={staff} pendingSession={pendingSession} member={member} />;
+  return <HeaderContent key={path} path={path} frame={frame} {...props} />;
 }
-function HeaderContent({ path, frame, signedIn, staff, pendingSession, member }: { path: string; frame?: WorkspaceFrame; signedIn: boolean; staff?: HeaderStaff; pendingSession: boolean; member: boolean }) {
-  const scrolled = useSyncExternalStore(
-    subscribeHeaderScroll,
-    () => window.scrollY > 0,
-    () => false,
-  );
+function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = false, member = false, accountLabel = "Account" }: HeaderProps & { path: string; frame?: WorkspaceFrame }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
-  const menuId = useId();
+  const rowRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
-  const adaptiveMode = path === "/" ? "home" : "page";
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const accountButton = useRef<HTMLButtonElement>(null);
+  const menuId = useId(), accountId = useId();
+  const dark = !!frame || ["/", "/membership"].includes(path);
+  function closeMenu() { setMenuOpen(false); menuButton.current?.focus(); }
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const style = document.documentElement.style;
+    const previous = style.getPropertyValue("--site-header-height");
+    let published = "";
+    const measure = () => {
+      if (!row.getClientRects().length) return;
+      published = `${row.getBoundingClientRect().height}px`;
+      style.setProperty("--site-header-height", published);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(row); measure();
+    return () => { observer.disconnect(); if (style.getPropertyValue("--site-header-height") === published) { if (previous) style.setProperty("--site-header-height", previous); else style.removeProperty("--site-header-height"); } };
+  }, []);
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
-    const rootStyle = document.documentElement.style;
-    const previousHeight = rootStyle.getPropertyValue("--site-header-height");
-    let publishedHeight = "";
-    const measure = () => {
-      if (!header.getClientRects().length) return;
-      const height = `${header.getBoundingClientRect().height}px`;
-      if (height === publishedHeight) return;
-      publishedHeight = height;
-      rootStyle.setProperty("--site-header-height", publishedHeight);
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+    let previous = window.scrollY, frameId = 0;
+    const update = () => {
+      frameId = 0;
+      const y = Math.max(0, window.scrollY);
+      header.dataset.scrolled = String(y > 20);
+      header.dataset.hidden = String(!reduce.matches && !menuOpen && !accountOpen && !header.contains(document.activeElement) && y > 100 && y > previous);
+      previous = y;
     };
-    const observer = new ResizeObserver(measure);
-    observer.observe(header);
-    measure();
-    return () => {
-      observer.disconnect();
-      if (rootStyle.getPropertyValue("--site-header-height") === publishedHeight) {
-        if (previousHeight) rootStyle.setProperty("--site-header-height", previousHeight);
-        else rootStyle.removeProperty("--site-header-height");
-      }
-    };
-  }, []);
+    const scroll = () => { if (!frameId) frameId = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", scroll, { passive: true });
+    reduce.addEventListener("change", update);
+    return () => { cancelAnimationFrame(frameId); window.removeEventListener("scroll", scroll); reduce.removeEventListener("change", update); };
+  }, [menuOpen, accountOpen]);
+  useEffect(() => {
+    if (!accountOpen) return;
+    const outside = (event: PointerEvent) => { if (event.target instanceof Node && !accountRef.current?.contains(event.target)) setAccountOpen(false); };
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [accountOpen]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const siblings: [HTMLElement, boolean][] = [];
+    let child: HTMLElement | null = headerRef.current;
+    while (child?.parentElement) {
+      for (const sibling of child.parentElement.children) if (sibling !== child && sibling instanceof HTMLElement && !["SCRIPT", "STYLE", "LINK"].includes(sibling.tagName)) { siblings.push([sibling, sibling.inert]); sibling.setAttribute("inert", ""); }
+      if (child.parentElement === document.body) break;
+      child = child.parentElement;
+    }
+    closeButton.current?.focus();
+    const desktop = matchMedia("(min-width: 80em)");
+    const resize = () => { if (!menuButton.current?.getClientRects().length) { setMenuOpen(false); (accountButton.current || navRef.current?.querySelector<HTMLElement>("a"))?.focus(); } };
+    desktop.addEventListener("change", resize);
+    const rowObserver = new ResizeObserver(resize);
+    if (rowRef.current) rowObserver.observe(rowRef.current);
+    return () => { rowObserver.disconnect(); document.body.style.overflow = previousOverflow; siblings.forEach(([node, inert]) => { node.toggleAttribute("inert", inert); }); desktop.removeEventListener("change", resize); };
+  }, [menuOpen]);
   const links: { href: string; label: string }[] = [];
   if (!staff && signedIn) links.push(member ? { href: "/membership", label: "Membership ID" } : { href: "/application?resume=1", label: "My application" });
   else if (staff && (staff.status !== "active" || staff.needsMfa)) links.push({ href: "/staff", label: "Staff sign-in" });
@@ -241,23 +262,31 @@ function HeaderContent({ path, frame, signedIn, staff, pendingSession, member }:
   if (!member) links.push({ href: "/membership", label: "Membership ID" });
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <header ref={headerRef} className="site-header" data-workspace-frame={frame} data-scrolled={scrolled} data-adaptive={adaptiveMode} onKeyDown={event => { if (event.key === "Escape" && menuOpen) { setMenuOpen(false); menuButton.current?.focus(); } }}>
-      <div className="header-inner">
+    <div className="site-header-space" data-tone={dark ? "dark" : "light"} aria-hidden="true" />
+    <header ref={headerRef} className="site-header" data-workspace-frame={frame} data-adaptive={path === "/" ? "home" : "page"} data-tone={dark ? "dark" : "light"} data-menu-open={menuOpen}
+      onKeyDown={event => { if (event.key === "Escape") { if (menuOpen) { event.preventDefault(); closeMenu(); } else if (accountOpen) { event.preventDefault(); setAccountOpen(false); accountButton.current?.focus(); } } }}>
+      <div ref={rowRef} className="header-inner">
         <Brand />
-        <div className="header-actions">
-          <button ref={menuButton} type="button" className="icon-button mobile-menu-button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-controls={menuId} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
-            <Icon name={menuOpen ? "close" : "menu"} size={20} />
-          </button>
-        </div>
-        <nav id={menuId} aria-label="Main navigation" className="main-nav" data-open={menuOpen}
-          onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setMenuOpen(false); }}>
-          {chapterLinks.map(link => <a key={link.path} href={alphaSiteOrigin + link.path}>{link.label}</a>)}
-          {links.map(link => <Link key={link.href} href={link.href} aria-current={path === link.href.split("?")[0] ? "page" : undefined}>{link.label}</Link>)}
-          {!staff && !signedIn && !pendingSession && <ApplicationAction className="nav-apply">Apply now</ApplicationAction>}
-          {signedIn && <form action={signOut} onSubmit={event => { if (document.querySelector('[data-unsaved="true"]') && !window.confirm("Your latest changes have not been saved. Sign out anyway?")) event.preventDefault(); }}><button type="submit" className="text-button">Sign out</button></form>}
+        <div className="header-actions"><button ref={menuButton} type="button" className="icon-button mobile-menu-button" aria-label="Open menu" aria-controls={menuId} aria-expanded={menuOpen} onClick={() => { setAccountOpen(false); setMenuOpen(true); }}><Icon name="menu" size={24} /></button></div>
+        <nav ref={navRef} id={menuId} aria-label={menuOpen ? "Main navigation menu" : "Main navigation"} role={menuOpen ? "dialog" : undefined} aria-modal={menuOpen ? true : undefined} className="main-nav" data-open={menuOpen}
+          onClick={event => { if ((event.target as HTMLElement).closest("a")) { if (menuOpen) closeMenu(); setAccountOpen(false); } }}
+          onKeyDown={event => { if (menuOpen && event.key === "Tab") { const controls = Array.from(navRef.current?.querySelectorAll<HTMLElement>("a,button:not(:disabled)") || []).filter(node => node.getClientRects().length); const first = controls[0], last = controls.at(-1); if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } } }}>
+          <button ref={closeButton} type="button" className="nav-close icon-button" aria-label="Close menu" onClick={closeMenu}><Icon name="close" size={28} /></button>
+          <div className="nav-chapter-links">{chapterLinks.map(link => <a key={link.path} href={alphaSiteOrigin + link.path}>{link.label}</a>)}</div>
+          <span className="nav-divider" aria-hidden="true" />
+          <div ref={accountRef} className="account-navigation" data-signed-in={signedIn} data-open={accountOpen}>
+            {signedIn && <button ref={accountButton} type="button" className="account-trigger" aria-expanded={accountOpen} aria-controls={accountId} onClick={() => setAccountOpen(!accountOpen)}><span>{accountLabel}</span><Icon name="chevron" size={16} /></button>}
+            <div id={accountId} className="account-dropdown">
+              {links.map(link => <Link key={link.href} href={link.href} aria-current={path === link.href.split("?")[0] ? "page" : undefined}>{link.label}</Link>)}
+              {!staff && !signedIn && !pendingSession && <ApplicationAction className="nav-apply">Apply now</ApplicationAction>}
+              {signedIn && <form action={signOut} onSubmit={event => { if (document.querySelector('[data-unsaved="true"]') && !window.confirm("Your latest changes have not been saved. Sign out anyway?")) event.preventDefault(); }}><button type="submit" className="text-button">Sign out</button></form>}
+            </div>
+          </div>
+          <Image className="mobile-menu-mark" src={recruitmentPath("/brand/alpha-logo.webp")} alt="" width={48} height={48} />
         </nav>
       </div>
     </header>
+    <noscript><nav className="header-no-script" aria-label="Chapter links">{chapterLinks.map(link => <a key={link.path} href={alphaSiteOrigin + link.path}>{link.label}</a>)}{links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}<Link href="/opportunities">Available roles</Link></nav></noscript>
   </>;
 }
 
@@ -374,12 +403,14 @@ export function ErrorSummary({ children, ref }: { children: ReactNode; ref?: Ref
 }
 export function Modal({
   title,
+  headerContent,
   children,
   onClose,
   dismissible = true,
   className,
 }: {
   title: string;
+  headerContent?: ReactNode;
   children: ReactNode;
   onClose: () => void;
   dismissible?: boolean;
@@ -404,14 +435,15 @@ export function Modal({
     <dialog
       ref={ref}
       className={className ? `modal ${className}` : "modal"}
-      aria-labelledby="modal-title"
+      aria-label={headerContent ? title : undefined}
+      aria-labelledby={headerContent ? undefined : "modal-title"}
       onCancel={event => { event.preventDefault(); if (dismissible) onClose(); }}
       onClick={(event) => {
         if (dismissible && event.target === event.currentTarget) onClose();
       }}
     >
       <div className="modal-heading">
-        <h2 id="modal-title">{title}</h2>
+        {headerContent || <h2 id="modal-title">{title}</h2>}
         <button
           className="icon-button"
           type="button"

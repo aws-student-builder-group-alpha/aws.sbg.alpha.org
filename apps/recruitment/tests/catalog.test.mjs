@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { getOpportunity, isCoreEligible, opportunities, wordCount } from "../lib/catalog.ts";
 import { validSubmission } from "./fixtures/submission.mjs";
 
-test("approved catalog retains sixteen distinct opportunities and department routing", () => {
+test("approved catalog contains only the sixteen Core Team and Committee opportunities", () => {
   assert.equal(opportunities.length, 16);
   assert.equal(new Set(opportunities.map(item => item.id)).size, 16);
   assert.equal(opportunities.filter(item => item.track === "CORE_TEAM").length, 6);
