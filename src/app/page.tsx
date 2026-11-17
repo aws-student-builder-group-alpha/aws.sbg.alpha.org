@@ -9,12 +9,15 @@ import Recruitment from "@/app/(landing)/recruitment/recruitment"
 import { Benefits, CommunityProof, ClosingInvitation, MotionRibbon } from "@/app/(landing)/story"
 import "@/app/(landing)/hero/hero.css"
 import "@/app/(landing)/landing.css"
+import { ArrowUpRight } from "lucide-react"
+import { RECRUITMENT_URL } from "@/lib/recruitment"
 
 export default function Home() {
   return (
     <main className="alpha-landing">
       <ServerNavigation />
       <JourneyWolf />
+      <a href={RECRUITMENT_URL + "/opportunities"} className="alpha-opening-start alpha-community-invitation"><span>Be a Part of Our Community</span><ArrowUpRight size={22} aria-hidden="true" /></a>
       <OpeningSequence />
       <LandingMotion>
       <MotionRibbon />

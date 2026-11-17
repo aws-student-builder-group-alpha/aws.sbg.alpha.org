@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import PixelWolf from "./hero/pixel-wolf"
-import { wolfPose, wolfCoversText } from "./journey-geometry"
+import { wolfPose, wolfCoversText, safeWolfPose } from "./journey-geometry"
 
 export default function JourneyWolf() {
   const wolf = useRef<HTMLButtonElement>(null)
@@ -18,11 +18,10 @@ export default function JourneyWolf() {
       if (!motion.matches) return
       const hosts = Array.from(page.querySelectorAll<HTMLElement>("[data-wolf-stop]"))
       if (hosts.length < 2) return
-      const readingSelector = ".alpha-opening-title, .alpha-opening-meta, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-benefit-copy, .alpha-scene-heading, .alpha-quote, .alpha-role-panel h3, .alpha-role-panel p, .alpha-button, .alpha-team h2, .alpha-team-grid"
+      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-benefit-copy, .alpha-scene-heading, .alpha-quote, .alpha-role-panel h3, .alpha-role-panel p, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-invitation, .alpha-hero-photo-controls, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-finale footer, nav"
       let frame = 0
       let active = true
-      let previousScroll = window.scrollY
-      let bank = 0
+      let previousPose: NonNullable<ReturnType<typeof wolfPose>> | null = null
       const draw = () => {
         frame = 0
         if (!active) return
@@ -34,21 +33,34 @@ export default function JourneyWolf() {
         })
         // Very short viewports may put consecutive checkpoints at the same scroll offset.
         stops.forEach((stop, index) => { if (index) stop.scroll = Math.max(stop.scroll, stops[index - 1].scroll + 1) })
-        const pose = wolfPose(scroll, stops, document.documentElement.clientWidth, window.innerHeight)
-        if (!pose) return
-        const velocity = Math.max(-18, Math.min(18, (scroll - previousScroll) * .6))
-        bank += (velocity - bank) * .2
-        previousScroll = scroll
-        const reading = wolfCoversText(pose, Array.from(page.querySelectorAll<HTMLElement>(readingSelector), element => element.getBoundingClientRect()), bank)
-        button.dataset.reading = String(reading)
-        button.style.width = `${pose.width}px`
-        button.style.transform = `translate3d(${pose.x}px,${pose.y}px,0) rotate(${pose.rotation + bank}deg)`
-        button.dataset.stop = String(pose.index)
-        const visible = pose.y + pose.width * 8 / 9 > 0 && pose.y < window.innerHeight
-        button.dataset.visible = String(visible)
-        button.tabIndex = visible && !reading ? 0 : -1
+        const desired = wolfPose(scroll, stops, document.documentElement.clientWidth, window.innerHeight)
+        if (!desired) return
+        const regions = Array.from(page.querySelectorAll<HTMLElement>(readingSelector), element => element.getBoundingClientRect())
+        const header = page.querySelector("nav")?.getBoundingClientRect().bottom ?? 96
+        const target = safeWolfPose(desired, regions, document.documentElement.clientWidth, window.innerHeight, header)
+        let moving = false
+        if (target) {
+          const previous = previousPose ?? target
+          const mix = (from: number, to: number) => from + (to - from) * .24
+          const pose = { ...target, x: mix(previous.x, target.x), y: mix(previous.y, target.y), width: mix(previous.width, target.width), rotation: mix(previous.rotation, target.rotation) }
+          previousPose = pose
+          moving = Math.max(Math.abs(pose.x - target.x), Math.abs(pose.y - target.y), Math.abs(pose.width - target.width), Math.abs(pose.rotation - target.rotation)) > .3
+          const reading = wolfCoversText(pose, regions) || pose.y < header + 12
+          button.dataset.reading = String(reading)
+          button.dataset.visible = String(!reading)
+          button.setAttribute("aria-hidden", String(reading))
+          button.style.width = `${pose.width}px`
+          button.style.transform = `translate3d(${pose.x}px,${pose.y}px,0) rotate(${pose.rotation}deg)`
+          button.dataset.stop = String(pose.index)
+          button.tabIndex = reading ? -1 : 0
+        } else {
+          button.dataset.visible = "false"
+          button.setAttribute("aria-hidden", "true")
+          button.tabIndex = -1
+          previousPose = null
+        }
         page.dataset.journeyActive = "true"
-        if (Math.abs(bank) > .1) frame = requestAnimationFrame(draw)
+        if (moving) frame = requestAnimationFrame(draw)
       }
       const queue = () => { if (!frame) frame = requestAnimationFrame(draw) }
       const pointer = (event: PointerEvent) => {
@@ -74,6 +86,7 @@ export default function JourneyWolf() {
         delete page.dataset.journeyActive
         button.removeAttribute("style")
         button.removeAttribute("tabindex")
+        button.removeAttribute("aria-hidden")
       }
     }
     sync()

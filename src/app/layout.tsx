@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import SmoothScroll from "@/components/smooth-scroll"
 import PageLoader from "@/components/page-loader"
-import ScrollProgress from "@/components/scroll-progress"
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -69,7 +68,6 @@ export default function RootLayout({
 		>
 			<body suppressHydrationWarning>
 				<PageLoader />
-				<ScrollProgress />
 				<SmoothScroll>{children}</SmoothScroll>
 			</body>
 		</html>

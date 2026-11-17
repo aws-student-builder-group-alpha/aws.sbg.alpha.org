@@ -60,3 +60,25 @@ test('the mascot yields to headings and controls, including its rotated corners'
   assert.equal(wolfCoversText(pose, [{ left: 230, right: 300, top: 100, bottom: 150 }], 40), true)
   assert.equal(wolfCoversText(pose, [{ left: 150, right: 150, top: 100, bottom: 150 }]), false)
 })
+
+
+test('the moving wolf steers around text, controls and team portraits', () => {
+  const { safeWolfPose, wolfCoversText } = compiled.exports
+  const desired = { x: 350, y: 300, width: 180, rotation: 12, index: 2 }
+  const regions = [{ left: 280, right: 650, top: 200, bottom: 700 }]
+  const pose = safeWolfPose(desired, regions, 1000, 1000)
+  assert.ok(pose)
+  assert.equal(wolfCoversText(pose, regions), false)
+  assert.ok(pose.x + pose.width < 280 || pose.x > 650)
+  assert.ok(pose.y >= 120 && pose.y + pose.width * 8 / 9 <= 890)
+})
+test('the wolf keeps moving with scroll rather than locking to a section anchor', () => {
+  const { safeWolfPose } = compiled.exports
+  const poses = [250, 500, 750].map(scroll => safeWolfPose(wolfPose(scroll, route, 1000), [], 1000, 1000))
+  assert.notEqual(poses[0].x, poses[1].x)
+  assert.notEqual(poses[1].x, poses[2].x)
+})
+test('a narrow viewport with no free space hides the wolf instead of covering content', () => {
+  const { safeWolfPose } = compiled.exports
+  assert.equal(safeWolfPose({ x: 50, y: 300, width: 120, rotation: 0, index: 1 }, [{ left: 0, right: 320, top: 96, bottom: 780 }], 320, 780), null)
+})

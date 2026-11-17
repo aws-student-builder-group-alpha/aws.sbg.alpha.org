@@ -2,12 +2,11 @@
 
 import { useEffect, useRef } from "react"
 import Image from "next/image"
-import { ArrowDownRight, ArrowDown } from "lucide-react"
+import { ArrowDown } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import KineticType from "../kinetic-type"
 import PixelWolf from "./pixel-wolf"
-import { RECRUITMENT_URL } from "@/lib/recruitment"
 import "./opening-sequence.css"
 
 export default function OpeningSequence() {
@@ -45,7 +44,6 @@ export default function OpeningSequence() {
    event.currentTarget.style.setProperty("--opening-y", String((event.clientY - rect.top) / rect.height - .5))
   }} onPointerLeave={event => { event.currentTarget.style.setProperty("--opening-x", "0"); event.currentTarget.style.setProperty("--opening-y", "0") }}>
   <div className="alpha-opening-grain" aria-hidden="true" />
-  <div className="alpha-opening-meta"><span className="alpha-opening-brand"><span className="alpha-opening-brand-icon" aria-hidden="true">α</span><span>AWS Student Builder Group</span><strong>Alpha</strong></span></div>
   <p className="alpha-opening-eyebrow">It’s always</p>
   <h1 id="alpha-opening-heading" className="alpha-opening-title" aria-label="AWS Student Builder Group Alpha. Your Day One starts here"><span><KineticType text="DAY" /></span><span><KineticType text="ONE" /><span className="alpha-opening-dot">.</span></span></h1>
   <div className="alpha-opening-floor" aria-hidden="true" />
@@ -60,7 +58,6 @@ export default function OpeningSequence() {
   </div>
   <div className="alpha-opening-bottom">
    <p>We’re recruiting<br /><span>Core Team &amp; Committee.</span></p>
-   <a href={RECRUITMENT_URL + "/opportunities"} className="alpha-opening-start"><span>Be a Part of Our Community</span> <ArrowDownRight size={22} aria-hidden="true" /></a>
    <a href="#about" className="alpha-opening-recruit">Why join Alpha?<ArrowDown size={15} aria-hidden="true" /></a>
   </div>
  </section>
