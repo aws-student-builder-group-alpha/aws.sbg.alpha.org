@@ -1,7 +1,8 @@
 "use client"
 
 import Image from "next/image"
-import { Linkedin, Mail, Globe, Facebook } from "lucide-react"
+import { Mail, Globe } from "lucide-react"
+import { Facebook, Linkedin } from "@/components/icons"
 import "./core-members.css"
 
 interface Member {

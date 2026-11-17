@@ -1,12 +1,12 @@
 "use client"
 
+import { Mail } from "lucide-react"
 import {
-	Linkedin,
-	Mail,
 	Facebook,
-	Twitter,
 	Instagram,
-} from "lucide-react"
+	Linkedin,
+	Twitter,
+} from "@/components/icons"
 import Image from "next/image"
 import Link from "next/link"
 import { RECRUITMENT_URL } from "@/lib/recruitment"

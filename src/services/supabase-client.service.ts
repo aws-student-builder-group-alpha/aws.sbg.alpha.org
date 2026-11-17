@@ -11,12 +11,16 @@ export function getSupabaseBrowserClient() {
 	}
 
 	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-	const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+	const supabaseKey =
+		process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-	if (!supabaseUrl || !supabaseAnonKey) {
-		throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY')
+	if (!supabaseUrl || !supabaseKey) {
+		throw new Error(
+			'Missing Supabase config: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or legacy NEXT_PUBLIC_SUPABASE_ANON_KEY)',
+		)
 	}
 
-	browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+	browserClient = createBrowserClient<Database>(supabaseUrl, supabaseKey)
 	return browserClient
 }
