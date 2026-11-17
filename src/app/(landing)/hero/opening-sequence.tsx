@@ -17,7 +17,7 @@ export default function OpeningSequence() {
   const media = gsap.matchMedia()
   media.add("(prefers-reduced-motion: no-preference)", () => {
    const context = gsap.context(() => {
-    const timeline = gsap.timeline({ scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: .6 } })
+    const timeline = gsap.timeline({ scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true } })
     timeline.to(".alpha-opening-title .alpha-type-letter", {
       yPercent: index => index % 2 ? -55 : -90,
       rotation: index => index % 2 ? 12 : -12,
@@ -52,7 +52,7 @@ export default function OpeningSequence() {
   <div className="alpha-opening-scene">
    <div className="alpha-opening-orbit alpha-opening-orbit-one" aria-hidden="true"><i /><i /><i /></div>
    <div className="alpha-opening-orbit alpha-opening-orbit-two" aria-hidden="true"><i /><i /></div>
-   <a href="#alpha-community" className="alpha-opening-mascot" aria-label="Why join Alpha?"><PixelWolf dimensional pose="wave" /></a>
+   <a href="#alpha-community" className="alpha-opening-mascot" data-wolf-stop="opening" aria-label="Why join Alpha?"><PixelWolf dimensional pose="wave" /></a>
    <div className="alpha-opening-memory alpha-opening-memory-one" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-certificates.webp" alt="" fill sizes="190px" /></div>
    <div className="alpha-opening-memory alpha-opening-memory-two" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-team.webp" alt="" fill sizes="155px" /></div>
    <span className="alpha-opening-star alpha-opening-star-one" aria-hidden="true">✦</span>

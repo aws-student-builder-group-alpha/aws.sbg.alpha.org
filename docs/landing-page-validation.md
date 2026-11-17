@@ -39,3 +39,22 @@ Observed https://sweet-tape.com/ in Chrome while scrolling through the hero, cur
 Implemented corresponding sequences with Alpha's wolf: opening letters scatter on scroll, the wolf rolls into the handoff, an SVG ribbon bends while its text moves, and benefit scenes place photo collages over oversized type. Role panels fan into place, the community photo stack tilts into view, and two wolves enter the final invitation. Native scrolling and existing track URLs remain intact.
 
 Desktop browser checks confirmed the moving ribbon and wolf transforms, no document overflow, and no browser console errors. At 390px and 320px, the photo area was shortened to keep both headline lines readable. The longer “Build real” line has a smaller mobile size to fit within the viewport. Reduced motion reports zero CSS animations and exposes all benefit text with its accessible heading labels. The mobile menu and section navigation remain reachable. All three navigation tests pass; type checking still reports the same six unrelated errors.
+
+## Continuous interactive journey
+
+Replaced timed entrances with timelines controlled by each section's full scroll range. Photos and headings move through entry, center, and exit states; scrolling back reverses them. The role cards fan with scroll, and the gallery rotates as its section passes through the viewport.
+
+A single fixed wolf now interpolates between seven measured scene checkpoints. It scales from the opening into the benefit scenes, then visits roles, community, and the final invitation. Scroll speed adds a temporary lean; the wolf's eyes follow the pointer, and its accessible high-five button triggers a bounce. The movement uses passive scroll listeners and animation frames that stop when the lean settles. Resize observers and font readiness update its route. Off-screen wolves leave the tab order and pause decorative motion.
+
+Photo frames and role panels react to pointer position independently of their scroll transforms. Browser verification caught GSAP's inline normalization of individual transform properties; scoped pointer styles now take precedence while keeping the scroll transform intact.
+
+Chrome verification:
+
+- High-five click sets the excited state and starts its animation.
+- At scroll 0 the wolf measured about 805px wide; at scroll 612 it measured about 464px. Returning to scroll 0 restored its opening size and position. The role checkpoint places it above the application links, with no overlap.
+- Pointer movement on a role card produced an X rotation of 4.2 degrees and a translation of approximately -3.6px/-2.1px.
+- At 390px and 320px there is no horizontal document overflow. The wolf's width is constrained to the viewport.
+- Reduced motion removes the traveling wolf, restores the original scene mascots, and disables decorative animations. Static content and actions remain visible.
+- No browser console errors were observed.
+
+`node scripts/journey-geometry.test.mjs`: 3 passing tests for checkpoint alignment, reverse scrolling, and mobile bounds/missing checkpoints. Existing navigation tests: 3 passing. Type checking reports the same six unrelated errors and no errors in the new journey components.
