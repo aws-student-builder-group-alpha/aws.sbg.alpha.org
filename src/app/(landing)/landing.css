@@ -248,3 +248,8 @@
 @media(min-width:1000px){.alpha-roles{padding-inline:max(8vw,128px)}}
 .alpha-closing .alpha-scene-heading{width:fit-content;max-width:100%;margin-inline:auto}
 @media(max-width:650px){.alpha-landing .alpha-opening-bottom{bottom:98px}}
+
+/* Keep the traveling wolf visible and give it only a gentle idle movement. */
+.alpha-journey-wolf .alpha-wolf-sculpture{animation:alpha-journey-idle 6s ease-in-out infinite}
+.alpha-journey-wolf[data-stop="0"] .alpha-wolf-sculpture{animation:none}
+@keyframes alpha-journey-idle{50%{transform:translateY(-3px) rotate(1deg)}}

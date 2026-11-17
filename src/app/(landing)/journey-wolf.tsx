@@ -51,7 +51,22 @@ export default function JourneyWolf() {
         const regions = Array.from(page.querySelectorAll<HTMLElement>(readingSelector), element => element.getBoundingClientRect())
         const header = page.querySelector("nav")?.getBoundingClientRect().bottom ?? 96
         desired = resizeWolfPose(desired, Math.min(desired.width, 400, document.documentElement.clientWidth * .6))
-        const target = safeWolfPose(desired, regions, document.documentElement.clientWidth, window.innerHeight, header, previousPose ?? undefined)
+        let heroDocked = false
+        const opening = hosts[0].closest<HTMLElement>(".alpha-opening")
+        const orbit = opening?.querySelector(".alpha-opening-orbit-one")
+        if (opening && orbit) {
+          const transition = Math.max(0, Math.min(1, (scroll / opening.offsetHeight - .2) / .45))
+          const blend = transition * transition * (3 - 2 * transition)
+          if (blend < 1) {
+            heroDocked = true
+            const rect = orbit.getBoundingClientRect()
+            const width = hosts[0].offsetWidth
+            // Center the wolf's face, excluding the SVG's shadow and empty space.
+            const centered = { x: rect.left + rect.width / 2 - width * 176 / 360, y: rect.top + rect.height / 2 - width * 148 / 360 }
+            desired = { ...desired, x: centered.x + (desired.x - centered.x) * blend, y: centered.y + (desired.y - centered.y) * blend, width: width + (desired.width - width) * blend, rotation: desired.rotation * blend }
+          }
+        }
+        const target = heroDocked ? desired : safeWolfPose(desired, regions, document.documentElement.clientWidth, window.innerHeight, header, previousPose ?? undefined)
         let moving = false
         // Initial placement happens once. A temporarily blocked route never resets it.
         if (!previousPose && target) previousPose = target
@@ -59,25 +74,37 @@ export default function JourneyWolf() {
           const previous = previousPose
           let pose = previous
           if (target) {
-            const footprint = Math.max(previous.width, Math.min(target.width, previous.width + 100 * elapsed))
-            // The header can cover an offscreen wolf as it naturally re-enters the page.
-            const routeRegions = regions.filter(rect => rect.bottom > header && rect.top < window.innerHeight - 100)
-            if (wolfSegmentClear(previous, target, footprint, routeRegions)) {
-              path = [{ x: target.x, y: target.y }]
-              routeTarget = { x: target.x, y: target.y }
-            } else if (!path.length || !routeTarget || Math.hypot(target.x - routeTarget.x, target.y - routeTarget.y) > 40 || !wolfSegmentClear(previous, path[0], footprint, routeRegions)) {
-              path = wolfRoute(previous, target, footprint, routeRegions, document.documentElement.clientWidth, window.innerHeight, header) ?? []
-              routeTarget = { x: target.x, y: target.y }
-            }
-            while (path.length && Math.hypot(path[0].x - previous.x, path[0].y - previous.y) < 1) path.shift()
-            const next = path[0] ?? previous
-            pose = stepWolfPose(previous, { ...target, x: next.x, y: next.y }, elapsed)
-            // Resizing must fit too; a path can open up while the wolf gently shrinks.
-            if (pose.width > previous.width && wolfCoversText(pose, regions)) pose.width = previous.width
-            if (wolfCoversText(pose, regions) && !wolfCoversText(previous, regions)) {
-              pose.x = previous.x
-              pose.y = previous.y
+            if (heroDocked) {
+              // Grow/shrink around the face center, rather than sliding its top-left corner.
+              const centered = stepWolfPose(
+                { ...previous, x: previous.x + previous.width * 176 / 360, y: previous.y + previous.width * 148 / 360 },
+                { ...target, x: target.x + target.width * 176 / 360, y: target.y + target.width * 148 / 360 },
+                elapsed,
+              )
+              pose = { ...centered, x: centered.x - centered.width * 176 / 360, y: centered.y - centered.width * 148 / 360 }
               path = []
+              routeTarget = null
+            } else {
+              const footprint = Math.max(previous.width, Math.min(target.width, previous.width + 100 * elapsed))
+              // The header can cover an offscreen wolf as it naturally re-enters the page.
+              const routeRegions = regions.filter(rect => rect.bottom > header && rect.top < window.innerHeight - 100)
+              if (wolfSegmentClear(previous, target, footprint, routeRegions)) {
+                path = [{ x: target.x, y: target.y }]
+                routeTarget = { x: target.x, y: target.y }
+              } else if (!path.length || !routeTarget || Math.hypot(target.x - routeTarget.x, target.y - routeTarget.y) > 40 || !wolfSegmentClear(previous, path[0], footprint, routeRegions)) {
+                path = wolfRoute(previous, target, footprint, routeRegions, document.documentElement.clientWidth, window.innerHeight, header) ?? []
+                routeTarget = { x: target.x, y: target.y }
+              }
+              while (path.length && Math.hypot(path[0].x - previous.x, path[0].y - previous.y) < 1) path.shift()
+              const next = path[0] ?? previous
+              pose = stepWolfPose(previous, { ...target, x: next.x, y: next.y }, elapsed)
+              // Resizing must fit too; a path can open up while the wolf gently shrinks.
+              if (pose.width > previous.width && wolfCoversText(pose, regions)) pose.width = previous.width
+              if (wolfCoversText(pose, regions) && !wolfCoversText(previous, regions)) {
+                pose.x = previous.x
+                pose.y = previous.y
+                path = []
+              }
             }
             const remaining = Math.max(Math.abs(pose.x - target.x), Math.abs(pose.y - target.y), Math.abs(pose.width - target.width), Math.abs(pose.rotation - target.rotation))
             const progress = Math.max(Math.abs(pose.x - previous.x), Math.abs(pose.y - previous.y), Math.abs(pose.width - previous.width), Math.abs(pose.rotation - previous.rotation))
@@ -85,7 +112,7 @@ export default function JourneyWolf() {
           }
           previousPose = pose
           const reading = wolfCoversText(pose, regions)
-          const visible = !reading && pose.x + pose.width > 0 && pose.x < document.documentElement.clientWidth && pose.y + pose.width * 8 / 9 > header && pose.y < window.innerHeight - 100
+          const visible = pose.x + pose.width > 0 && pose.x < document.documentElement.clientWidth && pose.y + pose.width * 8 / 9 > header && pose.y < window.innerHeight - 100
           button.dataset.reading = String(reading)
           button.dataset.visible = String(visible)
           button.setAttribute("aria-hidden", String(!visible))

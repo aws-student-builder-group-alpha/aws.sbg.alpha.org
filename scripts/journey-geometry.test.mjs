@@ -78,7 +78,7 @@ test('the wolf keeps moving with scroll rather than locking to a section anchor'
   assert.notEqual(poses[0].x, poses[1].x)
   assert.notEqual(poses[1].x, poses[2].x)
 })
-test('a narrow viewport with no free space hides the wolf instead of covering content', () => {
+test('a crowded viewport reports no destination instead of inventing an overlapping one', () => {
   const { safeWolfPose } = compiled.exports
   assert.equal(safeWolfPose({ x: 50, y: 300, width: 120, rotation: 0, index: 1 }, [{ left: 0, right: 320, top: 96, bottom: 780 }], 320, 780), null)
 })
