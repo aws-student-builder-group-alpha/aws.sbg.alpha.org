@@ -1,0 +1,25 @@
+.alpha-cloud-lab{position:relative;padding:28px;border:1px solid #c7adff40;border-radius:24px;background:radial-gradient(ellipse at 100% 0,#7651a52b,transparent 60%),#19171f;color:#fff8ed;box-shadow:0 24px 70px #05020c40,inset 0 1px 0 #ffffff14}
+.alpha-cloud-lab-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
+.alpha-cloud-lab-header>span{font:10px var(--font-geist-mono),monospace;letter-spacing:.12em;color:#c8bdD6}
+.alpha-cloud-lab-header>img{width:40px;height:auto}
+.alpha-cloud-services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.alpha-cloud-service{position:relative;display:flex;align-items:center;gap:12px;padding:18px 14px;border:1px solid #ffffff1a;border-radius:12px;background:#ffffff04;text-align:left;cursor:pointer;transition:background .2s,border-color .2s,translate .2s;min-width:0}
+.alpha-cloud-service img{width:42px;height:42px;flex-shrink:0}
+.alpha-cloud-service>span{min-width:0}
+.alpha-cloud-service small{display:block;margin-bottom:5px;color:#b9aec6;font-size:10px}
+.alpha-cloud-service strong{display:block;font-size:clamp(11px,1vw,15px);font-weight:650;line-height:1.3}
+.alpha-cloud-service[aria-pressed="true"]{background:#c7adff12;border-color:#c7adff88}
+.alpha-cloud-service:hover{background:#ffffff0c;border-color:#c7adff77;translate:0 -2px}
+.alpha-cloud-selected{position:absolute;right:8px;top:8px;color:#c7adff}
+.alpha-cloud-detail{min-height:200px;padding:26px 0 0;margin-top:24px;border-top:1px solid #ffffff1a}
+.alpha-cloud-detail-label{font:10px var(--font-geist-mono),monospace}
+.alpha-cloud-detail h3{margin:14px 0 10px;font-size:clamp(22px,2vw,30px);line-height:1.15;letter-spacing:-.035em;font-weight:650}
+.alpha-benefit .alpha-cloud-detail p{margin:0;color:#c5bbd0;font-size:14px;line-height:1.6;max-width:390px}
+.alpha-cloud-detail>a{display:inline-flex;align-items:center;gap:10px;margin-top:18px;min-height:28px;font-size:12px;font-weight:600;color:#fff8ed;text-decoration:underline;text-underline-offset:4px}
+.alpha-cloud-icon-credit{display:inline-block;margin-top:18px;font-size:9px;color:#a99bb8;text-underline-offset:3px}
+.alpha-cloud-icon-credit:hover{text-decoration:underline}
+.alpha-benefit-learn .alpha-benefit-art{height:auto;min-height:0}
+@media(max-width:1100px){.alpha-cloud-lab{padding:22px}.alpha-cloud-service{padding:16px 10px;gap:9px}.alpha-cloud-service img{width:34px;height:34px}}
+@media(max-width:799px){.alpha-cloud-lab{padding:22px 18px}.alpha-cloud-service strong{font-size:12px}.alpha-cloud-detail{min-height:200px}.alpha-cloud-detail h3{font-size:24px}}
+@media(max-width:350px){.alpha-cloud-lab{padding:20px 14px}.alpha-cloud-services{gap:8px}.alpha-cloud-service{flex-direction:column;align-items:start;gap:12px;padding:16px 12px}.alpha-cloud-service strong{font-size:11px}.alpha-cloud-lab-header>span{font-size:8px;letter-spacing:.08em}}
+@media(prefers-reduced-motion:reduce){.alpha-cloud-service{transition:none}.alpha-cloud-service:hover{translate:none}}

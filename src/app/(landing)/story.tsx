@@ -8,6 +8,7 @@ import PixelWolf from "./hero/pixel-wolf"
 import PhotoCarousel from "./hero/photo-carousel"
 import { getTopUpcomingEvents, formatEventDate } from "@/data/events"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
+import CloudLab from "./cloud-lab"
 
 export function MotionRibbon() {
   return <div className="alpha-motion-ribbon" aria-hidden="true"><svg viewBox="0 0 1600 220" fill="none"><defs><path id="alpha-ribbon-curve" d="M-600 110C-200 10 100 210 500 110S1200 10 1600 110S2300 210 2700 110" /></defs><use href="#alpha-ribbon-curve" stroke="#ffb13e" strokeWidth="116" /><text fill="#211c28"><textPath href="#alpha-ribbon-curve" startOffset="-8%">LEARN + BUILD + BELONG + LEARN + BUILD + BELONG + LEARN + BUILD + BELONG + </textPath></text></svg></div>
@@ -24,10 +25,9 @@ export function Benefits() {
     {scenes.map((scene, index) => <Fragment key={scene.style}>{index > 0 && <SceneTransition from={index === 1 ? "#111015" : "#fff0cc"} to={index === 1 ? "#fff0cc" : "#c7adff"} />}<article className={`alpha-benefit alpha-benefit-${scene.style}`} data-theme={index === 0 ? "dark" : "light"}>
       <div className="alpha-benefit-copy"><h2 aria-label={`${scene.first} ${scene.last}`}><KineticType text={scene.first} /><em><KineticType text={scene.last} /></em></h2><p>{scene.copy}</p></div>
       <div className="alpha-benefit-art">
-        <figure className="alpha-photo-frame"><Image src={`/optimized/gallery/full/${scene.image}.webp`} alt={scene.alt} fill sizes="(min-width: 800px) 42vw, 80vw" /></figure>
+        {scene.style === "learn" ? <CloudLab /> : <figure className="alpha-photo-frame"><Image src={`/optimized/gallery/full/${scene.image}.webp`} alt={scene.alt} fill sizes="(min-width: 800px) 42vw, 80vw" /></figure>}
         <div className={`alpha-wolf-sticker alpha-wolf-${scene.style}`} data-wolf-stop={scene.style}><PixelWolf pose={scene.pose} /></div>
-        <figure className="alpha-scene-snapshot" aria-hidden="true"><Image src={`/optimized/gallery/full/${scene.extra}.webp`} alt="" fill sizes="(min-width: 800px) 18vw, 28vw" /></figure>
-        <span className="alpha-scene-stamp" aria-hidden="true">0{index + 1} / ALPHA</span>
+        {scene.style !== "learn" && <><figure className="alpha-scene-snapshot" aria-hidden="true"><Image src={`/optimized/gallery/full/${scene.extra}.webp`} alt="" fill sizes="(min-width: 800px) 18vw, 28vw" /></figure><span className="alpha-scene-stamp" aria-hidden="true">0{index + 1} / ALPHA</span></>}
       </div>
     </article></Fragment>)}
   </section>

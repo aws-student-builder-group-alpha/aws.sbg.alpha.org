@@ -51,8 +51,8 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
           const timeline = gsap.timeline({ scrollTrigger: { trigger: scene, start: "top bottom", end: "bottom top", scrub: true } })
           timeline.fromTo(art, { y: travel, rotation: index % 2 ? 3 : -3, scale: .96 }, { y: 0, rotation: 0, scale: 1, duration: .5, ease: "none" }, 0)
             .to(art, { y: -travel, rotation: index % 2 ? -3 : 3, scale: .98, duration: .5, ease: "none" }, .5)
-            .fromTo(photo, { rotation: 3 }, { rotation: -3, duration: 1, ease: "none" }, 0)
-            .fromTo(snapshot, { y: travel * .6, x: index % 2 ? -8 : 8, rotation: -5 }, { y: -travel * .6, x: index % 2 ? 8 : -8, rotation: 5, duration: 1, ease: "none" }, 0)
+          if (photo) timeline.fromTo(photo, { rotation: 3 }, { rotation: -3, duration: 1, ease: "none" }, 0)
+          if (snapshot) timeline.fromTo(snapshot, { y: travel * .6, x: index % 2 ? -8 : 8, rotation: -5 }, { y: -travel * .6, x: index % 2 ? 8 : -8, rotation: 5, duration: 1, ease: "none" }, 0)
           if (!small) timeline.fromTo(words, { xPercent: word => word ? 3 : -3 }, { xPercent: word => word ? -3 : 3, duration: 1, ease: "none" }, 0)
         })
         gsap.utils.toArray<HTMLElement>(".alpha-role-panel").forEach((panel, index) => {
