@@ -25,8 +25,8 @@ export default function OpeningSequence() {
       opacity: .15, stagger: .025, ease: "none",
     }, 0)
      .to(".alpha-opening-scene", { yPercent: 36, xPercent: 14, rotation: 38, scale: .72, ease: "none" }, 0)
-     .to(".alpha-opening-memory-one", { xPercent: -65, rotation: -24, ease: "none" }, 0)
-     .to(".alpha-opening-memory-two", { xPercent: 65, rotation: 22, ease: "none" }, 0)
+     .to(".alpha-opening-memory-one", { xPercent: -25, rotation: -24, ease: "none" }, 0)
+     .to(".alpha-opening-memory-two", { xPercent: 25, rotation: 22, ease: "none" }, 0)
      .to(".alpha-opening-floor", { scale: 1.2, opacity: 0, ease: "none" }, 0)
 
    }, root)

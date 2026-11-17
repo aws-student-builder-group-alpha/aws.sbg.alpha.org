@@ -30,3 +30,8 @@
 .alpha-landing .alpha-navigation-actions{gap:16px}
 .alpha-landing .alpha-navigation-actions>a{min-height:36px}
 @media(max-width:560px){.alpha-landing .alpha-navigation-row{height:56px}.alpha-landing nav[data-in-hero="false"] a[aria-label="Alpha home"]>div:last-child{max-width:190px}}
+.alpha-landing .alpha-recruiting-banner{background:linear-gradient(100deg,#ffb13e,#ffd58a 50%,#ffb13e)}
+.alpha-landing .alpha-recruiting-banner:hover{background:linear-gradient(100deg,#ffc367,#ffe0a6 50%,#ffc367)}
+.alpha-landing .alpha-navigation-actions>a.inline-flex{background-image:linear-gradient(135deg,#ffd88c,#ff9900);box-shadow:inset 0 1px 0 #ffffff80,0 4px 16px #ff990018}
+.alpha-landing .alpha-recruiting-banner{background-color:#ffb13e}
+.alpha-landing .alpha-recruiting-banner:hover{background-color:#ffc367}

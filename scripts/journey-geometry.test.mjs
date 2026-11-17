@@ -51,3 +51,12 @@ test('overscroll cannot enlarge the mascot or shift it beyond the top pose', () 
   assert.deepEqual(wolfPose(-250, oversized, 1720, 1000), top)
   assert.ok(wolfPose(0, oversized, 1720, 600).width <= 330)
 })
+
+test('the mascot yields to headings and controls, including its rotated corners', () => {
+  const { wolfCoversText } = compiled.exports
+  const pose = { x: 100, y: 100, width: 100, rotation: 0, index: 0 }
+  assert.equal(wolfCoversText(pose, [{ left: 150, right: 250, top: 100, bottom: 150 }]), true)
+  assert.equal(wolfCoversText(pose, [{ left: 230, right: 300, top: 100, bottom: 150 }]), false)
+  assert.equal(wolfCoversText(pose, [{ left: 230, right: 300, top: 100, bottom: 150 }], 40), true)
+  assert.equal(wolfCoversText(pose, [{ left: 150, right: 150, top: 100, bottom: 150 }]), false)
+})

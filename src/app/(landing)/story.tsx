@@ -1,3 +1,5 @@
+import { Fragment } from "react"
+import SceneTransition from "./scene-transition"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
@@ -19,7 +21,7 @@ export function Benefits() {
   ]
   return <section id="about" aria-label="Why join Alpha?" className="alpha-benefits">
     <span id="alpha-community" className="alpha-anchor" /><span id="vision" className="alpha-anchor" />
-    {scenes.map((scene, index) => <article key={scene.style} className={`alpha-benefit alpha-benefit-${scene.style}`} data-theme={index === 0 ? "dark" : "light"}>
+    {scenes.map((scene, index) => <Fragment key={scene.style}>{index > 0 && <SceneTransition from={index === 1 ? "#111015" : "#fff0cc"} to={index === 1 ? "#fff0cc" : "#c7adff"} />}<article className={`alpha-benefit alpha-benefit-${scene.style}`} data-theme={index === 0 ? "dark" : "light"}>
       <div className="alpha-benefit-copy"><h2 aria-label={`${scene.first} ${scene.last}`}><KineticType text={scene.first} /><em><KineticType text={scene.last} /></em></h2><p>{scene.copy}</p></div>
       <div className="alpha-benefit-art">
         <figure className="alpha-photo-frame"><Image src={`/optimized/gallery/full/${scene.image}.webp`} alt={scene.alt} fill sizes="(min-width: 800px) 42vw, 80vw" /></figure>
@@ -27,7 +29,7 @@ export function Benefits() {
         <figure className="alpha-scene-snapshot" aria-hidden="true"><Image src={`/optimized/gallery/full/${scene.extra}.webp`} alt="" fill sizes="(min-width: 800px) 18vw, 28vw" /></figure>
         <span className="alpha-scene-stamp" aria-hidden="true">0{index + 1} / ALPHA</span>
       </div>
-    </article>)}
+    </article></Fragment>)}
   </section>
 }
 
@@ -40,7 +42,7 @@ export function RecruitmentActions() {
 export function CommunityProof() {
   const upcoming = getTopUpcomingEvents(2)
   return <section id="events" className="alpha-proof alpha-scene" data-theme="dark" aria-labelledby="community-heading">
-    <div className="alpha-proof-top"><div><h2 id="community-heading" className="alpha-scene-heading" aria-label="This could be your Day One."><KineticType text="This could be" /><br />your <em><KineticType text="Day One." /></em></h2></div><span className="alpha-proof-wolf" data-wolf-stop="community"><PixelWolf /></span></div>
+    <div className="alpha-proof-top"><div><h2 id="community-heading" className="alpha-scene-heading" aria-label="This could be your Day One."><KineticType text="This could" />{" "}<KineticType text="be" /><br />your <em><KineticType text="Day One." /></em></h2></div><span className="alpha-proof-wolf" data-wolf-stop="community"><PixelWolf /></span></div>
     <PhotoCarousel />
     <div className="alpha-proof-bottom"><figure className="alpha-quote"><blockquote>“I love the collaborative learning environment. The workshops are well-structured and the mentors are very approachable.”</blockquote><figcaption>David Aldreen Marquez <span>Information Technology, Rizal Technological University</span></figcaption></figure><Link className="alpha-text-link" href="/events">View all events <ArrowUpRight size={20} aria-hidden="true" /></Link></div>
     {upcoming.length > 0 && <div className="alpha-upcoming" aria-label="Upcoming events">{upcoming.map(event => <article key={event.id}><time dateTime={event.date}>{formatEventDate(event.date)}</time><h3>{event.title}</h3><a className="alpha-text-link" href={event.registrationLink || event.sourceUrl || "/events"}>View event <ArrowUpRight size={18} aria-hidden="true" /></a></article>)}</div>}
@@ -48,5 +50,5 @@ export function CommunityProof() {
 }
 
 export function ClosingInvitation() {
-  return <section id="contact" className="alpha-closing alpha-scene" data-theme="dark" aria-labelledby="closing-heading"><div className="alpha-closing-pack" aria-hidden="true"><span className="alpha-closing-wolf" data-wolf-stop="closing"><PixelWolf pose="wave" /></span><PixelWolf className="alpha-closing-friend" pose="wink" /></div><h2 id="closing-heading" className="alpha-scene-heading" aria-label="Your next chapter starts here."><KineticType text="Your next chapter" /><br /><em><KineticType text="starts here." /></em></h2><RecruitmentActions /><a className="alpha-text-link" href="https://www.facebook.com/AWSStudentBuilderGroupAlpha">Say hello <ArrowUpRight size={18} aria-hidden="true" /></a></section>
+  return <section id="contact" className="alpha-closing alpha-scene" data-theme="dark" aria-labelledby="closing-heading"><div className="alpha-closing-pack" aria-hidden="true"><span className="alpha-closing-wolf" data-wolf-stop="closing"><PixelWolf pose="wave" /></span><PixelWolf className="alpha-closing-friend" pose="wink" /></div><h2 id="closing-heading" className="alpha-scene-heading" aria-label="Your next chapter starts here."><KineticType text="Your next" />{" "}<KineticType text="chapter" /><br /><em><KineticType text="starts here." /></em></h2><RecruitmentActions /><a className="alpha-text-link" href="https://www.facebook.com/AWSStudentBuilderGroupAlpha">Say hello <ArrowUpRight size={18} aria-hidden="true" /></a></section>
 }

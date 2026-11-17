@@ -26,3 +26,18 @@ export function wolfPose(scroll: number, stops: WolfStop[], viewportWidth: numbe
     index: progress < .5 ? index : Math.min(index + 1, stops.length - 1),
   }
 }
+
+export interface ReadingArea { left: number; top: number; right: number; bottom: number }
+
+/** Include a margin so the mascot fades before its rotated bounds reach text. */
+export function wolfCoversText(pose: NonNullable<ReturnType<typeof wolfPose>>, regions: ReadingArea[], lean = 0) {
+  const radians = (pose.rotation + lean) * Math.PI / 180
+  const height = pose.width * 8 / 9
+  const halfWidth = (Math.abs(Math.cos(radians)) * pose.width + Math.abs(Math.sin(radians)) * height) / 2
+  const halfHeight = (Math.abs(Math.sin(radians)) * pose.width + Math.abs(Math.cos(radians)) * height) / 2
+  const centerX = pose.x + pose.width / 2
+  const centerY = pose.y + height / 2
+  return regions.some(rect => rect.right > rect.left && rect.bottom > rect.top &&
+    centerX + halfWidth + 28 > rect.left && centerX - halfWidth - 28 < rect.right &&
+    centerY + halfHeight + 28 > rect.top && centerY - halfHeight - 28 < rect.bottom)
+}

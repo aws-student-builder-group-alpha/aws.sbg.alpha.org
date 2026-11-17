@@ -20,13 +20,19 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
       const small = Boolean(mediaContext.conditions.small)
       const context = gsap.context(() => {
         scenes.forEach(scene => {
-          const letters = scene.querySelectorAll("h2 .alpha-type-letter")
-          if (letters.length) {
-            const type = gsap.timeline({ scrollTrigger: { trigger: scene, start: "top bottom", end: "bottom top", scrub: true } })
-            type.fromTo(letters, { yPercent: 65, rotation: index => index % 2 ? 12 : -12, opacity: .35 }, {
-              yPercent: 0, rotation: 0, opacity: 1, duration: .25, stagger: { amount: .1, from: "center" }, ease: "none",
-            }, 0).to(letters, { yPercent: index => index % 2 ? -25 : -45, rotation: index => index % 2 ? -7 : 7, duration: .2, ease: "none" }, .8)
-          }
+          const heading = scene.querySelector("h2")
+          if (heading) gsap.fromTo(heading, { y: small ? 12 : 24 }, {
+            y: small ? -8 : -16, ease: "none",
+            scrollTrigger: { trigger: scene, start: "top bottom", end: "bottom top", scrub: true },
+          })
+        })
+        gsap.utils.toArray<HTMLElement>(".alpha-scene-transition").forEach(boundary => {
+          gsap.fromTo(boundary.querySelector(".alpha-transition-fill"), {
+            clipPath: "ellipse(55% 0% at 50% 100%)",
+          }, {
+            clipPath: "ellipse(110% 180% at 50% 100%)", ease: "none",
+            scrollTrigger: { trigger: boundary, start: "top bottom", end: "bottom 65%", scrub: true },
+          })
         })
         gsap.to("#alpha-ribbon-curve", {
           attr: { d: "M-600 110C-200 210 100 10 500 110S1200 210 1600 110S2300 10 2700 110" }, ease: "none",
@@ -41,22 +47,22 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
           const snapshot = scene.querySelector(".alpha-scene-snapshot")
           const photo = scene.querySelector(".alpha-photo-frame")
           const words = scene.querySelectorAll("h2 > .alpha-type-word, h2 > em")
-          const travel = small ? 35 : 120
+          const travel = small ? 8 : 32
           const timeline = gsap.timeline({ scrollTrigger: { trigger: scene, start: "top bottom", end: "bottom top", scrub: true } })
-          timeline.fromTo(art, { y: travel, rotation: index % 2 ? 9 : -9, scale: .86 }, { y: 0, rotation: 0, scale: 1, duration: .5, ease: "none" }, 0)
-            .to(art, { y: -travel, rotation: index % 2 ? -7 : 7, scale: .93, duration: .5, ease: "none" }, .5)
-            .fromTo(photo, { rotation: 9 }, { rotation: -7, duration: 1, ease: "none" }, 0)
-            .fromTo(snapshot, { y: travel * .6, x: index % 2 ? -35 : 35, rotation: -14 }, { y: -travel * .6, x: index % 2 ? 35 : -35, rotation: 16, duration: 1, ease: "none" }, 0)
-          if (!small) timeline.fromTo(words, { xPercent: word => word ? 8 : -8 }, { xPercent: word => word ? -8 : 8, duration: 1, ease: "none" }, 0)
+          timeline.fromTo(art, { y: travel, rotation: index % 2 ? 3 : -3, scale: .96 }, { y: 0, rotation: 0, scale: 1, duration: .5, ease: "none" }, 0)
+            .to(art, { y: -travel, rotation: index % 2 ? -3 : 3, scale: .98, duration: .5, ease: "none" }, .5)
+            .fromTo(photo, { rotation: 3 }, { rotation: -3, duration: 1, ease: "none" }, 0)
+            .fromTo(snapshot, { y: travel * .6, x: index % 2 ? -8 : 8, rotation: -5 }, { y: -travel * .6, x: index % 2 ? 8 : -8, rotation: 5, duration: 1, ease: "none" }, 0)
+          if (!small) timeline.fromTo(words, { xPercent: word => word ? 3 : -3 }, { xPercent: word => word ? -3 : 3, duration: 1, ease: "none" }, 0)
         })
         gsap.utils.toArray<HTMLElement>(".alpha-role-panel").forEach((panel, index) => {
           const fan = gsap.timeline({ scrollTrigger: { trigger: ".alpha-role-panels", start: "top 95%", end: "bottom top", scrub: true } })
-          fan.fromTo(panel, { xPercent: index ? -8 : 8, y: 70, rotation: index ? 12 : -12 }, { xPercent: 0, y: 0, rotation: 0, duration: .35, ease: "none" }, 0)
-            .to(panel, { y: -30, rotation: index ? -3 : 3, duration: .2, ease: "none" }, .8)
+          fan.fromTo(panel, { xPercent: index ? -4 : 4, y: 32, rotation: index ? 5 : -5 }, { xPercent: 0, y: 0, rotation: 0, duration: .35, ease: "none" }, 0)
+            .to(panel, { y: -16, rotation: index ? -2 : 2, duration: .2, ease: "none" }, .8)
         })
         const gallery = gsap.timeline({ scrollTrigger: { trigger: ".alpha-proof", start: "top bottom", end: "bottom top", scrub: true } })
-        gallery.fromTo(".alpha-proof .alpha-hero-visual", { rotation: -7, scale: .88, y: 80 }, { rotation: 0, scale: 1, y: 0, duration: .4, ease: "none" }, 0)
-          .to(".alpha-proof .alpha-hero-visual", { rotation: 5, scale: .95, y: -70, duration: .3, ease: "none" }, .7)
+        gallery.fromTo(".alpha-proof .alpha-hero-visual", { rotation: -3, scale: .94, y: 30 }, { rotation: 0, scale: 1, y: 0, duration: .4, ease: "none" }, 0)
+          .to(".alpha-proof .alpha-hero-visual", { rotation: 3, scale: .98, y: -24, duration: .3, ease: "none" }, .7)
         gsap.fromTo(".alpha-closing-pack .alpha-pixel-wolf", { x: index => index ? 100 : -100, rotation: index => index ? 35 : -35 }, {
           x: 0, rotation: 0, ease: "none",
           scrollTrigger: { trigger: ".alpha-closing", start: "top bottom", end: "center center", scrub: true },

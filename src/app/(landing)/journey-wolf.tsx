@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import PixelWolf from "./hero/pixel-wolf"
-import { wolfPose } from "./journey-geometry"
+import { wolfPose, wolfCoversText } from "./journey-geometry"
 
 export default function JourneyWolf() {
   const wolf = useRef<HTMLButtonElement>(null)
@@ -18,6 +18,7 @@ export default function JourneyWolf() {
       if (!motion.matches) return
       const hosts = Array.from(page.querySelectorAll<HTMLElement>("[data-wolf-stop]"))
       if (hosts.length < 2) return
+      const readingSelector = ".alpha-opening-title, .alpha-opening-meta, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-benefit-copy, .alpha-scene-heading, .alpha-quote, .alpha-role-panel h3, .alpha-role-panel p, .alpha-button, .alpha-team h2, .alpha-team-grid"
       let frame = 0
       let active = true
       let previousScroll = window.scrollY
@@ -38,12 +39,14 @@ export default function JourneyWolf() {
         const velocity = Math.max(-18, Math.min(18, (scroll - previousScroll) * .6))
         bank += (velocity - bank) * .2
         previousScroll = scroll
+        const reading = wolfCoversText(pose, Array.from(page.querySelectorAll<HTMLElement>(readingSelector), element => element.getBoundingClientRect()), bank)
+        button.dataset.reading = String(reading)
         button.style.width = `${pose.width}px`
         button.style.transform = `translate3d(${pose.x}px,${pose.y}px,0) rotate(${pose.rotation + bank}deg)`
         button.dataset.stop = String(pose.index)
         const visible = pose.y + pose.width * 8 / 9 > 0 && pose.y < window.innerHeight
         button.dataset.visible = String(visible)
-        button.tabIndex = visible ? 0 : -1
+        button.tabIndex = visible && !reading ? 0 : -1
         page.dataset.journeyActive = "true"
         if (Math.abs(bank) > .1) frame = requestAnimationFrame(draw)
       }
