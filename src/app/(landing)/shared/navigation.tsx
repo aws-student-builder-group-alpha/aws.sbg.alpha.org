@@ -305,7 +305,7 @@ export default function Navigation({
 							</div>
 							</Link>
 							<strong className={`alpha-navigation-name ${textColor}`}>
-								<span className="alpha-navigation-organization">AWS Student Builder Group</span>
+								<span className="alpha-navigation-organization"><span className="alpha-navigation-aws"><Image src="/aws-logo-white.png" width={118} height={70} alt="AWS" priority /></span> Student Builder Group</span>
 								<span className="sr-only"> - </span>
 								<span className="alpha-navigation-chapter">Alpha</span>
 							</strong>

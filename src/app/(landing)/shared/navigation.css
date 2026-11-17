@@ -17,11 +17,14 @@
 .alpha-navigation-gutter{padding-inline:6vw}
 .alpha-navigation-links{position:static;transform:none;margin-left:18px;gap:12px}
 .alpha-navigation-links .link-underline{font-size:12px}
-.alpha-navigation-name{position:absolute;left:50%;top:50%;translate:-50% -50%;display:flex;flex-direction:column;align-items:center;gap:4px;max-width:calc(100% - 120px);line-height:1;font-weight:800;white-space:nowrap;pointer-events:none}
-.alpha-navigation-organization{font-size:10px;letter-spacing:.15em;text-transform:uppercase;opacity:.85}
-.alpha-navigation-chapter{display:flex;align-items:center;gap:12px;padding-left:.28em;font-size:21px;font-weight:900;letter-spacing:.28em;text-transform:uppercase;color:#a65b00}
-.alpha-navigation-chapter::before,.alpha-navigation-chapter::after{content:"";width:18px;height:2px;background:currentColor;opacity:.65}
-@media(max-width:650px){.alpha-navigation-name{gap:4px}.alpha-navigation-organization{font-size:8px;letter-spacing:.08em}.alpha-navigation-chapter{font-size:17px;gap:8px;letter-spacing:.24em;padding-left:.24em}.alpha-navigation-chapter::before,.alpha-navigation-chapter::after{width:12px}}
+.alpha-navigation-name{position:absolute;left:50%;top:50%;translate:-50% -50%;display:flex;align-items:center;max-width:calc(100% - 120px);font-size:15px;line-height:1.25;font-weight:550;letter-spacing:-.025em;white-space:nowrap;pointer-events:none}
+.alpha-navigation-organization{display:flex;align-items:center;gap:9px}
+.alpha-navigation-aws{position:relative;display:block;flex-shrink:0;width:35px;aspect-ratio:118/70}
+.alpha-navigation-aws img{display:block;width:100%;height:auto}
+/* Keep the original orange smile while making the white lettering readable on cream. */
+.alpha-navigation-aws::after{content:"";position:absolute;inset:0;background:#232f3e;mask:url('/aws-logo-white.png') center/contain no-repeat;clip-path:inset(0 0 42% 0);opacity:var(--alpha-aws-ink,1)}
+.alpha-navigation-chapter{margin-left:12px;padding-left:12px;border-left:1px solid color-mix(in srgb,currentColor 25%,transparent);font-weight:750;letter-spacing:-.02em}
+@media(max-width:650px){.alpha-navigation-name{font-size:10px;letter-spacing:-.025em}.alpha-navigation-organization{gap:6px}.alpha-navigation-aws{width:26px}.alpha-navigation-chapter{margin-left:7px;padding-left:7px;font-size:10px}}
 @media(max-width:650px){.alpha-navigation-gutter{padding-inline:7vw}}
 
 
@@ -42,5 +45,5 @@
 .alpha-landing .alpha-navigation-actions>a.inline-flex{background-image:linear-gradient(135deg,#ffd88c,#ff9900);box-shadow:inset 0 1px 0 #ffffff80,0 4px 16px #ff990018}
 
 .alpha-landing .alpha-navigation-name{color:var(--alpha-nav-ink)}
-.alpha-landing .alpha-navigation-chapter{color:color-mix(in srgb,#ffb13e calc((1 - var(--alpha-nav-progress))*100%),#a65b00)}
+.alpha-landing .alpha-navigation-aws{--alpha-aws-ink:var(--alpha-nav-progress)}
 .alpha-landing .alpha-navigation-links{gap:12px}
