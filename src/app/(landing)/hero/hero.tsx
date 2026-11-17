@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowDown, ArrowRight, Pause, Play } from "lucide-react"
 import MeshGradient from "./mesh-gradient"
+import AwsBuildMark from "./aws-build-mark"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
 import "./hero.css"
 
@@ -57,7 +58,9 @@ export default function Hero() {
   <div className="alpha-hero-gradient" aria-hidden="true"><MeshGradient /></div>
   <div className="alpha-hero-content">
    <div className="alpha-hero-copy">
-    <h1 id="alpha-hero-heading" aria-label="AWS Student Builder Group Alpha"><Image className="alpha-hero-aws-logo" src="/aws-logo-white.png" width={118} height={70} alt="" priority /><span className="alpha-hero-heading-line">Student Builder</span><span className="alpha-hero-heading-line">Group <span className="alpha-hero-name">Alpha</span></span></h1>
+    <AwsBuildMark />
+    <p className="alpha-hero-code-label" aria-hidden="true"><span>~/aws/alpha</span> · build together<span className="alpha-terminal-cursor">_</span></p>
+    <h1 id="alpha-hero-heading" aria-label="AWS Student Builder Group Alpha"><span className="alpha-hero-heading-line">Student Builder</span><span className="alpha-hero-heading-line">Group <span className="alpha-hero-name"><span className="alpha-code-bracket" aria-hidden="true">&lt;</span>Alpha<span className="alpha-code-bracket" aria-hidden="true"> /&gt;</span></span></span></h1>
     <p className="alpha-hero-description">Have a community that supports your career, learn with peers, and accelerate your cloud career with us.</p>
     <div className="alpha-hero-actions">
      <a className="alpha-hero-primary" href={RECRUITMENT_URL + "/opportunities"}>Be a Member Here! <ArrowRight size={20} aria-hidden="true" /></a>
