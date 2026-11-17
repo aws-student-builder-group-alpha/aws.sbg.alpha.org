@@ -24,7 +24,7 @@ export async function approveMemberAction(
 	await requireSuperAdminUserId()
 	const supabaseAdmin = getSupabaseAdminClient()
 
-	const updateData: Record<string, boolean> = {
+	const updateData: { is_approved: boolean; has_accepted_oath?: boolean } = {
 		is_approved: parsed.data.approved,
 	}
 

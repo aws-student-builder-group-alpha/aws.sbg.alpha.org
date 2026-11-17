@@ -53,3 +53,5 @@ next-env.d.ts
 
 # build-time generated meetup data (synced from Meetup at build)
 /src/data/meetup-events.generated.json
+
+!.env.example

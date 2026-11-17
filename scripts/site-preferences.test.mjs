@@ -27,10 +27,10 @@ function setup({ saved = {}, systemReduced = false, blocked = false } = {}) {
     removeEventListener(name, fn) { listeners.get(name)?.delete(fn) },
     dispatchEvent(event) { for (const fn of listeners.get(event.type) ?? []) fn(event) },
   }
-  const module = { exports: {} }
-  const context = { module, exports: module.exports, window, document: { documentElement: { dataset } }, localStorage: storage, Event: class { constructor(type) { this.type = type } } }
+  const testModule = { exports: {} }
+  const context = { module: testModule, exports: testModule.exports, window, document: { documentElement: { dataset } }, localStorage: storage, Event: class { constructor(type) { this.type = type } } }
   runInNewContext(code, context)
-  return { api: module.exports, values, window, media, mediaListeners, dataset, context }
+  return { api: testModule.exports, values, window, media, mediaListeners, dataset, context }
 }
 
 test('motion changes immediately without saving optional preferences by default', () => {

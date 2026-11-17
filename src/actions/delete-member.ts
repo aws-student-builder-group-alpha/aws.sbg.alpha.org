@@ -21,21 +21,11 @@ export async function deleteMemberAction(memberId: string) {
 	const supabaseAdmin = getSupabaseAdminClient()
 	const id = parsed.data.memberId
 
-	// Delete related data first
-	await supabaseAdmin
-		.from('module_submissions')
-		.delete()
-		.eq('member_id', id)
-
-	await supabaseAdmin
-		.from('module_progress')
-		.delete()
-		.eq('member_id', id)
-
-	await supabaseAdmin
-		.from('member_enrollments')
-		.delete()
-		.eq('member_id', id)
+	// Remove only Skillbuilder data; recruitment shares the Auth identity.
+	for (const table of ['module_submissions', 'module_progress', 'member_enrollments'] as const) {
+		const { error } = await supabaseAdmin.from(table).delete().eq('user_id', id)
+		if (error) return { ok: false as const, message: error.message }
+	}
 
 	// Delete the profile
 	const { error: profileError } = await supabaseAdmin
@@ -50,16 +40,7 @@ export async function deleteMemberAction(memberId: string) {
 		}
 	}
 
-	// Delete the auth user
-	const { error: authError } =
-		await supabaseAdmin.auth.admin.deleteUser(id)
-
-	if (authError) {
-		return {
-			ok: false as const,
-			message: `Profile deleted but auth cleanup failed: ${authError.message}`,
-		}
-	}
+	// The Auth identity is shared with recruitment and must remain intact.
 
 	return {
 		ok: true as const,

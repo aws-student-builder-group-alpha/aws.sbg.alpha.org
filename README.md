@@ -1,88 +1,30 @@
-# AWS Student Builder Group – Alpha
+# Unified Alpha application
 
-Official website of **AWS Student Builder Group – Alpha**, a student-led AWS community at Rizal Technological University (RTU), Philippines.
+Run `npm ci`, configure `.env.local` using `.env.example`, then run `npm run dev`. Both areas use the main site's Supabase project. Recruitment starts at `/recruitment`; existing main-site URLs remain unchanged.
 
-## Tech Stack
+Run `npm run verify`, `npm run test:recruitment`, and `npm run build`. Recruitment browser fixtures run through `npm run test:browser` after a build and browser installation.
 
-- **Framework:** Next.js, React, TypeScript
-- **Styling:** Tailwind CSS v4, shadcn/ui
-- **Animations:** GSAP, ScrollTrigger
-- **Hosting:** Vercel
-- **Recruitment Backend:** Supabase
+## Fresh recruitment database setup
 
-## Project Structure
+No historical recruitment records are imported. Inspect the main project's live schema, policies and migration ledger first. `npm run db:recruitment:sql` prints transactional setup SQL without connecting. It refuses existing recruitment tables and existing private functions that need grant review. Historical migration files remain unchanged.
 
-- `/` – Main website
-- `apps/recruitment` – Recruitment, authentication, applications, and membership management
+After verifying the target, configure server-side `RECRUITMENT_SETUP_DATABASE_URL`, `RECRUITMENT_SETUP_PROJECT_REF`, and matching `NEXT_PUBLIC_SUPABASE_URL`, then run `node scripts/setup-recruitment-db.mjs --apply`. Apply only to the reviewed main project. Do not run a generic migration push against either existing project.
 
-## Getting Started
+Allow the site's exact `/auth/callback` in Supabase Google OAuth configuration. Nominate the first recruitment administrator explicitly, use the documented owner bootstrap procedure, and enroll MFA. Main-site administrator access does not grant recruitment administration. Leave mail credentials blank until email delivery is configured.
 
-Requires **Node.js 24.22.1**.
+The old recruitment project remains intact. Database installation, staff bootstrap and deployment have not been performed by this source change.
 
-```bash
-npm ci
-npm ci --prefix apps/recruitment
-npm run dev:combined
-```
+## Project and checks
 
-Open `http://127.0.0.1:4300`.
+Alpha is the AWS student community at Rizal Technological University. The website uses Next.js, React, TypeScript, Tailwind CSS and GSAP. Use Node.js 24.22.1 for CI parity.
 
-For the main website only:
+Startup and builds prepare the ignored Meetup JSON feed. If the network is unavailable, the existing feed is retained or an empty fallback is generated; bundled event history remains available.
 
-```bash
-npm run dev
-```
+- Main routes and layouts: `src/app/(main)`.
+- Recruitment routes and layouts: `src/app/(recruitment)/recruitment`.
+- Recruitment domain code, tests, SQL and specifications: `src/recruitment`.
+- [Progress tracker](src/recruitment/docs/progress-tracker.md).
+- [Recruitment architecture](src/recruitment/docs/architecture.md).
+- [Community gallery sources](docs/community-gallery-sources.md).
 
-Open `http://localhost:3000`.
-
-Development startup and both build commands automatically prepare the Git-ignored Meetup event JSON. Each request has a 10-second timeout. If Meetup is unavailable, startup keeps the existing feed or creates an empty feed on first run; bundled event history remains available. Use `npm run fetch-events` to refresh the feed manually.
-
-## Commands
-
-| Command | Description |
-|---|---|
-| `npm run dev` | Start main website |
-| `npm run dev:combined` | Start both applications |
-| `npm run build:combined` | Build both applications |
-| `npm run start:combined` | Preview combined build |
-| `npm run lint` | Run ESLint |
-| `npm run verify` | Run checks |
-| `npm run fetch-events` | Sync Meetup events |
-
-## Features
-
-- Responsive community website
-- Interactive animations and event gallery
-- Meetup event integration
-- Recruitment and membership management
-- Google authentication
-- Optimized media and accessibility
-
-## Configuration
-
-Configure recruitment environment variables in `apps/recruitment/.env.local` using `.env.example`.
-
-For local development, set:
-
-```env
-APP_URL=http://127.0.0.1:4300
-```
-
-## Deployment
-
-The main website deploys through **Vercel** on pushes to `main`. Recruitment requires separate server hosting and verified production routing.
-
-## Documentation
-
-- [Recruitment Setup](apps/recruitment/README.md)
-- [Progress Tracker](apps/recruitment/docs/progress-tracker.md)
-- [Community Gallery Sources](docs/community-gallery-sources.md)
-
-
-## Recruitment deployment
-
-The owner selected standalone recruitment at https://aws-alpha-recruitment.vercel.app. Only the main-site Apply now links point there; main routes, account navigation and backend stay unchanged. Build the recruitment Vercel project from apps/recruitment with Node 24.x. Keep NEXT_PUBLIC_ALPHA_COMBINED_PREVIEW=0 and NEXT_PUBLIC_ALPHA_COMBINED_SITE=0; production uses the standard .next output directory. Set APP_URL=https://aws-alpha-recruitment.vercel.app (origin only), and allow its exact /auth/callback in the existing recruitment Supabase project. Local combined preview remains separate. No paid upgrade or schema replay is required.
-
-Combined development preview uses an HTTP/WebSocket gateway on port 4300, with the main-site compiler on 4302 and recruitment on 4301. Restart `npm run dev:combined` after updating this launcher. Both apps retain separate development sockets; production build/start routing is unchanged.
-
-Recruitment uses Webpack in combined development to avoid a reproduced Turbopack HMR hash-mismatch reload loop. The main site retains its default development compiler. Shared root font requests are translated to recruitment's base path by the gateway.
+Deploy the root package as one server application. Publishing is separate from local validation.

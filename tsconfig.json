@@ -26,21 +26,18 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "allowImportingTsExtensions": true
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "scripts/**/*.ts",
+    "*.ts",
     ".next/types/**/*.ts",
-    "next-env.d.ts",
-    "dist/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "dist/dev/types/**/*.ts",
-    "build/combined/types/**/*.ts",
-    "build/combined/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "apps/recruitment"
+    "node_modules"
   ]
 }

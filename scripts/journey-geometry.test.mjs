@@ -5,7 +5,7 @@ import test from 'node:test'
 const require = createRequire(new URL('../package.json', import.meta.url))
 const { transform, loadBindings } = require('next/dist/build/swc')
 await loadBindings()
-const { code } = await transform(await readFile(new URL('../src/app/(landing)/journey-geometry.ts', import.meta.url), 'utf8'), {
+const { code } = await transform(await readFile(new URL('../src/app/(main)/(landing)/journey-geometry.ts', import.meta.url), 'utf8'), {
   filename: 'journey-geometry.ts', jsc: { parser: { syntax: 'typescript' } }, module: { type: 'commonjs' },
 })
 const compiled = { exports: {} }
