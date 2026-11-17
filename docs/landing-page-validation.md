@@ -68,3 +68,15 @@ Chrome confirmed the same computed background (`rgb(17, 16, 21)`) on all four su
 Enabled the existing Lenis smoother on the desktop homepage with one-second cubic easing and its standard CSS. ScrollTrigger and the traveling wolf continue following the actual scroll position. The benefits link still clears the fixed header by 16px. Reduced motion disables smoothing immediately, restores the original mascots, and reports zero decorative animations. Coarse pointers use native scrolling; preference listeners and the smoother are cleaned up on unmount.
 
 Checks: 4 navigation/smoothing tests and 3 journey geometry tests pass. Tests cover the desktop smoother, touch fallback, reduced-motion changes, and cleanup. The separate type check still reports the same six unrelated errors.
+
+## Header and opening refinements
+
+- The recruitment banner now has a fixed opaque orange background at every scroll position. The navigation surface still gains its backdrop with scrolling.
+- The navigation row is 60px high on desktop and 56px on narrow screens, with a 1240px content limit, smaller logo/actions, and tighter link gaps.
+- The journey reads each mascot anchor's layout width instead of its transformed bounding-box width. The pose is capped at 520px, the viewport width minus 16px, and 55% of viewport height. Negative scroll positions clamp to the top pose. The original hero mascot uses a matching responsive size and remains centered when its entrance animation finishes.
+- “It’s always” sits above DAY. The group name uses a compact outlined badge with an orange alpha mark.
+- Positive ribbon spacing keeps the orange wave below the opening viewport: 1052px at the checked 1020px desktop height, 868px at 390×844, and 804px at 320×780.
+
+Chrome confirmed the banner's opaque `rgb(255, 177, 62)` background at the top and after scrolling. Returning to the top restores a 510px mascot in the checked desktop viewport, compared with the earlier roughly 805px transformed measurement. Desktop, 390px, and 320px layouts have no horizontal overflow. The compact mobile menu closes and the Roles anchor clears the 89px header by 16px. Reduced-motion layout remains available.
+
+All 4 journey geometry tests and 4 navigation/smoothing tests pass. The new regression covers oversized anchors, negative overscroll, and short viewport height. Type checking reports the same six unrelated errors and none in the changed files.

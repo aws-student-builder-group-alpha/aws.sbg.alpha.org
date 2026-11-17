@@ -113,7 +113,7 @@
 .alpha-type-letter{display:inline-block;will-change:auto}
 .alpha-opening{z-index:1}
 .alpha-story-motion{background:var(--alpha-night)}
-.alpha-motion-ribbon{position:relative;z-index:3;margin:-38px -2vw -38px;width:104%;pointer-events:none;overflow:hidden}
+.alpha-motion-ribbon{position:relative;z-index:3;margin:32px -2vw -38px;width:104%;pointer-events:none;overflow:hidden}
 .alpha-motion-ribbon svg{display:block;width:100%;height:clamp(120px,15vw,245px);overflow:visible}
 .alpha-motion-ribbon text{font-size:64px;font-weight:900;letter-spacing:-2px;dominant-baseline:central}
 .alpha-benefit{display:block;min-height:105svh;padding:0;isolation:isolate}
@@ -142,7 +142,7 @@
 .alpha-closing-pack .alpha-closing-wolf{position:absolute;left:0;bottom:0;width:135px;margin:0;transform:rotate(-12deg)}
 .alpha-closing-friend{position:absolute;right:0;top:0;width:100px;transform:rotate(15deg)}
 @media(min-width:1800px){.alpha-benefit{min-height:1100px}}
-@media(max-width:1100px){.alpha-benefit-art{inset:27% 27% 19%}.alpha-benefit h2{font-size:17vw}.alpha-benefit-copy{padding-top:90px}.alpha-benefit h2>em{margin-top:29vw}.alpha-benefit{min-height:900px}.alpha-motion-ribbon{margin-top:-25px;margin-bottom:-25px}}
+@media(max-width:1100px){.alpha-benefit-art{inset:27% 27% 19%}.alpha-benefit h2{font-size:17vw}.alpha-benefit-copy{padding-top:90px}.alpha-benefit h2>em{margin-top:29vw}.alpha-benefit{min-height:900px}.alpha-motion-ribbon{margin-top:28px;margin-bottom:-25px}}
 @media(max-width:799px){
  .alpha-benefit{min-height:780px;height:100svh;max-height:940px;padding:0}
  .alpha-benefit-copy{padding:80px 5vw 0}
@@ -156,7 +156,7 @@
  .alpha-benefit-build .alpha-scene-snapshot{left:-14%;top:-8%}
  .alpha-benefit p{bottom:55px;left:7vw;right:7vw;max-width:none;text-align:center;font-size:14px}
  .alpha-scene-stamp{font-size:9px;padding:7px 12px;top:-15px}
- .alpha-motion-ribbon{width:160%;margin-left:-30%;margin-top:-20px;margin-bottom:-20px}
+ .alpha-motion-ribbon{width:160%;margin-left:-30%;margin-top:24px;margin-bottom:-20px}
  .alpha-motion-ribbon svg{height:135px}
  .alpha-motion-ribbon text{font-size:60px}
  .alpha-benefit+.alpha-benefit::before{top:-28px;height:29px}

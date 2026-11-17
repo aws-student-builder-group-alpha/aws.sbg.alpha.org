@@ -288,13 +288,13 @@ export default function Navigation({
 				</a>}
 				<div className={`transition-colors duration-300 ${bgStyle}`}>
 				<div className="px-4 sm:px-6 lg:px-8">
-					<div className="relative flex items-center h-16 lg:h-20">
+					<div className="alpha-navigation-row relative flex items-center h-16 lg:h-20">
 							<Link
 								href="/"
 								aria-label="Alpha home"
 								className="flex min-w-0 items-center gap-2.5 group"
 							>
-							<div className="relative shrink-0 w-10 h-10 lg:w-11 lg:h-11 transition-transform duration-300 group-hover:scale-110">
+							<div className="alpha-navigation-logo relative shrink-0 w-10 h-10 lg:w-11 lg:h-11 transition-transform duration-300 group-hover:scale-110">
 								<Image
 									src="/optimized/alpha-logo.webp"
 									alt="AWS Student Builder Group Logo"
@@ -331,7 +331,7 @@ export default function Navigation({
 							</div>
 
 
-							<div className="ml-auto flex items-center gap-7">
+							<div className="alpha-navigation-actions ml-auto flex items-center gap-7">
 								{pageLinks.map((link) => {
 									const NavigationLink = link.href === RECRUITMENT_URL + "/opportunities" ? "a" : Link
 									return (
