@@ -3,9 +3,12 @@
 import { useState, useEffect, useRef } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import gsap from "gsap"
+import { usePathname } from "next/navigation"
 
 export default function PageLoader() {
-	const [isLoading, setIsLoading] = useState(true)
+	const pathname = usePathname()
+	// Let the homepage opening animate from its first frame.
+	const [isLoading, setIsLoading] = useState(() => pathname !== "/")
 	const loaderRef = useRef<HTMLDivElement>(null)
 	const barRef = useRef<HTMLDivElement>(null)
 	const textRef = useRef<HTMLDivElement>(null)
