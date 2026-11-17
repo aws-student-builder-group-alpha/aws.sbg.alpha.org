@@ -43,3 +43,11 @@ test('mobile poses stay within the viewport and missing checkpoints are safe', (
   assert.equal(wolfPose(0, [], 320), null)
   assert.ok(Number.isFinite(wolfPose(0, [route[0], { ...route[1], scroll: 0 }], 320).x))
 })
+
+test('overscroll cannot enlarge the mascot or shift it beyond the top pose', () => {
+  const oversized = [{ ...route[0], width: 1200 }, route[1]]
+  const top = wolfPose(0, oversized, 1720, 1000)
+  assert.equal(top.width, 520)
+  assert.deepEqual(wolfPose(-250, oversized, 1720, 1000), top)
+  assert.ok(wolfPose(0, oversized, 1720, 600).width <= 330)
+})

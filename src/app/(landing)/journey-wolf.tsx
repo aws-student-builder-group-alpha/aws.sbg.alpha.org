@@ -25,15 +25,15 @@ export default function JourneyWolf() {
       const draw = () => {
         frame = 0
         if (!active) return
-        const scroll = window.scrollY
+        const scroll = Math.max(0, window.scrollY)
         const stops = hosts.map((host, index) => {
           const rect = host.getBoundingClientRect()
           const y = rect.top + rect.height / 2 + scroll
-          return { x: rect.left + rect.width / 2, y, width: rect.width, scroll: index === 0 ? 0 : Math.max(0, y - window.innerHeight * .55) }
+          return { x: rect.left + rect.width / 2, y, width: host.offsetWidth, scroll: index === 0 ? 0 : Math.max(0, y - window.innerHeight * .55) }
         })
         // Very short viewports may put consecutive checkpoints at the same scroll offset.
         stops.forEach((stop, index) => { if (index) stop.scroll = Math.max(stop.scroll, stops[index - 1].scroll + 1) })
-        const pose = wolfPose(scroll, stops, document.documentElement.clientWidth)
+        const pose = wolfPose(scroll, stops, document.documentElement.clientWidth, window.innerHeight)
         if (!pose) return
         const velocity = Math.max(-18, Math.min(18, (scroll - previousScroll) * .6))
         bank += (velocity - bank) * .2
