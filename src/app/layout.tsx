@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Script from "next/script"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import SmoothScroll from "@/components/smooth-scroll"
@@ -67,8 +68,8 @@ export default function RootLayout({
 			className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			suppressHydrationWarning
 		>
-			<head><script id="alpha-home-reload-scroll" dangerouslySetInnerHTML={{ __html: HOME_RELOAD_SCROLL }} /></head>
 			<body suppressHydrationWarning>
+				<Script id="alpha-home-reload-scroll" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: HOME_RELOAD_SCROLL }} />
 				<PageLoader />
 				<SmoothScroll>{children}</SmoothScroll>
 			</body>

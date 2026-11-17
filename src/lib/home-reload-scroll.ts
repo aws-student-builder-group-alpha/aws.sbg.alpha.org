@@ -1,4 +1,4 @@
-/** Run in the document head, before native restoration and smooth-scroll startup. */
+/** Run before hydration, before native restoration and smooth-scroll startup. */
 export const HOME_RELOAD_SCROLL = `(() => {
   const entry = performance.getEntriesByType('navigation')[0];
   if (location.pathname !== '/' || entry?.type !== 'reload') return;
