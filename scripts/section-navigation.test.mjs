@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import test from 'node:test';
 
 // Exercise the real hook's lifecycle while simulating the layout changes caused by pins.
-const require = createRequire(new URL('../apps/recruitment/package.json', import.meta.url));
+const require = createRequire(new URL('../package.json', import.meta.url));
 const { transform, loadBindings } = require('next/dist/build/swc');
 await loadBindings();
 const { code } = await transform(await readFile(new URL('../src/components/smooth-scroll.tsx', import.meta.url), 'utf8'), {

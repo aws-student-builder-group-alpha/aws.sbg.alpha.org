@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: apps/recruitment
+        working-directory: .
     env:
       APP_URL: http://localhost:3000
       NEXT_TELEMETRY_DISABLED: "1"
@@ -31,13 +31,13 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version-file: apps/recruitment/.node-version
+          node-version-file: src/recruitment/.node-version
           cache: npm
-          cache-dependency-path: apps/recruitment/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Install locked dependencies
         run: npm ci
       - name: Verify section navigation
-        run: node --test ../../scripts/section-navigation.test.mjs
+        run: node --test scripts/section-navigation.test.mjs
       - name: Install Chromium and system dependencies
         run: npx playwright install --with-deps chromium
       - name: Verify application
@@ -51,12 +51,19 @@ jobs:
           if-no-files-found: ignore
           include-hidden-files: true
           path: |
-            apps/recruitment/.next/verification/ci/*.log
-            apps/recruitment/.next/verification/ci/*.json
-            apps/recruitment/.next/verification/staff-confirmation/*.png
-            apps/recruitment/.next/verification/applicant-submission/*.png
-            apps/recruitment/.next/verification/evaluations/*.png
-            apps/recruitment/.next/verification/decisions/*.png
-            apps/recruitment/.next/verification/application-queue/*.png
-            apps/recruitment/.next/verification/intake/*.png
-            apps/recruitment/.next/verification/application-export/*.png
+            .next/verification/ci/*.log
+            .next/verification/ci/*.json
+            .next/verification/staff-confirmation/*.png
+            .next/verification/applicant-submission/*.png
+            .next/verification/evaluations/*.png
+            .next/verification/decisions/*.png
+            .next/verification/application-queue/*.png
+            .next/verification/intake/*.png
+            .next/verification/application-export/*.png
+            src/recruitment/.next/verification/staff-confirmation/*.png
+            src/recruitment/.next/verification/applicant-submission/*.png
+            src/recruitment/.next/verification/evaluations/*.png
+            src/recruitment/.next/verification/decisions/*.png
+            src/recruitment/.next/verification/application-queue/*.png
+            src/recruitment/.next/verification/intake/*.png
+            src/recruitment/.next/verification/application-export/*.png
