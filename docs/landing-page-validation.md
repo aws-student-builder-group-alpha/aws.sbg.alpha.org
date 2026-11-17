@@ -58,3 +58,13 @@ Chrome verification:
 - No browser console errors were observed.
 
 `node scripts/journey-geometry.test.mjs`: 3 passing tests for checkpoint alignment, reverse scrolling, and mobile bounds/missing checkpoints. Existing navigation tests: 3 passing. Type checking reports the same six unrelated errors and no errors in the new journey components.
+
+## Background continuity and smooth scrolling
+
+The hero, page wrapper, ribbon gap, and first benefit previously used three different dark colors. The hero also had a curved lower clipping edge, exposing a plum band above the ribbon. They now share `--alpha-night` (`#111015`); the hero glow fades into that background and the separate curved clipping edge is removed. The orange ribbon retains its scroll-driven wave.
+
+Chrome confirmed the same computed background (`rgb(17, 16, 21)`) on all four surfaces, a zero-radius hero boundary, and no horizontal overflow at desktop and 390px. The original screenshot position was reproduced and checked visually.
+
+Enabled the existing Lenis smoother on the desktop homepage with one-second cubic easing and its standard CSS. ScrollTrigger and the traveling wolf continue following the actual scroll position. The benefits link still clears the fixed header by 16px. Reduced motion disables smoothing immediately, restores the original mascots, and reports zero decorative animations. Coarse pointers use native scrolling; preference listeners and the smoother are cleaned up on unmount.
+
+Checks: 4 navigation/smoothing tests and 3 journey geometry tests pass. Tests cover the desktop smoother, touch fallback, reduced-motion changes, and cleanup. The separate type check still reports the same six unrelated errors.
