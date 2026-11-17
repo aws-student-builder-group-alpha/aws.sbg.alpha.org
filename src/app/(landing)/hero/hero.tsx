@@ -14,11 +14,11 @@ export default function Hero() {
  return <section className="alpha-hero" data-theme="dark" aria-labelledby="alpha-hero-heading">
   <div className="alpha-hero-gradient" aria-hidden="true"><MeshGradient /></div>
   <PixelWorld />
-  <div className="alpha-hero-content">
+  <div id="alpha-community" tabIndex={-1} className="alpha-hero-content">
    <div className="alpha-hero-copy">
     <AwsBuildMark />
     <p className="alpha-hero-code-label" aria-hidden="true"><span className="alpha-player-indicator" /> <span>PLAYER 01</span> · ready to build<span className="alpha-terminal-cursor">_</span></p>
-    <h1 id="alpha-hero-heading" aria-label="AWS Student Builder Group Alpha"><span className="alpha-hero-heading-line">Student Builder</span><span className="alpha-hero-heading-line">Group <span className="alpha-hero-name"><span className="alpha-code-bracket" aria-hidden="true">&lt;</span><PixelAlpha /><span className="sr-only">Alpha</span><span className="alpha-code-bracket" aria-hidden="true"> /&gt;</span></span></span></h1>
+    <h2 id="alpha-hero-heading" aria-label="AWS Student Builder Group Alpha"><span className="alpha-hero-heading-line">Student Builder</span><span className="alpha-hero-heading-line">Group <span className="alpha-hero-name"><span className="alpha-code-bracket" aria-hidden="true">&lt;</span><PixelAlpha /><span className="sr-only">Alpha</span><span className="alpha-code-bracket" aria-hidden="true"> /&gt;</span></span></span></h2>
     <p className="alpha-hero-description">Have a community that supports your career, learn with peers, and accelerate your cloud career with us.</p>
     <div className="alpha-hero-actions">
      <a className="alpha-hero-primary" href={RECRUITMENT_URL + "/opportunities"}>Be a Member Here! <ArrowRight size={20} aria-hidden="true" /></a>

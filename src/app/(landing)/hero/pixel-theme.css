@@ -1,6 +1,6 @@
 /* Pixel details stay in the hero; photos and body copy keep their natural rendering. */
 .alpha-hero{background:radial-gradient(ellipse at 57% 24%,#5c37841c,transparent 50%),#111216}
-.alpha-hero h1{font-weight:650;text-shadow:0 3px 0 #0002}
+.alpha-hero #alpha-hero-heading{font-weight:650;text-shadow:0 3px 0 #0002}
 .alpha-pixel-wordmark{display:inline-block;height:.8em;width:auto;vertical-align:-.025em;filter:drop-shadow(3px 3px 0 #553977);margin:0 .035em}
 .alpha-code-bracket{color:#9f7cc8;font-size:.53em;vertical-align:.13em}
 .alpha-hero-name{color:#cbb0ff}

@@ -10,12 +10,14 @@ import {
   Footer,
 } from "@/app/(landing)"
 import ServerNavigation from "@/app/(landing)/shared/server-navigation"
+import OpeningSequence from "@/app/(landing)/hero/opening-sequence"
 import Recruitment from "@/app/(landing)/recruitment/recruitment"
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       <ServerNavigation />
+      <OpeningSequence />
       <Hero />
       <Marquee />
       <Recruitment />
