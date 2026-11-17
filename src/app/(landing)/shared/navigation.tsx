@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
+	ArrowRight,
 	ChevronDown,
 	LogOut,
 	Menu,
@@ -11,14 +12,13 @@ import {
 	Shield,
 	X,
 } from "lucide-react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { AnimatePresence, motion } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
 import SignOutModal from "@/components/sign-out-modal"
 import { RECRUITMENT_URL, COMBINED_PREVIEW } from "@/lib/recruitment"
 import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS } from "@/lib/navigation"
+import "./navigation.css"
 
 interface NavigationProps {
 	initialAuth?: {
@@ -32,10 +32,9 @@ export default function Navigation({
 	initialAuth,
 }: NavigationProps = {}) {
 	const pathname = usePathname()
-	const [isScrolled, setIsScrolled] = useState(false)
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 	const [activeSection, setActiveSection] = useState("")
-	const [isDarkSection, setIsDarkSection] = useState(false)
+	const [isInHero, setIsInHero] = useState(pathname === "/")
 	const [isAuthenticated, setIsAuthenticated] = useState(
 		initialAuth?.authenticated ?? false,
 	)
@@ -78,10 +77,6 @@ export default function Navigation({
 			window.location.assign('/')
 		} catch { setSignOutError('Sign-out could not be confirmed. Retry.'); setIsSigningOut(false) }
 	}
-
-	useEffect(() => {
-		gsap.registerPlugin(ScrollTrigger)
-	}, [])
 
 	useEffect(() => {
 		if (COMBINED_PREVIEW) return
@@ -152,16 +147,12 @@ export default function Navigation({
 	}, [])
 
 	useEffect(() => {
-		const darkSections = [...document.querySelectorAll('[data-theme="dark"]')]
 		let frame = 0
 		const update = () => {
 			frame = 0
-			setIsScrolled(window.scrollY > 20)
 			const navHeight = navRef.current?.offsetHeight ?? 80
-			setIsDarkSection(darkSections.some(section => {
-				const rect = section.getBoundingClientRect()
-				return rect.top <= navHeight && rect.bottom >= navHeight
-			}))
+			const hero = document.querySelector(".alpha-hero")
+			setIsInHero(Boolean(hero && hero.getBoundingClientRect().bottom > navHeight))
 		}
 		const handleScroll = () => {
 			if (!frame) frame = requestAnimationFrame(update)
@@ -177,36 +168,6 @@ export default function Navigation({
 			window.removeEventListener("resize", handleScroll)
 		}
 	}, [pathname])
-
-	useEffect(() => {
-		if (!navRef.current) return
-
-		let lastDirection = -1
-		const ctx = gsap.context(() => {
-			ScrollTrigger.create({
-				start: "top -100",
-				onUpdate: (self) => {
-					if (isMobileMenuOpen) {
-						gsap.set(navRef.current, {
-							yPercent: 0,
-						})
-						return
-					}
-					if (self.direction !== lastDirection) {
-						lastDirection = self.direction
-						gsap.to(navRef.current, {
-							yPercent:
-								self.direction === 1 ? -100 : 0,
-							duration: 0.3,
-							ease: "power2.out",
-						})
-					}
-				},
-			})
-		})
-
-		return () => ctx.revert()
-	}, [isMobileMenuOpen])
 
 	useEffect(() => {
 		const sections = [
@@ -251,9 +212,6 @@ export default function Navigation({
 		document.body.style.overflow = isMobileMenuOpen
 			? "hidden"
 			: ""
-		if (isMobileMenuOpen && navRef.current) {
-			gsap.set(navRef.current, { yPercent: 0 })
-		}
 		return () => {
 			document.body.style.overflow = ""
 		}
@@ -291,16 +249,14 @@ export default function Navigation({
 		await signOutAction()
 	}, [])
 
-	const textColor = isDarkSection
+	const textColor = isInHero
 		? "text-white"
 		: "text-[#232f3e]"
 	const hoverColor = "hover:text-[#ff9900]"
 	const activeColor = "text-[#ff9900]"
-	const bgStyle = isScrolled
-		? isDarkSection
-			? "bg-[#0d1117]/80 backdrop-blur-xl border-b border-white/5"
-			: "bg-white/80 backdrop-blur-xl border-b border-black/5 shadow-lg shadow-black/[0.03]"
-		: "bg-transparent"
+	const bgStyle = isInHero
+		? "bg-transparent"
+		: "bg-white/70 backdrop-blur-xl border-b border-black/5 shadow-lg shadow-black/[0.03]"
 
 	function linkClass(href: string) {
 		return `link-underline text-sm font-medium transition-colors duration-300 ${
@@ -312,19 +268,28 @@ export default function Navigation({
 
 	return (
 		<>
+			{pathname === "/" && <div className="alpha-viewport-frame" aria-hidden="true" />}
 			<nav
 				ref={navRef}
 				aria-label="Main navigation"
-				className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${bgStyle}`}
+				className="fixed top-0 left-0 right-0 z-50"
+				data-in-hero={isInHero}
 			>
+				{pathname === "/" && <a className="alpha-recruiting-banner" href={RECRUITMENT_URL + "/opportunities"}>
+					<span className="alpha-recruiting-dot" aria-hidden="true" />
+					<strong>We’re recruiting!</strong>
+					<span className="alpha-recruiting-details">Join the Core Team or a Committee.</span>
+					<span className="alpha-recruiting-cta">Find your role <ArrowRight size={15} aria-hidden="true" /></span>
+				</a>}
+				<div className={`transition-colors duration-300 ${bgStyle}`}>
 				<div className="px-4 sm:px-6 lg:px-8">
-					<div className="flex items-center h-16 lg:h-20">
+					<div className="relative flex items-center h-16 lg:h-20">
 							<Link
 								href="/"
 								aria-label="Alpha home"
-								className="flex items-center gap-2.5 group shrink-0"
+								className="flex min-w-0 items-center gap-2.5 group"
 							>
-							<div className="relative w-10 h-10 lg:w-11 lg:h-11 transition-transform duration-300 group-hover:scale-110">
+							<div className="relative shrink-0 w-10 h-10 lg:w-11 lg:h-11 transition-transform duration-300 group-hover:scale-110">
 								<Image
 									src="/optimized/alpha-logo.webp"
 									alt="AWS Student Builder Group Logo"
@@ -333,9 +298,9 @@ export default function Navigation({
 									className="object-contain"
 								/>
 							</div>
-							<div>
+							<div className={isInHero ? "hidden" : "min-w-0 max-w-[290px]"}>
 								<div
-								className={`text-xs sm:text-sm lg:text-base font-bold transition-colors duration-500 ${textColor}`}
+								className={`truncate text-xs sm:text-sm lg:text-sm font-bold transition-colors duration-500 ${textColor}`}
 							>
 									AWS Student Builder Group - Alpha
 								</div>
@@ -347,31 +312,30 @@ export default function Navigation({
 							</div>
 							</Link>
 
-						<div className="hidden xl:flex items-center gap-6 ml-auto">
-							<div className="flex items-center gap-7">
+						<div className="alpha-navigation-desktop hidden xl:contents">
+							<div className="alpha-navigation-links flex items-center gap-7">
 								{MAIN_SECTION_LINKS.map((link) => (
 									<a
 										key={link.href}
 										href={link.href}
 										className={linkClass(link.href)}
 									>
-										{link.label}
+										{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Be a Member Here!" : link.label}
 									</a>
 								))}
 							</div>
 
-							<div className="w-px h-5 bg-white/20" />
 
-							<div className="flex items-center gap-7">
+							<div className="ml-auto flex items-center gap-7">
 								{pageLinks.map((link) => {
-									const NavigationLink = link.href === RECRUITMENT_URL ? "a" : Link
+									const NavigationLink = link.href === RECRUITMENT_URL + "/opportunities" ? "a" : Link
 									return (
 										<NavigationLink
 											key={link.href}
 											href={link.href}
-											className={link.href === RECRUITMENT_URL ? "inline-flex min-h-11 items-center justify-center rounded-md bg-[#ff9900] px-4 text-xs font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : linkClass(link.href)}
+											className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-11 items-center justify-center rounded-md bg-[#ff9900] px-4 text-xs font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : linkClass(link.href)}
 										>
-											{link.label}
+											{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Be a Member Here!" : link.label}
 										</NavigationLink>
 									)
 								})}
@@ -466,6 +430,7 @@ export default function Navigation({
 						</div>
 					</div>
 				</div>
+				</div>
 			</nav>
 
 			<AnimatePresence>
@@ -504,9 +469,9 @@ export default function Navigation({
 										duration: 0.45,
 										ease: [0.25, 1, 0.5, 1],
 									}}
-									className={link.href === RECRUITMENT_URL ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"}
+									className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"}
 								>
-									{link.label}
+									{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Be a Member Here!" : link.label}
 								</motion.a>
 							))}
 
