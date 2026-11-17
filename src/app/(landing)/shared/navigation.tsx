@@ -287,7 +287,7 @@ export default function Navigation({
 					<span className="alpha-recruiting-cta">Find your role <ArrowRight size={15} aria-hidden="true" /></span>
 				</a>}
 				<div className={`transition-colors duration-300 ${bgStyle}`}>
-				<div className="px-4 sm:px-6 lg:px-8">
+				<div className="alpha-navigation-gutter">
 					<div className="alpha-navigation-row relative flex items-center h-16 lg:h-20">
 							<Link
 								href="/"
@@ -303,19 +303,8 @@ export default function Navigation({
 									className="object-contain"
 								/>
 							</div>
-							<div className={isInHero ? "hidden" : "min-w-0 max-w-[290px]"}>
-								<div
-								className={`truncate text-xs sm:text-sm lg:text-sm font-bold transition-colors duration-500 ${textColor}`}
-							>
-									AWS Student Builder Group - Alpha
-								</div>
-								<div
-									className="text-[10px] sm:text-xs text-[#ff9900] font-medium"
-								>
-									Rizal Technological University
-								</div>
-							</div>
 							</Link>
+							<strong className={`alpha-navigation-name ${textColor}`}>AWS Student Builder Group - Alpha</strong>
 
 						<div className="alpha-navigation-desktop hidden xl:contents">
 							<div className="alpha-navigation-links flex items-center gap-7">
@@ -325,7 +314,7 @@ export default function Navigation({
 										href={link.href}
 										className={linkClass(link.href)}
 									>
-										{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Open roles" : link.label}
+										{link.href === RECRUITMENT_URL + "/opportunities" ? "Become a Member" : link.label}
 									</a>
 								))}
 							</div>
@@ -340,7 +329,7 @@ export default function Navigation({
 											href={link.href}
 											className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-11 items-center justify-center rounded-md bg-[#ff9900] px-4 text-xs font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : linkClass(link.href)}
 										>
-											{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Open roles" : link.label}
+											{link.href === RECRUITMENT_URL + "/opportunities" ? "Become a Member" : link.label}
 										</NavigationLink>
 									)
 								})}
@@ -477,7 +466,7 @@ export default function Navigation({
 									}}
 									className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"}
 								>
-									{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Open roles" : link.label}
+									{link.href === RECRUITMENT_URL + "/opportunities" ? "Become a Member" : link.label}
 								</motion.a>
 							))}
 

@@ -7,16 +7,19 @@
 @media(max-width:560px){.alpha-recruiting-details{display:none}.alpha-recruiting-banner{font-size:11px;gap:10px}}
 @media(prefers-reduced-motion:reduce){.alpha-recruiting-banner{transition:none}}
 
-.alpha-landing{--alpha-banner-gradient:linear-gradient(100deg,#ffb13e,#ffd58a 50%,#ffb13e);--alpha-banner-hover-gradient:linear-gradient(100deg,#ffc367,#ffe0a6 50%,#ffc367);--alpha-frame-radius:clamp(14px,1.3vw,22px)}
+.alpha-landing{--alpha-banner-gradient:linear-gradient(90deg,#ffb13e,#ffd58a 50%,#ffb13e);--alpha-banner-hover-gradient:linear-gradient(90deg,#ffc367,#ffe0a6 50%,#ffc367);--alpha-frame-radius:clamp(14px,1.3vw,22px);--alpha-frame-edge:#ffb13e}
 .alpha-viewport-frame{position:fixed;inset:0;z-index:70;border-radius:var(--alpha-frame-radius);pointer-events:none}
 .alpha-viewport-frame::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:3px;background:var(--alpha-banner-gradient);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 /* Cover the small square corner areas to make the whole viewport appear rounded. */
-.alpha-viewport-frame::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 32px #ffb13e}
+.alpha-viewport-frame::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 32px var(--alpha-frame-edge)}
 
-@media(min-width:1280px){.alpha-navigation-links{position:absolute;left:50%;transform:translateX(-50%)}}
+.alpha-navigation-gutter{padding-inline:6vw}
+.alpha-navigation-links{position:static;transform:none;margin-left:18px;gap:12px}
+.alpha-navigation-links .link-underline{font-size:12px}
+.alpha-navigation-name{position:absolute;left:50%;top:50%;translate:-50% -50%;font-size:clamp(10px,1vw,15px);line-height:1.2;font-weight:800;white-space:nowrap;pointer-events:none}
+@media(max-width:650px){.alpha-navigation-gutter{padding-inline:7vw}}
 
-/* Keep the centered links clear of the brand and account controls. */
-@media(min-width:1280px){.alpha-landing nav[data-in-hero="false"] a[aria-label="Alpha home"]>div:last-child{max-width:260px}.alpha-landing .alpha-navigation-links{gap:16px}}
+
 .alpha-landing nav :is(a,button):focus-visible{outline:3px solid #ffb13e;outline-offset:4px}
 @media(prefers-reduced-motion:reduce){.alpha-landing nav *{transition:none!important}}
 
@@ -29,13 +32,18 @@
 .alpha-landing .alpha-recruiting-banner:hover{background:#ffc367;color:#17202c}
 .alpha-landing .alpha-recruiting-dot{background:currentColor}
 
-.alpha-landing .alpha-navigation-row{height:60px;max-width:1240px;margin-inline:auto}
+.alpha-landing .alpha-navigation-row{height:60px;max-width:none;margin-inline:auto}
 .alpha-landing .alpha-navigation-logo{width:36px;height:36px}
 .alpha-landing .alpha-navigation-actions{gap:16px}
 .alpha-landing .alpha-navigation-actions>a{min-height:36px}
-@media(max-width:560px){.alpha-landing .alpha-navigation-row{height:56px}.alpha-landing nav[data-in-hero="false"] a[aria-label="Alpha home"]>div:last-child{max-width:190px}}
+@media(max-width:560px){.alpha-landing .alpha-navigation-row{height:56px}}
 .alpha-landing .alpha-recruiting-banner{background:var(--alpha-banner-gradient)}
 .alpha-landing .alpha-recruiting-banner:hover{background:var(--alpha-banner-hover-gradient)}
 .alpha-landing .alpha-navigation-actions>a.inline-flex{background-image:linear-gradient(135deg,#ffd88c,#ff9900);box-shadow:inset 0 1px 0 #ffffff80,0 4px 16px #ff990018}
 .alpha-landing .alpha-recruiting-banner{background-color:#ffb13e}
 .alpha-landing .alpha-recruiting-banner:hover{background-color:#ffc367}
+
+.alpha-landing .alpha-navigation-name{color:var(--alpha-nav-ink)}
+.alpha-landing .alpha-navigation-links{gap:12px}
+
+.alpha-landing:has(.alpha-recruiting-banner:hover){--alpha-banner-gradient:var(--alpha-banner-hover-gradient);--alpha-frame-edge:#ffc367}
