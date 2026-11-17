@@ -1,5 +1,6 @@
 "use client"
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef } from "react"
 import Image from "next/image"
 import { ArrowDown } from "lucide-react"
@@ -11,8 +12,10 @@ import HeroBackground from "./hero-background"
 import "./opening-sequence.css"
 
 export default function OpeningSequence() {
+ const reducedMotion = useReducedMotion()
  const root = useRef<HTMLElement>(null)
  useEffect(() => {
+  if (reducedMotion) return
   gsap.registerPlugin(ScrollTrigger)
   const media = gsap.matchMedia()
   media.add("(prefers-reduced-motion: no-preference)", () => {
@@ -35,11 +38,11 @@ export default function OpeningSequence() {
   const observer = new IntersectionObserver(([entry]) => root.current?.setAttribute("data-visible", String(entry.isIntersecting)))
   if (root.current) observer.observe(root.current)
   return () => { observer.disconnect(); media.revert() }
- }, [])
+ }, [reducedMotion])
 
  return <section ref={root} className="alpha-opening" data-theme="dark" aria-labelledby="alpha-opening-heading"
   onPointerMove={event => {
-   if (event.pointerType === "touch" || window.matchMedia("(hover: none), (pointer: coarse)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+   if (reducedMotion || event.pointerType === "touch" || window.matchMedia("(hover: none), (pointer: coarse)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
    const rect = event.currentTarget.getBoundingClientRect()
    event.currentTarget.style.setProperty("--opening-x", String((event.clientX - rect.left) / rect.width - .5))
    event.currentTarget.style.setProperty("--opening-y", String((event.clientY - rect.top) / rect.height - .5))

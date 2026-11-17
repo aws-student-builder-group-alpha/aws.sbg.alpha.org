@@ -289,6 +289,17 @@ body::after {
 }
 
 /* Reduced motion */
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+	animation: none !important;
+	transition: none !important;
+	scroll-behavior: auto !important;
+}
+html[data-reduced-motion="true"] .alpha-journey-wolf { display: none !important; }
+html[data-reduced-motion="true"] .alpha-transition-fill { clip-path: none !important; }
+html[data-reduced-motion="true"] :is(.alpha-team-card:hover,.alpha-button:hover) { translate: none !important; }
+html[data-reduced-motion="true"] .alpha-team-card:hover .alpha-team-image { scale: none !important; }
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,

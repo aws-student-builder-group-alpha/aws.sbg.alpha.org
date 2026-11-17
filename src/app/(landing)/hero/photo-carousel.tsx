@@ -1,5 +1,6 @@
 "use client"
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react"
@@ -24,7 +25,7 @@ export default function PhotoCarousel() {
  const [focused, setFocused] = useState(false)
  const [visible, setVisible] = useState(true)
  const [tabVisible, setTabVisible] = useState(true)
- const [reducedMotion, setReducedMotion] = useState(false)
+ const reducedMotion = useReducedMotion()
  const playing = !paused && !hovered && !focused && visible && tabVisible && !reducedMotion
 
  const goTo = useCallback((next: number, movement = "next") => {
@@ -42,18 +43,13 @@ export default function PhotoCarousel() {
  }, [target])
 
  useEffect(() => {
-  const motion = window.matchMedia("(prefers-reduced-motion: reduce)")
-  const syncMotion = () => setReducedMotion(motion.matches)
   const syncVisibility = () => setTabVisible(!document.hidden)
   const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting))
   if (root.current) observer.observe(root.current)
-  syncMotion()
   syncVisibility()
-  motion.addEventListener("change", syncMotion)
   document.addEventListener("visibilitychange", syncVisibility)
   return () => {
    observer.disconnect()
-   motion.removeEventListener("change", syncMotion)
    document.removeEventListener("visibilitychange", syncVisibility)
   }
  }, [])

@@ -1,5 +1,6 @@
 'use client'
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useLayoutEffect, type RefObject } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -11,9 +12,10 @@ const clamp = (value: number) => Math.max(0, Math.min(1, value))
 
 /** Scroll advances a projected camera; no timer, render loop or React updates per frame. */
 export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: boolean, identity: string) {
+  const reducedMotion = useReducedMotion()
   useLayoutEffect(() => {
     const gallery = root.current
-    if (!gallery || !enabled) return
+    if (!gallery || !enabled || reducedMotion) return
     const stage = gallery.querySelector<HTMLElement>('.gallery-grid')
     const cards = [...gallery.querySelectorAll<HTMLElement>('.gallery-item')]
     if (!stage || !cards.length) return
@@ -102,5 +104,5 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
       }
     })
     return () => media.revert()
-  }, [root, enabled, identity])
+  }, [root, enabled, identity, reducedMotion])
 }

@@ -13,8 +13,8 @@ const { code } = await transform(await readFile(new URL('../src/components/smoot
 
 function harness(reduced = false, pathname = '/', coarse = false) {
   const saved = Object.fromEntries(['window', 'document', 'requestAnimationFrame', 'cancelAnimationFrame'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
-  const effects = [], listeners = new Map(), frames = new Map(), calls = [];
-  let nextFrame = 0, pins = [], smoothInstances = 0;
+  const effects = [], cleanups = [], refs = [], listeners = new Map(), frames = new Map(), calls = [];
+  let nextFrame = 0, pins = [], smoothInstances = 0, refIndex = 0;
   const media = new Map();
   const team = { getBoundingClientRect: () => ({ top: 2000 - window.scrollY }) };
   const about = { getBoundingClientRect: () => ({ top: 1000 - window.scrollY }) };
@@ -36,8 +36,10 @@ function harness(reduced = false, pathname = '/', coarse = false) {
     scrollTo(top, options) { calls.push({ method: 'lenis', top, ...options }); window.scrollY = top; }
   }
   const dependencies = {
-    react: { useEffect: callback => effects.push(callback), useRef: () => ({ current: null }) },
+    react: { useEffect: callback => effects.push(callback), useRef: () => refs[refIndex++] ??= { current: null } },
     'react/jsx-runtime': { Fragment: Symbol('fragment'), jsx: () => null },
+    'framer-motion': { MotionConfig: () => null },
+    '@/hooks/use-reduced-motion': { useReducedMotion: () => reduced },
     'next/navigation': { usePathname: () => pathname },
     'lenis/dist/lenis.css': {},
     lenis: { __esModule: true, default: Lenis },
@@ -46,12 +48,17 @@ function harness(reduced = false, pathname = '/', coarse = false) {
   };
   const compiledModule = { exports: {} };
   new Function('require', 'module', 'exports', code)(name => { if (!(name in dependencies)) throw Error('Unexpected dependency: ' + name); return dependencies[name]; }, compiledModule, compiledModule.exports);
-  compiledModule.exports.default({ children: null });
-  const cleanups = effects.map(effect => effect()).filter(value => typeof value === 'function');
+  const render = () => {
+    for (const cleanup of cleanups) cleanup?.();
+    effects.length = 0; cleanups.length = 0; refIndex = 0;
+    compiledModule.exports.default({ children: null });
+    for (const effect of effects) cleanups.push(effect());
+  };
+  render();
   return {
     calls, team,
     get smoothInstances() { return smoothInstances; },
-    setReduced(value) { const query = '(prefers-reduced-motion: reduce)'; media.get(query).matches = value; for (const handler of listeners.get('media:' + query) || []) handler(); },
+    setReduced(value) { reduced = value; render(); },
     pin(start) { pins = [{ trigger: team, pin: team, start }]; },
     emit(event) { for (const handler of listeners.get(event) || []) handler(); },
     flush() { for (const [id, fn] of [...frames]) { frames.delete(id); fn(); } },

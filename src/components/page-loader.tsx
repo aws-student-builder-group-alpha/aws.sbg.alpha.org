@@ -20,7 +20,7 @@ export default function PageLoader() {
 			seenIntro = sessionStorage.getItem("alpha-intro-shown") === "1"
 			sessionStorage.setItem("alpha-intro-shown", "1")
 		} catch { /* A blocked storage API must not prevent the page from opening. */ }
-		if (seenIntro || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+		if (seenIntro || document.documentElement.dataset.reducedMotion === "true" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 			gsap.set(loaderRef.current, { autoAlpha: 0, pointerEvents: "none" })
 			setIsLoading(false)
 			return

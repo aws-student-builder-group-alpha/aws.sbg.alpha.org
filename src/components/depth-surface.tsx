@@ -1,12 +1,15 @@
 'use client'
+
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef, type ReactNode } from 'react'
 
 /** Decorative pointer depth. Content and actions never depend on hover. */
 export default function DepthSurface({ children, className = '' }: { children: ReactNode; className?: string }) {
+  const reducedMotion = useReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const element = ref.current
-    if (!element) return
+    if (!element || reducedMotion) return
     const media = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)')
     let frame = 0
     let x = 0, y = 0
@@ -39,6 +42,6 @@ export default function DepthSurface({ children, className = '' }: { children: R
       element.removeEventListener('pointercancel', reset)
       media.removeEventListener('change', reset)
     }
-  }, [])
+  }, [reducedMotion])
   return <div ref={ref} className={'alpha-depth '+className}>{children}</div>
 }

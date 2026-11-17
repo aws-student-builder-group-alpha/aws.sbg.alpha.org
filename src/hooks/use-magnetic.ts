@@ -1,5 +1,6 @@
 "use client"
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, type RefObject } from "react"
 import gsap from "gsap"
 
@@ -7,15 +8,12 @@ export function useMagnetic(
 	ref: RefObject<HTMLElement | null>,
 	strength = 0.3,
 ) {
+	const reducedMotion = useReducedMotion()
 	useEffect(() => {
 		const el = ref.current
 		if (!el) return
 
-		const prefersReducedMotion =
-			window.matchMedia(
-				'(prefers-reduced-motion: reduce)',
-			).matches
-		if (prefersReducedMotion) return
+		if (reducedMotion) return
 
 		function handleMove(e: MouseEvent) {
 			if (!el) return
@@ -46,11 +44,13 @@ export function useMagnetic(
 		el.addEventListener("mouseleave", handleLeave)
 
 		return () => {
+			gsap.killTweensOf(el)
+			gsap.set(el, { x: 0, y: 0 })
 			el.removeEventListener("mousemove", handleMove)
 			el.removeEventListener(
 				"mouseleave",
 				handleLeave,
 			)
 		}
-	}, [ref, strength])
+	}, [ref, strength, reducedMotion])
 }

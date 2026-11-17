@@ -1,5 +1,7 @@
 'use client'
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -11,7 +13,6 @@ import { storyCategories, type CommunityStory } from '@/data/community-stories'
 import './community-gallery.css'
 import './event-showcase.css'
 
-const reducedMotionQuery = '(prefers-reduced-motion: reduce)'
 const slideInterval = 3000
 
 function galleryImage(src: string, variant: "card" | "full") {
@@ -20,20 +21,10 @@ function galleryImage(src: string, variant: "card" | "full") {
   return "/optimized/gallery/" + variant + "/" + filename
 }
 
-function subscribeToReducedMotion(onChange: () => void) {
-  const media = window.matchMedia(reducedMotionQuery)
-  media.addEventListener('change', onChange)
-  return () => media.removeEventListener('change', onChange)
-}
-
-function prefersReducedMotion() {
-  return window.matchMedia(reducedMotionQuery).matches
-}
-
 function StoryDetails({ story, open }: { story: CommunityStory; open: boolean }) {
   const [slide, setSlide] = useState(0)
   const [manuallyNavigated, setManuallyNavigated] = useState(false)
-  const reducedMotion = useSyncExternalStore(subscribeToReducedMotion, prefersReducedMotion, () => true)
+  const reducedMotion = useReducedMotion()
   const photoCount = story.images.length
   const playing = !manuallyNavigated && !reducedMotion
   const photo = story.images[slide]
@@ -142,6 +133,7 @@ function StoryCard({ story, index, largeImage = false }: { story: CommunityStory
 }
 
 export default function CommunityGallery({ stories, filterable = false, presentation = 'grid', initialView = 'gallery' }: { stories: CommunityStory[]; filterable?: boolean; presentation?: 'grid' | 'showcase'; initialView?: 'gallery' | 'list' }) {
+  const reducedMotion = useReducedMotion()
   const [filter, setFilter] = useState('All stories')
   const [view, setView] = useState(initialView)
   const root = useRef<HTMLDivElement>(null)
@@ -188,7 +180,7 @@ export default function CommunityGallery({ stories, filterable = false, presenta
   }, [presentation, filter, view])
   useEffect(() => {
     const gallery = root.current
-    if (!gallery || !('IntersectionObserver' in window)) return
+    if (!gallery || reducedMotion || !('IntersectionObserver' in window)) return
     if (gallery.hasAttribute('data-zoom-gallery')) return
 
     const cards = gallery.querySelectorAll<HTMLElement>('.gallery-item')
@@ -205,7 +197,7 @@ export default function CommunityGallery({ stories, filterable = false, presenta
       delete gallery.dataset.galleryMotion
       cards.forEach(card => card.removeAttribute('data-in-view'))
     }
-  }, [visible, view])
+  }, [visible, view, reducedMotion])
   return <><div className={`community-gallery${presentation === 'showcase' ? ' gallery-showcase' : ''}`} data-gallery-view={view} ref={root}>
     {presentation === 'showcase' && <div className="gallery-showcase-toolbar"><p>{String(visible.length).padStart(2, '0')} moments. One Alpha community.</p><div className="gallery-view-controls" role="group" aria-label="Event presentation"><button type="button" aria-pressed={view === 'gallery'} onClick={() => changeView('gallery')}>Gallery view</button><button type="button" aria-pressed={view === 'list'} onClick={() => changeView('list')}>List view</button></div></div>}
     {filterable && view === 'list' && <div className="gallery-filters" role="group" aria-label="Filter community stories">{['All stories',...storyCategories].map(category=><button key={category} type="button" aria-pressed={filter===category} onClick={()=>changeFilter(category)}>{category}<span>{category==='All stories'?stories.length:stories.filter(story=>story.category===category).length}</span></button>)}</div>}
@@ -216,15 +208,17 @@ export default function CommunityGallery({ stories, filterable = false, presenta
 }
 
 function GalleryCollage({ stories }: { stories: CommunityStory[] }) {
+ const reducedMotion = useReducedMotion()
  const root = useRef<HTMLElement>(null)
  useEffect(() => {
+  if (reducedMotion) return
   const media = gsap.matchMedia()
   media.add('(prefers-reduced-motion: no-preference)', () => {
    const context = gsap.context(() => { gsap.fromTo('.gallery-collage-grid', { opacity: .15, scale: 1.03 }, { opacity: 1, scale: 1, ease: 'none', scrollTrigger: { trigger: root.current, start: 'top 85%', end: 'top 15%', scrub: true } }) }, root)
    return () => context.revert()
   })
   return () => media.revert()
- }, [])
+ }, [reducedMotion])
  const photos = [...stories.map(story => story.images[0]), ...stories.flatMap(story => story.images.slice(1))]
  if (!photos.length) return null
  return <section ref={root} className="gallery-collage" aria-label="Our community, together">

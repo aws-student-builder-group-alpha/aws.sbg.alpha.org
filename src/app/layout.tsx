@@ -5,6 +5,7 @@ import "./globals.css"
 import SmoothScroll from "@/components/smooth-scroll"
 import PageLoader from "@/components/page-loader"
 import { HOME_RELOAD_SCROLL } from "@/lib/home-reload-scroll"
+import { SITE_PREFERENCES_BOOTSTRAP } from "@/lib/site-preferences"
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -70,6 +71,7 @@ export default function RootLayout({
 		>
 			<body suppressHydrationWarning>
 				<Script id="alpha-home-reload-scroll" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: HOME_RELOAD_SCROLL }} />
+				<Script id="alpha-site-preferences" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: SITE_PREFERENCES_BOOTSTRAP }} />
 				<PageLoader />
 				<SmoothScroll>{children}</SmoothScroll>
 			</body>

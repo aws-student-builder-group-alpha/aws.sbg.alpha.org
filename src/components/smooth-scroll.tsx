@@ -1,11 +1,13 @@
 "use client"
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef } from "react"
 import Lenis from "lenis"
 import "lenis/dist/lenis.css"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { usePathname } from "next/navigation"
+import { MotionConfig } from "framer-motion"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -16,6 +18,7 @@ interface SmoothScrollProps {
 export default function SmoothScroll({
 	children,
 }: SmoothScrollProps) {
+	const reducedMotion = useReducedMotion()
 	const lenisRef = useRef<Lenis | null>(null)
 	const pathname = usePathname()
 
@@ -58,12 +61,11 @@ export default function SmoothScroll({
 	}, [pathname])
 
 	useEffect(() => {
-		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
 		const coarse = window.matchMedia('(pointer: coarse)')
 		let dispose = () => {}
 		const sync = () => {
 			dispose()
-			if (reduced.matches || coarse.matches) return
+			if (reducedMotion || coarse.matches) return
 			const lenis = new Lenis({
 				duration: pathname === "/" ? 1 : .75,
 				easing: pathname === "/"
@@ -84,14 +86,12 @@ export default function SmoothScroll({
 			}
 		}
 		sync()
-		reduced.addEventListener('change', sync)
 		coarse.addEventListener('change', sync)
 		return () => {
-			reduced.removeEventListener('change', sync)
 			coarse.removeEventListener('change', sync)
 			dispose()
 		}
-	}, [pathname])
+	}, [pathname, reducedMotion])
 
-	return <>{children}</>
+	return <MotionConfig reducedMotion={reducedMotion ? "always" : "user"}>{children}</MotionConfig>
 }

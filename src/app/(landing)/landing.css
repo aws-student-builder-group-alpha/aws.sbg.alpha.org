@@ -233,10 +233,8 @@
 @media(max-width:799px){.alpha-landing .alpha-opening-start{flex:none;width:100%;min-width:0;font-size:13px;padding:16px 18px;gap:14px}.alpha-landing .alpha-opening-recruit{width:100%}.alpha-landing .alpha-opening-bottom{gap:14px}}
 @media(max-width:350px){.alpha-landing .alpha-opening-start{font-size:12px;padding:16px 14px;gap:12px}}
 
-/* One persistent invitation, outside transformed and clipped story sections. */
-.alpha-landing .alpha-community-invitation{position:fixed;z-index:55;left:50%;bottom:max(32px,env(safe-area-inset-bottom));translate:-50% 0;width:clamp(340px,30vw,500px);max-width:calc(100% - 12vw);border:1px solid #e8d8ff80;box-shadow:inset 0 1px 0 #ffffff90,5px 5px 0 #211c28,0 8px 30px #12091e55}
 .alpha-finale{padding-bottom:100px}
-@media(max-width:799px){.alpha-landing .alpha-community-invitation{bottom:max(20px,env(safe-area-inset-bottom));width:86%;max-width:500px}.alpha-landing .alpha-opening-bottom{bottom:110px;gap:12px}}
+@media(max-width:799px){.alpha-landing .alpha-opening-bottom{bottom:110px;gap:12px}}
 
 /* Give the traveling wolf space beside the artwork rather than on top of it. */
 .alpha-benefit{padding-bottom:180px}

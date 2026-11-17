@@ -1,13 +1,15 @@
 "use client"
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef, type ReactNode } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 export default function LandingMotion({ children }: { children: ReactNode }) {
+  const reducedMotion = useReducedMotion()
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (!root.current) return
+    if (!root.current || reducedMotion) return
     gsap.registerPlugin(ScrollTrigger)
     const media = gsap.matchMedia()
     const scenes = root.current.querySelectorAll<HTMLElement>(".alpha-benefit, .alpha-roles, .alpha-proof, .alpha-team, .alpha-closing")
@@ -89,6 +91,6 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
       })
     })
     return () => { observer.disconnect(); media.revert(); scenes.forEach(scene => delete scene.dataset.motionVisible) }
-  }, [])
+  }, [reducedMotion])
   return <div ref={root} className="alpha-story-motion">{children}</div>
 }

@@ -1,9 +1,11 @@
 "use client"
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef, useState } from "react"
 import { Pause, Play } from "lucide-react"
 
 export default function HeroBackground() {
+  const reducedMotion = useReducedMotion()
   const video = useRef<HTMLVideoElement>(null)
   const [paused, setPaused] = useState(false)
   const [enabled, setEnabled] = useState(false)
@@ -11,16 +13,15 @@ export default function HeroBackground() {
   useEffect(() => {
     const element = video.current
     if (!element) return
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)")
     const mobile = window.matchMedia("(max-width: 799px)")
     let visible = false
     const playback = () => {
-      if (reduced.matches || paused || !visible || document.hidden) element.pause()
+      if (reducedMotion || paused || !visible || document.hidden) element.pause()
       else void element.play().catch(() => { /* The poster stays visible if autoplay is unavailable. */ })
     }
     const source = () => {
-      setEnabled(!reduced.matches)
-      if (reduced.matches) {
+      setEnabled(!reducedMotion)
+      if (reducedMotion) {
         element.pause()
         element.removeAttribute("src")
         element.load()
@@ -39,17 +40,15 @@ export default function HeroBackground() {
     })
     observer.observe(element)
     source()
-    reduced.addEventListener("change", source)
     mobile.addEventListener("change", source)
     document.addEventListener("visibilitychange", playback)
     return () => {
       observer.disconnect()
-      reduced.removeEventListener("change", source)
       mobile.removeEventListener("change", source)
       document.removeEventListener("visibilitychange", playback)
       element.pause()
     }
-  }, [paused])
+  }, [paused, reducedMotion])
 
   return <>
     <div className="alpha-opening-backdrop" aria-hidden="true"><video ref={video} muted loop playsInline disablePictureInPicture disableRemotePlayback preload="none" poster="/media/scd-hero-poster.jpg" /></div>

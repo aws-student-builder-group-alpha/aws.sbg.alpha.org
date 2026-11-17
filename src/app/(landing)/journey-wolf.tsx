@@ -1,16 +1,18 @@
 "use client"
 
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef, useState } from "react"
 import PixelWolf from "./hero/pixel-wolf"
 import { wolfPose, wolfCoversText, safeWolfPose, wolfRoute, wolfSegmentClear, stepWolfPose, resizeWolfPose, type WolfPoint, type WolfPose } from "./journey-geometry"
 
 export default function JourneyWolf() {
+  const reducedMotion = useReducedMotion()
   const wolf = useRef<HTMLButtonElement>(null)
   const [excited, setExcited] = useState(false)
   useEffect(() => {
     const button = wolf.current
     const page = button?.closest<HTMLElement>(".alpha-landing")
-    if (!button || !page) return
+    if (!button || !page || reducedMotion) return
     const motion = window.matchMedia("(prefers-reduced-motion: no-preference)")
     let dispose = () => {}
     const sync = () => {
@@ -20,7 +22,7 @@ export default function JourneyWolf() {
       if (hosts.length < 2) return
       // Whole content blocks are protected, including photos and service demos.
       // The mascot belongs beside these elements, never on their surface.
-      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-video-toggle, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-roles-heading>p, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-invitation, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer>.container, nav"
+      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-video-toggle, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-roles-heading>p, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-dock, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer>.container, nav"
       let frame = 0
       let active = true
       let previousPose: WolfPose | null = null
@@ -159,7 +161,7 @@ export default function JourneyWolf() {
     sync()
     motion.addEventListener("change", sync)
     return () => { dispose(); motion.removeEventListener("change", sync) }
-  }, [])
+  }, [reducedMotion])
   return <button ref={wolf} type="button" className="alpha-journey-wolf" aria-label="Give Alpha a high five" onClick={() => setExcited(true)}>
     <span className="alpha-journey-body" data-excited={excited} onAnimationEnd={event => { if (event.target === event.currentTarget) setExcited(false) }}><PixelWolf dimensional pose="wave" /></span>
     <span className="alpha-wolf-hint">{excited ? "High five!" : "High five?"}</span>
