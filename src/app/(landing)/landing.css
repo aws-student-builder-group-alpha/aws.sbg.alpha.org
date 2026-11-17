@@ -1,4 +1,4 @@
-.alpha-landing{--alpha-ink:#211c28;--alpha-cream:#fff8ed;--alpha-violet:#c7adff;--alpha-orange:#ffb13e;background:var(--alpha-ink);color:var(--alpha-cream);overflow:clip}
+.alpha-landing{--alpha-ink:#211c28;--alpha-night:#111015;--alpha-cream:#fff8ed;--alpha-violet:#c7adff;--alpha-orange:#ffb13e;background:var(--alpha-night);color:var(--alpha-cream);overflow:clip}
 .alpha-landing :is(section,[id]){scroll-margin-top:140px}
 .alpha-landing :is(a,button,[tabindex]):focus-visible{outline:3px solid #e18600;outline-offset:5px}
 .alpha-landing :is(.alpha-proof,.alpha-team,.alpha-finale) :is(a,button,[tabindex]):focus-visible{outline-color:#ffb13e}
@@ -21,7 +21,7 @@
 .alpha-wolf-sticker svg{width:100%;height:auto;overflow:visible}
 .alpha-wolf-sticker span{display:block;font:18px var(--font-geist-mono),monospace;text-align:center}
 .alpha-wolf-learn{left:-45px;top:-30px;transform:rotate(-12deg)}
-.alpha-benefit-learn{background:#202023}
+.alpha-benefit-learn{background:var(--alpha-night)}
 .alpha-benefit-build{background:var(--alpha-cream);color:var(--alpha-ink);grid-template-columns:1.1fr 1fr}
 .alpha-benefit-build .alpha-benefit-copy{order:2}
 .alpha-benefit-build em{color:#70509e}
@@ -111,7 +111,8 @@
 /* Oversized type and floating objects form each scene as one composition. */
 .alpha-type-word{display:inline-block;white-space:nowrap;perspective:800px}
 .alpha-type-letter{display:inline-block;will-change:auto}
-.alpha-opening{border-radius:0 0 50% 50% / 0 0 5vw 5vw;z-index:1}
+.alpha-opening{z-index:1}
+.alpha-story-motion{background:var(--alpha-night)}
 .alpha-motion-ribbon{position:relative;z-index:3;margin:-38px -2vw -38px;width:104%;pointer-events:none;overflow:hidden}
 .alpha-motion-ribbon svg{display:block;width:100%;height:clamp(120px,15vw,245px);overflow:visible}
 .alpha-motion-ribbon text{font-size:64px;font-weight:900;letter-spacing:-2px;dominant-baseline:central}

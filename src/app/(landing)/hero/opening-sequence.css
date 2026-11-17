@@ -1,4 +1,4 @@
-.alpha-opening{--opening-x:0;--opening-y:0;position:relative;isolation:isolate;height:max(100svh,800px);overflow:hidden;background:radial-gradient(ellipse at 54% 53%,#6f409a55,transparent 52%),#111015;color:#f6eedf;padding:154px 6vw 32px}
+.alpha-opening{--opening-x:0;--opening-y:0;position:relative;isolation:isolate;height:max(100svh,800px);overflow:hidden;background:linear-gradient(180deg,transparent 55%,var(--alpha-night,#111015) 100%),radial-gradient(ellipse at 54% 53%,#6f409a55,transparent 52%),var(--alpha-night,#111015);color:#f6eedf;padding:154px 6vw 32px}
 .alpha-opening-grain{position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(#ddc7ff26 .7px,transparent .7px);background-size:7px 7px;mask-image:linear-gradient(transparent,#0009 50%,transparent)}
 .alpha-opening-meta{display:flex;justify-content:space-between;position:relative;z-index:3;font:9px var(--font-geist-mono),monospace;letter-spacing:.1em;color:#a69bac}
 .alpha-opening-eyebrow{position:absolute;top:22%;left:60%;font:italic 22px var(--font-geist-mono),monospace;color:#c7adff;transform:rotate(-8deg)}
