@@ -15,3 +15,12 @@
 @media(min-width:1280px){.alpha-landing nav[data-in-hero="false"] a[aria-label="Alpha home"]>div:last-child{max-width:260px}.alpha-landing .alpha-navigation-links{gap:20px}}
 .alpha-landing nav :is(a,button):focus-visible{outline:3px solid #ffb13e;outline-offset:4px}
 @media(prefers-reduced-motion:reduce){.alpha-landing nav *{transition:none!important}}
+
+/* The homepage's backdrop follows scroll position instead of switching at a breakpoint. */
+.alpha-landing nav{--alpha-nav-progress:0;--alpha-nav-ink:color-mix(in srgb,#fff calc((1 - var(--alpha-nav-progress))*100%),#232f3e)}
+.alpha-landing .alpha-nav-surface{background:rgb(255 248 237 / calc(var(--alpha-nav-progress)*.9));backdrop-filter:blur(calc(var(--alpha-nav-progress)*18px));border-bottom:1px solid rgb(35 47 62 / calc(var(--alpha-nav-progress)*.08));box-shadow:0 8px 28px rgb(0 0 0 / calc(var(--alpha-nav-progress)*.06))}
+.alpha-landing .alpha-nav-surface .link-underline,.alpha-landing .alpha-nav-surface button[aria-controls="mobile-navigation"][aria-expanded="false"]{color:var(--alpha-nav-ink)}
+.alpha-landing .alpha-nav-surface .link-underline:hover{color:#b56800}
+.alpha-landing .alpha-recruiting-banner{background:rgb(255 177 62 / var(--alpha-nav-progress));color:var(--alpha-nav-ink)}
+.alpha-landing .alpha-recruiting-banner:hover{background:#ffb13e;color:#17202c}
+.alpha-landing .alpha-recruiting-dot{background:currentColor}

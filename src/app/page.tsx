@@ -1,3 +1,4 @@
+import LandingMotion from "@/app/(landing)/landing-motion"
 import CoreMembers from "@/app/(landing)/team/core-members"
 import Footer from "@/app/(landing)/shared/footer"
 import ServerNavigation from "@/app/(landing)/shared/server-navigation"
@@ -12,11 +13,13 @@ export default function Home() {
     <main className="alpha-landing">
       <ServerNavigation />
       <OpeningSequence />
+      <LandingMotion>
       <Benefits />
       <Recruitment />
       <CommunityProof />
       <CoreMembers />
       <div className="alpha-finale"><ClosingInvitation /><Footer compact /></div>
+      </LandingMotion>
     </main>
   )
 }

@@ -21,3 +21,13 @@ Checked locally on 2026-11-17. No push or deployment.
 `npm run verify` stops before linting because the installed typescript-eslint does not support TypeScript 7.0. The installed versions are TypeScript 7.0.2 and ESLint 10.15.0.
 
 A separate `tsc --noEmit` reports six errors in unchanged files: missing `dotenv/config` in `prisma.config.ts`, profile update types in `approve-member.ts` and `auth/callback/route.ts`, and three `member_id` column references in `delete-member.ts`. It reports no errors in the changed landing files. These existing toolchain and application failures prevent claiming a clean full-project check.
+
+## Wolf branding and motion refinement
+
+- Used the existing `public/Mascot.png` and logo as the visual reference for a reusable SVG pixel wolf: gray fur, cream muzzle, orange cap, and wave/wink poses. The opening uses a dimensional version; the benefit scenes, roles, community, and closing use the same character.
+- Removed repeated scene captions and shortened benefit descriptions, recruitment summaries, and opening actions.
+- Studied https://sweet-tape.com/ in Chrome. Added short heading entrances, photo reveals, staggered role panels, a mascot entrance, waves/blinks, hover responses, and desktop scroll-linked photo movement. Scrolling remains native with no pinned sections.
+- Chrome confirmed that the navigation starts with a fully transparent background and zero backdrop blur. At scrollY 255, its opacity was 0.718 and blur was 14.34px; it reaches its cream backdrop at scrollY 320.
+- Checked desktop and 320px/390px layouts, mobile menu section navigation, and recruitment track destinations. No horizontal document overflow or browser console errors were observed.
+- Reduced-motion emulation disables all CSS animations, restores unclipped photos and fully visible role panels, and removes the GSAP decorative entrances/parallax. Observers, media queries, and scroll triggers clean up on unmount; off-screen mascot animations pause.
+- Navigation tests still pass (3/3). Type checking reports the same six unrelated errors recorded above and no errors in the changed files.

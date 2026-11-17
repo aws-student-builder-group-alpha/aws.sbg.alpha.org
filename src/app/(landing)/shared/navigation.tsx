@@ -154,6 +154,8 @@ export default function Navigation({
 			const navHeight = navRef.current?.offsetHeight ?? 80
 			const hero = document.querySelector(".alpha-opening")
 			setIsInHero(Boolean(hero && hero.getBoundingClientRect().bottom > navHeight + 24))
+            const progress = pathname === "/" ? Math.min(1, Math.max(0, window.scrollY / 320)) : 1
+            navRef.current?.style.setProperty("--alpha-nav-progress", String(progress))
 		}
 		const handleScroll = () => {
 			if (!frame) frame = requestAnimationFrame(update)
@@ -257,7 +259,7 @@ export default function Navigation({
 		: "text-[#232f3e]"
 	const hoverColor = "hover:text-[#ff9900]"
 	const activeColor = "text-[#ff9900]"
-	const bgStyle = isInHero
+	const bgStyle = pathname === "/" ? "alpha-nav-surface" : isInHero
 		? "bg-white/10 backdrop-blur-xl"
 		: "bg-white/70 backdrop-blur-xl border-b border-black/5 shadow-lg shadow-black/[0.03]"
 
@@ -323,7 +325,7 @@ export default function Navigation({
 										href={link.href}
 										className={linkClass(link.href)}
 									>
-										{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Explore open roles" : link.label}
+										{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Open roles" : link.label}
 									</a>
 								))}
 							</div>
@@ -338,7 +340,7 @@ export default function Navigation({
 											href={link.href}
 											className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-11 items-center justify-center rounded-md bg-[#ff9900] px-4 text-xs font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : linkClass(link.href)}
 										>
-											{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Explore open roles" : link.label}
+											{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Open roles" : link.label}
 										</NavigationLink>
 									)
 								})}
@@ -475,7 +477,7 @@ export default function Navigation({
 									}}
 									className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"}
 								>
-									{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Explore open roles" : link.label}
+									{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Open roles" : link.label}
 								</motion.a>
 							))}
 
