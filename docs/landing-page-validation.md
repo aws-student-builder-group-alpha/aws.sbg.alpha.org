@@ -92,3 +92,13 @@ Replaced the team's horizontal browsing strip with a responsive portrait grid (s
 Requested @Browser verification was attempted, but the tool reported `Browser is not available: iab`. Verification continued in the connected Chrome preview. At 1280px, all three benefit scenes had zero text-glyph intersections with either photo, and the gallery did not intersect its heading. At 390px and 320px, benefits had zero text/photo overlap and no horizontal page overflow. At 320px the closing heading wraps inside the viewport, and reduced motion preserves complete readable lines. All eleven portraits loaded in the grid, including Emmanuel. A partial background sweep was observed at `ellipse(81.0638% 85.2998% at 50% 100%)`. The traveling wolf's opacity is zero while passing over the roster.
 
 Checks: 5 journey geometry tests (including text/control collision margins) and 4 navigation/smoothing tests pass. Type checking still reports the same six unrelated errors.
+
+## Navigation grouping and community invitation
+
+Reordered the navigation presentation to logo + section links on the left, the bold “AWS Student Builder Group - Alpha” label centered, and “Become a Member” plus the existing account control on the right. Removed the university subtitle from navigation. Replaced the fixed 1240px row limit with the hero's 6vw desktop / 7vw mobile gutter. At 1280px the links end at 455px, the centered name starts at 526px, and account actions start at 1006px, leaving clear gaps between groups.
+
+The frame and recruitment strip now share a horizontal 90-degree gradient so their colors line up at the same horizontal positions despite the different element heights. Banner hover updates the frame's gradient and edge color too.
+
+Moved “It’s always” closer to DAY. ONE now has a cream-to-gold-to-orange gradient. The hero invitation reads “Be a Part of Our Community” and is 500px wide in the checked desktop viewport, becoming full width on phones. Navigation's recruitment action reads “Become a Member”; both retain the opportunities URL.
+
+Chrome checks covered desktop, 1280px, 390px, and 320px. At 320px the centered name fits between the logo and menu button, the hero label fits inside its 270px button, and there is no horizontal document overflow. Navigation no longer contains the university subtitle. All 4 navigation/smoothing and 5 journey geometry tests pass. Type checking reports the same six unrelated errors.

@@ -60,7 +60,7 @@ export default function OpeningSequence() {
   </div>
   <div className="alpha-opening-bottom">
    <p>We’re recruiting<br /><span>Core Team &amp; Committee.</span></p>
-   <a href={RECRUITMENT_URL + "/opportunities"} className="alpha-opening-start">Open roles <ArrowDownRight size={22} aria-hidden="true" /></a>
+   <a href={RECRUITMENT_URL + "/opportunities"} className="alpha-opening-start"><span>Be a Part of Our Community</span> <ArrowDownRight size={22} aria-hidden="true" /></a>
    <a href="#about" className="alpha-opening-recruit">Why join Alpha?<ArrowDown size={15} aria-hidden="true" /></a>
   </div>
  </section>
