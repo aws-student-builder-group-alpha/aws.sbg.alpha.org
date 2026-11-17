@@ -35,7 +35,7 @@ const SOCIAL_LINKS = [
 	},
 ]
 
-export default function Footer() {
+export default function Footer({ compact = false }: { compact?: boolean }) {
 	return (
 		<footer
 			data-theme="dark"
@@ -43,7 +43,7 @@ export default function Footer() {
 		>
 			<div className="container mx-auto max-w-6xl">
 				{/* Brand label */}
-				<div className="mb-12 text-center">
+				{!compact && <div className="mb-12 text-center">
 					<p
 						className="urban-starblues mx-auto
 							max-w-5xl text-2xl sm:text-4xl
@@ -53,7 +53,7 @@ export default function Footer() {
 					>
 						AWS Student Builder Group - Alpha
 					</p>
-				</div>
+				</div>}
 
 				{/* Gradient top border */}
 				<div
@@ -95,7 +95,7 @@ export default function Footer() {
 								</div>
 							</div>
 						</div>
-						<p
+						{!compact && <p
 							className="text-sm text-white/40
 								leading-relaxed mb-6 max-w-sm"
 						>
@@ -103,7 +103,7 @@ export default function Footer() {
 							cloud computing knowledge through
 							hands-on learning and community
 							collaboration.
-						</p>
+						</p>}
 
 						{/* Social icons */}
 						<div className="flex gap-3">

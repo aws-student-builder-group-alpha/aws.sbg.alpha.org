@@ -1,33 +1,22 @@
-import {
-  Hero,
-  Marquee,
-  About,
-  CoreVision,
-  Events,
-  CoreMembers,
-  Testimonials,
-  Contact,
-  Footer,
-} from "@/app/(landing)"
+import CoreMembers from "@/app/(landing)/team/core-members"
+import Footer from "@/app/(landing)/shared/footer"
 import ServerNavigation from "@/app/(landing)/shared/server-navigation"
 import OpeningSequence from "@/app/(landing)/hero/opening-sequence"
 import Recruitment from "@/app/(landing)/recruitment/recruitment"
+import { Benefits, CommunityProof, ClosingInvitation } from "@/app/(landing)/story"
+import "@/app/(landing)/hero/hero.css"
+import "@/app/(landing)/landing.css"
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="alpha-landing">
       <ServerNavigation />
       <OpeningSequence />
-      <Hero />
-      <Marquee />
+      <Benefits />
       <Recruitment />
-      <About />
-      <Testimonials />
-      <CoreVision />
-      <Events />
+      <CommunityProof />
       <CoreMembers />
-      <Contact />
-      <Footer />
+      <div className="alpha-finale"><ClosingInvitation /><Footer compact /></div>
     </main>
   )
 }

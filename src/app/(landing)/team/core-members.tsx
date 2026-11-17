@@ -1,12 +1,7 @@
 "use client"
 
-import { useEffect, useRef } from "react"
 import Image from "next/image"
 import { Linkedin, Mail, Globe, Facebook } from "lucide-react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
 
 interface Member {
 	name: string
@@ -207,11 +202,12 @@ function MemberCard({
 					{String(index + 1).padStart(2, "0")}
 				</div>
 				{/* Photo */}
-				<div className="relative h-80 sm:h-96 overflow-hidden">
+				<div className="alpha-member-photo relative overflow-hidden">
 					<Image
 						src={member.image}
 						alt={member.name}
 						fill
+                        sizes="240px"
 						className="object-cover
 							md:grayscale md:group-hover:grayscale-0
 							md:group-hover:scale-105
@@ -230,8 +226,8 @@ function MemberCard({
 							flex gap-2
 							opacity-100 translate-y-0
 							md:opacity-0 md:translate-y-4
-							md:group-hover:opacity-100
-							md:group-hover:translate-y-0
+							md:group-hover:opacity-100 md:group-focus-within:opacity-100
+							md:group-hover:translate-y-0 md:group-focus-within:translate-y-0
 							transition-all duration-500"
 					>
 						{member.facebook && (
@@ -291,53 +287,11 @@ function MemberCard({
 }
 
 export default function CoreMembers() {
-	const sectionRef = useRef<HTMLElement>(null)
-	const trackRef = useRef<HTMLDivElement>(null)
-
-	useEffect(() => {
-		const section = sectionRef.current
-		const track = trackRef.current
-		if (!section || !track) return
-
-		const media = gsap.matchMedia(section)
-		media.add("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)", () => {
-			const scrollDistance = () =>
-				Math.max(0, track.scrollWidth - track.offsetWidth)
-
-			if (scrollDistance() === 0) return
-
-			track.scrollLeft = 0
-			track.dataset.scrollDriven = ""
-			gsap.to(track, {
-				x: () => -scrollDistance(),
-				ease: "none",
-				force3D: true,
-				scrollTrigger: {
-					trigger: section,
-					start: "top top",
-					end: () => `+=${scrollDistance() + 180}`,
-					scrub: 0.6,
-					pin: true,
-					anticipatePin: 1,
-					fastScrollEnd: true,
-					invalidateOnRefresh: true,
-				},
-			})
-			return () => {
-				delete track.dataset.scrollDriven
-			}
-		})
-
-		return () => media.revert()
-	}, [])
-
 	return (
 		<section
 			id="members"
-			ref={sectionRef}
 			data-theme="dark"
-			className="section-dark overflow-hidden
-				min-h-screen flex flex-col"
+			className="alpha-team alpha-scene"
 		>
 			<div className="flex-1 flex flex-col
 				justify-center
@@ -354,17 +308,16 @@ export default function CoreMembers() {
 						className="text-3xl sm:text-4xl lg:text-5xl
 							font-bold text-white"
 					>
-						Core Team
+						Meet your future teammates.
 					</h2>
 				</div>
 
 				{/* Horizontal scroll track */}
 				<div
-					ref={trackRef}
-					className="flex gap-5 sm:gap-6 lg:gap-8
-						pl-4 sm:pl-8 overflow-x-auto data-[scroll-driven]:overflow-visible
-						will-change-transform
-						lg:pl-[calc((100vw-72rem)/2+2rem)]"
+					className="alpha-team-track"
+                    tabIndex={0}
+                    role="region"
+                    aria-label="Browse teammates"
 				>
 					{MEMBERS.map((member, i) => (
 						<MemberCard
