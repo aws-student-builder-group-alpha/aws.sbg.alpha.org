@@ -103,6 +103,7 @@ export default function PhotoCarousel() {
    {photos.map((photo, i) => {
     const slot = order.indexOf(i)
     return <div key={photo.src} className="alpha-hero-photo" data-slot={slot} aria-hidden={slot !== 0} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${photos.length}`}>
+     <div className="alpha-photo-hud" aria-hidden="true"><span><i />ALPHA GALLERY</span><span>0{i + 1}</span></div>
      <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1600px) 850px, (min-width: 901px) 54vw, 92vw" priority={i === 0} draggable={false} />
     </div>
    })}
