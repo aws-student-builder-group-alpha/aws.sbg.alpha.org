@@ -7,6 +7,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import KineticType from "../kinetic-type"
 import PixelWolf from "./pixel-wolf"
+import HeroBackground from "./hero-background"
 import "./opening-sequence.css"
 
 export default function OpeningSequence() {
@@ -43,6 +44,7 @@ export default function OpeningSequence() {
    event.currentTarget.style.setProperty("--opening-x", String((event.clientX - rect.left) / rect.width - .5))
    event.currentTarget.style.setProperty("--opening-y", String((event.clientY - rect.top) / rect.height - .5))
   }} onPointerLeave={event => { event.currentTarget.style.setProperty("--opening-x", "0"); event.currentTarget.style.setProperty("--opening-y", "0") }}>
+  <HeroBackground />
   <div className="alpha-opening-grain" aria-hidden="true" />
   <p className="alpha-opening-eyebrow">It’s always</p>
   <h1 id="alpha-opening-heading" className="alpha-opening-title" aria-label="AWS Student Builder Group Alpha. Your Day One starts here"><span><KineticType text="DAY" /></span><span><KineticType text="ONE" /><span className="alpha-opening-dot">.</span></span></h1>

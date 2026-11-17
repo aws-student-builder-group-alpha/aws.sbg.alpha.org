@@ -19,12 +19,12 @@
 .alpha-navigation-links .link-underline{font-size:12px}
 .alpha-navigation-name{position:absolute;left:50%;top:50%;translate:-50% -50%;display:flex;align-items:center;max-width:calc(100% - 120px);font-size:15px;line-height:1.25;font-weight:550;letter-spacing:-.025em;white-space:nowrap;pointer-events:none}
 .alpha-navigation-organization{display:flex;align-items:center;gap:9px}
-.alpha-navigation-aws{position:relative;display:block;flex-shrink:0;width:35px;aspect-ratio:118/70}
-.alpha-navigation-aws img{display:block;width:100%;height:auto}
+.alpha-navigation-aws{position:relative;display:block;flex-shrink:0;height:1lh;aspect-ratio:118/70}
+.alpha-navigation-aws img{display:block;width:100%;height:100%}
 /* Keep the original orange smile while making the white lettering readable on cream. */
 .alpha-navigation-aws::after{content:"";position:absolute;inset:0;background:#232f3e;mask:url('/aws-logo-white.png') center/contain no-repeat;clip-path:inset(0 0 42% 0);opacity:var(--alpha-aws-ink,1)}
-.alpha-navigation-chapter{margin-left:12px;padding-left:12px;border-left:1px solid color-mix(in srgb,currentColor 25%,transparent);font-weight:750;letter-spacing:-.02em}
-@media(max-width:650px){.alpha-navigation-name{font-size:10px;letter-spacing:-.025em}.alpha-navigation-organization{gap:6px}.alpha-navigation-aws{width:26px}.alpha-navigation-chapter{margin-left:7px;padding-left:7px;font-size:10px}}
+.alpha-navigation-chapter{margin-left:12px;padding-left:12px;border-left:1px solid #fff;font-weight:750;letter-spacing:-.02em}
+@media(max-width:650px){.alpha-navigation-name{font-size:10px;letter-spacing:-.025em}.alpha-navigation-organization{gap:6px}.alpha-navigation-chapter{margin-left:7px;padding-left:7px;font-size:10px}}
 @media(max-width:650px){.alpha-navigation-gutter{padding-inline:7vw}}
 
 
