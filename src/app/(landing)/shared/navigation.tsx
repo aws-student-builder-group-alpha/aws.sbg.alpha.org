@@ -12,7 +12,7 @@ import {
 	Shield,
 	X,
 } from "lucide-react"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
 import SignOutModal from "@/components/sign-out-modal"
@@ -32,6 +32,7 @@ export default function Navigation({
 	initialAuth,
 }: NavigationProps = {}) {
 	const pathname = usePathname()
+    const reducedMotion = useReducedMotion()
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 	const [activeSection, setActiveSection] = useState("")
 	const [isInHero, setIsInHero] = useState(pathname === "/")
@@ -151,8 +152,8 @@ export default function Navigation({
 		const update = () => {
 			frame = 0
 			const navHeight = navRef.current?.offsetHeight ?? 80
-			const hero = document.querySelector(".alpha-hero")
-			setIsInHero(Boolean(hero && hero.getBoundingClientRect().bottom > navHeight))
+			const hero = document.querySelector(".alpha-opening")
+			setIsInHero(Boolean(hero && hero.getBoundingClientRect().bottom > navHeight + 24))
 		}
 		const handleScroll = () => {
 			if (!frame) frame = requestAnimationFrame(update)
@@ -172,7 +173,8 @@ export default function Navigation({
 	useEffect(() => {
 		const sections = [
 			"about",
-			"vision",
+			"recruitment",
+            "events",
 			"members",
 			"contact",
 		]
@@ -232,6 +234,7 @@ export default function Navigation({
 	}, [])
 
 	const closeMobileMenu = useCallback(() => {
+        document.body.style.overflow = ""
 		setIsMobileMenuOpen(false)
 		setIsAccountOpen(false)
 	}, [])
@@ -255,7 +258,7 @@ export default function Navigation({
 	const hoverColor = "hover:text-[#ff9900]"
 	const activeColor = "text-[#ff9900]"
 	const bgStyle = isInHero
-		? "bg-transparent"
+		? "bg-white/10 backdrop-blur-xl"
 		: "bg-white/70 backdrop-blur-xl border-b border-black/5 shadow-lg shadow-black/[0.03]"
 
 	function linkClass(href: string) {
@@ -320,7 +323,7 @@ export default function Navigation({
 										href={link.href}
 										className={linkClass(link.href)}
 									>
-										{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Be a Member Here!" : link.label}
+										{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Explore open roles" : link.label}
 									</a>
 								))}
 							</div>
@@ -335,7 +338,7 @@ export default function Navigation({
 											href={link.href}
 											className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-11 items-center justify-center rounded-md bg-[#ff9900] px-4 text-xs font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : linkClass(link.href)}
 										>
-											{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Be a Member Here!" : link.label}
+											{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Explore open roles" : link.label}
 										</NavigationLink>
 									)
 								})}
@@ -436,16 +439,17 @@ export default function Navigation({
 			<AnimatePresence>
 				{isMobileMenuOpen && (
 					<motion.div
-						initial={{ clipPath: "circle(0% at 95% 3%)" }}
+						initial={reducedMotion ? false : { clipPath: "circle(0% at 95% 3%)" }}
 						animate={{
 							clipPath: "circle(150% at 95% 3%)",
 						}}
-						exit={{ clipPath: "circle(0% at 95% 3%)" }}
+						exit={reducedMotion ? undefined : { clipPath: "circle(0% at 95% 3%)" }}
 						transition={{
-							duration: 0.6,
+							duration: reducedMotion ? 0 : 0.6,
 							ease: [0.77, 0, 0.175, 1],
 						}}
 						id='mobile-navigation'
+                        onKeyDown={event => { if (event.key === "Escape") { closeMobileMenu(); navRef.current?.querySelector<HTMLButtonElement>('[aria-controls="mobile-navigation"]')?.focus() } }}
 						className="fixed inset-0 z-[55] overflow-y-auto bg-[#232f3e] flex flex-col items-center py-24"
 					>
 						<button
@@ -462,16 +466,16 @@ export default function Navigation({
 									key={link.href}
 									href={link.href}
 									onClick={closeMobileMenu}
-									initial={{ y: 40, opacity: 0 }}
+									initial={reducedMotion ? false : { y: 40, opacity: 0 }}
 									animate={{ y: 0, opacity: 1 }}
 									transition={{
-										delay: 0.15 + i * 0.07,
-										duration: 0.45,
+										delay: reducedMotion ? 0 : 0.15 + i * 0.07,
+										duration: reducedMotion ? 0 : 0.45,
 										ease: [0.25, 1, 0.5, 1],
 									}}
-									className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"}
+									className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"}
 								>
-									{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Be a Member Here!" : link.label}
+									{pathname === "/" && link.href === RECRUITMENT_URL + "/opportunities" ? "Explore open roles" : link.label}
 								</motion.a>
 							))}
 
@@ -481,11 +485,11 @@ export default function Navigation({
 										<motion.a
 											href="/admin"
 											onClick={closeMobileMenu}
-											initial={{ y: 40, opacity: 0 }}
+											initial={reducedMotion ? false : { y: 40, opacity: 0 }}
 											animate={{ y: 0, opacity: 1 }}
 											transition={{
 												delay: 0.15 + mobileLinks.length * 0.07,
-												duration: 0.45,
+												duration: reducedMotion ? 0 : 0.45,
 												ease: [0.25, 1, 0.5, 1],
 											}}
 											className="urban-starblues text-4xl text-[#ff9900] hover:text-white transition-colors duration-300"
@@ -496,28 +500,28 @@ export default function Navigation({
 									<motion.a
 										href="/settings"
 										onClick={closeMobileMenu}
-										initial={{ y: 40, opacity: 0 }}
+										initial={reducedMotion ? false : { y: 40, opacity: 0 }}
 										animate={{ y: 0, opacity: 1 }}
 										transition={{
 											delay: 0.15 + (mobileLinks.length + (isAdmin ? 1 : 0)) * 0.07,
-											duration: 0.45,
+											duration: reducedMotion ? 0 : 0.45,
 											ease: [0.25, 1, 0.5, 1],
 										}}
-										className="urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"
+										className="text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
 									>
 										Settings
 									</motion.a>
 									<motion.button
 										type="button"
 										onClick={promptSignOut}
-										initial={{ y: 40, opacity: 0 }}
+										initial={reducedMotion ? false : { y: 40, opacity: 0 }}
 										animate={{ y: 0, opacity: 1 }}
 										transition={{
 											delay: 0.22 + (mobileLinks.length + (isAdmin ? 1 : 0)) * 0.07,
-											duration: 0.45,
+											duration: reducedMotion ? 0 : 0.45,
 											ease: [0.25, 1, 0.5, 1],
 										}}
-										className="urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"
+										className="text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
 									>
 										Sign out
 									</motion.button>
@@ -526,15 +530,15 @@ export default function Navigation({
 								<motion.a
 									href="/auth/login"
 									onClick={closeMobileMenu}
-									initial={{ y: 40, opacity: 0 }}
+									initial={reducedMotion ? false : { y: 40, opacity: 0 }}
 									animate={{ y: 0, opacity: 1 }}
 									transition={{
 										delay:
 											0.15 + mobileLinks.length * 0.07,
-										duration: 0.45,
+										duration: reducedMotion ? 0 : 0.45,
 										ease: [0.25, 1, 0.5, 1],
 									}}
-									className="urban-starblues text-4xl text-white hover:text-[#ff9900] transition-colors duration-300"
+									className="text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
 								>
 									Login
 								</motion.a>

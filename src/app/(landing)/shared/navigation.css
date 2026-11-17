@@ -10,3 +10,8 @@
 .alpha-viewport-frame{position:fixed;inset:0;z-index:70;border:3px solid #ff9900;pointer-events:none}
 
 @media(min-width:1280px){.alpha-navigation-links{position:absolute;left:50%;transform:translateX(-50%)}}
+
+/* Keep the centered links clear of the brand and account controls. */
+@media(min-width:1280px){.alpha-landing nav[data-in-hero="false"] a[aria-label="Alpha home"]>div:last-child{max-width:260px}.alpha-landing .alpha-navigation-links{gap:20px}}
+.alpha-landing nav :is(a,button):focus-visible{outline:3px solid #ffb13e;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.alpha-landing nav *{transition:none!important}}

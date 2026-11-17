@@ -30,7 +30,7 @@ export default function OpeningSequence() {
 
  return <section ref={root} className="alpha-opening" data-theme="dark" aria-labelledby="alpha-opening-heading"
   onPointerMove={event => {
-   if (event.pointerType === "touch" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+   if (event.pointerType === "touch" || window.matchMedia("(hover: none), (pointer: coarse)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
    const rect = event.currentTarget.getBoundingClientRect()
    event.currentTarget.style.setProperty("--opening-x", String((event.clientX - rect.left) / rect.width - .5))
    event.currentTarget.style.setProperty("--opening-y", String((event.clientY - rect.top) / rect.height - .5))
@@ -43,16 +43,16 @@ export default function OpeningSequence() {
   <div className="alpha-opening-scene">
    <div className="alpha-opening-orbit alpha-opening-orbit-one" aria-hidden="true"><i /><i /><i /></div>
    <div className="alpha-opening-orbit alpha-opening-orbit-two" aria-hidden="true"><i /><i /></div>
-   <a href="#alpha-community" className="alpha-opening-cloud" aria-label="Enter the Alpha community"><CloudSculpture /></a>
+   <a href="#alpha-community" className="alpha-opening-cloud" aria-label="Why join Alpha?"><CloudSculpture /></a>
    <div className="alpha-opening-memory alpha-opening-memory-one" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-certificates.webp" alt="" fill sizes="190px" /><span>PEOPLE TO BUILD WITH</span></div>
    <div className="alpha-opening-memory alpha-opening-memory-two" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-team.webp" alt="" fill sizes="155px" /><span>IDEAS TO BRING TO LIFE</span></div>
    <span className="alpha-opening-star alpha-opening-star-one" aria-hidden="true">✦</span>
    <span className="alpha-opening-star alpha-opening-star-two" aria-hidden="true">+</span>
   </div>
   <div className="alpha-opening-bottom">
-   <p>Find your people.<br /><span>Build what’s next.</span></p>
-   <a href="#alpha-community" className="alpha-opening-start">Enter Alpha <ArrowDownRight size={22} aria-hidden="true" /></a>
-   <a href={RECRUITMENT_URL + "/opportunities"} className="alpha-opening-recruit">New to cloud? Start with us.<ArrowDown size={15} aria-hidden="true" /></a>
+   <p>We’re recruiting<br /><span>Core Team &amp; Committee members.</span></p>
+   <a href={RECRUITMENT_URL + "/opportunities"} className="alpha-opening-start">Explore open roles <ArrowDownRight size={22} aria-hidden="true" /></a>
+   <a href="#about" className="alpha-opening-recruit">Why join Alpha?<ArrowDown size={15} aria-hidden="true" /></a>
   </div>
   <span className="alpha-opening-side" aria-hidden="true">LEARN / BUILD / LEVEL UP TOGETHER</span>
  </section>
