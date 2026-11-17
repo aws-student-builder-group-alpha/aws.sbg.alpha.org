@@ -63,10 +63,6 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
         const gallery = gsap.timeline({ scrollTrigger: { trigger: ".alpha-proof", start: "top bottom", end: "bottom top", scrub: true } })
         gallery.fromTo(".alpha-proof .alpha-hero-visual", { rotation: -3, scale: .94, y: 30 }, { rotation: 0, scale: 1, y: 0, duration: .4, ease: "none" }, 0)
           .to(".alpha-proof .alpha-hero-visual", { rotation: 3, scale: .98, y: -24, duration: .3, ease: "none" }, .7)
-        gsap.fromTo(".alpha-closing-pack .alpha-pixel-wolf", { x: index => index ? 100 : -100, rotation: index => index ? 35 : -35 }, {
-          x: 0, rotation: 0, ease: "none",
-          scrollTrigger: { trigger: ".alpha-closing", start: "top bottom", end: "center center", scrub: true },
-        })
       }, root)
       return () => context.revert()
     })
