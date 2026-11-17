@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { Linkedin, Mail, Globe, Facebook } from "lucide-react"
+import "./core-members.css"
 
 interface Member {
 	name: string
@@ -147,187 +148,36 @@ const MEMBERS: Member[] = [
 	},
 ]
 
-function SocialIcon({
-	href,
-	label,
-	children,
-}: {
-	href: string
-	label: string
-	children: React.ReactNode
-}) {
-	return (
-		<a
-			href={href}
-			target={href.startsWith("mailto:") ? undefined : "_blank"}
-			rel={
-				href.startsWith("mailto:")
-					? undefined
-					: "noopener noreferrer"
-			}
-			className="w-8 h-8 rounded-full bg-white/10
-				flex items-center justify-center
-				hover:bg-[#ff9900] hover:scale-110
-				transition-all duration-300 text-white/70
-				hover:text-white"
-			aria-label={label}
-		>
-			{children}
-		</a>
-	)
+function SocialIcon({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
+  return <a className="alpha-team-social" href={href} target={href.startsWith("mailto:") ? undefined : "_blank"} rel={href.startsWith("mailto:") ? undefined : "noopener noreferrer"} aria-label={label} title={label}><span aria-hidden="true">{children}</span></a>
 }
 
-function MemberCard({
-	member,
-	index,
-}: {
-	member: Member
-	index: number
-}) {
-	return (
-		<div
-			className="member-card group"
-            role="listitem"
-		>
-			<div
-				className="relative rounded-2xl overflow-hidden
-					bg-[#232f3e]"
-			>
-				{/* Card number */}
-				<div
-					className="absolute top-4 right-4 z-10
-						text-xs uppercase tracking-[0.2em]
-						text-white/20 font-medium"
-				>
-					{String(index + 1).padStart(2, "0")}
-				</div>
-				{/* Photo */}
-				<div className="alpha-member-photo relative overflow-hidden">
-					<Image
-						src={member.image}
-						alt={member.name}
-						fill
-                        sizes="(min-width: 1200px) 220px, (min-width: 700px) 25vw, 45vw"
-                        loading="eager"
-						className="object-cover
-							md:grayscale md:group-hover:grayscale-0
-							md:group-hover:scale-105
-							transition-all duration-700"
-					/>
-					{/* Gradient overlay */}
-					<div
-						className="absolute inset-0 bg-gradient-to-t
-							from-[#232f3e] via-[#232f3e]/20
-							to-transparent"
-					/>
-
-					{/* Social icons - appear on hover */}
-					<div
-						className="absolute bottom-4 left-4
-							flex gap-2
-							opacity-100 translate-y-0
-							md:opacity-0 md:translate-y-4
-							md:group-hover:opacity-100 md:group-focus-within:opacity-100
-							md:group-hover:translate-y-0 md:group-focus-within:translate-y-0
-							transition-all duration-500"
-					>
-						{member.facebook && (
-							<SocialIcon
-								href={member.facebook}
-								label="Facebook"
-							>
-								<Facebook size={14} />
-							</SocialIcon>
-						)}
-						{member.linkedin && (
-							<SocialIcon
-								href={member.linkedin}
-								label="LinkedIn"
-							>
-								<Linkedin size={14} />
-							</SocialIcon>
-						)}
-						{member.email && (
-							<SocialIcon
-								href={`mailto:${member.email}`}
-								label="Email"
-							>
-								<Mail size={14} />
-							</SocialIcon>
-						)}
-						{member.blog && (
-							<SocialIcon
-								href={member.blog}
-								label="Blog"
-							>
-								<Globe size={14} />
-							</SocialIcon>
-						)}
-					</div>
-				</div>
-
-				{/* Info */}
-				<div className="p-5">
-					<h3
-						className="text-lg font-bold text-white
-							mb-1"
-					>
-						{member.name}
-					</h3>
-					<p
-						className="text-[#ff9900] text-xs
-							uppercase tracking-[0.15em]
-							font-medium leading-relaxed"
-					>
-						{member.role}
-					</p>
-				</div>
-			</div>
-		</div>
-	)
+function MemberCard({ member, index }: { member: Member; index: number }) {
+  return <article className="alpha-team-card" role="listitem" aria-labelledby={`alpha-member-${index}`}>
+    <div className="alpha-team-portrait">
+      <Image src={member.image} alt={member.name} fill sizes="(min-width: 1300px) 220px, (min-width: 900px) 25vw, (min-width: 600px) 33vw, 45vw" loading="eager" className="alpha-team-image" />
+      <span className="alpha-team-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+    </div>
+    <div className="alpha-team-bio"><h3 id={`alpha-member-${index}`}>{member.name}</h3><p>{member.role}</p></div>
+    <div className="alpha-team-contacts" role="group" aria-label={`Connect with ${member.name}`}>
+      {member.facebook && <SocialIcon href={member.facebook} label={`${member.name} on Facebook`}><Facebook size={15} /></SocialIcon>}
+      {member.linkedin && <SocialIcon href={member.linkedin} label={`${member.name} on LinkedIn`}><Linkedin size={15} /></SocialIcon>}
+      {member.email && <SocialIcon href={`mailto:${member.email}`} label={`Email ${member.name}`}><Mail size={15} /></SocialIcon>}
+      {member.blog && <SocialIcon href={member.blog} label={`Visit ${member.name}’s website`}><Globe size={15} /></SocialIcon>}
+    </div>
+  </article>
 }
 
 export default function CoreMembers() {
-	return (
-		<section
-			id="members"
-			data-theme="dark"
-			className="alpha-team alpha-scene"
-		>
-			<div className="flex-1 flex flex-col
-				justify-center
-				py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
-				<div className="container mx-auto max-w-6xl mb-12">
-					<span
-						className="text-xs uppercase
-							tracking-[0.3em] text-[#ff9900]
-							font-medium mb-4 block"
-					>
-						Our People
-					</span>
-					<h2
-						className="text-3xl sm:text-4xl lg:text-5xl
-							font-bold text-white"
-					>
-						Meet your future teammates.
-					</h2>
-				</div>
-
-				{/* All portraits are present in the responsive grid. */}
-				<div
-					className="alpha-team-grid"
-                    role="list"
-                    aria-label="Your future teammates"
-				>
-					{MEMBERS.map((member, i) => (
-						<MemberCard
-							key={member.name}
-							member={member}
-							index={i}
-						/>
-					))}
-				</div>
-			</div>
-		</section>
-	)
+  return <section id="members" data-theme="dark" className="alpha-team alpha-scene" aria-labelledby="alpha-team-heading">
+    <div className="alpha-team-inner">
+      <header className="alpha-team-heading">
+        <div><span className="alpha-team-eyebrow">Our people</span><h2 id="alpha-team-heading">Meet your future <em>teammates.</em></h2></div>
+        <div className="alpha-team-heading-meta"><span className="alpha-team-size">{MEMBERS.length} core members</span><span className="alpha-team-wolf-stop" data-wolf-stop="team" aria-hidden="true" /></div>
+      </header>
+      <div className="alpha-team-grid" role="list" aria-label="Your future teammates">
+        {MEMBERS.map((member, index) => <MemberCard key={member.name} member={member} index={index} />)}
+      </div>
+    </div>
+  </section>
 }
