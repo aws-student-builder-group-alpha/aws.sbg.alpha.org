@@ -1,3 +1,21 @@
+## Unified application - 17 November 2026
+
+This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
+
+Use the main site's Supabase project for both areas, with shared Google identity/session/sign-out and `/auth/callback`. Skillbuilder permissions and recruitment staff memberships remain independent. Recruitment administrators still require AAL2. Recruitment starts fresh: import no accounts, applications, memberships, histories or uploaded files from the old project. Keep the old project intact.
+
+Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the shared Auth user.
+
+### Implementation and verification status
+
+The source move, route namespace, shared callback/session configuration, domain-scoped member removal and fresh-schema SQL installer are implemented locally. Live schema installation, OAuth provider settings, first recruitment administrator bootstrap/MFA, real-account checks, browser acceptance and deployment remain pending. No live database was queried or modified.
+
+Documentation review: reviewed overview, architecture, code standards, AI workflow, progress tracker and UI direction. Added the superseding runtime/backend decision to all affected documents; historical product workflows and acceptance requirements remain as context. Local validation on Node 25.9.0: `npm run verify` passed (ESLint and TypeScript); `npm run build` passed on Next.js 16.4.5 including recruitment pages/APIs. The complete recruitment suite passed 199 tests. Seven additional integration tests passed across fresh schema preservation/repeat-install rejection, shared Auth account preservation, independent proxy role gates and section navigation. The updated CI preflight regressions also passed after switching browser fixtures to the production CSS manifest. `git diff --check` passed. CI remains configured for Node 24.22.1; that runtime was not exercised locally.
+
+A local production server using the main site's existing public project configuration returned HTTP 200 for `/`, `/auth/login`, `/recruitment`, `/recruitment/opportunities`, `/recruitment/apply`, `/recruitment/staff` and the namespaced Geist font. This checks HTTP delivery only. No accounts, memberships, applications or uploads were created. `@Browser` returned `Browser is not available: iab`; visual, hydration, real Google/MFA and physical-device acceptance remain unverified. The historical backup workflow is retained as an inactive operations reference, not installed as a new scheduled root workflow. No new Next.js feedback candidate was identified.
+
+Changes are organized into incremental `Combine:` commits on `codex/combine-apps-into-src`; deployment is outside this delivery. Live schema inspection/install, provider callback settings, server administration/mail secrets and nominated staff bootstrap are pending configured access. The old recruitment project is untouched.
+
 ## Member application track removed - 16 November 2026
 
 Completed the approved removal throughout both apps: sixteen Core Team/Committee opportunities, two main-site joining cards, two-track directory/form/staff filters, strict draft/export/availability/decision types, positive fixed capacities and no retired teal/unlimited-capacity UI. Retained membership IDs, invitations, Committee Member titles, all unrelated local UI edits and the draft/upload recovery fixes. Current README/specifications supersede the earlier third-track requirements; applied migrations and dated evidence remain intact.

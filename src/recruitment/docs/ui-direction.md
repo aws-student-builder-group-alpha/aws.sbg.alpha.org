@@ -1,3 +1,11 @@
+## Unified application - 17 November 2026
+
+This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
+
+Use the main site's Supabase project for both areas, with shared Google identity/session/sign-out and `/auth/callback`. Skillbuilder permissions and recruitment staff memberships remain independent. Recruitment administrators still require AAL2. Recruitment starts fresh: import no accounts, applications, memberships, histories or uploaded files from the old project. Keep the old project intact.
+
+Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the shared Auth user.
+
 ## Application continuation routing ? 14 November 2026
 
 Opportunities now resumes existing drafts directly through /application?resume=1, opens submitted receipts and routes staff/members to their workspaces. Signed-in applicants without a draft see Choose a role to apply, targeting the catalog. The application summary starts new drafts through /apply?entry=1 so the existing consent screen is reachable without redirecting back to Opportunities. Consent remains required before draft creation. TypeScript passed; browser/provider navigation is not verified. Reviewed all six context documents; architecture, product scope, code standards and workflow rules are unchanged.

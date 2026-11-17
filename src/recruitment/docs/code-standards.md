@@ -1,3 +1,13 @@
+## Unified application - 17 November 2026
+
+This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
+
+Use the main site's Supabase project for both areas, with shared Google identity/session/sign-out and `/auth/callback`. Skillbuilder permissions and recruitment staff memberships remain independent. Recruitment administrators still require AAL2. Recruitment starts fresh: import no accounts, applications, memberships, histories or uploaded files from the old project. Keep the old project intact.
+
+Browser fixtures obtain the recruitment route CSS from its built client-reference manifest because dynamic routes have no prerendered admin HTML. Run the root build first.
+
+Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the shared Auth user.
+
 # Code Standards
 
 ## Draft and enrollment recovery verification - 16 November 2026
