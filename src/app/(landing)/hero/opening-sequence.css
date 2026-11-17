@@ -26,7 +26,7 @@
 .alpha-opening-star{position:absolute;color:#ffb13e;font-size:44px;pointer-events:none}
 .alpha-opening-star-one{right:-6%;top:12%;transform:rotate(10deg)}
 .alpha-opening-star-two{left:4%;bottom:10%;color:#c7adff;font-family:var(--font-geist-mono),monospace}
-.alpha-opening-bottom{position:absolute;left:6%;right:6%;bottom:40px;display:flex;align-items:end;justify-content:flex-end;gap:24px;z-index:3}
+.alpha-opening-bottom{position:absolute;left:6%;right:6%;bottom:40px;display:flex;align-items:end;justify-content:space-between;gap:24px;z-index:3}
 .alpha-opening-bottom>p{font-size:16px;line-height:1.5;font-weight:500;letter-spacing:-.02em}
 .alpha-opening-bottom>p span{color:#bfb1ca}
 .alpha-opening-start{display:inline-flex;align-items:center;justify-content:space-between;gap:60px;background:#c7adff;color:#21162c;padding:18px 22px;font-size:14px;font-weight:650;box-shadow:5px 5px 0 #5a3c79;transition:background .2s,transform .2s}
