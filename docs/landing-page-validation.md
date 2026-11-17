@@ -31,3 +31,11 @@ A separate `tsc --noEmit` reports six errors in unchanged files: missing `dotenv
 - Checked desktop and 320px/390px layouts, mobile menu section navigation, and recruitment track destinations. No horizontal document overflow or browser console errors were observed.
 - Reduced-motion emulation disables all CSS animations, restores unclipped photos and fully visible role panels, and removes the GSAP decorative entrances/parallax. Observers, media queries, and scroll triggers clean up on unmount; off-screen mascot animations pause.
 - Navigation tests still pass (3/3). Type checking reports the same six unrelated errors recorded above and no errors in the changed files.
+
+## Sweet Tape sequence reconstruction
+
+Observed https://sweet-tape.com/ in Chrome while scrolling through the hero, curved ribbon, rotating product showcase, and oversized benefit canvas. The reference combines individual letter transforms, a rolling central object, a bending text path, photographs at different depths, and large background lettering. Browser observations establish those visible mechanics; Alpha uses its own components and imagery.
+
+Implemented corresponding sequences with Alpha's wolf: opening letters scatter on scroll, the wolf rolls into the handoff, an SVG ribbon bends while its text moves, and benefit scenes place photo collages over oversized type. Role panels fan into place, the community photo stack tilts into view, and two wolves enter the final invitation. Native scrolling and existing track URLs remain intact.
+
+Desktop browser checks confirmed the moving ribbon and wolf transforms, no document overflow, and no browser console errors. At 390px and 320px, the photo area was shortened to keep both headline lines readable. The longer “Build real” line has a smaller mobile size to fit within the viewport. Reduced motion reports zero CSS animations and exposes all benefit text with its accessible heading labels. The mobile menu and section navigation remain reachable. All three navigation tests pass; type checking still reports the same six unrelated errors.

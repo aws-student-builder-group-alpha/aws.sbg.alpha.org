@@ -5,6 +5,7 @@ import Image from "next/image"
 import { ArrowDownRight, ArrowDown } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import KineticType from "../kinetic-type"
 import PixelWolf from "./pixel-wolf"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
 import "./opening-sequence.css"
@@ -17,9 +18,17 @@ export default function OpeningSequence() {
   media.add("(prefers-reduced-motion: no-preference)", () => {
    const context = gsap.context(() => {
     const timeline = gsap.timeline({ scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: .6 } })
-    timeline.to(".alpha-opening-title", { yPercent: -18, opacity: .2, ease: "none" }, 0)
-     .to(".alpha-opening-scene", { yPercent: -14, rotation: 9, scale: 1.08, opacity: .25, ease: "none" }, 0)
+    timeline.to(".alpha-opening-title .alpha-type-letter", {
+      yPercent: index => index % 2 ? -55 : -90,
+      rotation: index => index % 2 ? 12 : -12,
+      xPercent: index => (index - 2) * 7,
+      opacity: .15, stagger: .025, ease: "none",
+    }, 0)
+     .to(".alpha-opening-scene", { yPercent: 36, xPercent: 14, rotation: 38, scale: .72, ease: "none" }, 0)
+     .to(".alpha-opening-memory-one", { xPercent: -65, rotation: -24, ease: "none" }, 0)
+     .to(".alpha-opening-memory-two", { xPercent: 65, rotation: 22, ease: "none" }, 0)
      .to(".alpha-opening-floor", { scale: 1.2, opacity: 0, ease: "none" }, 0)
+
    }, root)
    return () => context.revert()
   })
@@ -38,7 +47,7 @@ export default function OpeningSequence() {
   <div className="alpha-opening-grain" aria-hidden="true" />
   <div className="alpha-opening-meta"><span>AWS STUDENT BUILDER GROUP — ALPHA</span></div>
   <p className="alpha-opening-eyebrow">It’s always</p>
-  <h1 id="alpha-opening-heading" className="alpha-opening-title" aria-label="AWS Student Builder Group Alpha. Your Day One starts here"><span>DAY</span><span>ONE<span className="alpha-opening-dot">.</span></span></h1>
+  <h1 id="alpha-opening-heading" className="alpha-opening-title" aria-label="AWS Student Builder Group Alpha. Your Day One starts here"><span><KineticType text="DAY" /></span><span><KineticType text="ONE" /><span className="alpha-opening-dot">.</span></span></h1>
   <div className="alpha-opening-floor" aria-hidden="true" />
   <div className="alpha-opening-scene">
    <div className="alpha-opening-orbit alpha-opening-orbit-one" aria-hidden="true"><i /><i /><i /></div>

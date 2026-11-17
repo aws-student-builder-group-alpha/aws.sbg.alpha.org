@@ -4,7 +4,7 @@ import Footer from "@/app/(landing)/shared/footer"
 import ServerNavigation from "@/app/(landing)/shared/server-navigation"
 import OpeningSequence from "@/app/(landing)/hero/opening-sequence"
 import Recruitment from "@/app/(landing)/recruitment/recruitment"
-import { Benefits, CommunityProof, ClosingInvitation } from "@/app/(landing)/story"
+import { Benefits, CommunityProof, ClosingInvitation, MotionRibbon } from "@/app/(landing)/story"
 import "@/app/(landing)/hero/hero.css"
 import "@/app/(landing)/landing.css"
 
@@ -14,6 +14,7 @@ export default function Home() {
       <ServerNavigation />
       <OpeningSequence />
       <LandingMotion>
+      <MotionRibbon />
       <Benefits />
       <Recruitment />
       <CommunityProof />
