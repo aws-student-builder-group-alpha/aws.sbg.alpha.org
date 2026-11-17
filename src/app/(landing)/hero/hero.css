@@ -1,21 +1,47 @@
-
-.alpha-hero{position:relative;isolation:isolate;display:grid;align-items:center;min-height:100svh;overflow:hidden;background:#08090a;color:#fff;padding:160px 6vw 100px}
-.alpha-hero-gradient{position:absolute;inset:0;z-index:-1;pointer-events:none}
-.alpha-hero-content{display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:7vw;max-width:1440px;width:100%;margin:auto}
-.alpha-hero-kicker{font-size:13px;letter-spacing:.12em;color:#ffca7b;margin-bottom:24px}
-.alpha-hero h1{font-size:clamp(42px,5vw,80px);font-weight:600;line-height:1.05;letter-spacing:-.055em;text-wrap:balance}
-.alpha-hero h1 span{display:block;color:#ffb13e}
-.alpha-hero-description{font-size:17px;line-height:1.75;max-width:500px;margin:30px 0;color:#eee}
-.alpha-hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:20px}
-.alpha-hero-actions a{display:inline-flex;align-items:center;gap:24px;min-height:48px;font-size:15px;text-underline-offset:5px}
-.alpha-hero-actions a:first-child{background:#ff9900;color:#172636;border-radius:6px;padding:14px 22px;font-weight:600}
-.alpha-hero-actions a:last-child{text-decoration:underline}
-.alpha-hero-motto{margin-bottom:24px;font-size:20px;text-align:right}.alpha-hero-motto span{display:block;font-size:46px;color:#ffb13e}
-.alpha-hero-stack{position:relative;aspect-ratio:4/3;isolation:isolate}
-.alpha-hero-sheet,.alpha-hero-photo{position:absolute;inset:0;border:1px solid #ffffff80;border-radius:24px;overflow:hidden;background:#1c2430;box-shadow:0 24px 60px #0005}
-.alpha-hero-sheet:first-child{transform:rotate(8deg) translate(6px,12px)}.alpha-hero-sheet:nth-child(2){transform:rotate(-5deg)}
-.alpha-hero-photo{opacity:0;transition:opacity .6s;pointer-events:none}.alpha-hero-photo[data-active=true]{opacity:1}.alpha-hero-photo img{object-fit:cover}
-.alpha-hero-pause{min-height:44px;margin-top:24px;color:#fff;font-size:14px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.alpha-hero{position:relative;isolation:isolate;display:grid;align-items:center;min-height:100svh;overflow:hidden;background:radial-gradient(ellipse at 75% 35%,#24334630,transparent 55%),#141516;color:#fff;padding:150px 3vw 150px 7.5vw}
+.alpha-hero-gradient{position:absolute;inset:0 -2% -20%;z-index:-2;pointer-events:none;opacity:.72;mask-image:linear-gradient(transparent 25%,#000 65%)}
+.alpha-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#14151640,transparent 65%),linear-gradient(0deg,#14151630,transparent 30%);pointer-events:none}
+.alpha-hero-content{display:grid;grid-template-columns:.96fr 1.1fr;align-items:center;gap:3.5vw;max-width:1800px;width:100%;margin:auto}
+.alpha-hero-copy{position:relative;z-index:4;min-width:0}
+.alpha-hero h1{font-size:clamp(44px,4.9vw,88px);font-weight:600;line-height:1.05;letter-spacing:-.055em}
+.alpha-hero-heading-line{display:block;white-space:nowrap}
+.alpha-hero-name{color:#c7adff}
+.alpha-hero-aws-logo{display:block;width:88px;height:auto;margin:0 0 36px}
+.alpha-hero-description{font-size:clamp(15px,1.15vw,18px);line-height:1.6;max-width:570px;margin:36px 0 30px;color:#e0e2e6;text-wrap:pretty}
+.alpha-hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:18px}
+.alpha-hero-actions a{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:48px;font-size:14px;border-radius:4px;padding:12px 20px;font-weight:500;transition:background .2s,transform .2s}
+.alpha-hero-primary{background:#ff9900;color:#111820;border:2px solid #ff9900;box-shadow:0 4px 24px #0005}
+.alpha-hero-primary:hover{background:#ffb13e;transform:translateY(-2px)}
+.alpha-hero-secondary{background:#8b5cf614;color:#e5d9ff;border:1px solid #b79bea99}
+.alpha-hero-secondary:hover{background:#8b5cf62b}
+.alpha-hero-visual{min-width:0;position:relative;padding-top:8px}
+.alpha-hero-visual-heading{display:flex;justify-content:center;position:relative;z-index:4;margin:0 0 -2px}
+.alpha-hero-motto{text-align:center;transform:rotate(-6deg);font-size:24px;font-weight:500;line-height:1.15;color:#f4f4f5;font-style:italic}
+.alpha-hero-motto span{display:block;font-size:36px;font-weight:800;font-style:normal;line-height:1.1;color:#ff9900;margin-top:3px}
+.alpha-hero-stack{position:relative;aspect-ratio:3/2;isolation:isolate;margin:0 8px 0 0}
+.alpha-hero-photo{position:absolute;inset:0;border:1px solid #ffffff70;border-radius:30px;overflow:hidden;background:#1c2430;box-shadow:0 25px 65px #0006;transform-origin:50% 85%;backface-visibility:hidden}
+.alpha-hero-photo[data-slot="0"]{z-index:3;transform:rotate(-1deg)}
+.alpha-hero-photo[data-slot="1"]{z-index:2;transform:translate(13px,14px) rotate(4deg) scale(.99)}
+.alpha-hero-photo[data-slot="2"]{z-index:1;transform:translate(22px,28px) rotate(9deg) scale(.97)}
+.alpha-hero-photo img{object-fit:cover}
+.alpha-hero-stack[data-discarding="true"] .alpha-hero-photo[data-slot="0"]{animation:alpha-card-discard .8s cubic-bezier(.4,0,.2,1) both}
+.alpha-hero-stack[data-discarding="true"] .alpha-hero-photo[data-slot="1"]{animation:alpha-card-advance .8s cubic-bezier(.22,1,.36,1) both}
+.alpha-hero-stack[data-discarding="true"] .alpha-hero-photo[data-slot="2"]{animation:alpha-card-follow .8s cubic-bezier(.22,1,.36,1) both}
+@keyframes alpha-card-discard{0%{transform:rotate(-1deg);opacity:1}45%{opacity:1}100%{transform:translate(45%,-15%) rotate(19deg);opacity:0}}
+@keyframes alpha-card-advance{from{transform:translate(13px,14px) rotate(4deg) scale(.99)}to{transform:rotate(-1deg)}}
+@keyframes alpha-card-follow{from{transform:translate(22px,28px) rotate(9deg) scale(.97)}to{transform:translate(13px,14px) rotate(4deg) scale(.99)}}
+.alpha-hero-photo-controls{position:relative;display:flex;justify-content:center;align-items:center;margin-top:44px;gap:22px;padding:0}
+.alpha-hero-photo-position{display:flex;align-items:center;gap:12px;font-size:10px;color:#aaa3b8;font-variant-numeric:tabular-nums}
+.alpha-hero-photo-number{color:#d9c9f3}
+.alpha-hero-photo-progress{display:flex;gap:5px}
+.alpha-hero-photo-progress>span{height:2px;width:22px;background:#83749370;transition:background .3s}
+.alpha-hero-photo-progress>span[data-active="true"]{background:#c7adff}
+.alpha-hero-photo-buttons{display:flex;gap:6px}
+.alpha-hero-photo-buttons button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:44px;min-height:44px;padding:0 8px;border:0;border-radius:50%;background:transparent;color:#c8badb;font-size:11px;cursor:pointer;transition:background .2s}
+.alpha-hero-photo-buttons button:hover{background:#9b6ee52b;color:#f3eaff}
+.alpha-hero-photo-buttons button:disabled{cursor:default;opacity:.5}
 .alpha-hero :is(a,button):focus-visible{outline:3px solid #ffca7b;outline-offset:5px}
-@media(max-width:900px){.alpha-hero{padding:130px 24px 70px}.alpha-hero-content{grid-template-columns:1fr;gap:40px}.alpha-hero-visual{max-width:560px;width:100%;margin:auto}.alpha-hero-motto{text-align:left}.alpha-hero h1{font-size:clamp(38px,8vw,64px)}}
-@media(prefers-reduced-motion:reduce){.alpha-hero-photo{transition:none}}
+@media(max-width:1200px) and (min-width:901px){.alpha-hero{padding-left:6vw;padding-right:3vw}.alpha-hero-content{gap:4vw}.alpha-hero h1{font-size:clamp(42px,5vw,60px)}.alpha-hero-actions{gap:10px}.alpha-hero-actions a{padding:12px;font-size:12px}.alpha-hero-motto{font-size:20px}.alpha-hero-motto span{font-size:30px}}
+@media(max-width:900px){.alpha-hero{padding:165px 8vw 90px}.alpha-hero-content{grid-template-columns:1fr;gap:48px;max-width:680px}.alpha-hero h1{font-size:clamp(38px,8vw,68px)}.alpha-hero-description{max-width:560px}.alpha-hero-visual{width:100%;padding:0 12px}.alpha-hero-gradient{inset:30% -5% -20%}}
+@media(max-width:480px){.alpha-hero{padding-top:155px}.alpha-hero-aws-logo{width:70px;margin-bottom:28px}.alpha-hero h1{font-size:clamp(34px,8.8vw,42px)}.alpha-hero-description{font-size:15px;margin-top:26px}.alpha-hero-actions{align-items:stretch;flex-direction:column;gap:12px}.alpha-hero-actions a{justify-content:space-between;padding:13px 16px;font-size:13px}.alpha-hero-visual{padding:0 5px}.alpha-hero-motto{font-size:20px}.alpha-hero-motto span{font-size:30px}.alpha-hero-photo{border-radius:20px}.alpha-hero-photo-progress>span{width:15px}}
+@media(prefers-reduced-motion:reduce){.alpha-hero *{animation:none!important;transition:none!important}.alpha-hero-primary:hover{transform:none}}
