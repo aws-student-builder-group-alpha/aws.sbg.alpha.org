@@ -1,3 +1,4 @@
+import JourneyWolf from "@/app/(landing)/journey-wolf"
 import LandingMotion from "@/app/(landing)/landing-motion"
 import CoreMembers from "@/app/(landing)/team/core-members"
 import Footer from "@/app/(landing)/shared/footer"
@@ -12,6 +13,7 @@ export default function Home() {
   return (
     <main className="alpha-landing">
       <ServerNavigation />
+      <JourneyWolf />
       <OpeningSequence />
       <LandingMotion>
       <MotionRibbon />

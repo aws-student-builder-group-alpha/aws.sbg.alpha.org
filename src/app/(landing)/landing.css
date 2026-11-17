@@ -166,3 +166,23 @@
 @media(max-width:350px){.alpha-benefit-art{inset:25% 15% 42%}.alpha-benefit h2>em{margin-top:320px}}
 @media(max-width:799px){.alpha-scene-snapshot{top:30%}}
 @media(max-width:799px){.alpha-benefit-build h2>.alpha-type-word{font-size:.88em}}
+
+/* One interactive wolf follows the route; original poses remain the fallback. */
+.alpha-journey-wolf{display:none;position:fixed;top:0;left:0;z-index:35;aspect-ratio:9/8;padding:0;border:0;background:none;cursor:pointer;transform-origin:center;will-change:transform;touch-action:pan-y}
+.alpha-landing[data-journey-active="true"]>.alpha-journey-wolf{display:block}
+.alpha-landing[data-journey-active="true"] [data-wolf-stop]>.alpha-pixel-wolf{visibility:hidden}
+.alpha-journey-body{display:block;width:100%;height:100%;filter:drop-shadow(5px 9px 0 #12091e20)}
+.alpha-journey-body>.alpha-pixel-wolf{width:100%;height:100%}
+.alpha-journey-wolf .alpha-wolf-eyes{translate:calc(var(--wolf-look-x,0)*7px) calc(var(--wolf-look-y,0)*5px)}
+.alpha-wolf-hint{position:absolute;left:50%;bottom:0;translate:-50% 60%;padding:7px 12px;border:2px solid #211c28;background:#ffb13e;color:#211c28;font:11px var(--font-geist-mono),monospace;white-space:nowrap;opacity:0;transition:opacity .15s;pointer-events:none}
+.alpha-journey-wolf:is(:hover,:focus-visible) .alpha-wolf-hint,.alpha-journey-wolf:has([data-excited="true"]) .alpha-wolf-hint{opacity:1}
+.alpha-journey-body[data-excited="true"]{animation:alpha-high-five .65s cubic-bezier(.2,.8,.2,1)}
+@keyframes alpha-high-five{0%,100%{translate:0 0;rotate:0deg;scale:1}30%{translate:0 -25%;rotate:-15deg;scale:1.1}65%{translate:0 -10%;rotate:12deg;scale:1.05}}
+.alpha-role-mascot{display:block;width:80px;flex-shrink:0}
+.alpha-role-mascot .alpha-pixel-wolf{width:100%}
+.alpha-proof-wolf{display:block;flex-shrink:0}
+@media(pointer:fine) and (hover:hover) and (prefers-reduced-motion:no-preference){
+ .alpha-photo-frame,.alpha-role-panel{rotate:x calc(var(--card-y,0)*-10deg)!important;translate:calc(var(--card-x,0)*8px) calc(var(--card-y,0)*5px)!important;transition:rotate .15s,translate .15s,box-shadow .3s}
+}
+@media(prefers-reduced-motion:reduce){.alpha-journey-wolf{display:none!important}}
+.alpha-journey-wolf[data-visible="false"] *{animation-play-state:paused}
