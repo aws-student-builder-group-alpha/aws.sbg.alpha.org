@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
-	ArrowRight,
 	ChevronDown,
 	LogOut,
 	Menu,
@@ -280,12 +279,6 @@ export default function Navigation({
 				className="fixed top-0 left-0 right-0 z-50"
 				data-in-hero={isInHero}
 			>
-				{pathname === "/" && <a className="alpha-recruiting-banner" href={RECRUITMENT_URL + "/opportunities"}>
-					<span className="alpha-recruiting-dot" aria-hidden="true" />
-					<strong>We’re recruiting!</strong>
-					<span className="alpha-recruiting-details">Join the Core Team or a Committee.</span>
-					<span className="alpha-recruiting-cta">Find your role <ArrowRight size={15} aria-hidden="true" /></span>
-				</a>}
 				<div className={`transition-colors duration-300 ${bgStyle}`}>
 				<div className="alpha-navigation-gutter">
 					<div className="alpha-navigation-row relative flex items-center h-16 lg:h-20">

@@ -57,7 +57,6 @@ export default function OpeningSequence() {
    <span className="alpha-opening-star alpha-opening-star-two" aria-hidden="true">+</span>
   </div>
   <div className="alpha-opening-bottom">
-   <p>We’re recruiting<br /><span>Core Team &amp; Committee.</span></p>
    <a href="#about" className="alpha-opening-recruit">Why join Alpha?<ArrowDown size={15} aria-hidden="true" /></a>
   </div>
  </section>
