@@ -48,7 +48,14 @@
 
 .alpha-opening-backdrop{position:absolute;inset:0;z-index:-3;pointer-events:none}
 .alpha-opening-backdrop video{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-.alpha-opening::before{content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(180deg,#111015a6 0%,#11101570 52%,#111015 100%),radial-gradient(ellipse at 54% 53%,#6f409a44,transparent 62%)}
+.alpha-opening::before{content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(180deg,#111015eb 0%,#111015d1 52%,#111015 100%),radial-gradient(ellipse at 54% 53%,#6f409a30,transparent 62%)}
 .alpha-video-toggle{position:absolute;top:116px;right:6vw;z-index:5;display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:7px 11px;border:1px solid #ffffff30;border-radius:999px;background:#11101560;color:#f6eedf;backdrop-filter:blur(8px);font-size:11px;cursor:pointer}
 .alpha-video-toggle:hover{background:#111015a0;border-color:#ffffff60}
 @media(max-width:650px){.alpha-video-toggle{top:106px;right:7vw;font-size:10px}}
+
+/* Reserve a clear central slot for the hero wolf, with photos on its perimeter. */
+.alpha-opening-mascot{width:min(27vw,38svh,400px)}
+.alpha-opening-memory-one{left:-12%;bottom:-22%;width:165px;height:110px}
+.alpha-opening-memory-two{top:-20%}
+@media(max-width:1100px){.alpha-opening-memory-one{left:-12%;bottom:-25%;width:140px;height:105px}.alpha-opening-memory-two{top:-23%}}
+@media(max-width:650px){.alpha-opening-mascot{width:min(45vw,23svh,180px)}.alpha-opening-memory-one,.alpha-opening-memory-two{width:90px;height:64px;top:auto;bottom:-26%}.alpha-opening-memory-one{left:-1%}.alpha-opening-memory-two{right:-1%}}

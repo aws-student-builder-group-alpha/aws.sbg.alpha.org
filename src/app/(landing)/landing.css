@@ -243,3 +243,8 @@
 .alpha-wolf-build{left:4%;bottom:-140px}
 .alpha-wolf-people{right:4%;bottom:-140px;width:clamp(84px,7vw,108px)}
 @media(max-width:799px){.alpha-benefit{padding-bottom:160px}.alpha-wolf-sticker,.alpha-wolf-people{width:84px}.alpha-wolf-learn,.alpha-wolf-build,.alpha-wolf-people{bottom:-120px}}
+
+/* Keep a usable side passage beside the recruitment cards on desktop. */
+@media(min-width:1000px){.alpha-roles{padding-inline:max(8vw,128px)}}
+.alpha-closing .alpha-scene-heading{width:fit-content;max-width:100%;margin-inline:auto}
+@media(max-width:650px){.alpha-landing .alpha-opening-bottom{bottom:98px}}

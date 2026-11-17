@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import PixelWolf from "./hero/pixel-wolf"
-import { wolfPose, wolfCoversText, safeWolfPose } from "./journey-geometry"
+import { wolfPose, wolfCoversText, safeWolfPose, wolfRoute, wolfSegmentClear, stepWolfPose, resizeWolfPose, type WolfPoint, type WolfPose } from "./journey-geometry"
 
 export default function JourneyWolf() {
   const wolf = useRef<HTMLButtonElement>(null)
@@ -20,46 +20,83 @@ export default function JourneyWolf() {
       if (hosts.length < 2) return
       // Whole content blocks are protected, including photos and service demos.
       // The mascot belongs beside these elements, never on their surface.
-      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-video-toggle, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-invitation, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer, nav"
+      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-video-toggle, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-roles-heading>p, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-invitation, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer>.container, nav"
       let frame = 0
       let active = true
-      let previousPose: NonNullable<ReturnType<typeof wolfPose>> | null = null
-      const draw = () => {
+      let previousPose: WolfPose | null = null
+      let previousScroll = Math.max(0, window.scrollY)
+      let previousTime = performance.now()
+      let path: WolfPoint[] = []
+      let routeTarget: WolfPoint | null = null
+      const draw = (time: number) => {
         frame = 0
         if (!active) return
         const scroll = Math.max(0, window.scrollY)
+        const elapsed = Math.min(.05, Math.max(.001, (time - previousTime) / 1000))
+        const scrollDelta = scroll - previousScroll
+        previousTime = time
+        previousScroll = scroll
+        // Only the route moves with the page; the rendered wolf keeps its viewport position.
+        path.forEach(point => { point.y -= scrollDelta })
+        if (routeTarget) routeTarget.y -= scrollDelta
         const stops = hosts.map((host, index) => {
-          const rect = host.getBoundingClientRect()
+          const rect = (host.dataset.wolfStop === "opening" ? host.closest(".alpha-opening-scene")! : host).getBoundingClientRect()
           const y = rect.top + rect.height / 2 + scroll
           return { x: rect.left + rect.width / 2, y, width: host.offsetWidth, scroll: index === 0 ? 0 : Math.max(0, y - window.innerHeight * .55) }
         })
         // Very short viewports may put consecutive checkpoints at the same scroll offset.
         stops.forEach((stop, index) => { if (index) stop.scroll = Math.max(stop.scroll, stops[index - 1].scroll + 1) })
-        const desired = wolfPose(scroll, stops, document.documentElement.clientWidth, window.innerHeight)
+        let desired = wolfPose(scroll, stops, document.documentElement.clientWidth, window.innerHeight)
         if (!desired) return
         const regions = Array.from(page.querySelectorAll<HTMLElement>(readingSelector), element => element.getBoundingClientRect())
         const header = page.querySelector("nav")?.getBoundingClientRect().bottom ?? 96
-        const target = safeWolfPose(desired, regions, document.documentElement.clientWidth, window.innerHeight, header)
+        desired = resizeWolfPose(desired, Math.min(desired.width, 400, document.documentElement.clientWidth * .6))
+        const target = safeWolfPose(desired, regions, document.documentElement.clientWidth, window.innerHeight, header, previousPose ?? undefined)
         let moving = false
-        if (target) {
-          const previous = previousPose ?? target
-          const mix = (from: number, to: number) => from + (to - from) * .24
-          const pose = { ...target, x: mix(previous.x, target.x), y: mix(previous.y, target.y), width: mix(previous.width, target.width), rotation: mix(previous.rotation, target.rotation) }
+        // Initial placement happens once. A temporarily blocked route never resets it.
+        if (!previousPose && target) previousPose = target
+        if (previousPose) {
+          const previous = previousPose
+          let pose = previous
+          if (target) {
+            const footprint = Math.max(previous.width, Math.min(target.width, previous.width + 100 * elapsed))
+            // The header can cover an offscreen wolf as it naturally re-enters the page.
+            const routeRegions = regions.filter(rect => rect.bottom > header && rect.top < window.innerHeight - 100)
+            if (wolfSegmentClear(previous, target, footprint, routeRegions)) {
+              path = [{ x: target.x, y: target.y }]
+              routeTarget = { x: target.x, y: target.y }
+            } else if (!path.length || !routeTarget || Math.hypot(target.x - routeTarget.x, target.y - routeTarget.y) > 40 || !wolfSegmentClear(previous, path[0], footprint, routeRegions)) {
+              path = wolfRoute(previous, target, footprint, routeRegions, document.documentElement.clientWidth, window.innerHeight, header) ?? []
+              routeTarget = { x: target.x, y: target.y }
+            }
+            while (path.length && Math.hypot(path[0].x - previous.x, path[0].y - previous.y) < 1) path.shift()
+            const next = path[0] ?? previous
+            pose = stepWolfPose(previous, { ...target, x: next.x, y: next.y }, elapsed)
+            // Resizing must fit too; a path can open up while the wolf gently shrinks.
+            if (pose.width > previous.width && wolfCoversText(pose, regions)) pose.width = previous.width
+            if (wolfCoversText(pose, regions) && !wolfCoversText(previous, regions)) {
+              pose.x = previous.x
+              pose.y = previous.y
+              path = []
+            }
+            const remaining = Math.max(Math.abs(pose.x - target.x), Math.abs(pose.y - target.y), Math.abs(pose.width - target.width), Math.abs(pose.rotation - target.rotation))
+            const progress = Math.max(Math.abs(pose.x - previous.x), Math.abs(pose.y - previous.y), Math.abs(pose.width - previous.width), Math.abs(pose.rotation - previous.rotation))
+            moving = remaining > .3 && progress > .01
+          }
           previousPose = pose
-          moving = Math.max(Math.abs(pose.x - target.x), Math.abs(pose.y - target.y), Math.abs(pose.width - target.width), Math.abs(pose.rotation - target.rotation)) > .3
-          const reading = wolfCoversText(pose, regions) || pose.y < header + 12
+          const reading = wolfCoversText(pose, regions)
+          const visible = !reading && pose.x + pose.width > 0 && pose.x < document.documentElement.clientWidth && pose.y + pose.width * 8 / 9 > header && pose.y < window.innerHeight - 100
           button.dataset.reading = String(reading)
-          button.dataset.visible = String(!reading)
-          button.setAttribute("aria-hidden", String(reading))
+          button.dataset.visible = String(visible)
+          button.setAttribute("aria-hidden", String(!visible))
           button.style.width = `${pose.width}px`
           button.style.transform = `translate3d(${pose.x}px,${pose.y}px,0) rotate(${pose.rotation}deg)`
-          button.dataset.stop = String(pose.index)
-          button.tabIndex = reading ? -1 : 0
+          button.dataset.stop = String(desired.index)
+          button.tabIndex = visible ? 0 : -1
         } else {
           button.dataset.visible = "false"
           button.setAttribute("aria-hidden", "true")
           button.tabIndex = -1
-          previousPose = null
         }
         page.dataset.journeyActive = "true"
         if (moving) frame = requestAnimationFrame(draw)
@@ -71,10 +108,11 @@ export default function JourneyWolf() {
         button.style.setProperty("--wolf-look-y", String(event.clientY / window.innerHeight - .5))
       }
       window.addEventListener("scroll", queue, { passive: true })
-      window.addEventListener("resize", queue)
+      const relayout = () => { path = []; routeTarget = null; queue() }
+      window.addEventListener("resize", relayout)
       window.addEventListener("pointermove", pointer, { passive: true })
       // Font/image layout changes must update the path even without another scroll.
-      const observer = new ResizeObserver(queue)
+      const observer = new ResizeObserver(relayout)
       observer.observe(page)
       queue()
       void document.fonts.ready.then(() => { if (active) queue() })
@@ -83,7 +121,7 @@ export default function JourneyWolf() {
         cancelAnimationFrame(frame)
         observer.disconnect()
         window.removeEventListener("scroll", queue)
-        window.removeEventListener("resize", queue)
+        window.removeEventListener("resize", relayout)
         window.removeEventListener("pointermove", pointer)
         delete page.dataset.journeyActive
         button.removeAttribute("style")

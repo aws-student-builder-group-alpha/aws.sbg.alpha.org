@@ -106,3 +106,63 @@ test('the hero mascot uses an intermediate size when photos leave room for it', 
   assert.ok(pose && pose.width >= 250)
   assert.equal(wolfCoversText(pose, photos), false)
 })
+
+test('travel routes bend around a content block instead of crossing or fading through it', () => {
+  const { wolfRoute, wolfSegmentClear } = compiled.exports
+  const from = { x: 100, y: 300 }, to = { x: 800, y: 300 }
+  const content = [{ left: 400, right: 600, top: 250, bottom: 500 }]
+  assert.equal(wolfSegmentClear(from, to, 80, content), false)
+  const path = wolfRoute(from, to, 80, content, 1200, 900, 80)
+  assert.ok(path && path.length > 1)
+  let previous = from
+  for (const point of path) {
+    assert.equal(wolfSegmentClear(previous, point, 80, content), true)
+    previous = point
+  }
+  assert.deepEqual(previous, to)
+})
+test('sudden target reversals cannot teleport or abruptly resize the visible mascot', () => {
+  const { stepWolfPose } = compiled.exports
+  let pose = { x: 100, y: 300, width: 180, rotation: 0, index: 1 }
+  for (const x of [1000, -1000, 900, 0, 800]) {
+    const next = stepWolfPose(pose, { ...pose, x, y: x, width: 76, rotation: 5 }, 1 / 60)
+    assert.ok(Math.hypot(next.x - pose.x, next.y - pose.y) <= 8.001)
+    assert.ok(Math.abs(next.width - pose.width) <= 1.667)
+    pose = next
+  }
+})
+test('frame stalls are capped and motion remains consistent at 30 and 60 fps', () => {
+  const { stepWolfPose } = compiled.exports
+  const initial = { x: 100, y: 300, width: 180, rotation: 0, index: 1 }
+  const target = { ...initial, x: 1000, width: 76 }
+  assert.ok(stepWolfPose(initial, target, 5).x - initial.x <= 24)
+  const simulate = fps => {
+    let pose = initial
+    for (let frame = 0; frame < fps; frame++) pose = stepWolfPose(pose, target, 1 / fps)
+    return pose
+  }
+  assert.ok(Math.abs(simulate(30).x - simulate(60).x) < 2)
+})
+
+test('resizing a mascot preserves its visual center instead of shifting it into a corner', () => {
+  const { resizeWolfPose } = compiled.exports
+  const pose = { x: 1000, y: 300, width: 500, rotation: 0, index: 0 }
+  const smaller = resizeWolfPose(pose, 280)
+  assert.equal(smaller.x + smaller.width / 2, pose.x + pose.width / 2)
+  assert.equal(smaller.y + smaller.width * 4 / 9, pose.y + pose.width * 4 / 9)
+  assert.deepEqual(resizeWolfPose(smaller, 500), pose)
+})
+
+test('a viewport resize lets the mascot travel back on screen around content', () => {
+  const { wolfRoute, wolfSegmentClear } = compiled.exports
+  const from = { x: 1100, y: 300 }, to = { x: 20, y: 300 }
+  const content = [{ left: 200, right: 300, top: 200, bottom: 500 }]
+  const path = wolfRoute(from, to, 80, content, 320, 780)
+  assert.ok(path)
+  let previous = from
+  for (const point of path) {
+    assert.equal(wolfSegmentClear(previous, point, 80, content), true)
+    previous = point
+  }
+  assert.deepEqual(previous, to)
+})
