@@ -15,7 +15,8 @@
     "test:browser": "cd src/recruitment && node scripts/browser-tests.mjs",
     "test:ci": "npm run test:integration && npm run test:recruitment",
     "verify:ci": "node src/recruitment/scripts/verify-ci.mjs",
-    "test:integration": "node --test scripts/shared-proxy.test.mjs scripts/shared-member-removal.test.mjs scripts/section-navigation.test.mjs"
+    "db:recruitment:sql": "node scripts/setup-recruitment-db.mjs",
+    "test:integration": "node --test scripts/shared-proxy.test.mjs scripts/shared-member-removal.test.mjs scripts/recruitment-setup.test.mjs scripts/section-navigation.test.mjs"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",
