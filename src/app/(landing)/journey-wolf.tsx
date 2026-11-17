@@ -18,7 +18,9 @@ export default function JourneyWolf() {
       if (!motion.matches) return
       const hosts = Array.from(page.querySelectorAll<HTMLElement>("[data-wolf-stop]"))
       if (hosts.length < 2) return
-      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-benefit-copy, .alpha-scene-heading, .alpha-quote, .alpha-role-panel h3, .alpha-role-panel p, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-invitation, .alpha-hero-photo-controls, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-finale footer, nav"
+      // Whole content blocks are protected, including photos and service demos.
+      // The mascot belongs beside these elements, never on their surface.
+      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-video-toggle, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-invitation, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer, nav"
       let frame = 0
       let active = true
       let previousPose: NonNullable<ReturnType<typeof wolfPose>> | null = null

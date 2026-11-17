@@ -49,7 +49,7 @@ export function safeWolfPose(desired: NonNullable<ReturnType<typeof wolfPose>>, 
   const obstacles = regions.filter(rect => rect.bottom > top && rect.top < bottom && rect.right > 0 && rect.left < viewportWidth)
   let best: typeof desired | null = null
   let cost = Infinity
-  for (const width of [...new Set([desired.width, Math.min(desired.width, 144), Math.min(desired.width, 104), Math.min(desired.width, 76)])]) {
+  for (const width of [...new Set([desired.width, desired.width * .8, desired.width * .65, desired.width * .5, Math.min(desired.width, 144), Math.min(desired.width, 104), Math.min(desired.width, 76)])].filter(width => width >= Math.min(76, desired.width))) {
     const height = width * 8 / 9
     if (height > bottom - top || width > viewportWidth - 32) continue
     const clampX = (x: number) => Math.max(16, Math.min(viewportWidth - width - 16, x))
@@ -61,7 +61,7 @@ export function safeWolfPose(desired: NonNullable<ReturnType<typeof wolfPose>>, 
     for (const x of xs) for (const y of ys) {
       const pose = { ...desired, x, y, width, rotation: Math.max(-5, Math.min(5, desired.rotation)) }
       if (wolfCoversText(pose, obstacles)) continue
-      const score = Math.hypot(x + width / 2 - (desired.x + desired.width / 2), y + height / 2 - (desired.y + desired.width * 4 / 9)) + (1 - width / desired.width) * 180
+      const score = Math.hypot(x + width / 2 - (desired.x + desired.width / 2), y + height / 2 - (desired.y + desired.width * 4 / 9)) + (1 - width / desired.width) * 300
       if (score < cost) { best = pose; cost = score }
     }
   }

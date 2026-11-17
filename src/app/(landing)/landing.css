@@ -179,7 +179,7 @@
 .alpha-wolf-hint{position:absolute;left:50%;bottom:0;translate:-50% 60%;padding:7px 12px;border:2px solid #211c28;background:#ffb13e;color:#211c28;font:11px var(--font-geist-mono),monospace;white-space:nowrap;opacity:0;transition:opacity .15s;pointer-events:none}
 .alpha-journey-wolf:is(:hover,:focus-visible) .alpha-wolf-hint,.alpha-journey-wolf:has([data-excited="true"]) .alpha-wolf-hint{opacity:1}
 .alpha-journey-body[data-excited="true"]{animation:alpha-high-five .65s cubic-bezier(.2,.8,.2,1)}
-@keyframes alpha-high-five{0%,100%{translate:0 0;rotate:0deg;scale:1}30%{translate:0 -25%;rotate:-15deg;scale:1.1}65%{translate:0 -10%;rotate:12deg;scale:1.05}}
+@keyframes alpha-high-five{0%,100%{translate:0 0;rotate:0deg;scale:1}30%{translate:0 -10px;rotate:-6deg;scale:1.03}65%{translate:0 -4px;rotate:4deg;scale:1.01}}
 .alpha-role-mascot{display:block;width:80px;flex-shrink:0}
 .alpha-role-mascot .alpha-pixel-wolf{width:100%}
 .alpha-proof-wolf{display:block;flex-shrink:0}
@@ -235,3 +235,11 @@
 .alpha-landing .alpha-community-invitation{position:fixed;z-index:55;left:50%;bottom:max(32px,env(safe-area-inset-bottom));translate:-50% 0;width:clamp(340px,30vw,500px);max-width:calc(100% - 12vw);border:1px solid #e8d8ff80;box-shadow:inset 0 1px 0 #ffffff90,5px 5px 0 #211c28,0 8px 30px #12091e55}
 .alpha-finale{padding-bottom:100px}
 @media(max-width:799px){.alpha-landing .alpha-community-invitation{bottom:max(20px,env(safe-area-inset-bottom));width:86%;max-width:500px}.alpha-landing .alpha-opening-bottom{bottom:110px;gap:12px}}
+
+/* Give the traveling wolf space beside the artwork rather than on top of it. */
+.alpha-benefit{padding-bottom:180px}
+.alpha-wolf-sticker{width:clamp(84px,7vw,108px)}
+.alpha-wolf-learn{right:4%;top:auto;bottom:-140px}
+.alpha-wolf-build{left:4%;bottom:-140px}
+.alpha-wolf-people{right:4%;bottom:-140px;width:clamp(84px,7vw,108px)}
+@media(max-width:799px){.alpha-benefit{padding-bottom:160px}.alpha-wolf-sticker,.alpha-wolf-people{width:84px}.alpha-wolf-learn,.alpha-wolf-build,.alpha-wolf-people{bottom:-120px}}

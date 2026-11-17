@@ -82,3 +82,27 @@ test('a narrow viewport with no free space hides the wolf instead of covering co
   const { safeWolfPose } = compiled.exports
   assert.equal(safeWolfPose({ x: 50, y: 300, width: 120, rotation: 0, index: 1 }, [{ left: 0, right: 320, top: 96, bottom: 780 }], 320, 780), null)
 })
+
+test('the mascot stays beside whole photo and service panels, not inside their empty areas', () => {
+  const { safeWolfPose, wolfCoversText } = compiled.exports
+  const desired = { x: 800, y: 300, width: 110, rotation: 0, index: 1 }
+  const content = [
+    { left: 90, right: 630, top: 250, bottom: 650 },
+    { left: 790, right: 1330, top: 200, bottom: 700 },
+  ]
+  const pose = safeWolfPose(desired, content, 1440, 1000)
+  assert.ok(pose)
+  assert.equal(wolfCoversText(pose, content), false)
+  assert.ok(pose.x + pose.width <= 790 || pose.x >= 1330 || pose.y + pose.width * 8 / 9 <= 200 || pose.y >= 700)
+})
+test('the hero mascot uses an intermediate size when photos leave room for it', () => {
+  const { safeWolfPose, wolfCoversText } = compiled.exports
+  const desired = { x: 550, y: 250, width: 500, rotation: 0, index: 0 }
+  const photos = [
+    { left: 500, right: 650, top: 650, bottom: 800 },
+    { left: 950, right: 1100, top: 200, bottom: 360 },
+  ]
+  const pose = safeWolfPose(desired, photos, 1400, 1000)
+  assert.ok(pose && pose.width >= 250)
+  assert.equal(wolfCoversText(pose, photos), false)
+})
