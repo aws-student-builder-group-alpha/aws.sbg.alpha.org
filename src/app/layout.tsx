@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import SmoothScroll from "@/components/smooth-scroll"
 import PageLoader from "@/components/page-loader"
+import { HOME_RELOAD_SCROLL } from "@/lib/home-reload-scroll"
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -66,6 +67,7 @@ export default function RootLayout({
 			className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			suppressHydrationWarning
 		>
+			<head><script id="alpha-home-reload-scroll" dangerouslySetInnerHTML={{ __html: HOME_RELOAD_SCROLL }} /></head>
 			<body suppressHydrationWarning>
 				<PageLoader />
 				<SmoothScroll>{children}</SmoothScroll>
