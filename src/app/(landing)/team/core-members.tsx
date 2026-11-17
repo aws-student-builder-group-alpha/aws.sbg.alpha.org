@@ -27,18 +27,18 @@ const MEMBERS: Member[] = [
 		facebook:
 			"https://www.facebook.com/profile.php?id=100009325386830",
 	},
-	// {
-	// 	name: "Emmanuel Toraja Fabella",
-	// 	role: "Executive Secretary",
-	// 	description:
-	// 		"Ensuring smooth operations and organizational excellence.",
-	// 	image: "/optimized/board-members/fabella.webp",
-	// 	linkedin:
-	// 		"https://www.linkedin.com/in/emmanuel-fabella/",
-	// 	email: "emmanuelfabella606@gmail.com",
-	// 	facebook:
-	// 		"https://www.facebook.com/1emmanuelfabella1",
-	// },
+	{
+		name: "Emmanuel Toraja Fabella",
+		role: "Executive Secretary",
+		description:
+			"Ensuring smooth operations and organizational excellence.",
+		image: "/optimized/board-members/fabella.webp",
+		linkedin:
+			"https://www.linkedin.com/in/emmanuel-fabella/",
+		email: "emmanuelfabella606@gmail.com",
+		facebook:
+			"https://www.facebook.com/1emmanuelfabella1",
+	},
 	{
 		name: "Ram Christopher Broqueza Baarde",
 		role: "Co-Founder, Co-Captain, and Chief Finance Officer",
@@ -186,8 +186,8 @@ function MemberCard({
 }) {
 	return (
 		<div
-			className="member-card flex-shrink-0
-				w-[75vw] sm:w-80 lg:w-96 group"
+			className="member-card group"
+            role="listitem"
 		>
 			<div
 				className="relative rounded-2xl overflow-hidden
@@ -207,7 +207,8 @@ function MemberCard({
 						src={member.image}
 						alt={member.name}
 						fill
-                        sizes="240px"
+                        sizes="(min-width: 1200px) 220px, (min-width: 700px) 25vw, 45vw"
+                        loading="eager"
 						className="object-cover
 							md:grayscale md:group-hover:grayscale-0
 							md:group-hover:scale-105
@@ -312,12 +313,11 @@ export default function CoreMembers() {
 					</h2>
 				</div>
 
-				{/* Horizontal scroll track */}
+				{/* All portraits are present in the responsive grid. */}
 				<div
-					className="alpha-team-track"
-                    tabIndex={0}
-                    role="region"
-                    aria-label="Browse teammates"
+					className="alpha-team-grid"
+                    role="list"
+                    aria-label="Your future teammates"
 				>
 					{MEMBERS.map((member, i) => (
 						<MemberCard

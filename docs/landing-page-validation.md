@@ -80,3 +80,15 @@ Checks: 4 navigation/smoothing tests and 3 journey geometry tests pass. Tests co
 Chrome confirmed the banner's opaque `rgb(255, 177, 62)` background at the top and after scrolling. Returning to the top restores a 510px mascot in the checked desktop viewport, compared with the earlier roughly 805px transformed measurement. Desktop, 390px, and 320px layouts have no horizontal overflow. The compact mobile menu closes and the Roles anchor clears the 89px header by 16px. Reduced-motion layout remains available.
 
 All 4 journey geometry tests and 4 navigation/smoothing tests pass. The new regression covers oversized anchors, negative overscroll, and short viewport height. Type checking reports the same six unrelated errors and none in the changed files.
+
+## Readability, animated backgrounds, and roster grid
+
+Separated hero text from its mascot/photo composition. Benefits now reserve independent columns for text and photographs on desktop and stack text above photographs on mobile. Photo translation and rotation are limited to those spaces. Section headings move as complete readable blocks. The traveling wolf checks current heading, copy, button, and roster bounds; it fades before crossing protected content and leaves the tab order while hidden.
+
+Added six dedicated color-transition bands between different section backgrounds. Each band's curved fill expands with scroll and reverses when scrolling up, without covering section content. Reduced motion uses a complete static fill. Section glows fade out at the boundaries, preserving their shared colors. Buttons, badges, cards, and frames use gradients and highlights for a glossy finish; the recruitment banner retains an opaque base.
+
+Replaced the team's horizontal browsing strip with a responsive portrait grid (six columns on wide desktops, four/five on intermediate widths, and two on phones). All portraits load eagerly. Restored the existing Emmanuel Toraja Fabella entry, image, Executive Secretary role, and original contact links. The roster now contains eleven people. Social/contact links remain available.
+
+Requested @Browser verification was attempted, but the tool reported `Browser is not available: iab`. Verification continued in the connected Chrome preview. At 1280px, all three benefit scenes had zero text-glyph intersections with either photo, and the gallery did not intersect its heading. At 390px and 320px, benefits had zero text/photo overlap and no horizontal page overflow. At 320px the closing heading wraps inside the viewport, and reduced motion preserves complete readable lines. All eleven portraits loaded in the grid, including Emmanuel. A partial background sweep was observed at `ellipse(81.0638% 85.2998% at 50% 100%)`. The traveling wolf's opacity is zero while passing over the roster.
+
+Checks: 5 journey geometry tests (including text/control collision margins) and 4 navigation/smoothing tests pass. Type checking still reports the same six unrelated errors.
