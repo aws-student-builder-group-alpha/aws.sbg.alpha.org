@@ -11,7 +11,7 @@ const { code } = await transform(await readFile(new URL('../src/components/smoot
   filename: 'smooth-scroll.tsx', jsc: { parser: { syntax: 'typescript', tsx: true }, transform: { react: { runtime: 'automatic' } } }, module: { type: 'commonjs' },
 });
 
-function harness(reduced = false) {
+function harness(reduced = false, pathname = '/') {
   const saved = Object.fromEntries(['window', 'document', 'requestAnimationFrame', 'cancelAnimationFrame'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const effects = [], listeners = new Map(), frames = new Map(), calls = [];
   let nextFrame = 0, pins = [];
@@ -32,7 +32,7 @@ function harness(reduced = false) {
   const dependencies = {
     react: { useEffect: callback => effects.push(callback), useRef: () => ({ current: null }) },
     'react/jsx-runtime': { Fragment: Symbol('fragment'), jsx: () => null },
-    'next/navigation': { usePathname: () => '/' },
+    'next/navigation': { usePathname: () => pathname },
     lenis: { __esModule: true, default: Lenis },
     gsap: { __esModule: true, default: { registerPlugin() {}, ticker: { add() {}, remove() {}, lagSmoothing() {} } } },
     'gsap/ScrollTrigger': { ScrollTrigger: { getAll: () => pins, addEventListener: add, removeEventListener: remove, update() {} } },
@@ -56,7 +56,7 @@ function harness(reduced = false) {
 }
 
 test('a section link follows the final pin position after page navigation without restarting animations', () => {
-  const app = harness();
+  const app = harness(false, '/events');
   try {
     app.flush(); assert.equal(app.calls.at(-1).top, 1904);
     app.pin(6000); app.emit('refresh'); app.flush(); assert.equal(app.calls.at(-1).top, 5904);
@@ -73,5 +73,14 @@ test('reduced motion uses native section navigation and tolerates missing or mal
     const count = app.calls.length;
     for (const hash of ['#missing', '#%E0%A4%A', '']) { window.location.hash = hash; app.emit('hashchange'); app.flush(); }
     assert.equal(app.calls.length, count);
+  } finally { app.close(); }
+});
+
+test('homepage uses native scrolling and aligns compatibility anchors', () => {
+  const app = harness();
+  try {
+    app.flush(); assert.deepEqual(app.calls.at(-1), { method: 'native', top: 1904, behavior: 'instant' });
+    window.location.hash = '#about'; app.emit('hashchange'); app.flush();
+    assert.deepEqual(app.calls.at(-1), { method: 'native', top: 904, behavior: 'instant' });
   } finally { app.close(); }
 });

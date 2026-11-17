@@ -62,7 +62,7 @@ export default function SmoothScroll({
 				'(prefers-reduced-motion: reduce)',
 			).matches
 
-		if (prefersReducedMotion || window.matchMedia('(pointer: coarse)').matches) return
+		if (pathname === "/" || prefersReducedMotion || window.matchMedia('(pointer: coarse)').matches) return
 
 		const lenis = new Lenis({
 			duration: 0.75,
@@ -86,7 +86,7 @@ export default function SmoothScroll({
 			lenis.destroy()
 			lenisRef.current = null
 		}
-	}, [])
+	}, [pathname])
 
 	return <>{children}</>
 }
