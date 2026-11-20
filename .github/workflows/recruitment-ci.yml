@@ -60,6 +60,7 @@ jobs:
             .next/verification/application-queue/*.png
             .next/verification/intake/*.png
             .next/verification/application-export/*.png
+            src/recruitment/.next/verification/admin-workspace/*.png
             src/recruitment/.next/verification/staff-confirmation/*.png
             src/recruitment/.next/verification/applicant-submission/*.png
             src/recruitment/.next/verification/evaluations/*.png

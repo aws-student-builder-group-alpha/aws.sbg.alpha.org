@@ -24,7 +24,7 @@ before(async()=>{
   sendMail:async message=>{sent.push(message);return{accepted:[message.to]}},serviceRpc:async(name,args)=>{await rt.db.query(name==='alpha_finish_member_invitation'?'select public.alpha_finish_member_invitation($1,$2)':'select public.alpha_finish_message($1,$2)',[args.p_id,args.p_state]);return{data:null,error:null}},
  });
 });
-after(async()=>{delete process.env.ALPHA_GMAIL_APP_PASSWORD;delete process.env.ALPHA_SUPABASE_SECRET_KEY;await rt?.db.close()});
+after(async()=>{delete process.env.ALPHA_GMAIL_APP_PASSWORD;delete process.env.RECRUITMENT_SUPABASE_URL;delete process.env.RECRUITMENT_SUPABASE_PUBLISHABLE_KEY;delete process.env.RECRUITMENT_SUPABASE_SECRET_KEY;await rt?.db.close()});
 function request(action,extra={}){return new Request(origin+'/recruitment/api/community',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({accountId:rt.identity.id,action,...extra})})}
 function upload(file,extra={}){const form=new FormData();form.set('accountId',rt.identity.id);form.set('kind','enrollment');form.set('file',file);for(const[k,v]of Object.entries(extra))form.set(k,v);return new Request(origin+'/recruitment/api/community/upload',{method:'POST',headers:{origin},body:form})}
 test('community HTTP rejects anonymous, cross-origin and changed-account mutations without uploading',async()=>{
@@ -49,7 +49,7 @@ test('email handler is disabled without credentials and exact retries call the t
  await rt.db.query("insert into evaluation_assignments(application_id,generation,evaluator_id,assigned_by) values($1,1,$2,$3)",[application.id,head.id,admin.id]);await rt.db.query("update applications set status='Under Review',version=2 where id=$1",[application.id]);rt.setIdentity(head);
  const message={id:crypto.randomUUID(),applicationId:application.id,version:2,kind:'interview',subject:'Interview invitation',body:'Please select an interview schedule.',calendly:'https://calendly.com/alpha/interview',recipient:'attacker@example.test'};
  assert.equal((await routes.route.POST(request('send',message))).status,503);assert.equal(sent.length,0);
- process.env.ALPHA_GMAIL_APP_PASSWORD='synthetic-only';process.env.ALPHA_SUPABASE_SECRET_KEY='synthetic-only';process.env.NEXT_PUBLIC_SUPABASE_URL='https://synthetic.supabase.co';
+ process.env.ALPHA_GMAIL_APP_PASSWORD='synthetic-only';process.env.RECRUITMENT_SUPABASE_SECRET_KEY='synthetic-only';process.env.RECRUITMENT_SUPABASE_URL='https://synthetic.supabase.co';process.env.RECRUITMENT_SUPABASE_PUBLISHABLE_KEY='sb_publishable_synthetic';
  for(let i=0;i<2;i++){const response=await routes.route.POST(request('send',message));assert.equal(response.status,200);assert.equal((await response.json()).data.state,'sent')}
  assert.equal(sent.length,1);assert.equal(sent[0].from.address,'awslc.alpha@gmail.com');assert.equal(sent[0].to,original.email);assert.match(sent[0].text,/https:\/\/calendly.com\/alpha\/interview/);assert.equal(sent[0].html,undefined);assert.equal(sent[0].disableUrlAccess,true);
  assert.equal((await routes.route.POST(request('send',{...message,body:'Changed request'}))).status,409);

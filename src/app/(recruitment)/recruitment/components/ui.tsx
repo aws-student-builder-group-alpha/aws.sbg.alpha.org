@@ -160,7 +160,7 @@ function useWorkspaceFrame(): WorkspaceFrame | undefined {
   if (segments.length === 1 && ["apply", "application"].includes(segments[0])) return "applicant";
   if (segments.length === 1 && segments[0] === "staff") return "staff";
   if (segments.length === 1 && segments[0] === "reviewer") return "evaluator";
-  if (segments[0] === "admin" && (segments.length === 1 || segments.length === 2 && ["applications", "intake"].includes(segments[1]))) return "administrator";
+  if (segments[0] === "admin" && (segments.length === 1 || segments.length === 2 && ["applications", "intake", "staff", "members", "activity"].includes(segments[1]))) return "administrator";
   return undefined;
 }
 export function ApplicationAction({ children, className, opportunity }: { children: ReactNode; className: string; opportunity?: string }) {
@@ -181,7 +181,10 @@ type HeaderProps = { signedIn?: boolean; staff?: HeaderStaff; pendingSession?: b
 export function SiteHeader(props: HeaderProps) {
   const path = usePathname();
   const frame = useWorkspaceFrame();
-  return <HeaderContent key={path} path={path} frame={frame} {...props} />;
+  const canvas = frame === "administrator" || frame === "staff" || frame === "evaluator"
+    ? <style data-workspace-canvas>{"html,body.alpha-app{background:#08090a}"}</style> : null;
+  if (frame === "administrator") return <>{canvas}<a className="skip-link" href="#main-content">Skip to content</a></>;
+  return <>{canvas}<HeaderContent key={path} path={path} frame={frame} {...props} /></>;
 }
 function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = false, member = false, accountLabel = "Account" }: HeaderProps & { path: string; frame?: WorkspaceFrame }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -257,12 +260,12 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
   const links: { href: string; label: string }[] = [];
   if (!staff && signedIn) links.push(member ? { href: "/recruitment/membership", label: "Membership ID" } : { href: "/recruitment/application?resume=1", label: "My application" });
   else if (staff && (staff.status !== "active" || staff.needsMfa)) links.push({ href: "/recruitment/staff", label: "Staff sign-in" });
-  else if (staff?.role === "administrator") links.push({ href: "/recruitment/admin/applications", label: "Applications" }, { href: "/recruitment/admin/intake", label: "Intake" }, { href: "/recruitment/admin", label: "Staff management" });
+  else if (staff?.role === "administrator") links.push({ href: "/recruitment/admin/applications", label: "Applications" }, { href: "/recruitment/admin/intake", label: "Intake" }, { href: "/recruitment/admin/staff", label: "Staff management" });
   else if (staff) links.push({ href: "/recruitment/reviewer", label: "Organization Head" });
   if (!member) links.push({ href: "/recruitment/membership", label: "Membership ID" });
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <div className="site-header-space" data-tone={dark ? "dark" : "light"} aria-hidden="true" />
+    <div className="site-header-space" data-workspace-frame={frame} data-tone={dark ? "dark" : "light"} aria-hidden="true" />
     <header ref={headerRef} className="site-header" data-workspace-frame={frame} data-adaptive={path === "/recruitment" ? "home" : "page"} data-tone={dark ? "dark" : "light"} data-menu-open={menuOpen}
       onKeyDown={event => { if (event.key === "Escape") { if (menuOpen) { event.preventDefault(); closeMenu(); } else if (accountOpen) { event.preventDefault(); setAccountOpen(false); accountButton.current?.focus(); } } }}>
       <div ref={rowRef} className="header-inner">
@@ -407,6 +410,7 @@ export function Modal({
   children,
   onClose,
   dismissible = true,
+  active = true,
   className,
 }: {
   title: string;
@@ -414,12 +418,15 @@ export function Modal({
   children: ReactNode;
   onClose: () => void;
   dismissible?: boolean;
+  active?: boolean;
   className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   useGSAP(
     () => {
       const dialog = ref.current;
+      if (!active) return;
       const previousFocus = document.activeElement as HTMLElement | null;
       dialog?.showModal();
       return () => {
@@ -428,22 +435,23 @@ export function Modal({
           previousFocus.focus({ preventScroll: true });
       };
     },
-    { scope: ref },
+    { scope: ref, dependencies: [active], revertOnUpdate: true },
   );
   useEntrance(ref, { duration: motionPresets.dialog, allowFocused: true });
   return (
     <dialog
       ref={ref}
+      hidden={!active}
       className={className ? `modal ${className}` : "modal"}
       aria-label={headerContent ? title : undefined}
-      aria-labelledby={headerContent ? undefined : "modal-title"}
+      aria-labelledby={headerContent ? undefined : titleId}
       onCancel={event => { event.preventDefault(); if (dismissible) onClose(); }}
       onClick={(event) => {
         if (dismissible && event.target === event.currentTarget) onClose();
       }}
     >
       <div className="modal-heading">
-        {headerContent || <h2 id="modal-title">{title}</h2>}
+        {headerContent || <h2 id={titleId}>{title}</h2>}
         <button
           className="icon-button"
           type="button"

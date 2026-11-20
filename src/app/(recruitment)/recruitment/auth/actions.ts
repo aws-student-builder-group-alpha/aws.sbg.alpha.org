@@ -38,7 +38,7 @@ async function beginGoogleSignIn(destination: "apply" | "staff" | "membership", 
   cookieStore.set("alpha-opportunity", selected?.id || "", { httpOnly: true, sameSite: "lax", secure: getAppOrigin().startsWith("https:"), path: "/", maxAge: selected ? 600 : 0 });
   let providerUrl: string | null = null;
   try {
-    const { data, error } = await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo: getAppOrigin() + "/auth/callback", scopes: "openid email profile", queryParams: { prompt: "select_account" } } });
+    const { data, error } = await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo: getAppOrigin() + "/recruitment/auth/callback", scopes: "openid email profile", queryParams: { prompt: "select_account" } } });
     if (!error) providerUrl = data.url;
   } catch { /* Show the retryable access screen without exposing provider errors. */ }
   if (providerUrl) redirect(providerUrl);

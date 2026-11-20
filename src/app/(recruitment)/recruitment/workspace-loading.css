@@ -1,0 +1,35 @@
+/* The active shared header owns the root canvas; retained pages never select it. */
+.workspace-skeleton-block { display:block; width:100%; max-width:100%; border-radius:6px; background:#dce3eb; animation:workspace-skeleton-pulse 1.8s ease-in-out infinite; }
+.workspace-skeleton-block.skeleton-line { height:14px; }
+.workspace-skeleton-block.skeleton-title { height:32px; width:55%; margin-block:16px; }
+.workspace-skeleton-block.skeleton-field { height:48px; border-radius:12px; }
+.workspace-skeleton-block.skeleton-paragraph { height:100px; margin-block:24px; border-radius:12px; }
+.workspace-skeleton-block.skeleton-medium { width:65%; }
+.workspace-skeleton-block.skeleton-short { width:35%; }
+.workspace-skeleton-heading { margin-bottom:28px; }
+.workspace-skeleton-list { display:grid; gap:0; }
+.workspace-skeleton-row { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,.6fr); align-items:center; gap:16px; padding-block:22px; border-bottom:1px solid #e5e9ef; }
+.workspace-skeleton-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; margin-block:24px; }
+.workspace-skeleton-detail { min-height:360px; }
+.workspace-skeleton-reviewer { overflow:hidden; border-radius:20px; background:#fff; padding:24px; }
+.workspace-skeleton-toolbar { display:grid; gap:20px; padding-bottom:24px; }
+.workspace-skeleton-split { display:grid; grid-template-columns:320px minmax(0,1fr); gap:32px; }
+.alpha-app .recruitment-process [data-skeleton-view="reviewer"] .workspace-skeleton-reviewer { width:min(calc(100% - 32px),1280px); margin-inline:auto; }
+.staff-auth-card .workspace-loading [aria-busy] { display:grid; gap:16px; }
+.staff-auth-card .workspace-loading .skeleton-title { margin-block:0; }
+.staff-auth-card .workspace-loading .skeleton-paragraph { margin-block:8px; }
+.admin-account .workspace-skeleton-row { border-color:#ffffff26; }
+.admin-account .workspace-skeleton-block { background:#435166; }
+.admin-account .workspace-loading { padding:12px; }
+@keyframes workspace-skeleton-pulse { 50% { opacity:.45; } }
+@media(max-width:767px) {
+  .workspace-skeleton-fields { grid-template-columns:minmax(0,1fr); }
+  .workspace-skeleton-row { gap:12px; }
+  .workspace-skeleton-reviewer { padding:20px; }
+}
+@media(max-width:899px) {
+  .workspace-skeleton-split { grid-template-columns:minmax(0,1fr); }
+  .workspace-skeleton-split>div+div { display:none; }
+}
+@media(prefers-reduced-motion:reduce) { .workspace-skeleton-block { animation:none; } }
+@media(forced-colors:active) { .workspace-skeleton-block { background:GrayText; animation:none; } }

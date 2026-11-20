@@ -1,10 +1,28 @@
+## Recruitment uses its existing Supabase project on the main deployment - 20 November 2026
+
+The unified app routes Recruitment to project `xndpudtctuqxnbkhhmre` and Skillbuilder to its own project. Recruitment uses a dedicated session cookie and `/recruitment/auth/callback`. Its vacancy API, staff checks, private storage and optional mail receipts use Recruitment credentials. The visual baseline includes the current homepage and recruitment staff redesign.
+
+Root `npm run verify:ci` passed on Node 24.22.1 with zero-warning lint, 211 Node tests, production build, TypeScript, eleven Chromium suites and source integrity. A separate local production smoke used synthetic Skillbuilder settings and the confirmed public Recruitment connection. It served both areas from the same origin, returned 16 live opportunities, and verified callback and anonymous admin redirects. Reviewed desktop and mobile homepage and admin overview renders.
+
+The ignored root environment holds the Recruitment URL and publishable key. Hosted rollout is pending. GitHub's deployment records identify the existing Vercel project as `awslc-alpha-org`; the current Vercel login could not access it. Vercel environment configuration, preview sign-in/MFA, production callback allowlisting and promotion remain pending.
+
+Reviewed all six context documents and updated the configuration notes throughout, along with the READMEs and the community services setup guide. Existing database records are used in place.
+
+## Recruitment staff workspace integrated with main - 20 November 2026
+
+Fast-forwarded `feat/qa-website-improvements` to `origin/main` at `e113a815` and ported the local redesign into the unified recruitment routes. Overview, Applications, Intake, Staff accounts, Organization members and Security activity share the inset sidebar and account controls. Staff sign-in/MFA, evaluator presentation and route loading views carry over. The unified applicant editor, homepage, proxy, shared Supabase configuration and migrations are from main. The original tracked and untracked edits are recoverable from Git stash commit `fd18fdd`.
+
+On Node 24.22.1, root CI passed zero-warning lint, 209 Node tests, production build, TypeScript and source integrity. Ten browser suites passed in the same run. The applicant suite passed separately after updating its shared-header fixture for the `/recruitment` prefix and the admin sidebar. The changed fixture also passed zero-warning lint. The local production preview returned HTTP 200 with no-store access fallbacks on all six administrator routes, Staff and Reviewer with hosted configuration disabled. Desktop and mobile Overview screenshots were reviewed. Checks used synthetic data and no live sign-in or hosted schema changes.
+
+Reviewed the six context documents. Updated overview, architecture, code standards, UI direction and this tracker, plus the manual flow and user guide. The existing AI workflow rules still apply.
+
 ## Unified application - 17 November 2026
 
 This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
 
-Use the main site's Supabase project for both areas, with shared Google identity/session/sign-out and `/auth/callback`. Skillbuilder permissions and recruitment staff memberships remain independent. Recruitment administrators still require AAL2. Recruitment starts fresh: import no accounts, applications, memberships, histories or uploaded files from the old project. Keep the old project intact.
+The unified deployment uses two Supabase projects. Skillbuilder uses its existing project and `/auth/callback`. Recruitment uses project `xndpudtctuqxnbkhhmre` and `/recruitment/auth/callback` with its own session, staff grants, and administrator MFA.
 
-Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the shared Auth user.
+Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the account in the main Auth project.
 
 ### Implementation and verification status
 

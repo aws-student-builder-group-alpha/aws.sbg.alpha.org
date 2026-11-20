@@ -1,0 +1,43 @@
+/* Staff access only: a static brand backdrop and clear, light form surfaces. */
+.alpha-app .recruitment-process[data-workspace-frame="staff"]{--foreground:#232f3e;--muted:#536073;--surface:#fff;--workspace-rule:#c6ced7;--border:#c6ced7;background:transparent;color:#232f3e;color-scheme:light;padding:0;min-height:calc(100svh - var(--site-header-height))}
+.alpha-app .site-header-space[data-workspace-frame="staff"]{background:#08090a}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-page{display:grid;align-items:center;justify-items:center;width:100%;max-width:none;min-height:calc(100svh - var(--site-header-height));margin:0;padding:40px 24px 56px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card{width:100%;max-width:480px;min-width:0;margin:0;padding:40px;border:1px solid #e3e8ef;border-radius:28px;background:#fff;color:#232f3e;box-shadow:0 24px 64px #00000040}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card-wide{max-width:560px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"]>.portal.narrow{width:min(calc(100% - 32px),480px);margin:40px auto;padding:40px;border:1px solid #e3e8ef;border-radius:28px;background:#fff;box-shadow:0 24px 64px #00000040}
+.alpha-app .recruitment-process[data-workspace-frame="staff"]>.portal.narrow .page-heading{display:block;margin-bottom:24px;text-align:left}
+.alpha-app .recruitment-process[data-workspace-frame="staff"]>.portal.narrow h1{font-size:2rem;line-height:1.2;color:#232f3e}
+.alpha-app .recruitment-process[data-workspace-frame="staff"]>.portal.narrow p{font-size:1rem;line-height:1.65;overflow-wrap:anywhere}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-eyebrow{margin:0 0 20px;text-align:left;color:#965500;font-size:.875rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card h1{margin:0 0 16px;font-size:2rem;line-height:1.2;letter-spacing:-.035em;text-align:left;color:#232f3e}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-description{margin:0 0 24px;text-align:left;font-size:1rem;line-height:1.65;color:#536073}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card p{overflow-wrap:anywhere}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card>.workspace-account{margin:0 0 20px;padding:12px 16px;border:1px solid #e3e8ef;border-radius:12px;background:#f3f5f8;color:#536073;font-size:.875rem;line-height:1.6;text-align:left;box-shadow:none}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card .mfa-panel{margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#232f3e}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .mfa-panel h2{margin:0 0 12px;text-align:left;font-size:1.75rem;line-height:1.25;letter-spacing:-.03em;color:#232f3e}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .mfa-panel>p{margin:0 0 24px;text-align:left;font-size:1rem;line-height:1.6;color:#536073}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card .field :is(input:not([type="hidden"]),select){min-height:52px;width:100%;max-width:100%;padding:12px 16px;border:1px solid #78869a;border-radius:12px;background:#f3f5f8;color:#232f3e;font-size:1rem;box-shadow:none}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card .field :is(input,select)[aria-invalid="true"]{border-color:#b42318}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] #mfa-code{max-width:none;font-size:1.5rem;letter-spacing:.3em;text-align:center;font-variant-numeric:tabular-nums}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .field>label{margin-bottom:8px;color:#232f3e;font-size:1rem;font-weight:600}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .button{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;padding:13px 20px;border-radius:16px;font-size:1rem;font-weight:600;line-height:1.4;white-space:normal;box-shadow:0 4px 12px #232f3e14}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .button-orange{border:1px solid #e68900;background:linear-gradient(145deg,#ffb347,#ff9900);color:#232f3e}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .button-orange:hover:not(:disabled){background:#ffb347}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .button-secondary{border:1px solid #78869a;background:#fff;color:#232f3e}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .button:active:not(:disabled){box-shadow:inset 0 2px 4px #232f3e14}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .inline-actions{display:flex;flex-wrap:wrap;gap:12px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .inline-actions>.button{flex:1 1 180px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] :is(a:not(.button),.text-button,summary){color:#754200}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .text-button{min-height:48px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] :focus-visible{outline:3px solid #965500;outline-offset:4px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .workspace-help{margin-top:24px;padding-top:16px;border-top:1px solid #c6ced7;color:#536073;font-size:.875rem;line-height:1.65}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] summary{min-height:44px;cursor:pointer;font-weight:600}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-support{margin:20px 0 0;text-align:center;font-size:.875rem;line-height:1.7;color:#536073}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-support a{display:inline-block;min-height:44px;padding-block:10px;text-decoration:underline;text-underline-offset:3px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .mfa-enrollment{justify-items:center;margin-block:24px}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .mfa-enrollment img{background:#fff;border:12px solid #fff;outline:1px solid #c6ced7;border-radius:8px;box-shadow:none}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .mfa-secret{background:#f3f5f8;color:#232f3e;border:1px solid #78869a;border-radius:12px;box-shadow:none;white-space:normal}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .notice{margin-block:20px;text-align:left}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] .notice :is(p,button){font-size:.875rem;line-height:1.6}
+@media(max-width:599px){.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-page{padding:32px 16px 40px}.alpha-app .recruitment-process[data-workspace-frame="staff"] :is(.staff-auth-card,.portal.narrow){padding:24px}.alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card h1{font-size:1.75rem}.alpha-app .recruitment-process[data-workspace-frame="staff"] .mfa-panel h2{font-size:1.5rem}}
+@media(forced-colors:active){.alpha-app .recruitment-process[data-workspace-frame="staff"]{background:Canvas}.alpha-app .recruitment-process[data-workspace-frame="staff"] :is(.staff-auth-card,.portal.narrow){border-color:CanvasText;box-shadow:none}}

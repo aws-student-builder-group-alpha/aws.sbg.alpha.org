@@ -1,18 +1,14 @@
 # Unified Alpha application
 
-Run `npm ci`, configure `.env.local` using `.env.example`, then run `npm run dev`. Both areas use the main site's Supabase project. Recruitment starts at `/recruitment`; existing main-site URLs remain unchanged.
+Run `npm ci`, configure `.env.local` using `.env.example`, then run `npm run dev`. Recruitment starts at `/recruitment` on the same host as the main site.
 
 Run `npm run verify`, `npm run test:recruitment`, and `npm run build`. Recruitment browser fixtures run through `npm run test:browser` after a build and browser installation.
 
-## Fresh recruitment database setup
+## Supabase and deployment
 
-No historical recruitment records are imported. Inspect the main project's live schema, policies and migration ledger first. `npm run db:recruitment:sql` prints transactional setup SQL without connecting. It refuses existing recruitment tables and existing private functions that need grant review. Historical migration files remain unchanged.
+Set the main site and Skillbuilder credentials under `NEXT_PUBLIC_SUPABASE_*` and the server-only `SUPABASE_SERVICE_ROLE_KEY`. Set `RECRUITMENT_SUPABASE_URL` and `RECRUITMENT_SUPABASE_PUBLISHABLE_KEY` for the existing Recruitment project `xndpudtctuqxnbkhhmre`. The deployment uses its existing records and staff grants.
 
-After verifying the target, configure server-side `RECRUITMENT_SETUP_DATABASE_URL`, `RECRUITMENT_SETUP_PROJECT_REF`, and matching `NEXT_PUBLIC_SUPABASE_URL`, then run `node scripts/setup-recruitment-db.mjs --apply`. Apply only to the reviewed main project. Do not run a generic migration push against either existing project.
-
-Allow the site's exact `/auth/callback` in Supabase Google OAuth configuration. Nominate the first recruitment administrator explicitly, use the documented owner bootstrap procedure, and enroll MFA. Main-site administrator access does not grant recruitment administration. Leave mail credentials blank until email delivery is configured.
-
-The old recruitment project remains intact. Database installation, staff bootstrap and deployment have not been performed by this source change.
+Set both groups of variables on the existing Vercel project, with `APP_URL` set to the exact deployment origin for each environment. Allow `/auth/callback` on that origin in the main Supabase project and `/recruitment/auth/callback` in the Recruitment project. Recruitment uses its own Google session and administrator MFA. Configure `RECRUITMENT_SUPABASE_SECRET_KEY` and `ALPHA_GMAIL_APP_PASSWORD` for Recruitment email when enabled.
 
 ## Project and checks
 

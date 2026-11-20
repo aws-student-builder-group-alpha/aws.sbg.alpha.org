@@ -63,9 +63,9 @@ window.mountEntry=props=>{window.shellPath='/recruitment/apply';root.render(rend
 window.mountLoading=()=>{window.shellPath='/recruitment/apply';root.render(renderShell(jsx(require('./apply-entry').ApplyLoading,{}),false));};
 window.mountHome=(entry={kind:'anonymous'})=>{window.shellPath='/recruitment/opportunities';history.replaceState({},'','/recruitment/opportunities');require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsx(require('home').OpportunityDirectory,{entry})]}),false)));};
 window.mountFeedback=()=>{const {jsx,jsxs}=require('react/jsx-runtime'),ui=require('@/app/(recruitment)/recruitment/components/ui');window.shellPath='/recruitment/privacy';require('react-dom').flushSync(()=>root.render(renderShell(jsx('main',{id:'main-content',className:'container portal narrow',children:jsxs('section',{children:[...['info','success','warning','error'].map(tone=>jsx(ui.Callout,{tone,title:tone+' example',role:tone==='error'?'alert':tone==='success'?'status':undefined,children:jsxs('div',{children:[jsx('p',{children:'Readable feedback with an explicit recovery action.'}),jsx('button',{type:'button',className:'text-button',children:'Retry '+tone})]})},tone)),jsx('label',{htmlFor:'feedback-field',children:'Example field'}),jsx('input',{id:'feedback-field','aria-invalid':true,'aria-describedby':'feedback-field-error'}),jsx(ui.FieldError,{id:'feedback-field-error',children:'Enter a valid value.'}),jsx(ui.ErrorSummary,{children:jsx('a',{href:'#feedback-field',children:'Check the example field'})})]})}),false)));};
-window.mountDepth=()=>{window.shellPath='/';const {jsx,jsxs}=require('react/jsx-runtime');require('react-dom').flushSync(()=>root.render(renderShell(jsxs('main',{id:'main-content',className:'recruitment-home container',style:{paddingBlock:'120px 60px'},children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsxs('div',{style:{display:'grid',gap:'32px',maxWidth:'560px'},children:[jsxs(require('./immersive-card').ImmersiveCard,{className:'track-option',children:[jsx('h3',{className:'card-depth',children:'Core Team'}),jsx('p',{children:'Explore opportunities before choosing a role.'}),jsx('a',{href:'#home-preparation',className:'track-link',children:'Read preparation'})]}),jsx('div',{className:'preparation-card-stage',children:jsx(require('./home-preparation').HomePreparation,{})})]})]}),false)));};
+window.mountDepth=()=>{window.shellPath='/recruitment';const {jsx,jsxs}=require('react/jsx-runtime');require('react-dom').flushSync(()=>root.render(renderShell(jsxs('main',{id:'main-content',className:'recruitment-home container',style:{paddingBlock:'120px 60px'},children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsxs('div',{style:{display:'grid',gap:'32px',maxWidth:'560px'},children:[jsxs(require('./immersive-card').ImmersiveCard,{className:'track-option',children:[jsx('h3',{className:'card-depth',children:'Core Team'}),jsx('p',{children:'Explore opportunities before choosing a role.'}),jsx('a',{href:'#home-preparation',className:'track-link',children:'Read preparation'})]}),jsx('div',{className:'preparation-card-stage',children:jsx(require('./home-preparation').HomePreparation,{})})]})]}),false)));};
 window.mountShell=(path,props={})=>{window.shellPath=path;require('react-dom').flushSync(()=>root.render(require('react/jsx-runtime').jsxs(require('react').Fragment,{children:[jsx(require('@/app/(recruitment)/recruitment/components/ui').SiteHeader,props),jsx(require('@/app/(recruitment)/recruitment/components/ui').Footer,{})]},String(++revision))));};
-window.mountNavigation=(path,props)=>{window.shellPath=path;const {jsx,jsxs}=require('react/jsx-runtime'),ui=require('@/app/(recruitment)/recruitment/components/ui'),home=path==='/';const staff=path.startsWith('/recruitment/admin')?{role:'administrator',status:'active',needsMfa:false}:path==='/recruitment/reviewer'?{role:'evaluator',status:'active',needsMfa:false}:undefined;require('react-dom').flushSync(()=>root.render(jsxs(require('react').Fragment,{children:[jsx(ui.SiteHeader,props||{signedIn:!!staff,staff}),jsx('main',{id:'main-content',className:'workspace-redesign',children:home?jsxs(require('react').Fragment,{children:[jsx('section',{className:'brand-hero',style:{height:'100vh'}}),jsx('section',{className:'home-recruitment-overlay',style:{height:'1800px'}})]}):jsx('section',{style:{height:'3000px'}})}),jsx(ui.Footer,{})]},String(++revision))));};})();`;
+window.mountNavigation=(path,props)=>{window.shellPath=path;const {jsx,jsxs}=require('react/jsx-runtime'),ui=require('@/app/(recruitment)/recruitment/components/ui'),home=path==='/recruitment';const staff=path.startsWith('/recruitment/admin')?{role:'administrator',status:'active',needsMfa:false}:path==='/recruitment/reviewer'?{role:'evaluator',status:'active',needsMfa:false}:undefined;require('react-dom').flushSync(()=>root.render(jsxs(require('react').Fragment,{children:[jsx(ui.SiteHeader,props||{signedIn:!!staff,staff}),jsx('main',{id:'main-content',className:'workspace-redesign',children:home?jsxs(require('react').Fragment,{children:[jsx('section',{className:'brand-hero',style:{height:'100vh'}}),jsx('section',{className:'home-recruitment-overlay',style:{height:'1800px'}})]}):jsx('section',{style:{height:'3000px'}})}),jsx(ui.Footer,{})]},String(++revision))));};})();`;
 const runtime = await applicationRuntime(), origin = "https://application.example.test";
 const uploadObjects=new Map();
 async function uploadSql(query,args=[]){return runtime.db.transaction(async tx=>{await tx.exec('set local role authenticated');await tx.query("select set_config('request.jwt.claim.sub',$1,true),set_config('request.jwt.claims',$2,true)",[runtime.identity.id,JSON.stringify({sub:runtime.identity.id,aal:'aal1'})]);return(await tx.query(query,args)).rows;});}
@@ -841,10 +841,15 @@ try {
   await page.evaluate(()=>{
     const retained=document.createElement('div');retained.id='retained-workspace-fixture';retained.className='workspace-frame';retained.dataset.workspaceFrame='applicant';retained.style.setProperty('display','none','important');document.body.append(retained);
   });
-  for(const [route,frame] of [['/',null],['/recruitment/privacy',null],['/recruitment/apply','applicant'],['/recruitment/application','applicant'],['/recruitment/staff','staff'],['/recruitment/admin','administrator'],['/recruitment/admin/intake','administrator'],['/recruitment/reviewer','evaluator'],['/recruitment/admin/applications','administrator'],['/recruitment/404',null]]){
+  for(const [route,frame] of [['/recruitment',null],['/recruitment/privacy',null],['/recruitment/apply','applicant'],['/recruitment/application','applicant'],['/recruitment/staff','staff'],['/recruitment/admin','administrator'],['/recruitment/admin/intake','administrator'],['/recruitment/reviewer','evaluator'],['/recruitment/admin/applications','administrator'],['/recruitment/404',null]]){
     await page.evaluate(path=>window.mountShell(path),route);
+    if(frame==='administrator'){
+      assert.equal(await page.locator('.site-header,.site-header-space,.header-no-script').count(),0,route+' omits website chrome despite retained pages');
+      assert.equal(await page.locator('.skip-link').count(),1);
+      continue;
+    }
     await page.locator(frame?`.site-header[data-workspace-frame="${frame}"]`:'.site-header:not([data-workspace-frame])').waitFor();
-    assert.equal(await page.locator('.site-header').getAttribute('data-tone'),frame||route==='/'?'dark':'light',route+' derives its tone from the active route despite retained content');
+    assert.equal(await page.locator('.site-header').getAttribute('data-tone'),frame||route==='/recruitment'?'dark':'light',route+' derives its tone from the active route despite retained content');
     assert.equal(await page.locator('.workspace-footer').count(),frame?0:1);
     assert.equal(await page.locator('.footer-standard').isVisible(),!frame);
     assert.equal(await page.locator('.site-footer').count(),frame?0:1);
@@ -884,7 +889,7 @@ try {
   }
   await page.evaluate(()=>document.getElementById('retained-workspace-fixture').remove());
   passed.push('active route segments select the public/workspace frame even when a previous workspace remains hidden in the DOM');
-  passed.push('all ten routes retain logo and navigation/menu gutters at eleven widths');
+  passed.push('shared-header routes retain logo and navigation/menu gutters at eleven widths');
 
   async function assertTextContrast(selector, backgroundSelector = selector) {
     const ratio = await page.locator(selector).evaluate((node, backgroundSelector) => {
@@ -923,18 +928,19 @@ try {
     [{signedIn:true,staff:{role:'evaluator',status:'suspended',needsMfa:false}},['Staff sign-in','Membership ID']],
     [{signedIn:true,staff:{role:'administrator',status:'revoked',needsMfa:false}},['Staff sign-in','Membership ID']],
   ]){
-    for(const route of ['/','/recruitment/privacy','/recruitment/apply','/recruitment/application','/recruitment/staff','/recruitment/admin','/recruitment/admin/applications','/recruitment/admin/intake','/recruitment/reviewer','/recruitment/404']){
+    for(const route of ['/recruitment','/recruitment/privacy','/recruitment/apply','/recruitment/application','/recruitment/staff','/recruitment/admin','/recruitment/admin/applications','/recruitment/admin/intake','/recruitment/reviewer','/recruitment/404']){
       await page.evaluate(({route,props})=>window.mountShell(route,props),{route,props});
+      if(route.startsWith('/recruitment/admin')){assert.equal(await page.locator('.site-header,.site-header-space').count(),0);continue;}
       await page.waitForFunction(expected=>[...document.querySelectorAll('.main-nav a,.main-nav .nav-apply')].at(-1)?.textContent===expected,expected.at(-1));
       assert.deepEqual(await page.locator('.main-nav a,.main-nav .nav-apply').allTextContents(),[...chapterLinks,...expected],'Chapter navigation plus preserved role tools on '+route);
-      for(const [label,href] of [['About','https://www.awsc-alpha.cloud/#about'],['Events','https://www.awsc-alpha.cloud/#events'],['Team','https://www.awsc-alpha.cloud/#members'],['Connect','https://www.awsc-alpha.cloud/#contact'],['Skillbuilders','https://www.awsc-alpha.cloud/skillbuilder/']]) assert.equal(await page.locator('.main-nav').getByRole('link',{name:label,exact:true}).getAttribute('href'),href);
+      for(const [label,href] of [['About','/#about'],['Events','/#events'],['Team','/#members'],['Connect','/#contact'],['Skillbuilders','/skillbuilder/']]) assert.equal(await page.locator('.main-nav').getByRole('link',{name:label,exact:true}).getAttribute('href'),href);
         await assertApplyContrast();
         if(props.signedIn) { await page.locator('.account-trigger').click(); assert.equal(await page.locator('.account-trigger').getAttribute('aria-expanded'),'true'); }
         assert.equal(await page.locator('.main-nav').getByRole('button',{name:'Sign out',exact:true}).count(),props.signedIn?1:0);
         if(props.signedIn) { await page.keyboard.press('Escape');assert.equal(await page.locator('.account-trigger').evaluate(node=>document.activeElement===node),true); }
     }
   }
-  passed.push('anonymous, applicant, administrator, evaluator, MFA-pending and inactive staff menus stay consistent across ten routes');
+  passed.push('anonymous, applicant, administrator, evaluator, MFA-pending and inactive staff menus stay consistent across shared-header routes');
 
   await page.evaluate(()=>window.mountShell('/recruitment/opportunities',{signedIn:true,accountLabel:'Alex Example'}));
   const account=page.getByRole('button',{name:'Alex Example',exact:true});await account.click();
@@ -945,7 +951,7 @@ try {
 
   const adminMenu={signedIn:true,staff:{role:'administrator',status:'active',needsMfa:false}};
   for(const width of [320,375,768,1200,1440]){
-    await page.setViewportSize({width,height:500});await page.evaluate(props=>{window.scrollTo({top:0,behavior:'instant'});window.mountNavigation('/recruitment/admin',props);},adminMenu);
+    await page.setViewportSize({width,height:500});await page.evaluate(props=>{window.scrollTo({top:0,behavior:'instant'});window.mountNavigation('/recruitment/opportunities',props);},adminMenu);
     await page.locator('main').waitFor();
     await page.evaluate(()=>document.documentElement.style.fontSize='32px');
     await page.waitForFunction(()=>{const header=document.querySelector('.site-header');return header.offsetHeight>100&&parseFloat(getComputedStyle(header.querySelector('.brand strong')).fontSize)>20&&Math.abs(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height'))-header.offsetHeight)<1;});
@@ -973,8 +979,9 @@ try {
   await page.clock.resume();
   for (const width of [375,1440]) {
     await page.setViewportSize({width,height:900});
-    for (const route of ['/','/recruitment/opportunities','/recruitment/privacy','/recruitment/apply','/recruitment/application','/recruitment/membership','/recruitment/staff','/recruitment/admin','/recruitment/admin/applications','/recruitment/admin/intake','/recruitment/reviewer','/recruitment/404']) {
+    for (const route of ['/recruitment','/recruitment/opportunities','/recruitment/privacy','/recruitment/apply','/recruitment/application','/recruitment/membership','/recruitment/staff','/recruitment/admin','/recruitment/admin/applications','/recruitment/admin/intake','/recruitment/reviewer','/recruitment/404']) {
       await page.evaluate(path=>{window.scrollTo({top:0,behavior:'instant'});window.mountNavigation(path);},route);
+      if(route.startsWith('/recruitment/admin')){assert.equal(await page.locator('.site-header,.site-header-space').count(),0);continue;}
       const dark=!['/recruitment/opportunities','/recruitment/privacy','/recruitment/404'].includes(route);
       for (const y of [0,400,1400,300,1700,0]) {
         await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),y);
@@ -997,7 +1004,7 @@ try {
   await page.evaluate(()=>window.scrollTo({top:1000,behavior:'instant'}));
   await page.waitForFunction(()=>document.querySelector('.site-header').dataset.hidden==='false');
   await page.emulateMedia({reducedMotion:'reduce'});
-  passed.push('all twelve routes match transparent/frosted light/dark header states; scroll hides/reveals with focus and reduced-motion guards');
+  passed.push('shared-header routes match transparent/frosted light/dark header states; scroll hides/reveals with focus and reduced-motion guards');
 
   await page.evaluate(()=>window.mountHome());
   const directory=page.locator(".roles-grid");

@@ -8,9 +8,9 @@ export function ciEnvironment(base = process.env) {
   const env = { ...base };
   const executablePath = Object.entries(env).find(([key]) => key.toLowerCase() === "path")?.[1] ?? "";
   for (const key of Object.keys(env)) {
-    if (key.toLowerCase() === "path" || /^(?:NEXT_PUBLIC_|SUPABASE_|VERCEL_|DATABASE_URL$|PGPASSWORD$|GH_TOKEN$|GITHUB_TOKEN$|NODE_AUTH_TOKEN$|CRON_SECRET$|NODE_ENV$)/i.test(key)) delete env[key];
+    if (key.toLowerCase() === "path" || /^(?:NEXT_PUBLIC_|SUPABASE_|RECRUITMENT_SUPABASE_|ALPHA_GMAIL_APP_PASSWORD$|VERCEL_|DATABASE_URL$|PGPASSWORD$|GH_TOKEN$|GITHUB_TOKEN$|NODE_AUTH_TOKEN$|CRON_SECRET$|NODE_ENV$)/i.test(key)) delete env[key];
   }
-  return { ...env, PATH: path.dirname(process.execPath) + path.delimiter + executablePath, CI: "true", APP_URL: "http://localhost:3000", NEXT_TELEMETRY_DISABLED: "1", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "" };
+  return { ...env, PATH: path.dirname(process.execPath) + path.delimiter + executablePath, CI: "true", APP_URL: "http://localhost:3000", NEXT_TELEMETRY_DISABLED: "1", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "", RECRUITMENT_SUPABASE_URL: "", RECRUITMENT_SUPABASE_PUBLISHABLE_KEY: "", RECRUITMENT_SUPABASE_SECRET_KEY: "", ALPHA_GMAIL_APP_PASSWORD: "" };
 }
 
 /** Kill the process tree, including Chromium, when a suite exceeds its budget. */

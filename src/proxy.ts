@@ -1,15 +1,18 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getAppOrigin, getSupabaseConfig } from "@/recruitment/lib/supabase/config";
+import { getAppOrigin, getMainSupabaseConfig, getSupabaseConfig, recruitmentAuthCookies } from "@/recruitment/lib/supabase/config";
 import { recruitmentBasePath, recruitmentPath } from "@/recruitment/lib/site-paths";
 import type { Database } from "@/recruitment/lib/supabase/schema";
 
 export async function proxy(request: NextRequest) {
-  const pathname = request.nextUrl.pathname.replace(/^\/recruitment(?=\/|$)/, "") || "/";
+  const fullPath = request.nextUrl.pathname;
+  const isRecruitment = fullPath === "/recruitment" || fullPath.startsWith("/recruitment/");
+  const pathname = fullPath.replace(/^\/recruitment(?=\/|$)/, "") || "/";
   let response = NextResponse.next({ request });
-  const config = getSupabaseConfig();
+  const config = isRecruitment ? getSupabaseConfig() : getMainSupabaseConfig();
   if (config) {
     const client = createServerClient<Database>(config.url, config.key, {
+      cookieOptions: isRecruitment ? recruitmentAuthCookies : undefined,
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll(values, headers) {
@@ -26,7 +29,7 @@ export async function proxy(request: NextRequest) {
     // Page-level checks remain mandatory. This early GET gate also preserves a
     // real HTTP 404 before a Suspense shell starts streaming for a wrong role.
     const adminPath = pathname === "/admin" || pathname.startsWith("/admin/");
-    if (request.nextUrl.pathname.startsWith("/recruitment/") && ["GET", "HEAD"].includes(request.method) && (adminPath || pathname === "/reviewer")) {
+    if (isRecruitment && ["GET", "HEAD"].includes(request.method) && (adminPath || pathname === "/reviewer")) {
       const staffUrl = new URL(recruitmentPath("/recruitment/staff"), recruitmentBasePath ? getAppOrigin() : request.url);
       const replace = (next: NextResponse) => {
         for (const cookie of response.cookies.getAll()) next.cookies.set(cookie);

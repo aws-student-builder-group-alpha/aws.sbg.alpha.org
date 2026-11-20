@@ -1,6 +1,7 @@
+import { ReviewerPageSkeleton } from "@/app/(recruitment)/recruitment/components/workspace-skeleton";
 import { Suspense } from "react";
 import { EvaluationPageContent } from "@/app/(recruitment)/recruitment/components/evaluation-page";
 
 export default function ReviewerPage() {
-  return <Suspense fallback={<main id="main-content" className="container portal"><p role="status">Checking evaluator access...</p></main>}><EvaluationPageContent role="evaluator" /></Suspense>;
+  return <Suspense fallback={<ReviewerPageSkeleton />}><EvaluationPageContent role="evaluator" /></Suspense>;
 }

@@ -1,5 +1,12 @@
 # Manual testing flow
 
+## Recruitment staff workspace
+
+1. Sign in through `/recruitment/staff` as an active System Admin and complete MFA. Visit Overview, Applications, Intake, Staff accounts, Organization members and Security activity from the sidebar or mobile Admin sections dialog.
+2. Compare Overview totals with the queue. Verify responsive layout, keyboard focus, account actions and the loading, empty and error states. Verify that a failed read does not show a fabricated zero.
+3. Check application filters, assignment and decision edits, intake controls, membership invitations and the staff drawer. Verify that dirty inputs survive canceled navigation and that Security activity reads only on request.
+4. Repeat Staff sign-in and evaluator checks with authorized test accounts. Confirm that recruitment access and the Skillbuilder `/admin` route follow their separate permissions. See the [recruitment user guide](recruitment-user-guide.md) for the interaction steps.
+
 ## Two-track removal retest - 16 November 2026
 
 Confirm the main site has two joining cards, the directory has All roles/Core Team/Committee filters and sixteen roles, and the form/staff queue expose only the two supported tracks. Check 320/375/768/1440px, keyboard and reduced motion; both role colors, consent/Google handoff, search/back navigation, draft/upload recovery, capped vacancy counts, submission, review and CSV export must still work. Old track/role links must not restore a retired role. The deleted draft owner can start a new supported application; preserve their account and uploads. Membership ID, existing-member invitation acceptance and portrait/download remain available. Verify live zero retired drafts/applications/catalog entries and unchanged other records through counts/fingerprints, not personal data output. Keep real-provider testing distinct from synthetic checks.

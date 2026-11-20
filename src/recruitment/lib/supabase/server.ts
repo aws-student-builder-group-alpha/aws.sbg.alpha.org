@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { getSupabaseConfig } from "./config";
+import { getSupabaseConfig, recruitmentAuthCookies } from "./config";
 import type { Database } from "./schema";
 
 export async function createSupabaseClient() {
@@ -13,6 +13,7 @@ export async function createSupabaseClient() {
   if (!config) return null;
   const cookieStore = await cookies();
   return createServerClient<Database>(config.url, config.key, {
+    cookieOptions: recruitmentAuthCookies,
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll(values) {

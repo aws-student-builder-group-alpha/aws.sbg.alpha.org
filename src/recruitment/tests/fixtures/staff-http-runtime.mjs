@@ -15,7 +15,7 @@ const sources = new Map();
 export async function createCommunityRoutes(accountSession,origin,{sendMail,serviceRpc}={}) {
   const community = await load('../../lib/server/community.ts',{
     'server-only':{},'@/recruitment/lib/drafts':drafts,'./session':{accountSession},
-    '@/recruitment/lib/supabase/config':{getAppOrigin:()=>origin},'@/recruitment/lib/site-paths':{recruitmentPath:path=>path},
+    '@/recruitment/lib/supabase/config':{...(await import('../../lib/supabase/config.ts')),getAppOrigin:()=>origin},'@/recruitment/lib/site-paths':{recruitmentPath:path=>path},
     '@supabase/supabase-js':{createClient:()=>({rpc:serviceRpc||(async()=>({data:null,error:null}))})},
     nodemailer:{createTransport:()=>({sendMail:sendMail||(async()=>{throw new Error('No synthetic mail transport')}),close:()=>{}})},
   });
@@ -57,14 +57,21 @@ export async function createDraftSave(applicantSession) {
 }
 
 export async function createAuthCallback({ client, cookieStore, origin }) {
-  const query = { select() { return this; }, eq() { return this; }, maybeSingle: async () => ({data: {id: 'synthetic'}}), update() {return this;}, is: async () => ({error:null}), insert:async()=>({error:null}) };
-  const wrapped = client && { ...client, auth: {...client.auth, getUser:async()=>({data:{user:{id:'synthetic',email:'synthetic@example.test',user_metadata:{}}}})} };
-  return load("../../../app/(main)/auth/callback/route.ts", {
+  return load("../../../app/(recruitment)/recruitment/auth/callback/route.ts", {
     "next/server": require("next/server"),
     "next/headers": { cookies: async () => cookieStore },
     "@/recruitment/lib/auth-return": await import("../../lib/auth-return.ts"),
     "@/recruitment/lib/member-entry": {memberEntry:async c=>c.rpc?(await import('../../lib/member-entry.ts')).memberEntry(c):'application'},
-    "@/recruitment/lib/site-paths": await import("../../lib/site-paths.ts"),
+    "@/recruitment/lib/supabase/config": { getAppOrigin: () => origin },
+    "@/recruitment/lib/supabase/server": { createSupabaseClient: async () => client },
+  });
+}
+
+export async function createMainAuthCallback({ client, origin }) {
+  const query = { select() { return this; }, eq() { return this; }, maybeSingle: async () => ({data: {id: 'synthetic'}}), update() {return this;}, is: async () => ({error:null}), insert:async()=>({error:null}) };
+  const wrapped = client && { ...client, auth: {...client.auth, getUser:async()=>({data:{user:{id:'synthetic',email:'synthetic@example.test',user_metadata:{}}}})} };
+  return load("../../../app/(main)/auth/callback/route.ts", {
+    "next/server": require("next/server"),
     "@/recruitment/lib/supabase/config": { getAppOrigin: () => origin },
     "@/services/supabase-server.service": { getSupabaseServerClient: async () => wrapped },
     "@/services/supabase-admin.service": { getSupabaseAdminClient: () => ({from:()=>query}) },
