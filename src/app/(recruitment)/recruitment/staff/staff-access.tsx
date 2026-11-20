@@ -1,4 +1,4 @@
-import { StaffPageSkeleton, StaffWorkspaceIntro } from "@/app/(recruitment)/recruitment/components/workspace-skeleton";
+import { StaffPageSkeleton } from "@/app/(recruitment)/recruitment/components/workspace-skeleton";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { signIn, signOut } from "@/app/(recruitment)/recruitment/auth/actions";
@@ -9,7 +9,7 @@ import type { StaffStatus } from "@/recruitment/lib/staff";
 export function StaffAuthPage({ children, title, description, wide = false, titleHidden = false }: {
   children: ReactNode; title: string; description?: string; wide?: boolean; titleHidden?: boolean;
 }) {
-  return <main id="main-content" className="container portal workspace-redesign workspace-auth staff-auth-page"><StaffWorkspaceIntro />
+  return <main id="main-content" className="container portal workspace-redesign workspace-auth staff-auth-page">
     <section className={`panel workspace-auth-content staff-auth-card${wide ? " staff-auth-card-wide" : ""}`}>
       <p className="staff-auth-eyebrow">Alpha recruitment</p>
       <h1 className={titleHidden ? "sr-only" : undefined}>{title}</h1>

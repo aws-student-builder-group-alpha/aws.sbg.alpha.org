@@ -87,7 +87,7 @@ export function MemberAdministration({
 
   return <section className="community-admin-panel member-administration" aria-labelledby={headingId} data-admin-unsaved={dirty || undefined} data-admin-pending={busy || undefined}>
     <header>
-      <p className="community-admin-eyebrow">Member records</p>
+      {!workspace && <p className="community-admin-eyebrow">Member records</p>}
       <h2 id={headingId}>{workspace ? "Membership tools" : email ? "Membership ID" : "Organization members"}</h2>
     </header>
     <p>Add people who already belong to Alpha without a recruitment application. System Admins control their position, date joined and membership access.</p>
@@ -159,7 +159,7 @@ export function SecurityLog({ accountId, expanded = false }: { accountId: string
     <ul className="community-audit">{items?.map(item => <li key={String(item.id)}>
       <strong className="audit-action"><span className="audit-event-mark" aria-hidden="true" />{String(item.action).replaceAll("_", " ")}</strong>
       <span className="audit-reference">{String(item.object_id)}</span>
-      <time>{formatDate(String(item.created_at))}</time>
+      <time dateTime={String(item.created_at)}>{formatDate(String(item.created_at))}</time>
     </li>)}</ul>
   </details>;
 }

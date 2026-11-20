@@ -114,7 +114,14 @@ try{
  assert.equal(await page.getByLabel('Assignment reason (optional)',{exact:true}).inputValue(),'Preserve my assignment draft');
  await page.getByRole('tab',{name:'Application',exact:true}).click();
  await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'detail-375.png')});
- await page.setViewportSize({width:1440,height:1000});
+ assert.equal(await page.locator('.evaluation-list').isVisible(),false,'The selected application has the full phone width');
+ for(const width of [1280,1440]){
+   await page.setViewportSize({width,height:1000});
+   const list=await page.locator('.evaluation-list').boundingBox();
+   const detail=await page.locator('.workspace-detail').boundingBox();
+   assert.ok(list && detail && list.x+list.width<detail.x,'The selected application sits beside the queue');
+   assert.ok(Math.abs(list.width/(list.width+detail.width)-.45)<.01,'The queue and detail share the space 45:55');
+ }
  await page.getByRole('tab',{name:'Review & decision',exact:true}).click();
  await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'detail-1440.png')});
  await page.setViewportSize({width:375,height:1000});

@@ -1,3 +1,11 @@
+## Light Recruitment staff workspace - 20 November 2026
+
+Redesigned all six administrator routes, the evaluator workspace, staff sign-in and authenticator screens using the applicant palette and Alpha wave frame. The Overview has a lead applications metric, four supporting cards, a six-status breakdown, the Philippine-time intake schedule and recent applications. Selected applications use a 45:55 queue and detail split from 1280px. Smaller screens use full-width views and preserve the current filters and unfinished edits when returning to the queue. Intake, staff accounts, organization members and security activity use the same spacing and action hierarchy.
+
+Root `npm run verify:ci` passed on Node 24.22.1 with zero-warning lint, 211 Node tests, the production build, TypeScript, eleven Chromium suites and source integrity. Reviewed Overview renders at 320, 375, 768, 1280 and 1440 pixels and desktop and phone renders of the staff workflows. The browser checks exercised enlarged text, focus, reduced motion, forced colors, loading and recovery. Verification used synthetic records and accounts.
+
+Reviewed all six context documents and updated UI direction, code standards and this tracker. The project overview, architecture and AI workflow rules already cover the product scope, authorization and implementation process used here.
+
 ## Recruitment uses its existing Supabase project on the main deployment - 20 November 2026
 
 The unified app routes Recruitment to project `xndpudtctuqxnbkhhmre` and Skillbuilder to its own project. Recruitment uses a dedicated session cookie and `/recruitment/auth/callback`. Its vacancy API, staff checks, private storage and optional mail receipts use Recruitment credentials. The visual baseline includes the current homepage and recruitment staff redesign.

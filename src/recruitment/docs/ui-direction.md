@@ -8,7 +8,13 @@ Separate root layouts preserve the two designs. Moving between areas loads a new
 
 ## Recruitment staff workspace
 
-Recruitment administration uses the inset navy sidebar and account controls in place of the chapter navbar. On small screens the same navigation is available through Admin sections. Staff entry and evaluator pages keep the chapter navbar. Use Alpha's orange and violet waves over `#08090a` behind the warm working canvas and white content panels. Skeletons match the resolved layouts for each route, with static shapes for reduced motion and forced colors. The overview pairs its editorial introduction with four metrics, the full-queue status breakdown, recent applications, intake schedule and shortcuts.
+Recruitment administration uses a light sidebar and account controls inside an inset frame with Alpha's orange and violet waves over `#08090a`. The Admin sections drawer carries the same navigation on smaller screens. Staff sign-in and the authenticator share a centered white card. Staff entry and evaluator pages keep the chapter navbar.
+
+Use cool-gray workspace surfaces, white panels, navy text, and orange for primary actions. Use 32px desktop, 24px tablet and 16px phone content gutters, with 24px card padding on larger screens and 16px on phones. Keep related controls together, allow text to wrap, use 44px action targets and visible keyboard focus, and limit long reading text to about 70 characters per line. Match loading placeholders to the resolved layout and use static placeholders for reduced motion and forced colors.
+
+At 1280px and wider, the Overview uses a 12-column grid. Total applications occupies five columns beside four metrics in the remaining seven. The six-status breakdown and Philippine-time intake schedule occupy eight and four columns respectively. Recent applications uses a full-width table that becomes labeled rows on phones. Records and counts come from the existing reads. Show unavailable data separately from zero.
+
+Application and evaluator queues show search directly above the results. A selected record opens beside its queue at 1280px and wider, with 45% of the available space for the queue and 55% for the detail. At narrower widths readers switch between the list and full-width record with Back. Staff accounts open in a right-side drawer that fills the screen on phones. Intake status comes before the change controls in reading order and the private history follows both. Member details and invitation history have separate sections. Activity rows align the action, reference and timestamp.
 
 ## Application continuation routing ? 14 November 2026
 
@@ -352,8 +358,8 @@ Retain a narrow reading layout with clear headings and a maximum width of 68ch. 
 
 ## Responsive Behavior and Accessibility
 
-- Use the shared landing navbar on every route, with no footer on the seven process routes; Home/Privacy retain their full footer. Home's navbar overlays its hero; other routes keep the row in flow. Start dark, adapt to the visible full-width surface, and retain the landing mobile menu, hover and focus treatments. Omit Main website and theme controls. The default desktop breakpoint is 1200px and scales with text size.
-- Keep public content within 1152px and staff workspaces within 1280px. Preserve readable answer columns below 80 characters. On small screens, stack queues, detail views, and form guidance in a logical reading and keyboard order.
+- Use the shared landing navbar on public and applicant routes, staff sign-in and the evaluator workspace. Administrator pages use the sidebar or Admin sections drawer. Process pages omit the footer. Home and Privacy retain their full footer.
+- Keep public content within 1152px, the evaluator workspace within 1280px and administrator page content within 1440px. Limit long reading text to about 70 characters per line. On small screens, stack queues, detail views and form guidance in a logical reading and keyboard order.
 - Preserve the full footer's existing layout on unchanged routes: stacked below 640px, chapter identity above two columns at tablet widths, and three columns from 1024px. All seven recruitment routes omit the global footer; Apply also omits the repeated Privacy/Contact row and keeps consent/no-JavaScript help links. Preview tools and their dormant implementation have been removed.
 - Prevent page-level horizontal overflow. Wide staff tables may scroll inside a labeled region; actions and application text must remain usable without a desktop-width viewport.
 - Use semantic headings, links, buttons, forms, labels, and table markup. Keep visible keyboard focus, persistent labels, associated instructions and errors, sufficient contrast in each route palette, and at least 44px targets for coarse pointers.

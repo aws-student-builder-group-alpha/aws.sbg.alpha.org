@@ -33,8 +33,9 @@ export function AdminPageSkeleton({ view = "overview" }: { view?: AdminSkeletonV
     <LoadingRegion label={`Loading ${pageNames[view].toLowerCase()}…`}>
       <div className="workspace-skeleton-heading"><SkeletonBlock className="skeleton-title" /><SkeletonBlock className="skeleton-line skeleton-medium" /></div>
       {view === "overview" ? <>
-        <div className="skeleton-overview-lead"><div className="admin-cycle-note"><SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-paragraph" /></div><div className="admin-metrics">{Array.from({ length: 4 }, (_, index) => <div className="admin-metric" key={index}><SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-title" /><SkeletonBlock className="skeleton-line" /></div>)}</div></div>
-        <div className="admin-surface skeleton-status-overview"><SkeletonBlock className="skeleton-title" /><SkeletonBlock className="skeleton-field" /></div><div className="admin-overview-grid"><div className="admin-surface"><SkeletonRows rows={5} /></div><div className="admin-surface"><SkeletonRows rows={3} /></div></div>
+        <div className="admin-overview-lead"><div className="admin-cycle-note"><SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-paragraph" /></div><div className="admin-metrics">{Array.from({ length: 4 }, (_, index) => <div className="admin-metric" key={index}><SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-title" /></div>)}</div></div>
+        <div className="admin-overview-grid"><div className="admin-surface admin-status-overview"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={2} /></div><div className="admin-surface"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={2} /></div></div>
+        <div className="admin-surface admin-recent"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={5} /></div>
       </> : <div className="admin-surface">
         <SkeletonBlock className="skeleton-field skeleton-medium" />
         {view === "intake" || view === "members" ? <div className="workspace-skeleton-fields">{Array.from({ length: 4 }, (_, index) => <SkeletonBlock className="skeleton-field" key={index} />)}</div> : <SkeletonRows rows={5} />}
@@ -47,17 +48,8 @@ function SkeletonRows({ rows }: { rows: number }) {
   return <div className="workspace-skeleton-list">{Array.from({ length: rows }, (_, index) => <div className="workspace-skeleton-row" key={index}><SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-line" /><SkeletonBlock className="skeleton-line skeleton-short" /></div>)}</div>;
 }
 
-export function StaffWorkspaceIntro() {
-  return <aside className="staff-workspace-intro" aria-label="Alpha staff workspace">
-    <span className="editorial-kicker">AWS STUDENT BUILDER GROUP / ALPHA</span>
-    <p className="staff-intro-title">Good people.<br /><em>Great beginnings.</em></p>
-    <p className="staff-intro-description">A thoughtful space to welcome the next generation of builders.</p>
-    <div className="staff-intro-footer"><span>Recruitment workspace</span><span>01 / ACCESS</span></div>
-  </aside>;
-}
-
 export function StaffPageSkeleton() {
-  return <main id="main-content" className="container portal workspace-redesign workspace-auth staff-auth-page"><StaffWorkspaceIntro />
+  return <main id="main-content" className="container portal workspace-redesign workspace-auth staff-auth-page">
     <section className="panel workspace-auth-content staff-auth-card"><h1 className="sr-only">Staff sign-in</h1><LoadingRegion label="Checking staff access…">
       <SkeletonBlock className="skeleton-line skeleton-short" /><SkeletonBlock className="skeleton-title" />
       <SkeletonBlock className="skeleton-paragraph" /><SkeletonBlock className="skeleton-field" /><SkeletonBlock className="skeleton-line skeleton-medium" />
@@ -66,10 +58,10 @@ export function StaffPageSkeleton() {
 }
 
 export function ReviewerPageSkeleton() {
-  return <main id="main-content" className="container portal staff-portal workspace-redesign workspace-skeleton-page" data-skeleton-view="reviewer">
+  return <main id="main-content" className="container portal staff-portal workspace-redesign workspace-skeleton-page workspace-reviewer" data-skeleton-view="reviewer">
     <h1 className="sr-only">Evaluator workspace</h1><LoadingRegion label="Checking evaluator access…">
       <div className="workspace-skeleton-reviewer"><div className="workspace-skeleton-toolbar"><SkeletonBlock className="skeleton-field" /><SkeletonBlock className="skeleton-line skeleton-medium" /></div>
-        <div className="workspace-skeleton-split"><SkeletonRows rows={5} /><div><SkeletonBlock className="skeleton-title" /><SkeletonBlock className="skeleton-paragraph" /><SkeletonBlock className="skeleton-paragraph" /></div></div>
+        <SkeletonRows rows={5} />
       </div>
     </LoadingRegion>
   </main>;

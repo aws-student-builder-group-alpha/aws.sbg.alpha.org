@@ -120,9 +120,13 @@ export function IntakeWorkspace({ accountId, initialState }: { accountId: string
     <div hidden={!state.verified} inert={!state.verified || undefined}>
       {data && <section className="panel intake-panel" aria-labelledby="intake-heading">
         <h2 id="intake-heading" ref={heading} tabIndex={-1}>Submission availability</h2>
+        <div className="intake-workspace-columns">
+        <div className="intake-status">
         <dl className="intake-details"><div><dt>Configured state</dt><dd>{data.state === "open" ? "Open" : data.state === "paused" ? "Paused" : "Closed"}</dd></div><div><dt>Accepting submissions</dt><dd>{data.accepting ? "Yes" : "No"}</dd></div><div><dt>Opens (Philippine time)</dt><dd>{formatDate(data.opensAt)}</dd></div><div><dt>Closes (Philippine time)</dt><dd>{formatDate(data.closesAt)}</dd></div></dl>
         <p>{intakeAvailability(data)}</p><details className="workspace-help"><summary>About intake controls</summary><p>Draft saving, evaluation, decisions, and withdrawal remain available. These controls do not change the dates. Resume respects the scheduled opening and deadline.</p></details>
         <button className="text-button" type="button" disabled={state.busy} onClick={reload}>Reload intake details</button>
+        </div>
+        <div className="intake-controls">
         {data.state === "closed" && !state.dirty && !state.pending ? <Callout><p>Intake is finally closed. Reopening is unavailable in this app.</p></Callout> : <form {...validation.props} onSubmit={event => { event.preventDefault(); prepare(); }}>
           <fieldset className="application-fields" disabled={frozen}>
             <div className="field"><label htmlFor="intake-action">Intake change</label><select id="intake-action" {...validation.field("intake-action")} required value={state.action} onChange={event => dispatch({ type: "edit", field: "action", value: event.target.value })}><option value="">Choose a change</option>{(data.canPause || state.action === "pause") && <option value="pause">Pause intake</option>}{(data.canResume || state.action === "resume") && <option value="resume">Resume intake</option>}{data.canClose && <option value="close">Close intake permanently</option>}</select>{validation.errors["intake-action"] && <FieldError id="intake-action-error">{validation.errors["intake-action"]}</FieldError>}</div>
@@ -132,6 +136,8 @@ export function IntakeWorkspace({ accountId, initialState }: { accountId: string
         </form>}
         {state.dirty && !state.pending && <p role="status">Unsaved intake choice and reason</p>}
         {state.conflict && <Callout tone="error" title="Something needs attention" role="alert">Intake details changed. Your choice and reason are preserved. Reload before a new confirmation.</Callout>}
+        </div>
+        </div>
         <IntakeHistoryList key={data.version} accountId={accountId} onFailure={fail} />
       </section>}
     </div>

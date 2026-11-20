@@ -51,8 +51,9 @@ try {
   await page.goto("https://admin.example.test"); await page.addScriptTag({content:bundle});
   const data = { applications:{role:"administrator",queue:{total:36,statusCounts:{"Submitted":20,"Under Review":8,"Accepted":4,"Waitlisted":2,"Not Selected":1,"Withdrawn":1}},items:Array.from({length:25},(_,index)=>({id:String(index),name:"Synthetic applicant "+index,reference:"ALPHA-2026-SYNTHETIC",submittedAt:"2026-11-16T00:00:00Z",status:"Submitted"}))},staff:[{status:"active"},{status:"active"},{status:"suspended"}],intake:{state:"open",accepting:true,opensAt:"2026-11-15T00:00:00Z",closesAt:"2026-11-30T00:00:00Z"} };
   await page.evaluate(data=>window.mount(data),data); await page.getByRole("heading",{name:"Overview",exact:true}).waitFor();
-  assert.deepEqual(await page.locator(".admin-metric>strong").allTextContents(),["36","8","2","Accepting"]);
-  assert.equal(await page.locator(".admin-recent-list li").count(),5,"Dashboard uses totals rather than the first page length");
+  assert.equal(await page.locator(".admin-cycle-note strong").textContent(),"36","Dashboard uses the verified total");
+  assert.deepEqual(await page.locator(".admin-metric>strong").allTextContents(),["8","4","2","Accepting"]);
+  assert.equal(await page.getByRole("table",{name:"Recent applications"}).locator("tbody tr").count(),5);
   assert.deepEqual(await page.locator(".admin-status-legend dd").allTextContents(),["20","8","4","2","1","1"],"Breakdown uses verified full-queue status totals");
   assert.equal(await page.locator(".admin-status-segment").count(),6);
   const segments = await page.locator(".admin-status-segment").evaluateAll(nodes=>nodes.map(node=>({color:getComputedStyle(node).backgroundColor,height:node.getBoundingClientRect().height,width:node.getBoundingClientRect().width})));
@@ -62,10 +63,22 @@ try {
 
 
   await page.getByRole("button",{name:"Refresh overview"}).click();assert.equal(await page.evaluate(()=>window.refreshes),1);
-  for(const width of [320,375,768,1024,1440,1920]){
+  for(const width of [320,375,768,1024,1280,1440,1920]){
     await page.setViewportSize({width,height:950});await assertRecruitmentSurface(page,"Admin overview "+width);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     assert.equal(await page.locator('.admin-shell').evaluate(node=>getComputedStyle(node).borderRadius),width<768?'22px':'28px');
+    const pagePadding=await page.locator('.admin-page').evaluate(node=>getComputedStyle(node).paddingInlineStart);
+    assert.equal(pagePadding,width<768?'16px':width<1200?'24px':'32px');
+    const lead=await page.locator('.admin-cycle-note').boundingBox();
+    const cards=await page.locator('.admin-metrics').boundingBox();
+    assert.equal(await page.locator('.admin-metrics').evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width<360?1:2);
+    if(width>=1280){
+      assert.equal(lead.y,cards.y);
+      assert.equal(lead.height,cards.height);
+      assert.ok(lead.width<cards.width,'Lead and summaries use the intended asymmetric layout');
+    }else{
+      assert.ok(lead.y+lead.height<cards.y,'Lead stacks above summaries on narrower screens');
+    }
     if(width>=1200){
       const before=await page.locator('.admin-sidebar').boundingBox();
       await page.evaluate(()=>scrollTo({top:400,behavior:'instant'}));
@@ -73,7 +86,7 @@ try {
       await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
     }
     if(width<1200){await page.getByRole("button",{name:"Admin sections",exact:true}).click();const dialog=page.getByRole("dialog",{name:"Admin sections"});await dialog.waitFor();assert.equal(await dialog.getByRole("navigation",{name:"Admin sections"}).getByRole("link").count(),6);await page.keyboard.press("Escape");await dialog.waitFor({state:"detached"});assert.equal(await page.getByRole("button",{name:"Admin sections",exact:true}).evaluate(node=>node===document.activeElement),true);}
-    if([375,1440,1920].includes(width)){await page.evaluate(()=>document.activeElement?.blur());await page.screenshot({path:path.join(output,"overview-"+width+".png"),fullPage:true});}
+    if([320,375,768,1280,1440].includes(width)){await page.evaluate(()=>document.activeElement?.blur());await page.screenshot({path:path.join(output,"overview-"+width+".png"),fullPage:true});}
   }
   await assertEnlargedProcess(page);
   await page.emulateMedia({forcedColors:"active"});
@@ -83,7 +96,7 @@ try {
   await page.emulateMedia({forcedColors:"none"});
   for(const route of ["/recruitment/admin","/recruitment/admin/applications","/recruitment/admin/intake","/recruitment/admin/staff","/recruitment/admin/members","/recruitment/admin/activity"]){await page.evaluate(({data,route})=>window.mount(data,route),{data,route});await page.waitForFunction(route=>document.querySelector('.admin-sidebar a[aria-current="page"]')?.getAttribute('href')===route,route);assert.equal(await page.locator('.site-header,.site-header-space').count(),0);}
   await page.evaluate(()=>window.mount({applications:null,staff:null,intake:null}));await page.waitForFunction(()=>document.querySelector('.admin-metric strong')?.textContent==='Unavailable');assert.deepEqual(await page.locator('.admin-metric>strong').allTextContents(),Array(4).fill('Unavailable'));assert.equal(await page.getByRole('button',{name:'Refresh overview'}).isEnabled(),true);
-  await page.evaluate(data=>window.mount({...data,applications:{...data.applications,items:[],queue:{total:0,statusCounts:{'Under Review':0}}},staff:[]}),data);await page.getByText('No submitted applications yet.',{exact:true}).waitFor();assert.deepEqual((await page.locator('.admin-metric>strong').allTextContents()).slice(0,3),['0','0','0']);
+  await page.evaluate(data=>window.mount({...data,applications:{...data.applications,items:[],queue:{total:0,statusCounts:Object.fromEntries(Object.keys(data.applications.queue.statusCounts).map(status=>[status,0]))}},staff:[]}),data);await page.getByText('No submitted applications yet.',{exact:true}).waitFor();assert.deepEqual((await page.locator('.admin-metric>strong').allTextContents()).slice(0,3),['0','0','0']);assert.equal(await page.locator('.admin-cycle-note strong').textContent(),'0');
   await page.evaluate(data=>window.mount({...data,intake:{...data.intake,accepting:false,serverNow:'2026-12-01T00:00:00Z'}}),data);await page.waitForFunction(()=>document.querySelectorAll('.admin-metric>strong')[3]?.textContent==='Deadline passed');
   await page.setViewportSize({width:1440,height:950});
   const account = page.locator('.admin-sidebar .admin-account');
@@ -105,7 +118,7 @@ try {
   await page.setViewportSize({width:375,height:812});
   await page.getByRole('button',{name:'Admin sections',exact:true}).click();
   const mobileAccount=page.getByRole('dialog',{name:'Admin sections'}).locator('.admin-account');
-  assert.equal(await page.locator('.admin-navigation-drawer .modal-heading').evaluate(node=>getComputedStyle(node).backgroundColor),'rgb(24, 35, 50)','Mobile drawer heading remains readable on navy');
+  assert.equal(await page.locator('.admin-navigation-drawer .modal-heading').evaluate(node=>getComputedStyle(node).backgroundColor),'rgb(255, 255, 255)','Mobile drawer shares the light rail');
   await mobileAccount.locator('summary').click();await mobileAccount.getByRole('button',{name:'Sign out',exact:true}).waitFor();
   await page.screenshot({path:path.join(output,'mobile-account.png'),fullPage:true});
   await page.keyboard.press('Escape');await page.keyboard.press('Escape');
@@ -132,6 +145,10 @@ try {
       if(view==='reviewer') {
         const bounds=await page.locator('.workspace-skeleton-reviewer').boundingBox();
         assert.ok(bounds.x>=15 && bounds.width<=1280,'Reviewer skeleton keeps the real workspace gutters and width cap');
+      }
+      if(view==='overview' && width===1440) {
+        const panels=await page.locator('.admin-overview-grid > .admin-surface').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().width));
+        assert.ok(panels[0]>panels[1]*1.9,'Overview skeleton retains the status-to-schedule proportions');
       }
       if(view==='staff-entry') assert.equal(await page.locator('main [aria-busy]').evaluate(node=>getComputedStyle(node).gap),'16px','Staff placeholders have breathing room');
       const block=page.locator('main .workspace-skeleton-block').first();

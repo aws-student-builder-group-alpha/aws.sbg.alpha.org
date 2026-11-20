@@ -20,7 +20,7 @@ const sections = [
 ];
 
 export function AdminPageHeader({ title, description, children }: { title: string; description: string; children?: ReactNode }) {
-  return <header className="admin-page-heading"><div><span className="editorial-kicker">ALPHA / RECRUITMENT OPERATIONS</span><h1>{title}</h1><p>{description}</p></div>{children && <div className="admin-heading-actions">{children}</div>}</header>;
+  return <header className="admin-page-heading"><div><h1>{title}</h1><p>{description}</p></div>{children && <div className="admin-heading-actions">{children}</div>}</header>;
 }
 
 function SectionLinks({ path, onNavigate }: { path: string; onNavigate?: () => void }) {
