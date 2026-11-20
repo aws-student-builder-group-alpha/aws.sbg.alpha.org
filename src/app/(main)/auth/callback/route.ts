@@ -1,8 +1,4 @@
 import { getAppOrigin } from '@/recruitment/lib/supabase/config'
-import { cookies } from 'next/headers'
-import { authReturnPath } from '@/recruitment/lib/auth-return'
-import { recruitmentPath } from '@/recruitment/lib/site-paths'
-import { memberEntry } from '@/recruitment/lib/member-entry'
 import { NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/services/supabase-server.service'
 import { getSupabaseAdminClient } from '@/services/supabase-admin.service'
@@ -12,12 +8,7 @@ export async function GET(request: Request) {
 	const code = requestUrl.searchParams.get('code')
 	const requestedNext = requestUrl.searchParams.get('next')
 	const next = requestedNext && requestedNext.startsWith('/') && !requestedNext.startsWith('//') && !requestedNext.includes('\\') && new URL(requestedNext, getAppOrigin()).origin === getAppOrigin() ? requestedNext : null
-	const store = await cookies()
-	const recruitmentDestination = store.get('alpha-auth-destination')?.value
-	const opportunity = store.get('alpha-opportunity')?.value
-	store.delete('alpha-auth-destination')
-	store.delete('alpha-opportunity')
-	const failure = recruitmentDestination ? recruitmentPath(authReturnPath(recruitmentDestination === 'staff' ? 'staff' : recruitmentDestination === 'membership' ? 'membership' : 'apply', opportunity, 'failed')) : '/auth/login'
+	const failure = '/auth/login'
 
 	if (!code) {
 		return NextResponse.redirect(
@@ -99,12 +90,6 @@ export async function GET(request: Request) {
 				.eq('id', user.id)
 				.is('full_name', null)
 		}
-	}
-
-	if (recruitmentDestination) {
-		const destination = recruitmentDestination === 'staff' ? 'staff' : recruitmentDestination === 'membership' ? 'membership' : 'apply'
-		const path = destination === 'apply' && await memberEntry(supabase as unknown as Parameters<typeof memberEntry>[0]) === 'membership' ? '/membership' : authReturnPath(destination, opportunity)
-		return NextResponse.redirect(new URL(recruitmentPath(path), getAppOrigin()), { headers: { 'Cache-Control': 'private, no-store' } })
 	}
 
 	// Explicit next param takes priority

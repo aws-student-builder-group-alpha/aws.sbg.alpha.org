@@ -1,5 +1,7 @@
 "use client";
 
+import { ListSkeleton } from "./workspace-skeleton";
+
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { decisionCommand, decisionHistory, decisionState } from "@/recruitment/lib/decision-client";
 import { decisionAccessLost } from "@/recruitment/lib/decisions";
@@ -35,7 +37,7 @@ export function DecisionHistoryList({ accountId, applicationId, onDenied }: { ac
   }, [accountId, applicationId, onDenied]);
   return <section className="decision-history" aria-labelledby="decision-history-title">
     <h3 id="decision-history-title">Private decision history</h3>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button type="button" className="text-button" onClick={() => void load()}>Retry decision history</button></Callout> : !history.items.length ? <p>{busy ? "Loading decision history..." : "No decisions have been published."}</p> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
+    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button type="button" className="text-button" onClick={() => void load()}>Retry decision history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading decision history..." /> : <p>No decisions have been published.</p> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
       <div className="subheading"><strong>{event.action === "publish" ? "Published" : "Amended"}: {event.outcome}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
       <p>{event.previousStatus} to {event.outcome}. {event.actor.email}</p>
       {event.reason && <p className="evaluation-note">Reason: {event.reason}</p>}
@@ -103,7 +105,7 @@ export function DecisionPanel({ accountId, applicationId, applicantName, referen
       expectedApplicationVersion: data.applicationVersion, expectedReviewVersion: data.reviewVersion, outcome: state.outcome,
       reason: data.canAmend ? state.reason.trim() : "", mutationId: crypto.randomUUID() } });
   }
-  if (state.loading) return <section className="panel"><p role="status">Loading decision details...</p></section>;
+  if (state.loading) return <section className="panel"><ListSkeleton label="Loading decision details..." /></section>;
   if (state.blocked) return <section className="panel"><Callout tone="error" title="Something needs attention" role="alert">{state.notice}</Callout></section>;
   const data = state.data, confirmation = state.confirmation;
   const frozen = state.busy || !!state.pending || state.conflict || editorBusy;

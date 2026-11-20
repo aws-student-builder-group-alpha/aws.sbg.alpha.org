@@ -34,7 +34,7 @@ for (const [name, pkg, file] of [
 ]) modules.set(name, await readFile(path.join(path.dirname(require.resolve(pkg + "/package.json")), "cjs", file), "utf8"));
 modules.set("next/link", "exports.__esModule=true;exports.default=props=>require('react/jsx-runtime').jsx('a',props);");
 modules.set("next/image", "exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
-modules.set("next/navigation", "exports.usePathname=()=>'/recruitment/admin';exports.useSelectedLayoutSegments=()=>['admin'];");
+modules.set("next/navigation", "exports.usePathname=()=>window.shellPath||'/recruitment/admin/staff';exports.useSelectedLayoutSegments=()=>(window.shellPath||'/recruitment/admin/staff').split('/').filter(Boolean).slice(1);");
 modules.set("@/app/(recruitment)/recruitment/auth/actions", "exports.signOut=async()=>{};");
 await installBrowserMotion(modules);
 await installRecruitmentUI(modules);
@@ -43,7 +43,7 @@ const bundle = `(()=>{const process={env:{NODE_ENV:'development'}};const modules
 const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked browser module: '+name);const module=cache[name]={exports:{}};modules[name](module,module.exports,require);}return cache[name].exports;}
 const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let revision=0;
 window.mount=(accountId,members,expected='administrator',guardOnly=false)=>root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:jsx(require('@/app/(recruitment)/recruitment/components/access-guard').AccessGuard,{accountId,expected,children:guardOnly?jsx('input',{'aria-label':'Unsaved applicant answer',defaultValue:'Preserved synthetic answer'}):jsx(require('manager').StaffManager,{accountId,initialStaff:members})})},String(++revision)));
-window.mountMembers=accountId=>root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:require('react/jsx-runtime').jsxs('div',{className:'admin-page-stack',children:[jsx(require('manager').StaffManager,{accountId,initialStaff:[]}),require('react/jsx-runtime').jsxs('div',{className:'container community-admin-extras',children:[jsx(require('./member-administration').MemberAdministration,{accountId}),jsx(require('./member-administration').SecurityLog,{accountId})]})]})},String(++revision)));})();`;
+window.mountMembers=(accountId,activity=false)=>{window.shellPath=activity?'/recruitment/admin/activity':'/recruitment/admin/members';root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:require('react/jsx-runtime').jsxs('main',{id:'main-content',className:'admin-page',children:[jsx(require('./admin-shell').AdminPageHeader,{title:activity?'Security activity':'Organization members',description:'Manage Alpha membership and inspect activity.'}),jsx('div',{className:'community-admin-extras',children:activity?jsx(require('./member-administration').SecurityLog,{accountId,expanded:true}):jsx(require('./member-administration').MemberAdministration,{accountId,workspace:true})})]})},String(++revision)))};})();`;
 
 const db = new PGlite();
 let browser;
@@ -156,7 +156,7 @@ try {
   await mount({historyUnavailable:true});await page.getByRole("button",{name:"Retry history",exact:true}).waitFor();assert.equal(await page.locator(".workspace-disclosure").evaluate(node=>node.open),true);delete faults.historyUnavailable;await page.getByRole("button",{name:"Retry history",exact:true}).click();await page.getByRole("button",{name:"Retry history",exact:true}).waitFor({state:"detached"});
   await mount();assert.equal(await page.locator(".workspace-disclosure").evaluate(node=>node.open),false);assert.equal(await page.locator(".staff-history").count(),1);await openDisclosure(page,"Access history");await page.locator(".workspace-disclosure > summary").click();await assertRecruitmentSurface(page,"Staff directory");await assertInlineFailure(page,"Review access change","staff-reason");await assertEnlargedProcess(page,"staff-reason");await page.setViewportSize({width:375,height:812});
   await page.getByLabel('Reason for this change').fill('Preserved across mobile views');
-  await page.getByRole('button',{name:'Back to staff list',exact:true}).click();
+  await page.keyboard.press('Escape');
   assert.equal(await page.locator('.staff-member-detail').isVisible(),false);
   await page.locator('.staff-member-list button').filter({hasText:target.email}).click();
   assert.equal(await page.getByLabel('Reason for this change').inputValue(),'Preserved across mobile views');
@@ -166,6 +166,8 @@ try {
   passed.push('mobile staff list/detail preserves unfinished reason without a write; shared black frame rendered');
   await page.setViewportSize({width:375,height:812});
   const addStaff=page.getByRole('button',{name:'Add staff',exact:true});
+  await page.getByRole('button',{name:'Back to staff list',exact:true}).click();
+  page.once("dialog",dialog=>dialog.accept());
   await addStaff.click();
   await assertInlineFailure(page,'Review access change','staff-email');
   await page.getByLabel('Google account email').fill(target.email);
@@ -189,6 +191,9 @@ try {
   assert.equal(faults.posts.length, 1);
   await page.clock.runFor(15001);
   await page.getByRole("button", { name: "Retry confirmation", exact: true }).waitFor();
+  const dialogTitles = await page.locator('dialog[open]').evaluateAll(dialogs=>dialogs.map(dialog=>dialog.getAttribute('aria-labelledby')));
+  assert.equal(dialogTitles.length,2,"The account drawer and confirmation remain separate dialogs");
+  assert.equal(new Set(dialogTitles).size,2,"Nested dialogs have unique accessible titles");
   assert.match(await page.getByRole("alert").textContent(), /may have completed/);
   const artifactDir = path.join(project, ".next/verification/staff-confirmation");
   await mkdir(artifactDir, { recursive: true });
@@ -197,7 +202,7 @@ try {
     await page.emulateMedia({ colorScheme });
     await assertProcessAppearance(page,".recruitment-process","Staff "+width);
     assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme), "light");
-    const layout = await page.getByRole("dialog").evaluate(dialog => ({ left: dialog.getBoundingClientRect().left, right: dialog.getBoundingClientRect().right, overflow: dialog.scrollWidth > dialog.clientWidth + 1, pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1 }));
+    const layout = await page.locator('dialog.modal:not(.admin-staff-drawer)').evaluate(dialog => ({ left: dialog.getBoundingClientRect().left, right: dialog.getBoundingClientRect().right, overflow: dialog.scrollWidth > dialog.clientWidth + 1, pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1 }));
     assert.ok(layout.left >= 0 && layout.right <= width + 1 && !layout.overflow && !layout.pageOverflow, `${colorScheme} ${width}: ${JSON.stringify(layout)}`);
     if (colorScheme === "dark" && width === 375 || colorScheme === "light" && width === 1440) await page.screenshot({ path: path.join(artifactDir, `light-prefers-${colorScheme}-${width}.png`), fullPage: true });
   }
@@ -212,7 +217,7 @@ try {
 
   await mount({ stallDirectory: true }); await prepare(); await confirm();
   await page.getByText("Staff access updated and recorded.", { exact: true }).waitFor();
-  assert.equal(await page.getByRole("dialog").count(), 0);
+  assert.equal(await page.locator('dialog.modal:not(.admin-staff-drawer)').count(), 0);
   assert.match(await page.locator(".staff-member-detail > p").first().textContent(), /Suspended/);
   await until(() => faults.directoryReads > 0); await page.clock.runFor(8001);
   await page.getByRole("alert").waitFor();
@@ -234,7 +239,7 @@ try {
   assert.match(await page.getByRole("alert").textContent(), /changed in another session/);
   assert.equal((await history()).some(event => event.action === "revoke"), false);
   await page.getByRole("button", { name: "Reload latest details", exact: true }).click();
-  await page.getByRole("dialog").waitFor({ state: "detached" });
+  await page.locator('dialog.modal:not(.admin-staff-drawer)').waitFor({ state: "detached" });
   assert.equal(await page.getByLabel("Reason for this change").inputValue(), "Synthetic browser command reason");
   passed.push("two-administrator stale confirmation rejected, no history event, reason retained");
 
@@ -242,7 +247,7 @@ try {
   faults.access = { kind: "staff", accountId: owner, role: "evaluator", status: "active", needsMfa: false };
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await page.getByRole("heading", { name: "Your access has changed", exact: true }).waitFor();
-  assert.equal(await page.getByRole("dialog").count(), 0);
+  assert.equal(await page.locator('dialog.modal:not(.admin-staff-drawer)').count(), 0);
   assert.equal(await page.getByText("Staff access updated and recorded.", { exact: true }).count(), 0);
   passed.push("access loss unmounts private confirmation and cancels pending command");
 
@@ -250,7 +255,7 @@ try {
   faults.access = { kind: "staff", accountId: second, role: "administrator", status: "active", needsMfa: false };
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await page.getByRole("heading", { name: "Your access has changed", exact: true }).waitFor();
-  assert.equal(await page.getByRole("dialog").count(), 0);
+  assert.equal(await page.locator('dialog.modal:not(.admin-staff-drawer)').count(), 0);
   passed.push("account change clears private data while a command is pending");
 
   await mount({ stallPost: true }); await prepare(); await confirm(); await until(() => faults.committed);
@@ -258,7 +263,7 @@ try {
   await page.evaluate(() => window.dispatchEvent(new Event("focus"))); await until(() => faults.accessReads > pendingReads);
   await page.clock.runFor(8001);
   await page.getByRole("button", { name: "Retry access check", exact: true }).waitFor();
-  assert.equal(await page.getByRole("dialog").count(), 0);
+  assert.equal(await page.locator('dialog.modal:not(.admin-staff-drawer)').count(), 0);
   faults.stallAccess = false; faults.stallPost = false;
   await page.getByRole("button", { name: "Retry access check", exact: true }).click();
   await page.getByRole("button", { name: "Retry confirmation", exact: true }).waitFor();
@@ -273,9 +278,9 @@ try {
   await page.evaluate(() => window.dispatchEvent(new Event("focus"))); await until(() => faults.accessReads > reads);
   await page.clock.runFor(8001);
   await page.getByRole("button", { name: "Retry access check", exact: true }).waitFor();
-  assert.equal(await page.getByRole("heading", { name: "Staff management", exact: true }).isVisible(), false);
+  assert.equal(await page.getByRole("heading", { name: "Staff accounts", exact: true }).isVisible(), false);
   faults.stallAccess = false; await page.getByRole("button", { name: "Retry access check", exact: true }).click();
-  await page.getByRole("heading", { name: "Staff management", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Staff accounts", exact: true }).waitFor();
   passed.push("access-check timeout hides staff data and permits re-verification");
 
   faults = { accessReads: 0, stallAccess: true };
@@ -294,6 +299,10 @@ try {
   await page.getByLabel("Position", { exact: true }).fill("Committee Member");
   await page.getByLabel("Date joined").fill("2026-11-01");
   await page.getByLabel("Private reason").fill("Verified existing organization membership");
+  await page.setViewportSize({width:1440,height:950});
+  page.once("dialog", dialog => dialog.dismiss());
+  await page.locator(".admin-sidebar").getByRole("link",{name:"Staff accounts",exact:true}).click();
+  assert.equal(await page.getByLabel("Verified Google email").inputValue(),"existing-member@example.test");
   page.once("dialog", dialog => dialog.dismiss());
   await page.getByRole("button", { name: "Review and add member", exact: true }).click();
   assert.equal(memberPosts.length, 0, "Cancelling confirmation creates no membership command");
@@ -319,9 +328,6 @@ try {
   await page.getByRole("button", { name: "Review membership change", exact: true }).click();
   await page.getByRole("status").filter({ hasText: "Membership revoked." }).waitFor();
   assert.doesNotMatch(await page.getByRole("status").textContent(), /download/);
-  await page.getByText("Security activity log", { exact: true }).click();
-  await page.getByRole("button", { name: "Load latest activity", exact: true }).click();
-  await page.getByText("No activity recorded yet.", { exact: true }).waitFor();
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 950 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
@@ -335,12 +341,15 @@ try {
       const luminance = rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
       assert.ok(1.05 / (luminance + .05) >= 4.5, "Admin headings and disclosure text remain readable");
     }
-    const stackBounds = await page.locator(".admin-page-stack").evaluate(node => ({staff:node.querySelector(".workspace-staff").getBoundingClientRect().bottom,members:node.querySelector(".member-administration").getBoundingClientRect().top}));
-    assert.ok(stackBounds.members >= stackBounds.staff + 24, "Staff management and Organization members must not overlap");
+    assert.equal(await page.locator("main").count(),1,"Member tools belong to one page landmark");
     await page.locator(".community-admin-extras").evaluate(node => node.scrollIntoView({ block: "start" }));
     if (width === 390 || width === 1440) await page.screenshot({ path: path.join(previewDir, "member-admin-" + width + ".png") });
   }
   passed.push("existing-member form confirms/cancels, preserves failed input, distinguishes revocation and stays readable over the gradient; synthetic community transport");
+  await page.evaluate(accountId=>window.mountMembers(accountId,true),owner);
+  await page.getByRole("button",{name:"Load latest activity",exact:true}).click();
+  await page.getByText("No activity recorded yet.",{exact:true}).waitFor();
+  await assertRecruitmentSurface(page,"Dedicated activity page");
   assert.deepEqual(errors, []);
   console.log(JSON.stringify({ passed, pageErrors: 0, backend: "isolated PGlite with synthetic identity; actual HTTP authorization and SQL functions", hosted: false }));
 } finally { await browser?.close(); await db.close(); }

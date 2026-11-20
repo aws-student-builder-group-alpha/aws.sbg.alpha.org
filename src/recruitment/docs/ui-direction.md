@@ -2,9 +2,13 @@
 
 This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
 
-Use the main site's Supabase project for both areas, with shared Google identity/session/sign-out and `/auth/callback`. Skillbuilder permissions and recruitment staff memberships remain independent. Recruitment administrators still require AAL2. Recruitment starts fresh: import no accounts, applications, memberships, histories or uploaded files from the old project. Keep the old project intact.
+The unified deployment uses two Supabase projects. Skillbuilder uses its existing project and `/auth/callback`. Recruitment uses project `xndpudtctuqxnbkhhmre` and `/recruitment/auth/callback` with its own session, staff grants, and administrator MFA.
 
-Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the shared Auth user.
+Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the account in the main Auth project.
+
+## Recruitment staff workspace
+
+Recruitment administration uses the inset navy sidebar and account controls in place of the chapter navbar. On small screens the same navigation is available through Admin sections. Staff entry and evaluator pages keep the chapter navbar. Use Alpha's orange and violet waves over `#08090a` behind the warm working canvas and white content panels. Skeletons match the resolved layouts for each route, with static shapes for reduced motion and forced colors. The overview pairs its editorial introduction with four metrics, the full-queue status breakdown, recent applications, intake schedule and shortcuts.
 
 ## Application continuation routing ? 14 November 2026
 

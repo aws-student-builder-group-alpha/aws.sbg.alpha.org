@@ -1,24 +1,17 @@
-import Link from "next/link";
 import { Suspense } from "react";
-import { notFound, redirect } from "next/navigation";
-import { accountSession } from "@/recruitment/lib/server/session";
+import { listEvaluations } from "@/recruitment/lib/server/evaluations";
 import { listStaff } from "@/recruitment/lib/server/staff";
+import { readIntake } from "@/recruitment/lib/server/intake";
 import { AccessGuard } from "@/app/(recruitment)/recruitment/components/access-guard";
-import { PageHeading } from "@/app/(recruitment)/recruitment/components/ui";
-import { StaffManager } from "./staff-manager";
-import { MemberAdministration,SecurityLog } from '@/app/(recruitment)/recruitment/components/member-administration';
+import { AdminOverview } from "./overview";
+import { administratorSession, AdminLoading, AdminUnavailable } from "./access";
 
-export default function AdminPage() {
-  return <Suspense fallback={<main id="main-content" className="container portal"><p role="status">Checking administrator access…</p></main>}><AdminContent /></Suspense>;
+async function OverviewContent() {
+  const session = await administratorSession();
+  if (!session) return <AdminUnavailable />;
+  const id = session.identity.id;
+  const [applications, staff, intake] = await Promise.all([listEvaluations(id).catch(() => null), listStaff(id).catch(() => null), readIntake(id).catch(() => null)]);
+  if ([applications, staff, intake].some(result => result && !result.ok && result.code !== "UNAVAILABLE")) return <AdminUnavailable />;
+  return <AccessGuard accountId={id} expected="administrator"><AdminOverview key={id} applications={applications?.ok ? applications.data : null} staff={staff?.ok ? staff.data : null} intake={intake?.ok ? intake.data : null} /></AccessGuard>;
 }
-async function AdminContent() {
-  const session = await accountSession();
-  if (session.kind === "anonymous") redirect("/recruitment/staff");
-  if (session.kind === "applicant" || session.kind === "staff" && session.membership.role !== "administrator") notFound();
-  if (session.kind === "staff" && (session.membership.status !== "active" || session.needsMfa)) redirect("/recruitment/staff");
-  if (session.kind === "staff") {
-    const result = await listStaff(session.identity.id);
-    if (result.ok) return <AccessGuard accountId={session.identity.id} expected="administrator"><div className="admin-page-stack"><StaffManager key={session.identity.id} accountId={session.identity.id} initialStaff={result.data} /><div className="container community-admin-extras"><MemberAdministration accountId={session.identity.id}/><SecurityLog accountId={session.identity.id}/></div></div></AccessGuard>;
-  }
-  return <main id="main-content" className="container portal narrow"><PageHeading title="Staff management is unavailable" description="Your access or staff details could not be verified. No changes have been confirmed." /><Link href="/recruitment/staff" className="button button-orange">Check staff access</Link></main>;
-}
+export default function AdminPage() { return <Suspense fallback={<AdminLoading />}><OverviewContent /></Suspense>; }

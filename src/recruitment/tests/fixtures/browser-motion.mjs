@@ -12,8 +12,8 @@ export async function installRecruitmentUI(modules) {
   const { code: sitePaths } = await transform(await readFile(pathsFile, "utf8"), { filename: pathsFile, jsc: { parser: { syntax: "typescript" } }, module: { type: "commonjs" } });
   modules.set("@/recruitment/lib/site-paths", sitePaths);
   modules.set("./site-paths.ts", sitePaths);
-  for (const name of ["use-opportunity-availability", "inline-validation", "recruitment-shell", "wave-gradient", "enrollment-upload", "notification-inbox", "member-administration", "member-invitations", "applicant-outreach"]) {
-    const filename = fileURLToPath(new URL(`../../../app/(recruitment)/recruitment/components/${name}.${["inline-validation", "use-opportunity-availability"].includes(name) ? "ts" : "tsx"}`, import.meta.url));
+  for (const name of ["use-opportunity-availability", "inline-validation", "admin-navigation-guard", "admin-shell", "workspace-skeleton", "recruitment-shell", "wave-gradient", "enrollment-upload", "notification-inbox", "member-administration", "member-invitations", "applicant-outreach"]) {
+    const filename = fileURLToPath(new URL(`../../../app/(recruitment)/recruitment/components/${name}.${["inline-validation", "use-opportunity-availability", "admin-navigation-guard"].includes(name) ? "ts" : "tsx"}`, import.meta.url));
     const { code } = await transform(await readFile(filename, "utf8"), { filename, jsc: { parser: { syntax: "typescript", tsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
     modules.set(`./${name}`, code);
     modules.set(`@/app/(recruitment)/recruitment/components/${name}`, code);
@@ -23,13 +23,15 @@ export async function installRecruitmentUI(modules) {
     const {code}=await transform(await readFile(filename,'utf8'),{filename,jsc:{parser:{syntax:'typescript'}},module:{type:'commonjs'}});
     modules.set(`@/recruitment/lib/${name}`,code);modules.set(`./${name}.ts`,code);
   }
-  modules.set("recruitment-test-frame", `exports.Frame=({frame,children,staff,signedIn=true})=>{const {jsx,jsxs}=require('react/jsx-runtime');const ui=require('./ui');return jsxs(require('react').Fragment,{children:[jsx(ui.SiteHeader,{signedIn,staff}),jsx(require('./recruitment-shell').RecruitmentShell,{frame,children}),jsx(ui.Footer,{})]});};`);
+  modules.set("recruitment-test-frame", `exports.Frame=({frame,children,staff,signedIn=true})=>{const {jsx,jsxs}=require('react/jsx-runtime');const ui=require('./ui');return jsxs(require('react').Fragment,{children:[jsx(ui.SiteHeader,{signedIn,staff}),jsx(require('./recruitment-shell').RecruitmentShell,{frame,children,adminAccount:jsx(require('./admin-shell').AdminAccount,{signedIn,label:'Synthetic administrator'})}),jsx(ui.Footer,{})]});};`);
 }
 
 export async function assertRecruitmentSurface(page, label) {
   await assertProcessAppearance(page, ".recruitment-process", label);
   assert.equal(await page.locator(".recruitment-process").count(), 1, label + " has one layout host");
-  assert.equal(await page.locator(".workspace-atmosphere canvas").count(), 1, label + " has one decorative canvas");
+  const staff = await page.locator('.recruitment-process[data-workspace-frame="staff"]').count() > 0;
+  const administrator = await page.locator('.recruitment-process[data-workspace-frame="administrator"]').count() > 0;
+  assert.equal(await page.locator(".workspace-atmosphere canvas").count(), 1, label + " has its route-specific background");
   assert.equal(await page.locator(".site-footer").count(), 0, label + " has no process footer");
   assert.equal(await page.locator(".error-summary").count(), 0, label + " uses field-only errors");
   const invalid = await page.evaluate(() => [...document.querySelectorAll('main button, main input:not([type="hidden"]), main select, main textarea, dialog button')].filter(node => {
@@ -38,6 +40,20 @@ export async function assertRecruitmentSurface(page, label) {
     return rect.left < -1 || rect.right > innerWidth + 1;
   }).map(node => node.id || node.textContent.slice(0, 80)));
   assert.deepEqual(invalid, [], label + " controls fit the viewport");
+  if (administrator) {
+    assert.equal(await page.locator('.recruitment-process').evaluate(node => getComputedStyle(node).backgroundColor), 'rgba(0, 0, 0, 0)', label + ' exposes the applicant atmosphere');
+    return;
+  }
+  if (staff) {
+    const background = await page.locator('.recruitment-process').evaluate(node => { const style = getComputedStyle(node); return {color:style.backgroundColor,image:style.backgroundImage,animation:style.animationName}; });
+    assert.equal(background.color, 'rgba(0, 0, 0, 0)', label + ' has the navy Staff background');
+    assert.equal(background.image, 'none', label + ' exposes the shared applicant atmosphere');
+    assert.equal(background.animation, 'none', label + ' background stays still');
+    assert.equal(await page.locator('.staff-auth-emblem').count(), 0, label + ' omits the shield emblem');
+    const cards = await page.locator('.staff-auth-card, .recruitment-process>.portal.narrow').evaluateAll(nodes => nodes.filter(node => node.getClientRects().length).map(node => getComputedStyle(node).backgroundColor));
+    assert.ok(cards.length && cards.every(color => color === 'rgb(255, 255, 255)'), label + ' keeps a clear white card');
+    return;
+  }
   await page.waitForFunction(() => { const canvas = document.querySelector(".workspace-atmosphere canvas"); return canvas && canvas.width <= innerWidth * 1.5 + 1 && canvas.height <= innerHeight * 1.5 + 1; });
   const canvas = await page.locator(".workspace-atmosphere canvas").evaluate(node => ({ width: node.width, height: node.height, viewportWidth: innerWidth, viewportHeight: innerHeight }));
   assert.ok(canvas.width <= canvas.viewportWidth * 1.5 + 1 && canvas.height <= canvas.viewportHeight * 1.5 + 1, label + " canvas is viewport bounded");
@@ -68,7 +84,7 @@ export async function assertProcessAppearance(page, selector = ".process-root", 
         if (contrast(rgba(style.borderTopColor), background) < 3) issues.push(node.id + " control border contrast");
       }
     }
-    for (const node of root.querySelectorAll("label, legend, dt, .muted, .field-hint, .field-error, .notice-title, .notice-content, .text-button, .button-danger")) {
+    for (const node of root.querySelectorAll("label, legend, dt, .muted, .field-hint, .field-error, .notice-title, .notice-content, .text-button, .button-danger, .staff-auth-description, .staff-auth-eyebrow, .staff-auth-support a, .staff-auth-card h1, .staff-auth-card h2, .staff-auth-card summary, .staff-auth-card .button, .staff-auth-card .workspace-account")) {
       if (!node.getClientRects().length || node.closest('[hidden], [inert]') || getComputedStyle(node).visibility === "hidden") continue;
       const background = paintedBackground(node), foreground = over(rgba(getComputedStyle(node).color), background);
       if (contrast(foreground, background) < 4.5) issues.push((node.id || node.className || node.tagName) + " transparent text contrast");
@@ -100,6 +116,10 @@ export async function openDisclosure(page, label) {
 }
 
 export async function assertEnlargedProcess(page, field) {
+  // Resize checks and explicit short-screen focus are separate assertions.
+  // A still-focused invalid textarea can trigger native caret scrolling while
+  // the viewport/fonts change, racing the positioning check below.
+  await page.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
   for (const width of [320, 375, 1440]) {
     await page.setViewportSize({ width, height: 812 });
     await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
@@ -117,8 +137,11 @@ export async function assertEnlargedProcess(page, field) {
       const published = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--site-header-height"));
       return !row || Math.abs(row.getBoundingClientRect().height - published) < 1;
     });
-    await page.locator(`#${field}`).evaluate(node => {
+    await page.locator(`#${field}`).evaluate(async node => {
       node.focus({ preventScroll: true });
+      // Allow native textarea caret positioning to finish before explicitly
+      // scrolling the field; its selection may be at the end of a long value.
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       node.scrollIntoView({ block: "start", behavior: "instant" });
     });
     const visible = await page.waitForFunction(id => {
@@ -126,7 +149,13 @@ export async function assertEnlargedProcess(page, field) {
       const header = document.querySelector(".site-header")?.getBoundingClientRect();
       const offset = header ? Math.max(0, header.bottom) : 0;
       return bounds && bounds.y >= offset && bounds.y < innerHeight ? { y: bounds.y, offset, height: innerHeight } : false;
-    }, field);
+    }, field).catch(async error => {
+      const geometry = await page.evaluate(id => {
+        const node = document.getElementById(id), header = document.querySelector('.site-header');
+        return { field:node?.getBoundingClientRect().toJSON(), header:header?.getBoundingClientRect().toJSON(), focused:document.activeElement?.id, scrollY, viewport:innerHeight };
+      }, field);
+      throw new Error(error.message + ' Focus geometry: ' + JSON.stringify(geometry));
+    });
     const bounds = await visible.jsonValue();
     assert.ok(bounds && bounds.y >= bounds.offset && bounds.y < bounds.height, "focused field remains visible below the fixed header in a short viewport");
   }

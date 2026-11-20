@@ -1,9 +1,8 @@
-export function getSupabaseConfig() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-  if (!url || !key || url.includes("your-project") || key.includes("your-publishable") || key.startsWith("sb_secret_")) return null;
+function publicSupabaseConfig(url: string | undefined, key: string | undefined) {
+  if (!url || !key || key.includes("your-publishable") || key.startsWith("sb_secret_")) return null;
   try {
     const parsed = new URL(url);
+    if (/^your-(?:(?:main|recruitment)-)?project\.supabase\.co$/.test(parsed.hostname)) return null;
     if (parsed.protocol !== "https:" && !(parsed.protocol === "http:" && ["localhost", "127.0.0.1"].includes(parsed.hostname))) return null;
     if (key.startsWith("eyJ")) {
       const claims: unknown = JSON.parse(Buffer.from(key.split(".")[1], "base64url").toString());
@@ -12,6 +11,18 @@ export function getSupabaseConfig() {
     return { url: parsed.origin, key };
   } catch { return null; }
 }
+
+export function getMainSupabaseConfig() {
+  return publicSupabaseConfig(process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+}
+
+export function getSupabaseConfig() {
+  return publicSupabaseConfig(process.env.RECRUITMENT_SUPABASE_URL, process.env.RECRUITMENT_SUPABASE_PUBLISHABLE_KEY);
+}
+
+export const recruitmentAuthCookies = { name: "sb-alpha-recruitment-auth-token" };
+
 export function getAppOrigin() {
   const localOrigin = "http://localhost:3000";
   const url = new URL(process.env.APP_URL || process.env.NEXT_PUBLIC_SITE_URL || localOrigin);

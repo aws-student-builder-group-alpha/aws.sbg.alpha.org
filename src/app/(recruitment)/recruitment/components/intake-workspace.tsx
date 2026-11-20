@@ -1,4 +1,6 @@
 "use client";
+import { AdminPageHeader } from "./admin-shell";
+import { ListSkeleton } from "./workspace-skeleton";
 
 import Link from "next/link";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
@@ -38,7 +40,7 @@ function IntakeHistoryList({ accountId, onFailure }: { accountId: string; onFail
   return <details ref={historyPanel} className="workspace-disclosure" open={!!error || undefined}><summary>Private intake history</summary><section className="decision-history" aria-labelledby="intake-history-title">
     <h2 className="sr-only" id="intake-history-title">Private intake history</h2>
     <p>Reasons are visible only to administrators. History starts with changes made through these controls.</p>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => void load()}>Retry intake history</button></Callout> : !history.items.length ? <p>{busy ? "Loading intake history..." : "No intake changes have been recorded."}</p> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
+    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => void load()}>Retry intake history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading intake history..." /> : <p>No intake changes have been recorded.</p> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
       <div className="subheading"><strong>{labels[event.action]}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
       <p>{event.previousState} to {event.state}. {event.actor.email}</p><p className="evaluation-note">Reason: {event.reason}</p><p className="muted">Intake revision {event.version}.</p>
     </li>)}</ol>}
@@ -110,8 +112,8 @@ export function IntakeWorkspace({ accountId, initialState }: { accountId: string
   }
   if (state.blocked) return <main id="main-content" className="container portal narrow"><PageHeading title="Intake access has changed" description={state.notice} /><Link href="/recruitment/staff" className="button button-orange">Check staff access</Link></main>;
   const data = state.data, confirmation = state.confirmation, frozen = state.busy || !!state.pending || state.conflict;
-  return <main id="main-content" className="container portal intake-workspace workspace-redesign workspace-intake" data-unsaved={state.dirty || !!state.pending}>
-    <h1 className="sr-only">Recruitment intake</h1>
+  return <main id="main-content" className="container portal intake-workspace workspace-redesign workspace-intake" data-command-pending={state.busy || !!state.pending || !!state.confirmation || undefined} data-unsaved={state.dirty || !!state.pending}>
+    <AdminPageHeader title="Intake" description="Control submission availability and review the recruitment schedule." />
     <div className="workspace-reading">
     {state.notice && !confirmation && <Callout><p role="status">{state.notice}</p></Callout>}
     {!state.verified && <Callout tone="warning"><p role="alert">Intake details are hidden until administrator access can be verified.</p><button type="button" className="text-button" onClick={() => void load()}>Retry intake access</button></Callout>}

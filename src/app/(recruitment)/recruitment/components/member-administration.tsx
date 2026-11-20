@@ -1,27 +1,32 @@
 "use client";
 
+import { ListSkeleton } from "./workspace-skeleton";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { communityCommand, communityRead } from "@/recruitment/lib/community-client";
 import { record } from "@/recruitment/lib/drafts";
 import { formatDate } from "@/recruitment/lib/format-date";
 import { Callout } from "./ui";
 import { MemberInvitations } from "./member-invitations";
+import { useAdminNavigationGuard } from "./admin-navigation-guard";
 
 type MemberAdministrationProps = {
   accountId: string;
   email?: string;
   name?: string;
   position?: string;
+  workspace?: boolean;
 };
 type MemberFormMode = "add" | "manage";
 type Notice = { tone: "success" | "error"; message: string };
 
 export function MemberAdministration({
-  accountId, email = "", name = "", position = "Member",
+  accountId, email = "", name = "", position = "Member", workspace = false,
 }: MemberAdministrationProps) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [mode, setMode] = useState<MemberFormMode | null>(null);
+  const [dirty, setDirty] = useState(false);
+  useAdminNavigationGuard(dirty, busy);
   const formId = useId();
   const request = useRef({key:"",id:""});
   const [revision,setRevision] = useState(0);
@@ -29,6 +34,8 @@ export function MemberAdministration({
   const today = new Date().toISOString().slice(0, 10);
 
   function toggleForm(next: MemberFormMode) {
+    if (dirty && !window.confirm("Discard the unfinished membership form?")) return;
+    setDirty(false);
     setMode(current => current === next ? null : next);
     setNotice(null);
   }
@@ -54,7 +61,7 @@ export function MemberAdministration({
       if (invite) {
         if (!record(member) || member.state !== "pending") throw new Error("Invitation could not be confirmed.");
         setNotice({tone:"success",message:"Invitation saved. The member must sign in with the invited Google account and accept before an ID is issued. Open Member invitations below to send an email, or share the Membership ID link."});
-        setRevision(value=>value+1);setMode(null);return;
+        setRevision(value=>value+1);setMode(null);setDirty(false);return;
       }
       if (!record(member) || typeof member.id !== "string"
         || !["active", "revoked"].includes(String(member.status))) {
@@ -67,6 +74,7 @@ export function MemberAdministration({
           : "Membership saved. ID: " + member.id + ". The member can sign in, add their photo and download their Alpha ID.",
       });
       setMode(null);
+      setDirty(false);
     } catch (error) {
       setNotice({
         tone: "error",
@@ -77,10 +85,10 @@ export function MemberAdministration({
     }
   }
 
-  return <section className="community-admin-panel member-administration" aria-labelledby={headingId}>
+  return <section className="community-admin-panel member-administration" aria-labelledby={headingId} data-admin-unsaved={dirty || undefined} data-admin-pending={busy || undefined}>
     <header>
       <p className="community-admin-eyebrow">Member records</p>
-      <h2 id={headingId}>{email ? "Membership ID" : "Organization members"}</h2>
+      <h2 id={headingId}>{workspace ? "Membership tools" : email ? "Membership ID" : "Organization members"}</h2>
     </header>
     <p>Add people who already belong to Alpha without a recruitment application. System Admins control their position, date joined and membership access.</p>
     <div className="community-member-steps">
@@ -97,7 +105,7 @@ export function MemberAdministration({
         Update or revoke membership
       </button>
     </div>
-    {mode && <form id={formId} className="community-member-form" key={mode} onSubmit={save}>
+    {mode && <form id={formId} className="community-member-form" key={mode} onChange={() => setDirty(true)} onSubmit={save}>
       <h3>{mode === "add" ? "Add an existing Alpha member" : "Update membership details or access"}</h3>
       <fieldset className="application-fields" disabled={busy}>
         <label>Verified Google email<input name="email" type="email" required maxLength={254} autoComplete="email" defaultValue={email} /></label>
@@ -111,7 +119,7 @@ export function MemberAdministration({
         <p className="community-member-note">Invited existing members accept before an ID is issued. Members manage their own name and photo after an ID is issued. An existing email keeps its membership ID; this form updates its position, date and access. Staff roles are assigned separately in Staff management.</p>
         <div className="community-member-actions">
           <button type="submit" className="button button-orange">{busy ? "Saving…" : mode === "add" ? "Review and add member" : "Review membership change"}</button>
-          <button type="button" className="text-button" disabled={busy} onClick={() => setMode(null)}>Cancel</button>
+          <button type="button" className="text-button" disabled={busy} onClick={() => { setMode(null); setDirty(false); }}>Cancel</button>
         </div>
       </fieldset>
     </form>}
@@ -120,7 +128,7 @@ export function MemberAdministration({
   </section>;
 }
 
-export function SecurityLog({ accountId }: { accountId: string }) {
+export function SecurityLog({ accountId, expanded = false }: { accountId: string; expanded?: boolean }) {
   const [items, setItems] = useState<Record<string, unknown>[] | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -141,15 +149,16 @@ export function SecurityLog({ accountId }: { accountId: string }) {
     }
   }
 
-  return <details className="community-admin-panel community-security">
+  return <details className="community-admin-panel community-security" open={expanded || undefined} data-expanded={expanded || undefined}>
     <summary>Security activity log</summary>
     <p>The latest 100 application, document, membership and delivery events. Role-change reasons and access history remain in Staff management.</p>
     <button type="button" className="text-button" disabled={busy} onClick={() => void load()}>{busy ? "Loading…" : "Load latest activity"}</button>
     {error && <Callout tone="error" role="alert">{error}</Callout>}
+    {busy && items === null && !error && <ListSkeleton label="Loading security activity..." rows={5} />}
     {items?.length === 0 && <p role="status">No activity recorded yet.</p>}
     <ul className="community-audit">{items?.map(item => <li key={String(item.id)}>
-      <strong>{String(item.action)}</strong>
-      <span>{String(item.object_id)}</span>
+      <strong className="audit-action"><span className="audit-event-mark" aria-hidden="true" />{String(item.action).replaceAll("_", " ")}</strong>
+      <span className="audit-reference">{String(item.object_id)}</span>
       <time>{formatDate(String(item.created_at))}</time>
     </li>)}</ul>
   </details>;

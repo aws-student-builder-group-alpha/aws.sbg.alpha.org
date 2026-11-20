@@ -10,7 +10,7 @@ Email UI and storage are implemented, but sending remains disabled unless both s
 
 ```dotenv
 ALPHA_GMAIL_APP_PASSWORD=
-ALPHA_SUPABASE_SECRET_KEY=
+RECRUITMENT_SUPABASE_SECRET_KEY=
 ```
 
 Use an app password issued specifically by the **awslc.alpha@gmail.com** mailbox, with Google 2-Step Verification enabled, or adapt the transport in a separately verified OAuth unit. Do not use the mailbox's normal password. The privileged Supabase key must belong to the same Alpha test project; it is used only to record delivery acknowledgements. Never put either value in browser code, NEXT_PUBLIC variables, source, chat, logs or screenshots. Restart the server after configuring them. The sender and SMTP host are fixed in server code; they are not editable by applicants or Organization Heads.

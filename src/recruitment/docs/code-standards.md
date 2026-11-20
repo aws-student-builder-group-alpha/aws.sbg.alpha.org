@@ -2,11 +2,13 @@
 
 This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
 
-Use the main site's Supabase project for both areas, with shared Google identity/session/sign-out and `/auth/callback`. Skillbuilder permissions and recruitment staff memberships remain independent. Recruitment administrators still require AAL2. Recruitment starts fresh: import no accounts, applications, memberships, histories or uploaded files from the old project. Keep the old project intact.
+The unified deployment uses two Supabase projects. Skillbuilder uses its existing project and `/auth/callback`. Recruitment uses project `xndpudtctuqxnbkhhmre` and `/recruitment/auth/callback` with its own session, staff grants, and administrator MFA.
 
 Browser fixtures obtain the recruitment route CSS from its built client-reference manifest because dynamic routes have no prerendered admin HTML. Run the root build first.
 
-Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the shared Auth user.
+The admin workspace suite covers the built route inventory, every section's sidebar selection, loading, responsive layout and overview totals. Staff, queue, decision, intake and export suites cover recovery and preservation of unfinished edits. Run these from the root via `npm run verify:ci`.
+
+Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the account in the main Auth project.
 
 # Code Standards
 

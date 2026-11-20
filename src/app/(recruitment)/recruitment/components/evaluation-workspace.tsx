@@ -1,5 +1,7 @@
 "use client";
 import { ApplicantOutreach } from './applicant-outreach';
+import { DetailSkeleton, ListSkeleton } from "./workspace-skeleton";
+import { AdminPageHeader } from "./admin-shell";
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useReducer, useRef, useState, type ReactNode } from "react";
@@ -27,6 +29,8 @@ function opportunityName(id: string) {
 }
 const unsavedSelector = '.evaluation-detail[data-unsaved="true"], .decision-panel[data-unsaved="true"]';
 const pendingSelector = '.evaluation-detail[data-command-pending="true"], .decision-panel[data-command-pending="true"]';
+const recordUnsavedSelector = unsavedSelector + ', .workspace-admin [data-admin-unsaved="true"]';
+const recordPendingSelector = pendingSelector + ', .workspace-admin [data-admin-pending="true"]';
 
 function RecordSections({ redesign, administrator, application, controls, decision, history, pending }: {
   redesign: boolean; administrator: boolean; application: ReactNode; controls: ReactNode; decision: ReactNode; history: ReactNode; pending: boolean;
@@ -70,7 +74,7 @@ function ReviewHistory({ accountId, applicationId, administrator, onDenied }: { 
   return <section className="evaluation-history" aria-labelledby="review-history-heading">
     <h3 id="review-history-heading">{administrator ? "Private evaluation history" : "Previous reviews"}</h3>
     <p className="muted">{administrator ? "Assignment changes and recommendation revisions. Private to authorized staff." : "Earlier evaluators' latest saved reviews are read-only. Your current assignment needs its own recommendation."}</p>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => { setBusy(true); setReload(n => n + 1); }}>Retry history</button></Callout> : busy && !page.items.length ? <p role="status">Loading history...</p> : !page.items.length ? <p>No earlier reviews or changes are recorded.</p> : <ol className="staff-history-list">{page.items.map(event => <li key={event.kind + event.id}>
+    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => { setBusy(true); setReload(n => n + 1); }}>Retry history</button></Callout> : busy && !page.items.length ? <ListSkeleton label="Loading history..." /> : !page.items.length ? <p>No earlier reviews or changes are recorded.</p> : <ol className="staff-history-list">{page.items.map(event => <li key={event.kind + event.id}>
       <div className="subheading"><strong>{event.kind === "assignment" ? "Evaluator assigned" : event.recommendation}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
       <p>{event.evaluator.email} {event.kind === "review" && `- review revision ${event.reviewVersion}`}</p>
       {event.notes && <p className="evaluation-note">{event.notes}</p>}
@@ -171,7 +175,7 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
       focusedApplication.current = applicationId; heading.current?.focus();
     }
   }, [applicationId, detail, redesign, state.verified]);
-  if (state.loading) return <section className="panel"><p role="status">Loading application...</p></section>;
+  if (state.loading) return <DetailSkeleton />;
   if (state.blocked) return <section className="panel"><h2>Assignment unavailable</h2><Callout tone="error" title="Something needs attention" role="alert">{state.notice}</Callout><div className="inline-actions"><button className="button button-secondary" type="button" onClick={onChanged}>Reload applications</button><button className="text-button" type="button" onClick={() => void load(true)}>Check application access</button></div></section>;
   return <section className="evaluation-detail" data-unsaved={state.dirty || !!state.pending} data-command-pending={!!state.pending}>
     {state.notice && !confirmation && <Callout><p role="status">{state.notice}</p></Callout>}
@@ -259,14 +263,14 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
   useEffect(() => {
     active.current = true;
     const warn = (event: BeforeUnloadEvent) => { if (document.querySelector(unsavedSelector)) event.preventDefault(); };
-    const leave = (event: MouseEvent) => { if (!(event.target instanceof Element)) return; const link = event.target.closest("a[href]"); if (!link || link instanceof HTMLAnchorElement && link.hasAttribute("download") && link.href.startsWith("blob:")) return; if (document.querySelector(pendingSelector) || document.querySelector(unsavedSelector) && !window.confirm("Discard your unsaved evaluation changes and leave?")) event.preventDefault(); };
+    const leave = (event: MouseEvent) => { if (event.defaultPrevented || !(event.target instanceof Element)) return; const link = event.target.closest("a[href]"); if (!link || link instanceof HTMLAnchorElement && link.hasAttribute("download") && link.href.startsWith("blob:")) return; if (document.querySelector(pendingSelector) || document.querySelector(unsavedSelector) && !window.confirm("Discard your unsaved evaluation changes and leave?")) event.preventDefault(); };
     window.addEventListener("beforeunload", warn); document.addEventListener("click", leave, true);
     return () => { active.current = false; request.current?.abort(); window.removeEventListener("beforeunload", warn); document.removeEventListener("click", leave, true); };
   }, []);
   useEffect(() => { if (!allowed) request.current?.abort(); }, [allowed]);
   function canLeave() {
-    if (document.querySelector(pendingSelector)) { setNavigationNotice("Retry or check your pending confirmation before changing applications or filters."); return false; }
-    return !document.querySelector(unsavedSelector) || window.confirm("Discard your unsaved evaluation changes and change applications?");
+    if (document.querySelector(recordPendingSelector)) { setNavigationNotice("Retry or check your pending confirmation before changing applications or filters."); return false; }
+    return !document.querySelector(recordUnsavedSelector) || window.confirm("Discard your unfinished record changes and change applications?");
   }
   function applyFilters(clear = false) {
     if (exportBusy || !canLeave()) return;
@@ -307,7 +311,7 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
     } finally { if (request.current === controller) { request.current = null; setBusy(false); } }
   }
   function backToList() {
-    if (document.querySelector(pendingSelector)) { setNavigationNotice("Retry or check your pending confirmation before returning to the list."); return; }
+    if (document.querySelector(recordPendingSelector)) { setNavigationNotice("Retry or check your pending confirmation before returning to the list."); return; }
     request.current?.abort(); request.current = null; setBusy(false);
     setMobileDetail(false); setNavigationNotice("");
     requestAnimationFrame(() => {
@@ -316,16 +320,17 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
     });
   }
   const resultsCurrent = !busy && !error && (!administrator || !!list.queue && sameQueueFilters(list.queue.filters, applied));
+  const visibleResultsCurrent = !blocked && !error && (!administrator || !!list.queue && sameQueueFilters(list.queue.filters, applied));
   const exportControl = administrator && <ApplicationExportControl compact={enhanced} key={JSON.stringify(applied)} accountId={accountId} filters={applied} disabled={!resultsCurrent || !list.queue?.total} onBusy={setExportBusy} onDenied={(failure: ExportFailure) => { setError(failure.message); setBlocked(true); setList(current => ({ ...current, items: [], evaluators: [] })); setSelected(""); }} />;
   const pageHeading = <PageHeading eyebrow={enhanced ? "November 2026 · Evaluation" : undefined} title={administrator ? "Application assignments" : "Evaluator workspace"} description={administrator ? "Assign one evaluator and follow saved recommendations." : "Read your assigned applications and save a recommendation with optional private notes."} />;
   if (blocked) return <main id="main-content" className="container portal narrow"><PageHeading title="Check staff access" description={error} /><Link href="/recruitment/staff" className="button button-orange">Staff sign-in</Link></main>;
   return <main id="main-content" className={`container portal staff-portal evaluation-workspace${enhanced ? ` workspace-redesign workspace-evaluation ${administrator ? "workspace-admin" : "workspace-reviewer"}` : ""}`} data-mobile-view={enhanced ? mobileDetail ? "detail" : "list" : undefined}>
     {list.role === "administrator" && !enhanced && <AdminNavigation current="applications" />}
-    {enhanced ? <h1 className="sr-only">{administrator ? "Applications" : "Evaluator workspace"}</h1> : pageHeading}
+    {enhanced ? administrator ? <AdminPageHeader title="Applications" description="Review submissions, assign evaluators and publish recruitment outcomes." /> : <h1 className="sr-only">Evaluator workspace</h1> : pageHeading}
     <div className={enhanced ? "workspace-queue-overview" : undefined}>
     {administrator ? <ApplicationQueueControls collapsible={enhanced} trailingActions={enhanced ? exportControl : undefined} filters={filters} applied={applied} busy={busy || exportBusy} frozen={exportBusy} onChange={setFilters} onApply={() => applyFilters()} onClear={() => applyFilters(true)} onRefresh={() => void refresh()} /> : <form className="evaluation-search" onSubmit={event => { event.preventDefault(); applyFilters(); }}><label htmlFor="evaluation-search">Search applications</label><div className="inline-actions"><input id="evaluation-search" value={filters.search} maxLength={100} onChange={e => setFilters(current => ({ ...current, search: e.target.value }))} placeholder="Name, email, or reference" /><button className="button button-secondary" disabled={busy} type="submit">Search</button><button className="text-button" type="button" disabled={busy} onClick={() => void refresh()}>Refresh applications</button></div></form>}
     {!enhanced && exportControl}
-    {administrator && resultsCurrent && list.queue && <ApplicationQueueCounts compact={enhanced} queue={list.queue} shown={list.items.length} />}
+    {administrator && visibleResultsCurrent && list.queue && <ApplicationQueueCounts compact={enhanced} queue={list.queue} shown={list.items.length} />}
     {administrator && <details className="queue-views-disclosure"><summary>Queue views</summary><div className="inline-actions queue-shortcuts" aria-label="Application queue shortcuts">{([
       ["Unassigned", "Submitted", "unassigned", "all"], ["Awaiting recommendation", "Under Review", "assigned", "missing"], ["Ready for decision", "Under Review", "assigned", "saved"],
     ] as const).map(([label,status,assignment,review]) => <button key={label} type="button" className="button button-secondary" disabled={busy || exportBusy} aria-pressed={applied.status === status && applied.assignment === assignment && applied.review === review} onClick={() => applyShortcut(status,assignment,review)}>{label}</button>)}</div></details>}
@@ -334,15 +339,15 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
     {error && <Callout tone="warning"><p role="alert">{error}</p><button type="button" className="text-button" onClick={() => void refresh()}>Retry applications</button></Callout>}
     <div className="evaluation-layout">
       <aside ref={listElement} className="panel evaluation-list" aria-label="Applications" aria-busy={busy}>
-        {busy && <p role="status">Loading applications...</p>}
+        {busy && (!visibleResultsCurrent || !list.items.length) ? <ListSkeleton label="Loading applications..." rows={5} /> : busy && <p role="status">Updating applications...</p>}
         {resultsCurrent && !list.items.length && <p>{queueIsFiltered(applied) ? "No applications match the applied search and filters." : list.role === "administrator" ? "No submitted applications yet." : "You have no active assignments."}</p>}
-        <div hidden={!resultsCurrent}>{list.items.map(item => <button type="button" key={item.id} aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}>
+        <div hidden={!visibleResultsCurrent}>{administrator && enhanced ? <table className="admin-application-table"><caption className="sr-only">Submitted applications</caption><thead><tr><th scope="col">Applicant</th><th scope="col">Opportunity</th><th scope="col">Status</th><th scope="col">Evaluator</th><th scope="col">Recommendation</th></tr></thead><tbody>{list.items.map(item => <tr key={item.id}><td><button type="button" aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}><strong>{item.name}</strong><small>{item.reference}</small><small>{formatDate(item.submittedAt)}</small></button></td><td data-label="Opportunity">{opportunityName(item.opportunityId)}</td><td data-label="Status"><StatusBadge status={item.status} /></td><td data-label="Evaluator">{item.assignment?.evaluator.email || "Not assigned"}</td><td data-label="Recommendation">{item.recommendation || (item.assignment ? "Recommendation needed" : "No recommendation")}</td></tr>)}</tbody></table> : list.items.map(item => <button type="button" key={item.id} aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}>
           {enhanced ? <><span className="application-row-heading"><strong>{item.name}</strong><StatusBadge status={item.status} /></span><span>{opportunityName(item.opportunityId)}</span><span>{item.reference}</span></> : <><strong>{item.name}</strong><span>{item.reference}</span><StatusBadge status={item.status} /><span>{opportunityName(item.opportunityId)}</span></>}<span className="muted">{item.assignment ? `${item.assignment.evaluator.email} - ${item.recommendation ?? "Recommendation needed"}` : "Not assigned"}</span>
         </button>)}</div>
         {resultsCurrent && list.nextOffset !== null && <button className="button button-secondary" disabled={busy} type="button" onClick={() => { if (list.nextOffset !== null) void refresh(list.nextOffset); }}>Load more applications</button>}
       </aside>
       <div className={enhanced ? "workspace-detail" : "evaluation-detail-slot"}>
-      {enhanced && selected && <button type="button" className="text-button workspace-back" onClick={backToList}><Icon name="arrow" size={16} />Back to list</button>}
+      {enhanced && selected && <button type="button" className="text-button workspace-back" onClick={backToList}><Icon name="arrow" size={16} />{administrator ? "Back to applications" : "Back to list"}</button>}
       {selected ? <EvaluationPanel redesign={enhanced} key={selected} accountId={accountId} applicationId={selected} evaluators={list.evaluators} onChanged={changed} onNext={!administrator && !busy ? () => void reviewNext() : undefined} /> : <section className="panel evaluation-empty"><h2>Choose an application</h2><p>{list.role === "administrator" ? "Open a submitted application to assign an evaluator or read its recommendation." : "Select an assigned application to read the answers and save your recommendation."}</p></section>}
       </div>
     </div>
