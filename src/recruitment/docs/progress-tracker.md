@@ -1,3 +1,11 @@
+## Unified Vercel production workflow - 21 November 2026
+
+Replaced the relay that tried to commit directly to protected `main`. The replacement stages the exact successful Recruitment CI commit in `awslc-alpha-org` and promotes it when live mode is enabled and the commit is still current. Tests cover workflow triggers, staged and live releases, superseded commits, blocked promotion on deployment errors, and target and SHA checks. Seventeen focused Node tests, workflow YAML checks, and focused lint passed.
+
+The GitHub environment `unified-vercel-production` was created with a verified `main`-only branch policy. The current Vercel account could not access the unified Vercel scope. Credentials, staged verification and production promotion remain pending. The root README records the environment and first-stage verification requirements.
+
+Reviewed the six Recruitment context documents and updated architecture and this tracker. Product scope, coding standards, UI direction and workflow policy are covered by their existing contracts.
+
 ## Recruitment Security activity log - 21 November 2026
 
 Security activity presents the latest loaded events in a table with event icons, references and Philippine-time timestamps. Narrow rows become labeled cards. Search still filters the loaded snapshot by readable action, raw code or reference. The initial, empty and no-results views use the shared illustration, and refreshing retains the loaded rows.

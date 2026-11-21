@@ -28,8 +28,27 @@ test("CI workflow parses with pinned tools, ordinary triggers, read-only permiss
  const setup=job.steps.find(step=>step.uses?.startsWith("actions/setup-node@"));assert.equal(setup.with["node-version-file"],"src/recruitment/.node-version");assert.equal(setup.with.cache,"npm");
  const upload=job.steps.find(step=>step.uses?.startsWith("actions/upload-artifact@"));assert.equal(upload.with["retention-days"],7);assert.equal(upload.with["include-hidden-files"],true);
  for(const entry of upload.with.path.trim().split("\n"))assert.match(entry.replace(/^src\/recruitment\//,""),/^\.next\/verification\/(?:ci\/\*\.(?:log|json)|(?:admin-workspace|staff-confirmation|applicant-submission|evaluations|decisions|application-queue|intake|application-export)\/\*\.png)$/);
- assert.equal(JSON.stringify(workflow).includes("secrets."),false);assert.deepEqual(job.steps.filter(step=>step.run).map(step=>step.run),["npm ci","node --test scripts/section-navigation.test.mjs","npx playwright install --with-deps chromium","npm run verify:ci"]);
+ assert.equal(JSON.stringify(workflow).includes("secrets."),false);assert.deepEqual(job.steps.filter(step=>step.run).map(step=>step.run),["npm ci","node --test scripts/section-navigation.test.mjs scripts/release-vercel.test.mjs","npx playwright install --with-deps chromium","npm run verify:ci"]);
  const manifest=JSON.parse(await readFile(new URL("../../../package.json",import.meta.url),"utf8"));assert.equal(manifest.devDependencies.playwright,"1.63.0");assert.match(manifest.scripts["test:recruitment"],/--test-concurrency=2/);assert.equal((await readFile(new URL("../.node-version",import.meta.url),"utf8")).trim(),"24.22.1");assert.deepEqual(browserSuites,["page-loader","membership","authenticator","admin-workspace","staff-manager","applicant-submission","evaluations","decisions","application-queue","intake","application-export"]);
+});
+
+test("production workflow accepts only successful same-repository main push runs and checks out their SHA", async () => {
+ const workflow = yaml.load(await readFile(new URL("../../../.github/workflows/vercel-production.yml", import.meta.url), "utf8"));
+ assert.deepEqual(workflow.on, { workflow_run: { workflows: ["Recruitment CI"], types: ["completed"], branches: ["main"] } });
+ assert.deepEqual(workflow.permissions, { contents: "read" });
+ const job = workflow.jobs.deploy;
+ assert.deepEqual(job.if.split(" && "), [
+   "github.event.workflow_run.conclusion == 'success'",
+   "github.event.workflow_run.event == 'push'",
+   "github.event.workflow_run.head_branch == 'main'",
+   "github.event.workflow_run.head_repository.full_name == github.repository",
+   "(vars.VERCEL_RELEASE_MODE == 'stage' || vars.VERCEL_RELEASE_MODE == 'live')",
+ ]);
+ assert.equal(job.environment, "unified-vercel-production");
+ assert.equal(job.concurrency["cancel-in-progress"], false);
+ assert.deepEqual(job.steps[0].with, { ref: "${{ github.event.workflow_run.head_sha }}", "persist-credentials": false });
+ assert.equal(job.steps.at(-1).env.VERIFIED_SHA, job.steps[0].with.ref);
+ assert.equal(job.steps.at(-1).run, "node scripts/release-vercel.mjs");
 });
 
 test("CI subprocess environment disables hosted configuration and uses the invoking Node on Windows and Linux",()=>{
