@@ -71,7 +71,7 @@ export function DraftEditor({ applicant, initialDraft, intake, requestedOpportun
 }
 function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOpportunity, signOutFailed, practice }: { applicant: Applicant; initialDraft: Draft; initialIntake: Intake; requestedOpportunity?: string; signOutFailed: boolean; practice: boolean }) {
   const router = useRouter();
-  const vacancies = useOpportunityAvailability();
+  const vacancies = useOpportunityAvailability() ?? null;
   const [queue] = useState(() => {
     const persist: typeof saveApplicantDraft = practice ? async ({ payload, expectedVersion }) => {
       const errors = validateDraft(payload);

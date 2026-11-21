@@ -4,7 +4,8 @@ import { isAvailability, type Availability } from "@/recruitment/lib/opportunity
 import { recruitmentPath } from "@/recruitment/lib/site-paths";
 
 export function useOpportunityAvailability() {
-  const [data, setData] = useState<Availability | null>(null);
+  // Undefined tracks the first request. Null means it finished without a usable result.
+  const [data, setData] = useState<Availability | null>();
   useEffect(() => {
     let current: AbortController | undefined;
     let active = true;
