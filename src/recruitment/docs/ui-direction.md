@@ -1,6 +1,6 @@
-## Opportunity directory cards and filters - 21 November 2026
+## Opportunity directory matches the landing page - 21 November 2026
 
-The latest owner reference replaces the glossy brown and violet catalog cards with white cards containing pastel role identity panels and a separate availability/action row. Use a desktop filter sidebar with recruitment guidance and the existing All roles, Core Team and Committee controls. Search sits above the results. Phones move filters above the results and show one card per row. Eligibility labels use the existing track rules. Each whole card opens its existing role dialog while retaining track and search URL state.
+The latest owner direction matches the landing page's recruitment section. Use its cream canvas, dark ink Core Team cards, lavender Committee cards, purple offset shadows, orange actions and large tightly spaced headings. The sidebar reuses the landing wolf mascot. Keep the desktop filter sidebar and search/results layout from the supplied directory reference. Phones move filters above a single-column grid. Eligibility labels use existing track rules. Each whole card opens the role dialog while retaining track and search URL state.
 
 ## Unified application - 17 November 2026
 

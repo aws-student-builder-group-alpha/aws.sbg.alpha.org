@@ -1,3 +1,11 @@
+## Opportunity directory landing-page styling - 21 November 2026
+
+Matched the owner's latest landing-page reference using its cream canvas, dark ink Core Team panels, lavender Committee panels, orange actions, offset shadows, large headings and existing pixel wolf. The sidebar/grid/search structure continues from the directory reference. Role dialogs use the same ink/violet palette. Updated the existing browser surface expectations and fixture module list for the reused wolf.
+
+Verified the connected localhost page visually on desktop. Committee filtering returned ten roles with lavender cards. The role dialog opened at 390px without horizontal overflow and closed with Escape. The 390px results grid uses one column on the cream canvas. SWC compiled the directory TSX, PostCSS parsed its stylesheet, changed test scripts passed syntax checks, and Git whitespace checks passed. The full browser fixture suite was not rerun for this styling change. Previously recorded local vacancy/application access and full verification limitations remain unresolved.
+
+Reviewed project overview, architecture, code standards, AI workflow rules, progress tracker and UI direction for this change. UI direction now records the landing-page styling and this tracker records actual verification. Catalog, eligibility, permissions and persistence specifications need no changes.
+
 ## Opportunity directory reference update - 21 November 2026
 
 Implemented the supplied job-directory reference using a desktop sidebar, pastel card panels, white action rows, eligibility labels and a responsive grid. Existing URL search/track/role state, role details and application access controls continue through the same entry points. Updated the existing browser layout assertions for pastel surfaces and the new grid breakpoints.

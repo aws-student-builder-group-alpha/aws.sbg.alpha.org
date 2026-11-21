@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import PixelWolf from "@/app/(main)/(landing)/hero/pixel-wolf";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getOpportunity, opportunities, opportunityLabel, trackLabel, type Track } from "@/recruitment/lib/catalog";
@@ -30,10 +31,10 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
  const visible = opportunities.filter(role => (filter === "ALL" || role.track === filter) && (role.title + " " + role.department + " " + (role.specialization || "")).toLowerCase().includes(query.trim().toLowerCase()));
  const close = () => change("opportunity","");
  return <main id="main-content" className="roles-page">
-  <header className="roles-heading"><div><p className="roles-kicker">Your place at Alpha</p><h1>Available Roles</h1><p>Beginners are welcome. Find a team to learn and build with.</p></div>{entry.kind === "applicant" && !entry.hasDraft && !entry.submitted ? <a href="#available-roles" className="button button-secondary">Choose a role to apply <Icon name="arrow" /></a> : <Link href={entry.kind === "member" ? "/recruitment/membership" : entry.kind === "staff" ? "/recruitment/staff" : "/recruitment/application?resume=1"} className="button button-secondary">{entry.kind === "member" ? "Membership ID" : entry.kind === "staff" ? "Staff workspace" : entry.kind === "applicant" && entry.submitted ? "View your application" : "Continue application"} <Icon name="arrow" /></Link>}</header>
+  <header className="roles-heading"><div><p className="roles-kicker">Your place at Alpha</p><h1>Available <em>Roles</em></h1><p>Beginners are welcome. Find a team to learn and build with.</p></div>{entry.kind === "applicant" && !entry.hasDraft && !entry.submitted ? <a href="#available-roles" className="button button-secondary">Choose a role to apply <Icon name="arrow" /></a> : <Link href={entry.kind === "member" ? "/recruitment/membership" : entry.kind === "staff" ? "/recruitment/staff" : "/recruitment/application?resume=1"} className="button button-secondary">{entry.kind === "member" ? "Membership ID" : entry.kind === "staff" ? "Staff workspace" : entry.kind === "applicant" && entry.submitted ? "View your application" : "Continue application"} <Icon name="arrow" /></Link>}</header>
   <div className="roles-layout">
    <aside className="roles-sidebar" aria-label="Role filters">
-    <div className="roles-sidebar-intro"><Icon name="people" size={28} /><h2>Find your team.</h2><p>Bring your curiosity. Build something together.</p><a href="#faq">How to apply <Icon name="arrow" size={16} /></a></div>
+    <div className="roles-sidebar-intro"><div className="roles-sidebar-wolf" aria-hidden="true"><PixelWolf pose="wave" /></div><h2>Find your team.</h2><p>Bring your curiosity. Build something together.</p><a href="#faq">How to apply <Icon name="arrow" size={16} /></a></div>
     <div className="roles-filter-heading"><h2>Filters</h2>{(filter !== "ALL" || query) && <button type="button" onClick={() => router.replace("/recruitment/opportunities")}>Reset</button>}</div>
     <div className="roles-tabs" role="group" aria-label="Filter opportunities"><p>Recruitment track</p>{(["ALL","CORE_TEAM","COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track",value === "ALL" ? "" : value)}><span className="roles-filter-marker" aria-hidden="true" />{value === "ALL" ? "All roles" : trackLabel(value)}<span className="roles-filter-count" aria-hidden="true">{value === "ALL" ? opportunities.length : opportunities.filter(role => role.track === value).length}</span></button>)}</div>
     <p className="roles-sidebar-note">Core Team is open to first- and second-year undergraduates. Committee welcomes currently enrolled students at any year or program level.</p>
