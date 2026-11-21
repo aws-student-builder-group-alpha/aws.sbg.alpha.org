@@ -1,6 +1,8 @@
 ## Opportunity directory cards and filters - 21 November 2026
 
-The latest owner reference replaces the glossy brown and violet catalog cards with white cards containing pastel role identity panels, a separate availability/action row and soft offset shadows. The owner restored this reference after reviewing the landing-page palette adaptation. Use a desktop filter sidebar with recruitment guidance and the existing All roles, Core Team and Committee controls. Search sits above the results. Phones move filters above the results and show one card per row. Department committee cards use the full committee name followed by Member as the main heading, with no repeated smaller role label. Eligibility labels use the existing track rules. Each whole card opens its existing role dialog while retaining track and search URL state.
+The directory uses rounded white cards with pastel identity panels, a separate availability/action row and a solid offset shadow. The left sidebar contains the beginner welcome, track filters without a repeated group label, recruitment dates and permanently expanded How to apply guidance. The results heading omits the eyebrow and shows Continue Application only for a verified applicant with a draft or submitted application. Search is paired with a vacancy sort selector, default Any, with Highest to lowest using remaining places. Unknown vacancy data preserves catalog order. Phones stack search and sort, use one card per row, and place application guidance after results. The page reuses the compact landing-page footer.
+
+Department committee cards use the full committee name followed by Member as the main heading, with no repeated smaller role label. Eligibility labels use existing track rules. Whole-card role dialogs retain search, track and sort URL state.
 
 ## Unified application - 17 November 2026
 

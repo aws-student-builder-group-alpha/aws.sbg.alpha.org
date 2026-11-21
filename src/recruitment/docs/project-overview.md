@@ -24,6 +24,10 @@ The owner approved a glossy track-colored role header above a light details/appl
 
 The owner approved applying the main website header presentation and behavior across every recruitment route, including applicant, membership and staff workspaces. Preserve recruitment-owned destinations and permissions; signed-in desktop actions use an account dropdown. This supersedes the opaque stationary recruitment masthead and abbreviated mobile branding.
 
+## Opportunity directory controls - 21 November 2026
+
+The owner requested vacancy sorting beside search, defaulting to Any with a highest-to-lowest option based on remaining places. Continue Application appears only for applicants with a saved draft or submitted application. Beginner guidance, recruitment dates and expanded application instructions sit with the left filters; the directory reuses the landing footer. Catalog identities, eligibility and application access continue through existing flows.
+
 ## Compact opportunity browsing - 14 November 2026
 
 The owner approved glossy, richly colored track cards for /opportunities: compact role identity and availability, with full descriptions in the existing modal. The whole card opens that role, preserving track/search context and the existing Google/consent/application flow.

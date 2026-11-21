@@ -304,7 +304,7 @@ export function Footer() {
   const frame = useWorkspaceFrame();
   const path = usePathname();
   // Active route information remains correct when Activity retains hidden pages.
-  if (frame || path === "/recruitment/apply" || path.startsWith("/recruitment/apply/")) return null;
+  if (frame || path === "/recruitment/opportunities" || path === "/recruitment/apply" || path.startsWith("/recruitment/apply/")) return null;
   const socials = [
     { name: "Facebook", icon: "facebook", href: "https://www.facebook.com/AWSStudentBuilderGroupAlpha" },
     { name: "X (Twitter)", icon: "twitter", href: "https://x.com/awslc_alpha" },

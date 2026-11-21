@@ -850,10 +850,12 @@ try {
     }
     await page.locator(frame?`.site-header[data-workspace-frame="${frame}"]`:'.site-header:not([data-workspace-frame])').waitFor();
     assert.equal(await page.locator('.site-header').getAttribute('data-tone'),frame||['/recruitment','/recruitment/membership'].includes(route)?'dark':'light',route+' derives its tone from the active route despite retained content');
-    assert.equal(await page.locator('.workspace-footer').count(),frame?0:1);
-    assert.equal(await page.locator('.footer-standard').isVisible(),!frame);
-    assert.equal(await page.locator('.site-footer').count(),frame?0:1);
-    if(!frame){
+    // Opportunities renders the shared landing footer in its route page.
+    const standardFooter = !frame && route !== '/recruitment/opportunities';
+    assert.equal(await page.locator('.workspace-footer').count(),standardFooter?1:0);
+    assert.equal(await page.locator('.footer-standard').count(),standardFooter?1:0);
+    assert.equal(await page.locator('.site-footer').count(),standardFooter?1:0);
+    if(standardFooter){
       const footer=page.locator('.footer-standard');
       assert.equal(await footer.locator('a[href="/recruitment/privacy"]').isVisible(),true,route+' keeps footer privacy access');
       assert.equal(await footer.locator('a[href="mailto:awslc.alpha@gmail.com"]').isVisible(),true,route+' keeps footer contact access');

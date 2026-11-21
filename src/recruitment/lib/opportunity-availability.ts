@@ -1,4 +1,4 @@
-import { opportunities } from "./catalog.ts";
+import { opportunities, type Opportunity } from "./catalog.ts";
 import { record } from "./drafts.ts";
 
 export type Availability = { updatedAt: string; items: { id: string; capacity: number; remaining: number }[] };
@@ -13,4 +13,10 @@ export function availabilityLabel(data: Availability | null, id: string) {
   const item = data?.items.find(role => role.id === id);
   if (!item) return "Vacancies temporarily unavailable";
   return `${item.remaining} ${item.remaining === 1 ? "place" : "places"} remaining`;
+}
+
+export function sortByVacancies(roles: readonly Opportunity[], data: Availability | null) {
+  if (!data) return [...roles];
+  const remaining = new Map(data.items.map(item => [item.id, item.remaining]));
+  return [...roles].sort((first, second) => (remaining.get(second.id) ?? -1) - (remaining.get(first.id) ?? -1));
 }

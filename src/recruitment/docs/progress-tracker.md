@@ -1,3 +1,13 @@
+## Opportunity directory sidebar, sorting and footer - 21 November 2026
+
+Implemented all nine owner adjustments. Cards retain pastel panels with solid offset shadows. Removed the title eyebrow, repeated eligibility paragraph and Recruitment track label. The beginner welcome now lives in the left panel without its button. Recruitment dates and How to apply guidance are permanently expanded below the filters. On phones the guidance follows the results. The main heading now sits above search within the results column.
+
+Added Any/default and Highest to lowest vacancy sorting beside search, retaining sort in URL state across track/search and role-dialog changes. Sorting uses remaining places from the existing validated snapshot, keeps tie order, preserves the source catalog and retains catalog order when counts are unavailable. Continue Application appears only for an applicant with a draft or submitted application. The opportunities route renders the actual compact landing footer and suppresses its previous recruitment footer.
+
+Verified the connected desktop page, Committee filtering with sort retained, one landing footer, absent anonymous continuation, visible expanded guidance and stronger shadows. At 390px the single-column results, sort control and footer fit without horizontal overflow; guidance follows results. Three focused regression tests passed for applicant continuation states, vacancy ordering/ties/immutability and unavailable counts. Updated the existing browser fixture footer expectations and passed script syntax, SWC component compilation, PostCSS and Git whitespace checks. TypeScript still fails in stale generated route declarations and the existing prisma dotenv/config import; it reported no src errors. Full browser fixtures were not rerun. The local vacancy/access service remains unavailable, so live vacancy ordering and provider sign-in/submission remain unverified.
+
+Reviewed all six context documents. Updated product overview, architecture, UI direction and this tracker for continuation, URL sort state and page presentation. Code standards and workflow requirements need no edits. Existing eligibility, auth, schema and persistence contracts continue through the same entry points.
+
 ## Department committee card headings - 21 November 2026
 
 Updated the six department committee card headings to the full committee name followed by Member. Removed the repeated smaller Committee Member label. SkillBuilders specializations and the Ambassador card retain their specific titles.
