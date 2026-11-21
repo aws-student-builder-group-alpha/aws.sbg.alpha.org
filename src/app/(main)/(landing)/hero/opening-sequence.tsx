@@ -56,8 +56,8 @@ export default function OpeningSequence() {
    <div className="alpha-opening-orbit alpha-opening-orbit-one" aria-hidden="true"><i /><i /><i /></div>
    <div className="alpha-opening-orbit alpha-opening-orbit-two" aria-hidden="true"><i /><i /></div>
    <a href="#alpha-community" className="alpha-opening-mascot" data-wolf-stop="opening" aria-label="Why join Alpha?"><span className="alpha-opening-wolf"><PixelWolf dimensional pose="wave" tilt={HERO_WOLF_TILT} /></span></a>
-   <div className="alpha-opening-memory alpha-opening-memory-one" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-certificates.webp" alt="" fill sizes="190px" /></div>
-   <div className="alpha-opening-memory alpha-opening-memory-two" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-team.webp" alt="" fill sizes="155px" /></div>
+   <div className="alpha-opening-memory alpha-opening-memory-one" aria-hidden="true"><Image src="/optimized/landing/general-assembly-thumb.webp" alt="" fill sizes="165px" /></div>
+   <div className="alpha-opening-memory alpha-opening-memory-two" aria-hidden="true"><Image src="/optimized/landing/student-community-day-thumb.webp" alt="" fill sizes="155px" /></div>
    <span className="alpha-opening-star alpha-opening-star-one" aria-hidden="true">✦</span>
    <span className="alpha-opening-star alpha-opening-star-two" aria-hidden="true">+</span>
   </div>

@@ -7,7 +7,11 @@ import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react"
 
 const photos = [
  { src: "/optimized/gallery/full/scd-2026-audience.webp", alt: "Alpha and fellow builders at Student Community Day" },
+ { src: "/optimized/landing/ai-governance.webp", alt: "Attendees posing together at the AWS AI Governance event" },
+ { src: "/optimized/landing/general-assembly.webp", alt: "Members gathered for the AWS Student Community Day Mega Manila general assembly" },
  { src: "/optimized/gallery/full/scd-2026-team.webp", alt: "The Student Community Day team together on stage" },
+ { src: "/optimized/landing/stellar-bootcamp.webp", alt: "A group photo at the Stellar × Soroban Bootcamp" },
+ { src: "/optimized/landing/student-community-day-team.webp", alt: "A group photo onstage at AWS Student Community Day Mega Manila" },
  { src: "/optimized/gallery/full/scd-2026-certificates.webp", alt: "Builders celebrating with their certificates" },
 ]
 const VIEWING_TIME = 2500
@@ -68,7 +72,8 @@ export default function PhotoCarousel() {
  }, [target, reducedMotion, finishTransition])
 
  const nextIndex = target ?? (index + 1) % photos.length
- const order = [index, nextIndex, ...photos.map((_, i) => i).filter(i => i !== index && i !== nextIndex)]
+ const followingIndex = (nextIndex + 1) % photos.length
+ const order = [index, nextIndex, followingIndex === index ? (followingIndex + 1) % photos.length : followingIndex]
  const previous = () => goTo((index + photos.length - 1) % photos.length, "previous")
  const next = () => goTo((index + 1) % photos.length)
 
@@ -98,6 +103,7 @@ export default function PhotoCarousel() {
    }}>
    {photos.map((photo, i) => {
     const slot = order.indexOf(i)
+    if (slot < 0) return null
     return <div key={photo.src} className="alpha-hero-photo" data-slot={slot} aria-hidden={slot !== 0} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${photos.length}`}>
      <div className="alpha-photo-hud" aria-hidden="true"><span><i />ALPHA GALLERY</span><span>0{i + 1}</span></div>
      <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1600px) 850px, (min-width: 901px) 54vw, 92vw" loading="lazy" draggable={false} />

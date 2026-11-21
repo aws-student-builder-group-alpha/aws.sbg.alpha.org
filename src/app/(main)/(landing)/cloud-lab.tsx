@@ -14,12 +14,12 @@ export default function CloudLab() {
     {STEPS.map(step => <section key={step.id} className="alpha-cloud-chapter" data-step={step.id} aria-labelledby={`alpha-cloud-${step.id}`}>
       <div className="alpha-cloud-art" aria-hidden="true">
         <div className="alpha-cloud-print">
-          <Image src="/optimized/gallery/full/scd-2026-audience.webp" alt="" fill sizes="(min-width: 800px) 34vw, 78vw" />
+          <Image src="/optimized/landing/student-community-day-team.webp" alt="" fill sizes="(min-width: 800px) 34vw, 78vw" />
           {step.id === "tag" && <span className="alpha-cloud-photo-tag">Student Community Day</span>}
         </div>
         {step.id === "share" && <div className="alpha-cloud-contact-sheet">
-          <div><Image src="/optimized/gallery/full/scd-2026-team.webp" alt="" fill sizes="(min-width: 800px) 17vw, 39vw" /></div>
-          <div><Image src="/optimized/gallery/full/scd-2026-certificates.webp" alt="" fill sizes="(min-width: 800px) 17vw, 39vw" /></div>
+          <div><Image src="/optimized/landing/student-community-day-session.webp" alt="" fill sizes="(min-width: 800px) 17vw, 39vw" /></div>
+          <div><Image src="/optimized/landing/student-community-day-thumb.webp" alt="" fill sizes="(min-width: 800px) 17vw, 39vw" /></div>
         </div>}
       </div>
       <div className="alpha-cloud-caption">
