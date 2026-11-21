@@ -11,7 +11,7 @@ const positions = [[-.36, -.27], [.31, -.3], [-.14, .22], [.4, .25], [-.34, .32]
 const clamp = (value: number) => Math.max(0, Math.min(1, value))
 
 /** Scroll advances a projected camera; no timer, render loop or React updates per frame. */
-export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: boolean, identity: string) {
+export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: boolean, identity: string, outroDistance = 0) {
   const reducedMotion = useReducedMotion()
   useLayoutEffect(() => {
     const gallery = root.current
@@ -38,8 +38,15 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
         sizes = cards.map(card => ({ width: card.offsetWidth, height: card.offsetHeight }))
       }
       const travel = 1600 + (cards.length - 1) * 320 + 900
+      const cameraDistance = Math.max(700, Math.min(3600, cards.length * 160))
+      const scrollDistance = cameraDistance + outroDistance
 
-      const render = (progress: number, force = false) => {
+      const render = (scrollProgress: number, force = false) => {
+        const distance = scrollProgress * scrollDistance
+        const progress = clamp(distance / cameraDistance)
+        if (outroDistance) {
+          gallery.style.setProperty('--zoom-outro-progress', String(clamp((distance - cameraDistance) / outroDistance)))
+        }
         if (!force && progress === lastProgress) return
         lastProgress = progress
         gallery.style.setProperty('--zoom-progress', String(progress))
@@ -78,7 +85,7 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
         trigger: gallery,
         pin: gallery,
         start: 'top 100px',
-        end: () => `+=${Math.max(700, Math.min(3600, cards.length * 160))}`,
+        end: `+=${scrollDistance}`,
         scrub: true,
         // Sort every refresh in document order, including pins created by sibling effects.
         refreshPriority: 0,
@@ -92,6 +99,7 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
         trigger.kill(true)
         delete gallery.dataset.zoomGallery
         gallery.style.removeProperty('--zoom-progress')
+        gallery.style.removeProperty('--zoom-outro-progress')
         cards.forEach((card, index) => {
           const original = originals[index]
           if (original.style === null) card.removeAttribute('style')
@@ -104,5 +112,5 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
       }
     })
     return () => media.revert()
-  }, [root, enabled, identity, reducedMotion])
+  }, [root, enabled, identity, outroDistance, reducedMotion])
 }

@@ -26,6 +26,7 @@ export default function JourneyWolf() {
       // Whole content blocks are protected, including photos and service demos.
       // The mascot belongs beside these elements, never on their surface.
       const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-roles-heading>p, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-dock, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer>.container, nav"
+      const photoJourney = page.querySelector(".alpha-photo-journey")
       let frame = 0
       let active = true
       let previousPose: WolfPose | null = null
@@ -133,7 +134,10 @@ export default function JourneyWolf() {
           }
           previousPose = pose
           const reading = wolfCoversText(pose, regions)
-          const visible = pose.x + pose.width > 0 && pose.x < document.documentElement.clientWidth && pose.y + pose.width * 8 / 9 > header && pose.y < window.innerHeight - 100
+          const photos = photoJourney?.getBoundingClientRect()
+          const center = window.innerHeight / 2
+          const photosInFocus = photos && photos.top < center && photos.bottom > center
+          const visible = !photosInFocus && pose.x + pose.width > 0 && pose.x < document.documentElement.clientWidth && pose.y + pose.width * 8 / 9 > header && pose.y < window.innerHeight - 100
           button.dataset.reading = String(reading)
           button.dataset.visible = String(visible)
           button.setAttribute("aria-hidden", String(!visible))

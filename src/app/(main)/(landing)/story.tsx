@@ -5,11 +5,48 @@ import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import KineticType from "./kinetic-type"
 import PhotoCarousel from "./hero/photo-carousel"
+import { communityStories } from "@/data/community-stories"
 import { getTopUpcomingEvents, formatEventDate } from "@/data/events"
+import { galleryImage } from "@/lib/gallery-image"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
 import CloudLab from "./cloud-lab"
 import PixelWolf from "./hero/pixel-wolf"
 import TestimonialSwitcher from "./testimonial-switcher"
+import PhotoJourney from "./photo-journey"
+
+const communityPhotos = [
+  { image: "innovation-cup", title: "AWS Innovation Cup 2025", alt: "The Alpha team together onstage at the hackathon" },
+  { image: "buildher", title: "She Who Builds the Cloud", alt: "BuildHer workshop participants posing for a virtual group photo" },
+  { image: "skillbuilders-website", title: "Skill Builders Website Project", alt: "A laptop preview of the website built by Skill Builders" },
+  { image: "play-summit", title: "YGG Play Summit", alt: "Alpha members posing together at the summit" },
+  { image: "validation-hackathon", title: "Zero Vector Ventures Validation Hackathon", alt: "The winning team celebrating together" },
+  { image: "bootcamp-web-git", title: "Website and Git Fundamentals", alt: "" },
+  { image: "canva-workshop", title: "KadaKareer × Canva Workshop", alt: "Printed snapshots from the workshop" },
+  { image: "egovph-hackathon", title: "eGovPH Hackathon", alt: "Alpha team members posing as top-ten finalists" },
+  { image: "cloud-kickoff", title: "Alpha Cloud Kickoff Assembly", alt: "Participants posing for a virtual group photo" },
+  { image: "bootcamp-web-hosting", title: "AWS Console and Static Web Hosting", alt: "" },
+  { image: "blockchain-week", title: "Philippine Blockchain Week", alt: "Alpha members posing together at the event" },
+  { image: "datacamp-scholarship", title: "DataCamp Donates Scholarship", alt: "" },
+  { image: "ai-governance", title: "AWS AI Governance", alt: "Attendees posing together at the event" },
+  { image: "general-assembly", title: "Student Community Day General Assembly", alt: "Community members gathered for a group photo" },
+  { image: "team-system-error", title: "Team System Error", alt: "The team posing together at a hackathon" },
+  { image: "echelon", title: "Echelon Philippines", alt: "Alpha members posing together at Echelon" },
+  { image: "stellar-bootcamp", title: "Stellar × Soroban Bootcamp", alt: "Bootcamp participants posing together" },
+  { image: "student-community-day-session", title: "Careers in Cloud and AI", alt: "A speaker at AWS Student Community Day Mega Manila" },
+]
+
+const audiencePhoto = "/gallery/scd-2026-audience.png"
+const journeyPhotos = [
+  ...communityPhotos.map(({ image, ...photo }) => ({ ...photo, src: `/optimized/landing/${image}.webp` })),
+  { src: galleryImage(audiencePhoto, "full"), title: "AWS Student Community Day Mega Manila", alt: "The audience gathered together in the auditorium" },
+]
+
+const collagePhotos = [
+  ...journeyPhotos.map(photo => photo.src),
+  ...communityStories.flatMap(story => story.images.slice(1))
+    .filter(photo => photo.src !== audiencePhoto)
+    .map(photo => galleryImage(photo.src, "card")),
+]
 
 export function MotionRibbon() {
   return <div className="alpha-motion-ribbon" aria-hidden="true"><svg viewBox="0 0 1600 220" fill="none"><defs><path id="alpha-ribbon-curve" d="M-600 110C-200 10 100 210 500 110S1200 10 1600 110S2300 210 2700 110" /></defs><use href="#alpha-ribbon-curve" stroke="#ffb13e" strokeWidth="116" /><text fill="#211c28"><textPath href="#alpha-ribbon-curve" startOffset="-8%">LEARN + BUILD + BELONG + LEARN + BUILD + BELONG + LEARN + BUILD + BELONG + </textPath></text></svg></div>
@@ -17,8 +54,8 @@ export function MotionRibbon() {
 
 export function Benefits() {
   const scenes = [
-    { style: "build", first: "Build real", last: "things.", copy: "Projects. Hackathons. Events.", image: "scd-2026-certificates", alt: "Community builders celebrating their certificates", extra: "scd-2026-team" },
-    { style: "people", first: "Find your", last: "people.", copy: "Grow together.", image: "scd-2026-team", alt: "The Student Community Day team together on stage", extra: "scd-2026-audience" },
+    { style: "build", first: "Build real", last: "things.", copy: "Projects. Hackathons. Events.", image: "team-system-error", alt: "Team System Error posing for a group photo at a hackathon", extra: "sync-project" },
+    { style: "people", first: "Find your", last: "people.", copy: "Grow together.", image: "stellar-bootcamp", alt: "The Stellar × Soroban Bootcamp participants posing together", extra: "echelon" },
   ] as const
   return <section id="about" aria-label="Why join Alpha?" className="alpha-benefits">
     <span id="alpha-community" className="alpha-anchor" /><span id="vision" className="alpha-anchor" />
@@ -37,9 +74,9 @@ export function Benefits() {
     {scenes.map((scene, index) => <Fragment key={scene.style}><SceneTransition from={index === 0 ? "#111015" : "#fff0cc"} to={index === 0 ? "#fff0cc" : "#c7adff"} /><article className={`alpha-benefit alpha-benefit-${scene.style}`} data-theme="light">
       <div className="alpha-benefit-copy"><h2 aria-label={`${scene.first} ${scene.last}`}><KineticType text={scene.first} /><em><KineticType text={scene.last} /></em></h2><p>{scene.copy}</p></div>
       <div className="alpha-benefit-art">
-        <figure className="alpha-photo-frame"><Image src={`/optimized/gallery/full/${scene.image}.webp`} alt={scene.alt} fill sizes="(min-width: 800px) 42vw, 80vw" /></figure>
+        <figure className="alpha-photo-frame"><Image src={`/optimized/landing/${scene.image}.webp`} alt={scene.alt} fill sizes="(min-width: 800px) 42vw, 80vw" /></figure>
         <div className={`alpha-wolf-sticker alpha-wolf-${scene.style}`} data-wolf-stop={scene.style} aria-hidden="true" />
-        <figure className="alpha-scene-snapshot" aria-hidden="true"><Image src={`/optimized/gallery/full/${scene.extra}.webp`} alt="" fill sizes="(min-width: 800px) 18vw, 28vw" /></figure><span className="alpha-scene-stamp" aria-hidden="true">0{index + 2} / ALPHA</span>
+        <figure className="alpha-scene-snapshot" aria-hidden="true"><Image src={`/optimized/landing/${scene.extra}.webp`} alt="" fill sizes="(min-width: 800px) 18vw, 28vw" /></figure><span className="alpha-scene-stamp" aria-hidden="true">0{index + 2} / ALPHA</span>
       </div>
     </article></Fragment>)}
   </section>
@@ -54,9 +91,12 @@ export function RecruitmentActions() {
 export function CommunityProof() {
   const upcoming = getTopUpcomingEvents(2)
   return <section id="events" className="alpha-proof alpha-scene" data-theme="dark" aria-labelledby="community-heading">
-    <div className="alpha-proof-top"><div><h2 id="community-heading" className="alpha-scene-heading" aria-label="This could be your Day One."><KineticType text="This could" />{" "}<KineticType text="be" /><br />your <em><KineticType text="Day One." /></em></h2></div><span className="alpha-proof-wolf" data-wolf-stop="community" aria-hidden="true" /></div>
-    <PhotoCarousel />
-    <div className="alpha-proof-bottom"><TestimonialSwitcher /><Link className="alpha-text-link" href="/events">View all events <ArrowUpRight size={20} aria-hidden="true" /></Link></div>
+    <div className="alpha-proof-intro">
+      <div className="alpha-proof-top"><div><h2 id="community-heading" className="alpha-scene-heading" aria-label="This could be your Day One."><KineticType text="This could" />{" "}<KineticType text="be" /><br />your <em><KineticType text="Day One." /></em></h2></div><span className="alpha-proof-wolf" data-wolf-stop="community" aria-hidden="true" /></div>
+      <PhotoCarousel />
+      <div className="alpha-proof-bottom"><TestimonialSwitcher /><Link className="alpha-text-link" href="/events">View all events <ArrowUpRight size={20} aria-hidden="true" /></Link></div>
+    </div>
+    <PhotoJourney photos={journeyPhotos} collagePhotos={collagePhotos} />
     {upcoming.length > 0 && <div className="alpha-upcoming" aria-label="Upcoming events">{upcoming.map(event => <article key={event.id}><time dateTime={event.date}>{formatEventDate(event.date)}</time><h3>{event.title}</h3><a className="alpha-text-link" href={event.registrationLink || event.sourceUrl || "/events"}>View event <ArrowUpRight size={18} aria-hidden="true" /></a></article>)}</div>}
   </section>
 }

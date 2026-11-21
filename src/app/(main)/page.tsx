@@ -25,7 +25,6 @@ export default function Home() {
       <Recruitment />
       <SceneTransition from="#fff8ed" to="#202023" />
       <CommunityProof />
-      <SceneTransition from="#202023" to="#2c2336" />
       <CoreMembers />
       <SceneTransition from="#2c2336" to="#211c28" />
       <div className="alpha-finale"><ClosingInvitation /><Footer compact /></div>
