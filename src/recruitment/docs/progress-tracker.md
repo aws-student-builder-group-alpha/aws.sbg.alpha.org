@@ -1,3 +1,11 @@
+## Department committee card headings - 21 November 2026
+
+Updated the six department committee card headings to the full committee name followed by Member. Removed the repeated smaller Committee Member label. SkillBuilders specializations and the Ambassador card retain their specific titles.
+
+Verified the six final committee member headings and absent smaller labels in the connected browser. At 390px the longer names fit and the page has no horizontal overflow. Directory TSX compilation and Git whitespace checks passed. Existing full-suite and local access limitations remain as recorded below.
+
+Reviewed the six context documents for impact. UI direction records the heading hierarchy and this tracker records verification. Product, architecture, standards and workflow contracts need no changes for this text presentation update.
+
 ## Pastel directory restored with soft shadows - 21 November 2026
 
 Restored the owner's preferred white-and-pastel directory from commit 1700469, including rounded cards, compact heading, dark sidebar and pill actions. Added soft offset card shadows with a stronger hover shadow. Restored the corresponding test expectations and removed the unused wolf fixture import.

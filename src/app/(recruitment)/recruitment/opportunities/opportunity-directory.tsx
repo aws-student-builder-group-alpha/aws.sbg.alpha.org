@@ -41,16 +41,18 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
    <div className="roles-results">
     <div className="roles-tools"><form role="search" onSubmit={event => { event.preventDefault(); const value = new FormData(event.currentTarget).get("q"); change("q", typeof value === "string" ? value : ""); }}><label htmlFor="role-search">Search roles</label><div className="roles-search"><input key={query} id="role-search" name="q" type="search" defaultValue={query} maxLength={120} placeholder="Role, department, or specialization" /><button className="button button-orange" type="submit">Search</button></div></form></div>
     <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
-    <div className="roles-grid" id="available-roles">{visible.map(role => <article key={role.id} className="role-card-item">
+    <div className="roles-grid" id="available-roles">{visible.map(role => {
+     const showDepartmentTitle = role.title === "Committee Member" && !role.specialization;
+     return <article key={role.id} className="role-card-item">
      <Link className="role-card" data-track={role.track} href={"/recruitment/opportunities?" + new URLSearchParams({ ...Object.fromEntries(params), opportunity: role.id })} scroll={false} aria-label={"View role: " + opportunityLabel(role)}>
       <div className="role-card-surface">
        <div className="role-card-top"><span className="role-track">{trackLabel(role.track)}</span><span className="role-symbol"><Icon name={role.icon} size={24} /></span></div>
-       <div className="role-card-heading"><p className="role-department">{role.department}</p><h2>{role.specialization || role.title}</h2></div>
+       <div className="role-card-heading">{!showDepartmentTitle && <p className="role-department">{role.department}</p>}<h2>{role.specialization || (showDepartmentTitle ? `${role.department} Member` : role.title)}</h2></div>
        <div className="role-card-tags"><span>{role.track === "CORE_TEAM" ? "1st–2nd year" : "All year levels"}</span>{role.specialization && <span>Skillbuilders</span>}</div>
       </div>
       <div className="role-card-footer"><p className="role-places">{availabilityLabel(availability,role.id)}</p><div className="role-card-action"><span>View role</span><Icon name="arrow" size={16} /></div></div>
      </Link>
-    </article>)}</div>
+    </article>})}</div>
     {!visible.length && <div className="roles-empty"><h2>No matching roles</h2><p>Try a different department or search term.</p><button className="button button-secondary" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Show all roles</button></div>}
    </div>
   </div>
