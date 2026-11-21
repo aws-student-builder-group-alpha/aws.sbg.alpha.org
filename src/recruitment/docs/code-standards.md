@@ -1,3 +1,7 @@
+## Multiple-application checks - 21 November 2026
+
+Treat application IDs and working-draft revisions as separate identities. Applicant reads and withdrawal commands must select an owned application explicitly; legacy withdrawal must refuse ambiguity. Reconcile a pending submission against its source draft version, never an unrelated latest receipt. Cover second-role saves/submissions, duplicate roles after withdrawal, stale-tab conflicts, document isolation, exact old retries, and cross-account reads/writes through real SQL and HTTP handlers. Keep generated Supabase types as tool output.
+
 ## Unified application - 17 November 2026
 
 This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
@@ -200,7 +204,7 @@ Membership layout regressions measure wrapper-to-main and main-to-last-content g
 
 ## Recruitment document intro - 14 November 2026
 
-The page-loader browser suite uses real SSR markup, React, GSAP, fonts and CSS. Check document replay despite existing session flags, internal navigation, history dismissal, reduced motion, blocked storage, missing hydration and no-JS. Inspect desktop/mobile previews and verify actual root-layout integration on live local routes.
+The page-loader browser suite uses real SSR markup, React, PixelWolf and the shared CSS. Sample the wolf's position and the loading sweep on desktop, phone and short landscape viewports. Check document replay despite existing session flags, internal navigation, history and keyboard-focus dismissal, system and saved reduced motion, blocked storage, missing hydration and disabled JavaScript. Inspect desktop and mobile previews and verify both root layouts on local routes.
 
 ## Centered Apply step cards - 15 November 2026
 

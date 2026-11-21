@@ -1,3 +1,9 @@
+## Applying for more than one role
+
+You can apply once for each role. Open My application and choose **Apply for another role**. Keep one draft at a time; the sidebar shows **Continue draft** until you submit it. Give processing consent for the new draft, complete its answers, and upload its enrollment proof.
+
+Choose an application in the left sidebar to see its reference, status, notifications and submitted answers. On phones, the application cards appear above the receipt. Withdrawal closes only the selected application. You can still apply for other roles, but you cannot apply again for a withdrawn role.
+
 # Alpha Recruitment: where to go and what to click
 
 This guide covers recruitment only: applicants, Organization Heads/evaluators, System Admins, and membership IDs. It describes the current implementation; it is not a record that someone completed these actions on a deployed site.
@@ -58,13 +64,13 @@ On phones, open the navigation menu to find your account links. On desktop, sign
 
 ### B. Complete the four steps
 
-1. **About you:** enter your full name, university/institution, degree/program, program level, and academic year. Complete any conditional fields shown. Preferred name, mobile number, and campus are optional. Check the current-enrollment declaration, then click **Continue**.
+1. **About you:** enter your full name, university/institution, degree/program, program level, and academic year. Complete any conditional fields shown. Preferred name and mobile number are optional. Check the current-enrollment declaration, then click **Continue**.
 2. **Opportunity:** choose **Core Team** or **Committee**, then click the radio button for one role. Read its description and scenario. Click **Continue**.
 3. **Your story:** complete the following, then click **Continue**:
    - Enter a required **Resume link (required)**. Use an HTTPS link that opens without signing in. For Google Drive, set sharing to **Anyone with the link → Viewer**, then test it in a private browser window.
-   - Under **Proof of enrollment**, use the file picker to select your current registration form/COR or official enrollment certificate. It must show your name, school, and current academic term. Use PDF, JPG, or PNG, up to **3 MB**. Wait for the confirmed **Uploaded:** filename.
+   - Under **Proof of enrollment**, use the file picker to select your current registration form/COR or official enrollment certificate. It must show your name, school, and current academic term. Use PDF, JPG, or PNG, up to **3 MB**. Wait for **Uploaded** and your filename to appear inside the file control. Use **Replace file** to upload a replacement.
    - Add a **Portfolio link** if you have one; it is optional.
-   - Select your recurring available days in the weekly calendar. This does not connect to Google Calendar.
+   - Tap the start and end dates on the calendar, or hold and drag across dates. Previous days are disabled. Choose daily start and end times between 7 AM and 10 PM in Philippine time. You can also enter dates directly and use the arrow keys in the calendar. If your draft already has weekdays saved, you can keep them or enter a date and time range to replace them.
    - Answer the three prompts: motivation/contribution, collaboration, and the selected role's scenario. Each response is required and allows up to **150 words**.
    - If a role change requires confirmation that you reviewed the scenario response, check that confirmation before continuing.
 4. **Review:** inspect the supporting evidence and application summary. Use **Edit supporting evidence** or **Edit details** to correct information. Check the required accuracy/enrollment-document declaration. **Keep me informed about future community updates** is optional.
@@ -73,14 +79,14 @@ On phones, open the navigation menu to find your account links. On desktop, sign
 
 ### C. Save and return later
 
-1. While editing, wait for the saved status near the form actions.
+1. While editing, wait for the saved status beneath **Your application**.
 2. Click **Save & exit**. Wait for **My application** to open.
 3. When returning, open [My application](http://localhost:3000/recruitment/application) with the same account.
 4. Click **Continue my draft**.
 
 **Expected result:** Your latest acknowledged answers return. You can save an incomplete draft, including one without a resume. Draft saving remains available when intake is paused or outside its submission window.
 
-If **Save & exit** cannot confirm a save, it keeps you in the editor. Read the message and use **Retry save**. Do not assume unsaved typing will survive closing the tab.
+If **Save & exit** cannot confirm a save, it keeps you in the editor. Read the message and use **Retry save**. Keep the tab open until the saved status confirms your changes.
 
 ### D. Submit and follow the result
 
@@ -91,7 +97,7 @@ If **Save & exit** cannot confirm a save, it keeps you in the editor. Read the m
 5. Read the status beside **Application reference**. Open **Status history** or **View submitted answers** for more detail.
 6. In **Notifications**, click **Refresh** to check updates or **Mark as read** on an item. If staff has sent an interview scheduling link, click **Choose an interview schedule**.
 
-**Expected result:** Submitted answers, links, and enrollment proof are locked. You have one application per recruitment cycle, across both tracks. A full role may still be selected; acceptance remains subject to capacity.
+**Expected result:** Submitted answers, links, and enrollment proof are locked. You can apply once for each role across both tracks. A full role may still be selected; acceptance remains subject to capacity.
 
 ### E. Withdraw only if you intend to leave the cycle
 
@@ -99,7 +105,7 @@ If **Save & exit** cannot confirm a save, it keeps you in the editor. Read the m
 2. Click **Withdraw application**.
 3. Read the confirmation. Click **Back** to cancel, or **Confirm withdrawal** to proceed.
 
-**Expected result:** The application becomes **Withdrawn**. Its reference and history remain. Withdrawal is final and does not let you submit another application in this cycle.
+**Expected result:** The application becomes **Withdrawn**. Its reference and history remain. Withdrawal is final for this role. You can still apply for other roles.
 
 ## System Admin: sign in and add staff
 
@@ -293,7 +299,7 @@ Tip: open **Filters**, choose **Unassigned**, **Awaiting recommendation**, or **
 | Accepted | The administrator published acceptance. Wait for explicit membership issuance if applicable. |
 | Waitlisted | The administrator published a waitlist outcome. Promotion is not automatic. |
 | Not Selected | The administrator published non-selection. |
-| Withdrawn | The applicant permanently withdrew; reapplication is unavailable for this cycle. |
+| Withdrawn | The applicant permanently withdrew from this role; other roles remain available. |
 
 | What you see | What to do |
 | --- | --- |

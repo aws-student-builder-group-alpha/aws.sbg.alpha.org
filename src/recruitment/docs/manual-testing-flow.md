@@ -1,3 +1,9 @@
+## Multiple application checks - 21 November 2026
+
+Using synthetic applicant accounts, submit to one role, then start and submit to a second role. Confirm separate references, submitted answers, enrollment documents and notifications. Switch between both in the portal and refresh each receipt. Verify the desktop left sidebar and phone card list, keyboard focus and no page overflow. While a draft is open, Continue draft must resume it.
+
+Attempt the first role again and confirm it is blocked. Withdraw only that application; the second must remain submitted and the first role must remain blocked. Check an exact old submission retry after starting the second draft, stale-tab save conflicts, and cross-account selected-application reads and withdrawals. Keep provider-session, synthetic SQL/HTTP and physical-device results separate.
+
 # Manual testing flow
 
 ## Recruitment staff workspace
@@ -111,7 +117,7 @@ Pass when layout changes preserve the application workflow and both event modes 
 
 ## Public performance and responsive checks — 8 November 2026
 
-1. Open the combined preview in a fresh tab. Confirm the first intro gives way to the readable hero and working actions. Navigate Home → Events → Recruitment → Home; the intro should not replay in the same tab.
+1. Open Home and refresh it twice in the same tab. Confirm the mascot intro plays each time, then the Day One title and photo cards enter in a stagger. Open Events in a fresh tab, confirm the intro plays and refresh to check its once-per-tab behavior. Open Recruitment and refresh to check its document replay.
 2. Check the main homepage, Events and recruitment at 320, 390, 768, 1024 and 1440px. Open collapsed menus, follow page/section links and reach the footer; check for horizontal overflow and missing images. Verify touch scrolling on a physical phone when available.
 3. Scroll each hero completely offscreen and back. The wave should resume on return. With reduced motion enabled, the wave remains still and navigation remains usable.
 4. Open Student Community Day on Events. Wait three seconds for the next photo; check manual navigation, credits, Escape/focus return and edge-to-edge photos at both short and tall viewport heights.
@@ -234,9 +240,9 @@ As **Applicant A**, then **Applicant B**:
 1. Open the recruitment homepage and choose **Apply now**. Confirm that this opens Google sign-in directly. Privacy and Contact remain in Home/footer, with privacy also linked in processing consent. After sign-in, review **Ready to start?**, confirm your read-only email and open the collapsed **Application details** below the action for dates/preparation guidance. Give the linked processing consent and choose **Start application**. About you opens directly.
 2. Enter the run-labeled made-up full name. Use an enrolled undergraduate in year 1 or 2.
 3. Select **Core Team** and the opportunity agreed with the owner.
-4. In **Your story**, choose available days and complete the three responses shown together. Each is required and allows up to 150 words with no word target. Wait for autosave confirmation, refresh and confirm all text remains; then finish the responses. Open **Review & submit** to add the required view-only HTTPS resume link before checking the summary and declarations.
-5. Choose **Save & exit** beside Back/Continue in the action row after the form inside its white card, wait for **/application**, then choose **Continue my draft**. Confirm the latest changes persisted. On a save failure, input stays in the editor with retry/reload controls rather than exiting.
-6. Before submission, check the draft on a phone: previous progress segments move backward and focus the heading; future steps are unavailable until **Continue** validates prerequisites. All three responses remain on one page. Open/close **Optional details** and confirm preferred name/mobile/campus retain edits. Confirm progress sits inside the white card above the heading and no secondary toolbar/account menu or repeated Privacy/Contact row appears. Account actions remain in the shared navbar. Confirm the form action row scrolls with the card and never overlays fields or spans the viewport. On Review, Refresh intake availability gives compact status without warning/reload actions; refocusing the window refreshes quietly. A failed read retains an appropriate retry, while an uncertain submission stays frozen with its exact retry. Typing must not navigate away from the response. Check the first profile field, long text, 200% text size, landscape and the open software keyboard for usable fields/actions without sideways scrolling.
+4. In **Your story**, add the required view-only HTTPS resume link and upload proof of enrollment. Select a range using two date clicks, then try a backwards drag, a long press, and cancellation. Verify that past days are disabled and the calendar works with arrow keys. Set daily times in Philippine time and confirm that 7 AM is the first start, 9:45 PM is the last start, and 10 PM is the last end. Check that an incomplete range saves and a reversed range blocks Continue with a field error. Complete the three required responses, each up to 150 words. Refresh after autosave and confirm the schedule and answers persist. Continue to **Review & submit** and verify the schedule, evidence, and answers.
+5. Confirm the saved status beneath **Your application**. Choose **Save & exit** on the left of the form action row, wait for **/application**, then choose **Continue my draft**. Confirm the latest changes persisted. On a save failure, input stays in the editor with retry/reload controls rather than exiting.
+6. Before submission, check the draft on a phone: previous progress segments move backward and focus the heading; future steps are unavailable until **Continue** validates prerequisites. All three responses remain on one page. Confirm **Optional details** shows preferred name and mobile number, then verify those values persist after saving. Confirm progress sits inside the white card above the heading and no secondary toolbar/account menu or repeated Privacy/Contact row appears. Confirm the shared navbar and its account actions stay visible when scrolling. Confirm the form action row scrolls with the card and never overlays fields or spans the viewport. On Review, Refresh intake availability gives compact status without warning/reload actions; refocusing the window refreshes quietly. A failed read retains an appropriate retry, while an uncertain submission stays frozen with its exact retry. Typing must not navigate away from the response. Check the first profile field, long text, 200% text size, landscape and the open software keyboard for usable fields/actions without sideways scrolling.
 7. Check that the signed-in email cannot be edited and that each account shows its own name and answers.
 
 | Answer | Limit |
@@ -390,7 +396,7 @@ Membership showcase: inspect no-ID, pending invitation, signed-out and issued-ID
 
 ## Recruitment document intro - 14 November 2026
 
-Recruitment intro: open/refresh Opportunities, Apply, Membership and Staff and observe the same navy/script/orange-line/upward reveal. Follow internal recruitment links and change filters/form steps: the intro must stay dismissed. Check browser Back/Forward, reduced motion and JavaScript disabled; the page must remain usable without focus/scroll changes. Recruitment replay is per full document load, independent of the main site's session flag.
+Open or refresh Opportunities, Apply, Membership and Staff. Check that the wolf hops across the unrolling sticker, the segmented loading highlight moves and the curved backdrop lifts away. Repeat on a phone in portrait and landscape to check that the wolf stays in view and the single Loading label fits the right panel. Follow internal recruitment links and change filters or form steps to confirm the intro stays dismissed. Check Back/Forward, keyboard focus, reduced motion and disabled JavaScript to confirm the page stays accessible.
 
 ## Centered Apply step cards - 15 November 2026
 

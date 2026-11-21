@@ -1,3 +1,7 @@
+## Multiple role applications - 21 November 2026
+
+Applicants may submit one application per role across the sixteen opportunities. Keep one editable draft at a time. Every submitted application retains its own reference, immutable answers, enrollment document, status and history. Withdrawing closes only that role's application and does not allow another submission to the same role. Other roles remain available. The application portal has a left application switcher on desktop and a horizontal list above the selected receipt on phones. This owner decision supersedes the earlier one-application-per-account limit.
+
 ## Unified application - 17 November 2026
 
 This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
@@ -132,7 +136,7 @@ For development testing, the owner authorized an early intake opening on 28 Octo
 
 ## Goals
 
-- Help students find an eligible opportunity, submit one application and follow its status.
+- Help students find eligible opportunities, apply once per role and follow each application status.
 - Give one assigned evaluator a private recommendation workflow and administrators a clear publication workflow.
 - Enforce identity, ownership, permissions, immutable submissions, safe retries and capacity on the server.
 - Use free service tiers, subject to eligibility and measured capacity. The target is 1,000 applications, 100 concurrent applicants and 20 concurrent staff; it remains unverified under real load.
@@ -141,14 +145,14 @@ For development testing, the owner authorized an early intake opening on 28 Octo
 
 1. Explore opportunities, eligibility and application guidance.
 2. Sign in with Google. The verified email is read-only; give recruitment processing consent before creating a draft.
-3. Complete the profile, select one eligible opportunity and provide available days and three short written answers (motivation/contribution, collaboration and the role scenario), each nonblank and at most 150 words. New submissions require a view-only HTTPS resume link; portfolio links remain optional.
+3. Complete the profile, select one eligible opportunity and provide an availability date range selected from today onward, with daily hours between 7 AM and 10 PM in Philippine time and three short written answers (motivation/contribution, collaboration and the role scenario), each nonblank and at most 150 words. New submissions require a view-only HTTPS resume link; portfolio links remain optional.
 4. Save incomplete work and return later. Drafts remain editable outside intake and during pauses. Save errors/conflicts preserve local answers and offer explicit recovery.
 5. Review and submit the acknowledged draft revision while intake accepts submissions. Submission creates one reference, immutable submitted answers and public history.
-6. View status/history in the portal or withdraw. Withdrawal is final, retains the reference/history and prevents another submission.
+6. View status/history in the portal or withdraw. Withdrawal is final for that role and retains its reference/history; other roles remain available.
 
 **Eligibility:** Core Team accepts enrolled first- and second-year undergraduates. Committee accepts enrolled students across university year and program levels. Both tracks accept students from any university. Preserve the approved catalog, questions, field limits and capacities; [catalog.ts](../lib/catalog.ts) is their code source. Core Team has six vacancies; Committee has ten opportunities, including SkillBuilders and BuildHer+.
 
-Each applicant can submit **one application across all sixteen opportunities**. Current and former staff use a separate Google account if they apply. Ordinary staff suspension/revocation does not convert a staff account into an applicant.
+Each applicant can submit **one application per role across the sixteen opportunities**. Current and former staff use a separate Google account if they apply. Ordinary staff suspension/revocation does not convert a staff account into an applicant.
 
 ## Evaluation and decisions
 
@@ -205,7 +209,7 @@ Operational automation is **deferred**, not active. Future targets remain encryp
 
 The latest owner direction removes redundant recruitment page-title banners, including the Apply editor title strip. Keep accessible page headings, status/reference information and functional access explanations within content; preserve the shared navbar, Home hero and Apply welcome.
 
-Application flow refinements: the reference section explains each current status and confirms server-acknowledged submission; Review warns that answers/URLs lock and withdrawal prevents reapplication. Administrator Unassigned, Awaiting recommendation and Ready for decision shortcuts preserve applied search/track/opportunity and reuse existing guards/filters. Evaluators can explicitly open the next unreviewed active assignment in the current search, using paginated reads and access rechecks; failures retain the current record. No new API, permission, notification or schema contract.
+Application flow refinements: the reference section explains each current status and confirms server-acknowledged submission; Review warns that answers/URLs lock and withdrawal prevents reapplication to that role. Administrator Unassigned, Awaiting recommendation and Ready for decision shortcuts preserve applied search/track/opportunity and reuse existing guards/filters. Evaluators can explicitly open the next unreviewed active assignment in the current search, using paginated reads and access rechecks; failures retain the current record. No new API, permission, notification or schema contract.
 
 ## Membership showcase - 14 November 2026
 
@@ -213,7 +217,7 @@ Membership workspace presentation now uses a compact Alpha card showcase for iss
 
 ## Recruitment document intro - 14 November 2026
 
-Recruitment now shares the main-site blue intro presentation across all recruitment routes. The owner selected replay on every full document load, including refresh and auth returns, rather than the main site's once-per-session behavior. Internal client navigation, filters and form steps do not replay it.
+Recruitment shares the main site's mascot loading intro across all recruitment routes. It replays on each full document load, including refresh and auth returns. Internal client navigation, filters and form steps keep the intro dismissed. The main site's homepage also replays it on every full load before its opening sequence. Other main-site routes play it once per tab.
 
 ## Centered Apply step cards - 15 November 2026
 

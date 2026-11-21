@@ -1,3 +1,203 @@
+## Mobile navigation and landing mascot outfits - 21 November 2026
+
+The main and recruitment headers show the linked logo and hamburger in the mobile layout. Both mobile menus share the chapter links Home, Events, Opportunities, Team, Connect, and Skill Builders. Opportunities links to the role directory once. Account actions retain their existing access rules.
+
+The landing page's traveling wolf changes its pixel-art outfit with the active section. Eight inline SVG variations use the existing mascot stops. Reduced motion shows the matching artwork in each section.
+
+Local Chromium verified the two header layouts across six widths, mobile link order and destinations, keyboard dismissal, the Team anchor, and the recruitment menu at 200% text size. It verified outfit changes in both scroll directions on desktop and mobile and the reduced-motion artwork. Targeted lint, TypeScript, and four landing regression tests passed.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, UI direction, and this tracker. Updated the shared navbar direction and its browser assertions. Application, account, and authorization contracts require no updates.
+
+## Multiple role applications and portal sidebar - 21 November 2026
+
+Implemented the owner's once-per-role choice. Applicants can submit to different roles while keeping one editable draft. The portal has a left application list on desktop and a horizontal card list above the receipt on phones, with the selected role highlighted, independent references/statuses and an Apply for another role action. Drafts have a Continue draft action. Receipt reads and withdrawal use the selected application's ID and recheck account ownership. Notifications are scoped to that receipt. Withdrawn roles remain blocked; other roles stay available. Previously submitted choices are disabled in the editor.
+
+Installed forward migrations 20261121140000 and 20261121143000 on the confirmed Recruitment project through verified session-pooler TLS. Replaced the account-wide submission constraint with owner/role uniqueness and added source-revision/mutation uniqueness. The shared draft revision remains monotonic, with a fresh consent timestamp when another application starts. Each submission retains its own enrollment document. Old submission retries resolve their original receipt; ambiguous legacy withdrawals fail instead of choosing a record. Both ledger entries committed atomically with their changes. All 60 inspected public/Auth/Storage table fingerprints and existing function grants remained unchanged. Preserved private schema rollback material and regenerated public SDK types through the official installed Supabase metadata generator, retaining its output unchanged.
+
+Rollback-only hosted checks verified two distinct role submissions, document attachment/access isolation, duplicate-role rejection after withdrawal, old receipt retries, targeted withdrawal and renewed consent timestamps. Synthetic identities, Storage metadata, documents and applications were rolled back. Thirty-nine focused SQL/HTTP/client tests passed, followed by the updated consent regression and a server-loader race regression that preserves a newer working draft when the application-state read is older. The evaluator database suite passed eight tests after updating its public DTO allowlist for sourceDraftVersion, and evaluator HTTP passed three tests. The decision database/HTTP, queue and export suites passed. The production build, source TypeScript, scoped lint and whitespace checks passed. The first restricted-network build stalled; the network-enabled build completed.
+
+Connected Chrome verified the rendered desktop sidebar, active receipt and the fresh-consent entry for another application. At 390px the sidebar becomes a top card list and the page stays within the viewport. The temporary viewport was restored. Real-account submissions/withdrawals were not used as test fixtures; physical touchscreen and multi-connection load checks remain unverified. The standalone applicant browser regression passed, including two sidebar applications, selection-specific status/withdrawal actions, responsive layouts, keyboard recovery, exact submission/withdrawal retries and the existing role-dialog/access coverage. Its receipt-route assertions now expect the selected application ID. No Git publication or deployment was performed. Unrelated concurrent work is preserved.
+
+Reviewed project overview, architecture, code standards, AI workflow rules, UI direction and this tracker. Updated each for the owner-approved application limit and selection/persistence contracts; also updated the user guide and manual test flow. Older account-wide limits in dated entries are superseded by this decision.
+
+## Hosted availability migration installed - 21 November 2026
+
+Added the owner-provided Recruitment session-pooler connection to ignored local environment configuration, preserving a private copy of the previous configuration. Verified the exact project and connected using certificate-verified TLS. Applied only 20261121120000_recruitment_availability_range.sql and its ledger entry in one transaction. The ledger records it once. The earlier database-access blocker below is resolved.
+
+The live validator API now accepts date ranges and legacy weekdays. Rollback-only SQL checks with a synthetic authenticated identity verified range and response-text persistence, readback, exact retries without a version increase, and incomplete-range autosave. Submission validation accepts 7 AM–10 PM and rejects earlier/later hours. The synthetic identity and draft were rolled back. All three existing drafts and the one application retain their original full-row fingerprints; validator owners and grants are unchanged. Preserved the previous validator definitions privately for rollback.
+
+All nine focused migration/application tests and Git whitespace checks passed. Browser saving with a real Google session was not repeated for this migration. No Git publication or deployment was performed.
+
+Reviewed project overview, architecture, code standards, AI workflow rules, UI direction and this tracker. Updated the architecture contract and hosted ledger, removed obsolete migration troubleshooting from the applicant guide, and recorded installation here. Existing product, visual, coding and workflow rules remain applicable.
+
+## Home reload and hero entrance - 21 November 2026
+
+Home now replays the mascot loader on every full document load. The eyebrow, Day One title and two photo cards enter in a stagger after the wipe. A shared CSS timing value lets the entrance finish when hydration stalls. Other main routes retain session-based playback and Recruitment retains its document replay.
+
+Chromium verified repeated Home refreshes at 390px and 1440px, the hero timing, internal navigation from Events, system and saved reduced motion, stalled hydration and disabled JavaScript. The shared loader browser suite, three focused Node tests, targeted lint and whitespace checks passed.
+
+Reviewed the shared intro documentation and updated the overview, architecture, UI direction and manual walkthrough. Existing coding and workflow guidance covers the change.
+
+## Loading label and slower timing - 21 November 2026
+
+Replaced the split Day One text and the caption beneath the bar with one Loading label centered in the sticker's right panel. The CSS sequence now runs for 1.85 seconds.
+
+Chromium verified label alignment, fit, timing, mascot travel and reduced motion at 1440×900, 390×844, 320×568 and 568×320. Local Next.js smoke checks passed for Home, Events and Recruitment. Targeted lint and whitespace checks passed.
+
+Reviewed the six context documents. Updated the overview, architecture, UI direction, manual walkthrough and this tracker. Existing coding and workflow guidance covers the revised fixture and its checks.
+
+## Production build and CI dependency fixes - 21 November 2026
+
+Pinned TypeScript 5.9.3 in both lockfiles because typescript-eslint rejects TypeScript 7. Added `dotenv` for Prisma configuration, `js-yaml` for the YAML tests, and `scheduler` for the browser fixtures. Removed two unused bindings that failed zero-warning lint. Updated the authenticator and applicant fixtures for the current header, role-change prompt, Your story action bar, and Membership ID link. The scroll check waits for the new header to initialize before scrolling. Application form controls now use the shared border token after the browser fixture found low contrast on the two profile selects and the three writing fields.
+
+On Node 24.22.1, fresh npm and frozen pnpm installs succeeded. Production builds passed with both installations. The CI run passed lint, 222 Node tests, the build, and TypeScript. Nine browser suites passed on that run. The authenticator and applicant suites passed their focused reruns, and the build passed again after the contrast fix. The shared checkout's loader files changed during CI, so its source-integrity check reported those concurrent edits.
+
+Reviewed the six context documents. The coding standards already cover direct dependencies, and the UI direction already requires visible control borders. This tracker records the changes and verification.
+
+## Moving mascot and loading sweep - 21 November 2026
+
+The pixel wolf now hops from the upper-right side of the unrolling Day One sticker onto the lavender panel. A segmented, indeterminate loading sweep runs below it. The animation uses CSS and the existing inline mascot. The two loader source files grew by 265 bytes when gzip-compressed, with zero new asset URLs or dependencies.
+
+Chromium verified mascot travel and bounds at four points in the hop, the loading sweep, and the reveal at 1440×900, 390×844, 320×568 and 568×320. Navigation, history, focus and reduced-motion fallbacks passed. Local Next.js smoke checks covered Home, Events and Recruitment. Source TypeScript, targeted lint, four focused Node tests and whitespace checks passed.
+
+Reviewed all six context documents. Updated UI direction, code standards, the manual walkthrough and this tracker. The overview, architecture and workflow rules still describe the same document entry behavior.
+
+## Day One mascot document intro - 21 November 2026
+
+Both root layouts now use the shared Day One sticker. A curled edge unfurls the artwork, the pixel wolf waves, and a curved wipe reveals the page in 1.54 seconds. Recruitment still replays on a full document load. The main homepage starts directly with its hero.
+
+Chromium verified the unfurl and wipe at 1440px and layout at 320, 390 and 1440px. The regression also covered replay, internal navigation, history and keyboard focus, reduced motion, blocked storage, incomplete hydration and JavaScript disabled. Local Next.js checks covered Home, Events and Recruitment. Source TypeScript, four focused tests and whitespace checks passed. Full lint is blocked by typescript-eslint's TypeScript 7 incompatibility. The repository-wide type check reported stale generated route types and an unresolved dotenv/config import.
+
+Reviewed all six context documents. Updated the overview, architecture, UI direction, code standards and manual walkthrough for the shared animation and its verification. The workflow rules required no edit.
+
+## Requested hosted migration access recheck - 21 November 2026
+
+The owner requested applying the availability migration. Rechecked the current Supabase CLI account against the exact Recruitment project. The project remains absent from its accessible projects, and no direct database connection is configured in the available environment files. No hosted migration or data changes were made. Applying the tested atomic migration remains blocked until an account with SQL migration access or a direct authorized database connection is available.
+
+## Live availability save rejection - 21 November 2026
+
+Confirmed the live Recruitment project's public.valid_draft_payload returns true for the legacy weekday array and false for the new date-range object, using the application's existing server credential with synthetic payloads. This explains why changing availability prevents the entire draft from saving. The browser dashboard redirected away from the project and the existing CLI login's accessible projects do not include xndpudtctuqxnbkhhmre. The available server key can call the validator but provides no migration facility. Hosted installation is blocked by project access.
+
+Made the prepared availability migration atomic with BEGIN/COMMIT. Added an HTTP regression reproducing the old database's 422 save response, then applying the migration and proving the same request saves both availability and questionnaire text, persists in SQL, and retries without a version increase. All nine focused migration/application tests passed and whitespace checks passed. Hosted saving remains unresolved until someone with migration access applies 20261121120000_recruitment_availability_range.sql.
+
+Reviewed the six context documents. Updated this tracker, architecture, and the applicant guide. Product, UI, coding, and workflow contracts continue to require acknowledged saves and honest failure reporting.
+
+## Calendar range and daytime availability - 21 November 2026
+
+Replaced the four plain availability inputs with an inline month calendar and grouped date/time controls. The calendar supports two-tap selection, backward ranges, pointer dragging, 350ms long presses, cancellation, and arrow-key movement. Dates before the current Philippine day are disabled in the calendar and rejected by the direct date fields. The earliest start is 7 AM, the latest start is 9:45 PM, and an availability window can end at 10 PM. Quarter-hour menus preserve valid previously saved minute values. TypeScript and the pending SQL migration enforce the hour boundaries for range submissions.
+
+Fourteen focused Node/PGlite tests passed, including calendar arithmetic, leap days, supported year boundaries, availability save/submission, out-of-hours SQL parity, and progress gating. A synthetic component-handler check passed two taps, reverse selection, long-press dragging, cancellation, trailing-click suppression, past-day disabling, and time choices. Chrome confirmed rendered date/time controls and one synthetic pointer selection. The isolated Chrome preview measured 390px with no horizontal overflow. Physical touchscreen testing remains unverified. Screenshot capture repeatedly timed out. Source TypeScript, CSS parsing, fixture syntax, and whitespace checks passed. The full browser suite requires the absent production manifest.
+
+Reviewed the six context documents. Updated product overview, architecture, UI direction, applicant guide, manual testing flow, and this tracker. Existing coding and workflow rules cover draft persistence, legacy weekday preservation, validation, and authorization. The range/hour migration remains prepared and locally tested, with hosted installation pending.
+
+## Saved enrollment filename control - 21 November 2026
+
+The native file selection resets after upload so the same file can be retried, which left No file chosen beside a separate uploaded-filename paragraph. Replaced that presentation with a single rounded control showing the confirmed filename, Uploaded status, and Replace file action. The native file input stays accessible and supports same-file retries. The private download link appears below. Read-only evidence still shows its saved filename and download link.
+
+Verified the actual saved filename in Chrome and checked the 390px layout without horizontal overflow. Source TypeScript, CSS parsing, fixture syntax, and whitespace checks passed. Extended the existing browser regression assertions for confirmed upload names and names retained after failed replacement. The full browser harness was not run because the required production CSS manifest is absent.
+
+Reviewed all six context documents. Updated UI direction, the applicant guide, and this tracker. Existing architecture, product, coding, and workflow contracts cover storage, readiness, replacement failure, and account isolation.
+
+## Supporting-document input corners - 21 November 2026
+
+Applied 14px corners to the resume, portfolio, and enrollment file inputs, including 10px corners on the native Choose File button. Verified computed radii in Chrome. CSS parsing and whitespace checks passed. Reviewed the six context documents and updated UI direction and this tracker. The existing product, architecture, coding, and workflow specifications cover this visual adjustment.
+
+## Apply sidebar step label - 21 November 2026
+
+Removed the Step X of 4 label beneath the application progress navigation. The four steps retain their numbered or checked markers and current-step highlight. The applicant fixture now reads its position from aria-current.
+
+Rendered all four progress states and verified the counter is absent. The three application-progress tests, stylesheet parsing, fixture syntax, and whitespace checks passed. The browser host was unavailable. Reviewed the six context documents and updated UI direction. The existing navigation and application contracts continue to apply.
+
+## Your story effective section spacing - 21 November 2026
+
+The shared .process-form-section rule had kept the effective section gap at 24px. Corrected the specificity and verified 48px desktop and 36px phone section gaps in Chrome. Grouped the supporting-document heading and note, and grouped the resume field, sharing help, and preview link. Document groups have 36px desktop and 28px phone gaps. Expanded enrollment row spacing to 18px with roomier panel padding and a separate privacy note. The Your story action bar now follows the content in normal flow.
+
+Measured the live Chrome styles and inspected enrollment and response layouts. At 390px the document width stays within the viewport and effective section spacing is 36px. Restored the normal viewport. Source TypeScript, stylesheet parsing, and whitespace checks passed. Reviewed the six context documents and updated UI direction and this tracker. Product scope, storage, coding, and workflow specifications continue to apply.
+
+## Your story spacing and completion feedback - 21 November 2026
+
+Kept the step as a continuous form following the owner's direction. Standardized section gaps, evidence spacing, schedule spacing, and response card padding, with smaller phone gutters. Added a response completion count and content-sized writing areas with a 480px maximum and manual resizing. Availability inputs reference the shared error and use start values as minimum end values.
+
+Chrome confirmed the continuous form, completion count, focus styling, and spacing. At 390px all three cards fit without horizontal overflow and use 17px prompts. Chrome supports content-sized writing areas. Source TypeScript, three application-progress tests, CSS parsing, and Git whitespace checks passed. Live applicant answers were not edited during these checks.
+
+Reviewed the six context documents. UI direction and this tracker cover the presentation and interaction updates. Existing product, architecture, code standards, and workflow contracts still apply. The earlier hosted availability migration and ESLint dependency limits remain recorded below.
+
+## Your story presentation in Chrome - 21 November 2026
+
+Refined all three responses as rounded cards with larger questions, white writing areas, contained counters, and inline errors. The general questions use a faint lavender background and the scenario uses amber. Supporting documents now names the evidence section. Enrollment has a divided block and a styled native file picker.
+
+Verified the existing applicant form in connected Chrome, including the scenario focus outline and desktop rendering. At 390px the scenario card measures 310px wide with a 17px question and no horizontal overflow. Restored the normal viewport afterward. Source TypeScript, stylesheet parsing, browser fixture syntax, and Git whitespace checks passed. The existing ESLint dependency mismatch and pending hosted availability migration are recorded in the preceding entry.
+
+Reviewed the six context documents. Updated UI direction and this tracker. Product scope, architecture, coding standards, and workflow requirements continue to cover this presentation change.
+
+## Your story requirements, availability, and questions - 21 November 2026
+
+Updated the resume hint and gave enrollment proof separate rows for the document, required details, and file limits. Replaced the weekday picker with a date range and daily hours in Philippine time. Previously saved weekdays remain readable and valid. Drafts can save incomplete ranges. Review and staff export show saved schedules. The three response fields start with the questions themselves, followed by asterisks. The scenario uses an amber speech-bubble shape and a sparkles icon.
+
+All 33 focused Node and PGlite tests passed, including partial autosave, range validation, submission, and CSV. Source TypeScript, synthetic rendering of Your story and Review, stylesheet parsing, browser fixture syntax, and Git whitespace checks passed. The browser host was unavailable. ESLint could not start because the installed typescript-eslint rejects TypeScript 7. The Supabase migration passed locally and still needs to be applied to the hosted database before applicants can save date and time ranges there.
+
+Reviewed the six context documents. Updated the product overview, architecture, and UI direction, along with the applicant guide and manual testing flow. The coding and workflow rules still cover this change.
+
+## Resume sharing steps - 21 November 2026
+
+Replaced the resume-sharing paragraph with three numbered Google Drive steps inside the existing disclosure. The steps cover opening Share, setting Viewer access, and testing the link in a private browser window. Updated UI direction and the browser fixture. Focused application tests, TSX compilation, CSS parsing, fixture syntax, and Git whitespace checks passed. The browser host was unavailable for visual verification.
+
+## Apply progress highlight - 21 November 2026
+
+Removed the old hover rule that gave completed steps a pale icon background and orange outline while leaving the checkmark white. Completed steps keep white checkmarks on dark circles, and hover tints the row gray. Keyboard focus gets a violet row outline. The current step keeps its lavender fill.
+
+The CSS cascade check, three application progress tests, browser fixture syntax, and Git whitespace checks passed. Added browser assertions for hover and keyboard focus. The browser host was unavailable. The root integration suite stopped when the sandbox blocked the recruitment setup test’s Node subprocess. The separate recruitment suite passed 34 test files, and two could not load the local js-yaml dependency. Updated UI direction. The existing specifications still cover navigation and draft behavior.
+
+## Your story role row removal - 21 November 2026
+
+Removed the Writing for row and scenario jump link from Your story. The scenario prompt and response stay in the form. Updated UI direction and the applicant browser fixture. The progress and simplified application tests, TSX compilation, stylesheet parsing, fixture syntax, and Git whitespace checks passed.
+
+## Apply committee sections - 21 November 2026
+
+Grouped the six department roles under Committees and put the full role name on each row. Skill Builders contains the three specializations, and BuildHer+ has its own ambassador section.
+
+Rendered both tracks and checked the section order, all ten Committee options, the saved selection, and its scenario. Source TypeScript, application progress and directory tests, browser fixture syntax, and Git whitespace checks passed. The browser host was unavailable for visual verification. Updated UI direction. The existing specifications still cover draft selection and scenario review.
+
+## Apply opportunity status and typography - 21 November 2026
+
+Moved the Core Team eligibility status and Switch to Committee action above the step heading at the top edge of the form column. Enlarged role titles and expanded copy, used mixed case for the department headings and scenario label, and allowed row metadata to wrap.
+
+Styled the eligibility notice as a full-width amber strip at the top edge, with internal padding, a warning icon, and an outlined Switch to Committee button. The action moves below the message on narrow screens. Source TypeScript, stylesheet parsing, the application progress test, and browser fixture syntax passed for this update. The browser host was unavailable.
+
+Simplified the strip to one sentence and an underlined Switch to Committee action. The 16px vertical padding and full-width amber background remain. The application progress test, TSX and CSS checks, and Git whitespace check passed.
+
+Source TypeScript, focused application tests, stylesheet parsing, status placement checks, browser fixture syntax, and Git whitespace checks passed. The browser host was unavailable for visual verification. Updated UI direction. The existing specifications still cover eligibility, validation, and role selection.
+
+## Apply track columns - 21 November 2026
+
+The Core Team and Committee track cards sit in equal columns from 600px wide and stack on narrower screens. Updated UI direction. Stylesheet parsing, the application progress test, and Git whitespace checks passed. The browser host was unavailable for visual verification.
+
+## Apply footer actions and save status - 21 November 2026
+
+Moved the live save status beneath Your application. The footer places Save & exit on the left and groups Back with Continue or Submit on the right. Each group stays together when the footer wraps. Practice drafts show Browse roles in the left position.
+
+Rendered About you and Review for regular and practice drafts. Confirmed the footer order, form association, Back state, and single live save status. Source TypeScript, focused application tests, stylesheet parsing, browser fixture syntax, and Git whitespace checks passed. The browser host was unavailable for visual verification.
+
+Updated UI direction, the recruitment user guide, and the manual testing flow with the new placement. The existing overview, architecture, code standards, and workflow guidance still cover saving and submission.
+
+## Selected role banner on Apply - 21 November 2026
+
+Restyled the role summary with the Continue Application banner’s plum gradient, cream text, and amber icon tile. The role title wraps on narrow screens. The layout shows the separate confirmation when a role change is pending.
+
+Rendered all sixteen role titles in the form and checked drafts with no selection and with a pending role change. Source TypeScript, stylesheet parsing, and Git whitespace checks passed. The browser host was unavailable for visual verification.
+
+Reviewed all six recruitment context documents and updated UI direction and this tracker. The existing product, architecture, standards, and workflow guidance still covers role selection and draft handling.
+
+## Apply campus field and scrolling navbar - 21 November 2026
+
+Removed the Campus input from About you. Saved campus values still travel with the draft when an applicant edits another field. The shared site navbar stays at the top of the viewport when scrolling on `/recruitment/apply`.
+
+Moved the enrollment checkbox and its linked error to the end of Academic details, above Optional details. The application progress test and TSX placement check passed.
+
+Source TypeScript, focused application tests, browser fixture syntax, and Git whitespace checks passed. A synthetic render confirmed the Campus input was absent for an existing draft. A simulated scroll confirmed the Apply navbar stayed visible while Opportunities retained its hide and reveal behavior. The browser host was unavailable for visual verification.
+
+Updated UI direction, the recruitment user guide, and the manual testing flow. Reviewed the project overview, architecture, code standards, and workflow rules for impact. Existing draft and submission contracts still apply.
+
 ## Apply form comfort and compact navigation - 21 November 2026
 
 Replaced viewport-height step sections with compact navigation, removed connector rules, used a soft violet current state, and retained sticky progress only on roomy screens. Added concise step guidance and removed the repeated account email/Your details heading. Name and email share a row on wider screens. A quiet role-change panel now names the requested role and presents two distinct buttons while keeping the existing answer-preserving handlers. Academic groups use spacing instead of an extra divider.
@@ -5,6 +205,28 @@ Replaced viewport-height step sections with compact navigation, removed connecto
 Reviewed the live signed-in form without editing answers, changing roles or submitting. Desktop progress measured 411px with four 58px steps. At 320px and 390px visible form controls fit within the viewport; contact fields stack and progress sits above them. Keyboard focus is visible. At 1440 by 600, progress and actions use normal flow. The existing saved draft remained unchanged. Three focused suites passed: application-progress, drafts and simplified-application. TSX compilation, PostCSS parsing, browser-fixture syntax and Git whitespace checks passed. Updated the existing browser fixture's rail assertions for compact sizing; the full browser fixture/build was not rerun. Previously recorded lint/TypeScript environment limitations remain separate from these checks.
 
 Reviewed project overview, architecture, code standards, AI workflow rules, UI direction and this tracker. Added the visual contract and verification record here; product, architecture, standards and workflow contracts need no change. Unrelated concurrent edits remain outside this commit.
+
+## Role descriptions and application guidance - 21 November 2026
+
+Rewrote all sixteen opportunity descriptions with specific tasks for each officer, committee member, SkillBuilders specialization, and BuildHer+ Ambassador. The role dialog explains who qualifies for the selected track and what to prepare. The availability item refers to any day of the week, in line with the application calendar.
+
+Shortened the four preparation items and used “view-only link” for the resume. The directory test and Git whitespace check passed for the copy update.
+
+The officer and committee examples draw on student organization constitutions, officer descriptions, and event checklists. AWS chapter guidance informed the SkillBuilders and BuildHer+ examples. [Texas A&M University–Victoria sample constitution](https://www.tamuv.edu/student-involvement/organizations/organizations-handbook/sample-constitution/), [UC San Diego Business Club constitution](https://studentorg.ucsd.edu/Constitutions/DownloadConstitution/1679697), [SJSU student group officer descriptions](https://ischoolgroups.sjsu.edu/aanhpi/officer-descriptions/), [University of Connecticut event checklist](https://studentunion.uconn.edu/wp-content/uploads/sites/3149/2021/07/Indoor-Event-Planning-Checklist-for-Student-Organizations.pdf), [AWS Student Builder Groups](https://builder.aws.com/community/student-builder-groups), [AWS SBG QCU chapter guide](https://www.awscc-qcu.cloud/what-is-sbg).
+
+Rendered all sixteen dialogs with a synthetic signed-out state and checked each description, both eligibility variants, and the preparation checklist. The catalog comparison found the same IDs, titles, tracks, capacities, and scenarios. Directory, draft, and simplified application tests, source TypeScript, and Git whitespace checks passed. Browser verification was unavailable because the browser host could not connect.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, progress tracker, and UI direction. UI direction records the revised dialog copy. The existing specifications still cover eligibility, access, and submission requirements.
+
+## Shared application continuation strip - 21 November 2026
+
+Added a lavender Continue your Application strip to the shared main-site and Recruitment headers for applicants with a saved draft or submission. The homepage places it directly below the existing orange recruiting strip. The directory also retains its continuation banner. The existing resume link opens the draft editor or submitted application, and the shared strip is hidden on both destination pages.
+
+The strip now appends the eligible applicant’s Recruitment profile name when available. The private endpoint omits names for ineligible sessions. Source TypeScript passed, the local anonymous response omitted the name, and synthetic checks verified eligible names, blank-name fallback and rendering. Architecture and UI direction record the display and response changes.
+
+The local anonymous homepage retained its recruiting strip, and the continuation endpoint returned only `canContinue: false` with private, no-store caching. Seven synthetic endpoint cases covered draft, submitted, and ineligible states. Synthetic rendering verified the continuation link, route visibility, mobile-menu inert state and distinct fills. Sixteen existing recruitment tests, source TypeScript and Git whitespace checks passed. ESLint could not run because the installed typescript-eslint version does not support TypeScript 7. The browser host was unavailable, so the signed-in layout was checked through synthetic rendering.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, progress tracker and UI direction. Architecture records the private eligibility endpoint, and UI direction specifies placement and visibility. The existing product flow, coding standards and workflow rules still apply.
 
 ## Local changes committed and origin/main integrated - 21 November 2026
 

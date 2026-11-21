@@ -1,3 +1,7 @@
+## Owner-approved multiple role applications - 21 November 2026
+
+The owner selected once per role. This supersedes earlier one-application-per-account and account-wide withdrawal restrictions. Implement the left portal application switcher, independent submitted records and one editable draft at a time. Preserve existing submissions, private enrollment files, references, histories, permissions and capacity rules. Apply the tested forward migration only to the confirmed Recruitment project, with preservation checks. This authorization does not include Git publication or deployment.
+
 ## Unified application - 17 November 2026
 
 This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
@@ -96,4 +100,4 @@ Verify affected authorization, retry/conflict/failure paths and data/configurati
 
 The latest owner direction removes redundant recruitment page-title banners, including the Apply editor title strip. Keep accessible page headings, status/reference information and functional access explanations within content; preserve the shared navbar, Home hero and Apply welcome.
 
-Application flow refinements: the reference section explains each current status and confirms server-acknowledged submission; Review warns that answers/URLs lock and withdrawal prevents reapplication. Administrator Unassigned, Awaiting recommendation and Ready for decision shortcuts preserve applied search/track/opportunity and reuse existing guards/filters. Evaluators can explicitly open the next unreviewed active assignment in the current search, using paginated reads and access rechecks; failures retain the current record. No new API, permission, notification or schema contract.
+Application flow refinements: the reference section explains each current status and confirms server-acknowledged submission; Review warns that answers/URLs lock and withdrawal prevents reapplication to that role. Administrator Unassigned, Awaiting recommendation and Ready for decision shortcuts preserve applied search/track/opportunity and reuse existing guards/filters. Evaluators can explicitly open the next unreviewed active assignment in the current search, using paginated reads and access rechecks; failures retain the current record. No new API, permission, notification or schema contract.
