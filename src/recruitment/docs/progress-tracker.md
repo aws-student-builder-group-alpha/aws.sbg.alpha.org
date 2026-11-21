@@ -1,3 +1,9 @@
+## Opportunities heading and application call to action - 21 November 2026
+
+Removed the visible Available Roles title and aggregate opportunity total from the directory. The semantic page heading is now “Opportunities” for assistive technology. The wide application call to action says Continue Application when the verified applicant has a draft or submission, and Available Applications for signed-out visitors or verified applicants without saved work. Staff, members and unverified account states do not see the action. Replaced the arrow with a larger roles wolf on a transparent background and reduced the gap beneath the banner to 20–28px. Updated the loading fallback, page title and current user guide.
+
+Updated the existing applicant browser fixture's accessible heading expectation and kept the unit fixture able to render the added mascot import. Tests, lint, build and browser verification were not run in this turn. Reviewed project overview, architecture, code standards, AI workflow rules, UI direction and this tracker. Updated overview and UI direction; existing application routing/access rules and coding/workflow guidance cover the implementation. Updated the applicant guide and manual walkthrough labels.
+
 ## Recruitment workspace and landing navigation merge - 21 November 2026
 
 Merged the incoming staff workspace refinements and native mobile dialog with the local landing and application changes. The homepage keeps the approved six mobile links and hides the community dock while the dialog is open. Recruitment keeps its account links and shared application resume banner.

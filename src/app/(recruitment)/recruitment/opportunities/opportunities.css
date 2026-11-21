@@ -23,7 +23,7 @@
   gap:16px;
   width:100%;
   min-height:clamp(104px,10vw,144px);
-  margin-bottom:clamp(28px,4vw,48px);
+  margin-bottom:clamp(20px,2vw,28px);
   padding:clamp(20px,3.5vw,48px);
   border-radius:18px;
   background:radial-gradient(ellipse at 85% 0%, #4b3463, transparent 65%),var(--roles-dark-surface);
@@ -38,14 +38,10 @@
   display:grid;
   place-items:center;
   flex:none;
-  width:clamp(48px,6vw,64px);
+  width:clamp(64px,7vw,84px);
   aspect-ratio:1;
-  border-radius:12px;
-  background:var(--roles-action-fill);
-  color:var(--roles-ink);
 }
-.roles-continue-mascot-art { width:88%; height:auto; }
-.roles-continue-banner:hover .roles-continue-mascot { background:#ffd286; }
+.roles-continue-mascot-art { width:100%; height:auto; }
 @media (hover:hover) and (prefers-reduced-motion:no-preference) {
   :root:not([data-reduced-motion=true]) .roles-continue-mascot-art { transition:translate .2s ease; }
   :root:not([data-reduced-motion=true]) .roles-continue-banner:hover .roles-continue-mascot-art { translate:0 -2px; }
