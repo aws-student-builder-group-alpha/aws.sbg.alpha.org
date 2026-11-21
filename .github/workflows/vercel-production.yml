@@ -1,0 +1,44 @@
+name: Unified Vercel production
+
+on:
+  workflow_run:
+    workflows: [Recruitment CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      (vars.VERCEL_RELEASE_MODE == 'stage' || vars.VERCEL_RELEASE_MODE == 'live')
+    concurrency:
+      group: awslc-alpha-org-production
+      cancel-in-progress: false
+    environment: unified-vercel-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: src/recruitment/.node-version
+          package-manager-cache: false
+      - name: Stage verified commit and promote in live mode
+        env:
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+          VERCEL_RELEASE_MODE: ${{ vars.VERCEL_RELEASE_MODE }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_SLUG: ${{ vars.VERCEL_TEAM_SLUG }}
+          VERCEL_TELEMETRY_DISABLED: "1"
+        run: node scripts/release-vercel.mjs

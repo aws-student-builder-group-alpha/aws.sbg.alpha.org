@@ -1,23 +1,17 @@
 import { AdminPageSkeleton } from "@/app/(recruitment)/recruitment/components/workspace-skeleton";
 import { Suspense } from "react";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { accountSession } from "@/recruitment/lib/server/session";
 import { readIntake } from "@/recruitment/lib/server/intake";
 import { AccessGuard } from "@/app/(recruitment)/recruitment/components/access-guard";
 import { IntakeWorkspace } from "@/app/(recruitment)/recruitment/components/intake-workspace";
-import { PageHeading } from "@/app/(recruitment)/recruitment/components/ui";
+import { administratorSession, AdminUnavailable } from "../access";
 
 async function IntakeContent() {
-  const session = await accountSession();
-  if (session.kind === "anonymous") redirect("/recruitment/staff");
-  if (session.kind === "applicant" || session.kind === "staff" && session.membership.role !== "administrator") notFound();
-  if (session.kind === "staff" && (session.membership.status !== "active" || session.needsMfa)) redirect("/recruitment/staff");
-  if (session.kind === "staff") {
+  const session = await administratorSession();
+  if (session) {
     const result = await readIntake(session.identity.id);
     if (result.ok) return <AccessGuard accountId={session.identity.id} expected="administrator"><IntakeWorkspace key={session.identity.id} accountId={session.identity.id} initialState={result.data} /></AccessGuard>;
   }
-  return <main id="main-content" className="container portal narrow"><PageHeading title="Intake is unavailable" description="Administrator access or intake details could not be verified." /><Link href="/recruitment/staff" className="button button-orange">Check staff access</Link></main>;
+  return <AdminUnavailable title="Intake is unavailable" />;
 }
 export default function IntakePage() {
   return <Suspense fallback={<AdminPageSkeleton view="intake" />}><IntakeContent /></Suspense>;

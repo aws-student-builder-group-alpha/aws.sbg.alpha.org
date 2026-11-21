@@ -1,0 +1,131 @@
+/* Shared spacing and surfaces for administrator, evaluator and staff access. */
+.alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"], [data-workspace-frame="staff"]) {
+  --staff-gutter: 16px;
+  --staff-card: 16px;
+  --staff-rule: var(--color-process-rule);
+  --surface-alt: var(--color-process-field);
+  color: var(--foreground);
+
+  :is(.admin-page, .workspace-redesign, .admin-navigation-drawer, .admin-sidebar) { overflow-wrap: anywhere; }
+  .admin-page-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .admin-page-heading h1 {
+    margin: 0;
+    color: var(--foreground);
+    font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+    line-height: 1.15;
+    letter-spacing: -.04em;
+  }
+  .admin-page-heading p { max-width: 70ch; margin: 8px 0 0; color: var(--muted); font-size: .9375rem; line-height: 1.6; }
+  .admin-heading-actions { display: flex; flex: none; flex-wrap: wrap; gap: 8px; }
+  :is(.admin-surface, .admin-metric, .staff-directory, .community-admin-panel, .workspace-queue-overview, .evaluation-list, .workspace-detail) {
+    border: 1px solid var(--staff-rule);
+    border-radius: 16px;
+    background: var(--surface);
+  }
+  :is(.admin-surface, .staff-directory, .community-admin-panel) h2 { color: var(--foreground); font-size: 1.125rem; line-height: 1.35; letter-spacing: -.02em; }
+  :is(.admin-surface, .staff-directory) h2 { margin: 0; }
+  :is(.button, .text-button, .icon-button) { min-height: 44px; }
+  .button { padding: 8px 16px; border-radius: 10px; font-weight: 650; white-space: normal; }
+  .button-orange { border-color: #b86b00; background: #ffad31; color: #232f3e; }
+  .button-orange:hover:not(:disabled) { background: #ffc36b; }
+  .button-secondary { border-color: var(--color-process-rule-strong); background: var(--surface); color: var(--foreground); }
+  .button-secondary:hover:not(:disabled) { background: var(--surface-alt); }
+  :is(.field label, .application-fields > label) { font-weight: 600; }
+  :focus-visible { outline: 3px solid #965500; outline-offset: 3px; }
+  :is(.workspace-help, .workspace-disclosure) > summary { min-height: 44px; padding-block: 8px; cursor: pointer; }
+  .workspace-disclosure { border-top: 1px solid var(--staff-rule); }
+  .staff-history-list li { padding: 16px; border: 1px solid var(--staff-rule); border-radius: 12px; background: var(--surface-alt); }
+  .staff-history-list .subheading { gap: 8px 16px; flex-wrap: wrap; }
+  .staff-history-list time { color: var(--muted); font-size: .8125rem; }
+  .evaluation-note { padding: 12px; border-radius: 8px; background: var(--surface-alt); }
+  .modal { color: var(--foreground); background: var(--surface); }
+  .modal-heading, .modal-body { padding: var(--staff-card); }
+  .modal-heading { border-bottom: 1px solid var(--staff-rule); }
+  .modal-heading h2 { color: var(--foreground); line-height: 1.3; }
+  .modal .icon-button { min-width: 44px; }
+  .modal-actions { flex-wrap: wrap; }
+
+  .workspace-evaluation .workspace-queue-overview { width: 100%; margin: 0; padding: var(--staff-card); border-radius: 16px; border-bottom: 1px solid var(--staff-rule); }
+  .workspace-evaluation .evaluation-layout { width: 100%; min-height: 0; margin: 16px 0 0; gap: 24px; grid-template-columns: minmax(0, 1fr); border: 0; border-radius: 0; background: transparent; }
+  .workspace-evaluation .evaluation-list { position: static; max-height: none; min-width: 0; padding: 0; margin: 0; border: 1px solid var(--staff-rule); border-radius: 16px; background: var(--surface); overflow: visible; }
+  .workspace-evaluation .evaluation-list > p, .workspace-evaluation .evaluation-list .workspace-loading { padding: var(--staff-card); }
+  .workspace-evaluation .evaluation-list > .button { margin: 16px; }
+  .workspace-evaluation .workspace-detail { min-height: 0; padding: var(--staff-card); border: 1px solid var(--staff-rule); border-radius: 16px; }
+  .workspace-evaluation .workspace-back { display: inline-flex; }
+  .workspace-evaluation[data-mobile-view="list"] .workspace-detail { display: none; }
+  .workspace-evaluation .record-identity .subheading { flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; }
+  .workspace-evaluation .record-identity h2 { max-width: 100%; margin: 0; font-size: clamp(1.375rem, 2vw, 1.75rem); line-height: 1.2; }
+  .workspace-evaluation .record-tabs { flex-wrap: wrap; gap: 0 16px; overflow: visible; }
+  .workspace-evaluation .evaluation-answers { max-width: 70ch; }
+  .workspace-evaluation .evaluation-answers :is(p, dd) { line-height: 1.7; }
+  .workspace-evaluation .evaluation-controls, .workspace-evaluation .decision-panel { min-width: 0; }
+}
+.alpha-app .recruitment-process[data-workspace-frame="evaluator"] {
+  .workspace-reviewer {
+    width: min(calc(100% - 16px), 1280px);
+    min-height: 0;
+    margin: 16px auto 24px;
+    padding: var(--staff-gutter);
+    border: 1px solid var(--staff-rule);
+    border-radius: 22px;
+    background: var(--surface-alt);
+  }
+  .workspace-reviewer .evaluation-list-item { min-height: 44px; }
+  .workspace-reviewer .evaluation-list-item:hover { background: var(--surface-alt); }
+  .workspace-reviewer .evaluation-list-item[aria-pressed="true"] { background: var(--color-process-selected); border-inline-start-color: #a65d00; }
+  .workspace-reviewer .evaluation-list-item:focus-visible { outline-offset: -4px; }
+  .workspace-reviewer .evaluation-list-item:first-child { border-start-start-radius: 15px; border-start-end-radius: 15px; }
+  .workspace-reviewer .evaluation-list-item:last-child { border-end-start-radius: 15px; border-end-end-radius: 15px; border-bottom: 0; }
+  .workspace-reviewer .workspace-skeleton-reviewer { width: 100%; padding: var(--staff-card); border: 1px solid var(--staff-rule); }
+}
+.alpha-app .recruitment-process[data-workspace-frame="staff"] {
+  .staff-auth-page { padding: 24px var(--staff-gutter); }
+  .staff-auth-card { padding: var(--staff-card); border-radius: 22px; }
+  .staff-auth-card h1 { margin-bottom: 8px; }
+  .staff-auth-eyebrow { margin-bottom: 12px; font-size: .75rem; }
+  .staff-auth-card .workspace-help { margin-top: 24px; }
+  .staff-auth-support { margin-top: 8px; }
+}
+@media (min-width: 768px) {
+  .alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"], [data-workspace-frame="staff"]) {
+    --staff-gutter: 24px;
+    --staff-card: 24px;
+    .admin-page-heading { flex-direction: row; align-items: center; }
+  }
+  .alpha-app .recruitment-process[data-workspace-frame="evaluator"] .workspace-reviewer { width: min(calc(100% - 32px), 1280px); }
+  .alpha-app .recruitment-process[data-workspace-frame="staff"] .staff-auth-card { padding: 32px; }
+}
+@media (min-width: 1200px) {
+  .alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"], [data-workspace-frame="staff"]) { --staff-gutter: 32px; }
+}
+@media (max-width: 1279px) {
+  .alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"]) .workspace-evaluation[data-mobile-view="detail"] :is(.workspace-queue-overview, .evaluation-list) { display: none; }
+}
+@media (min-width: 1280px) {
+  .alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"]) .workspace-evaluation[data-mobile-view="detail"] {
+    .evaluation-layout { grid-template-columns: minmax(0, 9fr) minmax(0, 11fr); }
+    .evaluation-list {
+      position: sticky;
+      top: calc(var(--site-header-height) + 16px);
+      max-height: calc(100dvh - var(--site-header-height) - 32px);
+      overflow: auto;
+      scrollbar-gutter: stable;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"], [data-workspace-frame="staff"]) :is(a, button, input, select, textarea) { transition: none; }
+}
+@media (forced-colors: active) {
+  .alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"], [data-workspace-frame="staff"]) {
+    :is(.admin-shell, .admin-metric, .admin-surface, .workspace-reviewer, .workspace-queue-overview, .evaluation-list, .workspace-detail, .staff-auth-card) { border-color: CanvasText; box-shadow: none; }
+    :focus-visible { outline-color: Highlight; }
+  }
+}

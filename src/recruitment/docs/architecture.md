@@ -6,6 +6,8 @@ The unified deployment uses two Supabase projects. Skillbuilder uses its existin
 
 Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the account in the main Auth project.
 
+The unified Vercel project is `awslc-alpha-org`. Its release workflow stages the SHA from a successful Recruitment CI push run on protected `main` using a dedicated GitHub environment and credentials authorized for that Vercel scope. Production domains are assigned by promoting the verified build. The workflow serializes releases and checks the `main` tip before staging and before promotion. See the root README for configuration and staged verification.
+
 # Architecture
 
 ## Recruitment staff routes

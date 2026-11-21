@@ -21,7 +21,11 @@ const modules = {
   "next/navigation": { useRouter: () => ({}), useSearchParams: () => new URLSearchParams(search) },
   "@/recruitment/lib/catalog": catalog,
   "@/recruitment/lib/opportunity-availability": availability,
-  "@/app/(recruitment)/recruitment/components/ui": { Icon: () => null },
+  "@/app/(recruitment)/recruitment/components/ui": {
+    Icon: () => null,
+    EmptyState: ({ heading: Heading, title, description, children }) => React.createElement("section", null,
+      React.createElement(Heading, null, title), React.createElement("p", null, description), children),
+  },
   "@/app/(recruitment)/recruitment/components/use-opportunity-availability": { useOpportunityAvailability: () => null },
   "@/app/(recruitment)/recruitment/apply/start-draft": {},
   "@/app/(recruitment)/recruitment/auth/actions": {},
@@ -85,6 +89,20 @@ test("opportunities render in separate expanded tracks and respect search and fi
     assert.doesNotMatch(web, /class="roles-section" data-track="CORE_TEAM"/);
     assert.match(web, /class="roles-section" data-track="COMMITTEE"/);
     assert.equal([...web.matchAll(/class="role-card"/g)].length, 1);
+  } finally {
+    search = "";
+  }
+});
+
+test("an unmatched search retains the shared empty state and reset action", () => {
+  try {
+    search = "track=COMMITTEE&q=no-such-opportunity";
+    const html = renderToStaticMarkup(React.createElement(OpportunityDirectory, { entry: { kind: "anonymous" } }));
+    assert.match(html, /<h2>No matching roles<\/h2>/);
+    assert.match(html, /Try a different department or search term/);
+    assert.match(html, /Show all roles/);
+    assert.doesNotMatch(html, /class="role-card"/);
+    assert.doesNotMatch(html, /class="roles-section"/);
   } finally {
     search = "";
   }

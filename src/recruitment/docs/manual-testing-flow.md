@@ -3,8 +3,10 @@
 ## Recruitment staff workspace
 
 1. Sign in through `/recruitment/staff` as an active System Admin and complete MFA. Visit Overview, Applications, Intake, Staff accounts, Organization members and Security activity from the sidebar or mobile Admin sections dialog.
-2. Compare Overview totals with the queue. Verify responsive layout, keyboard focus, account actions and the loading, empty and error states. Verify that a failed read does not show a fabricated zero.
-3. Check application filters, assignment and decision edits, intake controls, membership invitations and the staff drawer. Verify that dirty inputs survive canceled navigation and that Security activity reads only on request.
+2. Compare Overview totals with the queue. Scroll the workspace on desktop and mobile and confirm navigation stays in view. Tab to the Admin workspace and verify that the keyboard can scroll it. On mobile Applications, scroll partway into the queue, open a record, then use **Back to applications** to verify the row regains focus and the prior scroll position returns. Open the account popover with the keyboard, verify navigation and workspace scroll stay in place, then press Escape and check that focus returns. Try the account popover in the drawer on a phone and a short desktop window. A failed read should show unavailable data.
+3. Check the Filters drawer and queue views, assignment and decision edits, intake controls, membership invitations and the staff drawer. Verify that dirty inputs survive canceled navigation. Compare an empty application queue and a search with zero matches. Both show centered guidance. The no-results reset restores the full list. Loading and failed reads show their own feedback. On Security activity, click **Load latest activity**, then filter the loaded events by action and reference. Check the no-matches and empty-log panels and verify that filtering does not trigger a fresh read.
+   In **Staff accounts**, search the directory and use **Clear search** after a query with no matches. On a phone, check that account, role, access and update time are visible in each card. Open an account, expand **Access history**, and verify **Back to staff list** restores focus to that account.
+   In **Organization members**, verify the invitations table is visible below Membership tools. Check the four desktop columns and the labeled rows on phones. Confirm the empty and read-error states, and verify that refreshing invitations preserves an unfinished membership form.
 4. Repeat Staff sign-in and evaluator checks with authorized test accounts. Confirm that recruitment access and the Skillbuilder `/admin` route follow their separate permissions. See the [recruitment user guide](recruitment-user-guide.md) for the interaction steps.
 
 ## Two-track removal retest - 16 November 2026
@@ -253,7 +255,7 @@ As **Admin**, then both applicants:
 
 The official intake is **1-30 November 2026, Philippine time**. An early development opening was authorized on 28 October, but the owner must confirm current availability for this run. **Resume does not bypass opening or closing dates.**
 
-1. Admin opens **/admin/intake** and checks **Accepting submissions: Yes**. If it says No because of the schedule or final closure, mark submission checks Blocked and contact the owner.
+1. Admin opens **/admin/intake** and checks that the availability panel says **Accepting submissions**. If the schedule or final closure blocks submissions, mark submission checks Blocked and contact the owner.
 2. With the owner's approval, select **Pause intake**, enter a reason, review and confirm.
 3. Applicants use **Refresh intake availability** on the Review step.
 4. Confirm submission is unavailable, then change and save a draft answer.
@@ -277,7 +279,7 @@ As **Applicant A**, then **Applicant B**:
 
 As **Admin**, **Applicant A**, then **Evaluator**:
 
-1. Admin opens **/admin/applications**, searches for the run label and chooses **Apply filters**.
+1. Admin opens **/recruitment/admin/applications**, enters the run label and submits **Search**.
 2. Open A, choose **Review & decision**, select the evaluator, review and confirm the assignment.
 3. While A is editable, type a temporary assignment reason without submitting. Switch tabs and, on a phone, use **Back to list** and reopen A. Confirm the text remains, then use **Reload latest details** and confirm discarding that temporary edit.
 4. Applicant A uses **Refresh status** in /application.
@@ -325,10 +327,10 @@ As **Admin** and **Applicant A**:
 
 As **Admin**:
 
-1. In Applications, use **Back to list** on a phone. Choose **Clear filters**, search for the run label and **Apply filters**. Confirm both A and B match.
-2. Expand **Filters**, select **Accepted** and apply: A should match.
-3. Select **Waitlisted** and apply: B should match. Choose **Export CSV**.
-4. Choose **Clear filters**, re-enter the run label and apply again before exporting both A and B. Clear filters also clears the search.
+1. In Applications, use **Back to applications** on a phone. Choose **Clear all** if a query is active, then search for the run label. Confirm both A and B match.
+2. Open **Filters**, select **Accepted** and apply. A should match.
+3. Reopen **Filters**, select **Waitlisted** and apply. B should match. Choose **More actions → Export CSV**.
+4. Choose **Clear all**, then submit the run label in the search field before exporting both A and B.
 5. Open both files and compare them with the test records.
 
 **Pass when:** The Waitlisted export contains B; the test-run export contains A and B. Written answers are present. Evaluator identities, recommendations, private notes/reasons and evidence links are absent. Exports follow applied filters, not unapplied edits, and the app confirms Download started rather than claiming the file was saved.
@@ -378,7 +380,7 @@ Visual check: recruitment routes should begin with their form, progress controls
 Flow refinement walkthrough: confirm submission warnings and server-confirmed reference/status guidance. In Applications, test all three shortcuts within an applied track/opportunity/search, including dirty/pending guards. As evaluator, save a recommendation, choose Review next application, and verify saved/published items are skipped, unsaved changes block navigation, and empty/error results preserve the current application. Owner performs Google/MFA and physical-device interactions using approved accounts; record actual results privately and anonymized outcomes in the tracker.
 
 
-Compact-content checks: generic step leads are absent; all approved prompts/counters remain, resume sharing is collapsed and routine open-intake status is quiet. Portal Status history, staff Access history and Private intake history start collapsed but remain mounted; new history failures reveal recovery. Queue defaults show Search, Filters, Refresh and Export CSV; advanced Apply/Clear stay inside Filters and Status breakdown/Queue views start closed. Collapse/reopen must preserve data and trigger no reset. Search still applies current values through dirty/uncertain guards.
+Compact-content checks: generic step leads are absent, approved prompts and counters remain, and resume sharing starts collapsed. Portal Status history, staff Access history and Private intake history start collapsed. In Applications, check the static counts, the filter drawer, and More actions. Close and reopen the drawer to confirm that unapplied choices persist. Submit search with a staged filter to confirm the search uses the applied query. Cancel a guarded filter change and verify that the drawer stays open with its selections.
 
 Modern Apply/feedback checks: all seven process routes retain white working surfaces and dark anonymous entry under both device preferences. Check light working selects, placeholders, read-only email, disabled controls, autofill, selected light-tint rows, all four notice severities and native confirmation dialogs for readable text/borders; only the MFA QR backing stays white. Home and Privacy retain their own colors.  anonymous entry has a dark translucent card over slow orange/violet waves; preparation/editor/loading/recovery use white working surfaces. Google shows Connecting only while its action is pending. Reduced motion and no JavaScript retain a readable static background and support links. Across staff, MFA, portal, intake, evaluation/decision and CSV, verify severity icons/titles, field associations and wrapping recovery actions. Errors and summaries remain immediate; save/count/loading text stays quiet. Confirm recovery preserves input and the same operation, without duplicate live announcements or auto-dismissal.
 

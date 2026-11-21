@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getOpportunity, opportunities, opportunityLabel, trackLabel, type Track } from "@/recruitment/lib/catalog";
 import type { Applicant } from "@/recruitment/lib/drafts";
-import { Icon, Modal } from "@/app/(recruitment)/recruitment/components/ui";
+import { EmptyState, Icon, Modal } from "@/app/(recruitment)/recruitment/components/ui";
 import { StartDraft } from "@/app/(recruitment)/recruitment/apply/start-draft";
 import { signIn } from "@/app/(recruitment)/recruitment/auth/actions";
 import { useOpportunityAvailability } from "@/app/(recruitment)/recruitment/components/use-opportunity-availability";
@@ -43,18 +43,17 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
     : opportunities.filter(role => role.track === selected.track).indexOf(selected)) % rolePaletteSize;
   const close = () => change("opportunity", "");
   return <main id="main-content" className="roles-page roles-directory">
+    {entry.kind === "applicant" && (entry.hasDraft || entry.submitted) && (
+      <Link className="roles-continue-banner" href="/recruitment/application?resume=1">
+        <span>Continue Application</span>
+        <span className="roles-continue-arrow" aria-hidden="true"><Icon name="arrow" size={24} /></span>
+      </Link>
+    )}
     <div className="roles-layout">
       <div className="roles-results">
         <header className="roles-heading">
           <h1>Available Roles</h1>
-          <div className="roles-heading-actions">
-            {entry.kind === "applicant" && (entry.hasDraft || entry.submitted) && (
-              <Link href="/recruitment/application?resume=1" className="button button-secondary">
-                Continue Application <Icon name="arrow" />
-              </Link>
-            )}
-            <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
-          </div>
+          <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
         </header>
         <div className="roles-tools">
           <form role="search" onSubmit={event => {
@@ -112,7 +111,7 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
             })}</div>
           </details>;
         })}</div>
-        {!visible.length && <div className="roles-empty"><h2>No matching roles</h2><p>Try a different department or search term.</p><button className="button button-secondary" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Show all roles</button></div>}
+        {!visible.length && <EmptyState heading="h2" icon="search" title="No matching roles" description="Try a different department or search term." announce><button className="button button-secondary" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Show all roles</button></EmptyState>}
       </div >
       <aside className="roles-sidebar" aria-label="Recruitment information">
         <div className="roles-sidebar-intro">

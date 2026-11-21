@@ -1,3 +1,11 @@
+## Local changes committed and origin/main integrated - 21 November 2026
+
+Saved the existing repository changes in nine focused local commits covering team profiles/portraits, testimonials, landing story details, the shared Google logo, membership entry, recruitment navigation, opportunity controls/loading, preference bootstrap and the community dock. Pulled origin/main with a merge to preserve local history. Resolved the opportunity component, opportunity stylesheet and tracker conflicts, retaining the latest local directory, the incoming shared empty state, staff workspace and production-release workflow, and both sets of progress records. Concurrent opportunity styling refinements were preserved during integration.
+
+Five directory tests and four release-workflow tests passed. Added a regression for unmatched-search empty content and recovery. Compiled 28 changed TypeScript/TSX files and parsed ten stylesheets; Git whitespace/conflict-marker checks passed. The CI-runner suite could not load the locally missing js-yaml package. TypeScript remains blocked by stale generated route declarations and the existing prisma dotenv/config import, with no src diagnostics reported. Full build, browser fixtures, hosted checks and deployment were not run for this Git integration. No changes were pushed.
+
+Reviewed project overview, architecture, code standards, AI workflow rules, UI direction and this tracker for the merge. Preserved incoming documentation updates and added this delivery/verification record. No new product, schema, permission or hosted configuration changes were introduced by conflict resolution.
+
 ## Comfortable opportunity cards and landing-page accents - 21 November 2026
 
 Applied the owner's latest card reference: rounded white shells, six pastel identity colors, track pills and icons, full role titles, eligibility tags and separate availability rows with compact dark View role actions. Shadows remain translucent at eight percent offset opacity. The surrounding interface uses the landing page's ink/violet typography and orange search action, a stronger two-color title, restrained segmented filters and generous spacing. Sidebar instructions stay expanded and decorative separators remain absent. Section summaries show counts without repeating card eligibility.
@@ -77,6 +85,117 @@ Implemented the supplied job-directory reference using a desktop sidebar, pastel
 Checked the local page in the connected browser. Core Team returned six roles, Committee returned ten, and searching Cloud within Committee returned one. The role dialog opened and Escape restored the directory. At 390px the directory used one column with no horizontal overflow. TSX compilation and Git whitespace checks passed. The local API reported unavailable vacancies and application access, so provider sign-in and submission remain unverified. Root verification is blocked by the installed TypeScript 7 lint incompatibility. TypeScript also reports stale generated route types and the existing dotenv/config import.
 
 Reviewed project overview, architecture, code standards, AI workflow rules, progress tracker and UI direction. UI direction records the latest presentation decision and this tracker records evidence. Other documents need no changes because catalog data, eligibility, access and persistence contracts are unchanged.
+## Unified Vercel production workflow - 21 November 2026
+
+Replaced the relay that tried to commit directly to protected `main`. The replacement stages the exact successful Recruitment CI commit in `awslc-alpha-org` and promotes it when live mode is enabled and the commit is still current. Tests cover workflow triggers, staged and live releases, superseded commits, blocked promotion on deployment errors, and target and SHA checks. Seventeen focused Node tests, workflow YAML checks, and focused lint passed.
+
+The GitHub environment `unified-vercel-production` was created with a verified `main`-only branch policy. The current Vercel account could not access the unified Vercel scope. Credentials, staged verification and production promotion remain pending. The root README records the environment and first-stage verification requirements.
+
+Reviewed the six Recruitment context documents and updated architecture and this tracker. Product scope, coding standards, UI direction and workflow policy are covered by their existing contracts.
+
+## Recruitment Security activity log - 21 November 2026
+
+Security activity presents the latest loaded events in a table with event icons, references and Philippine-time timestamps. Narrow rows become labeled cards. Search still filters the loaded snapshot by readable action, raw code or reference. The initial, empty and no-results views use the shared illustration, and refreshing retains the loaded rows.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, 211 Node tests, production build, TypeScript, eleven Chromium suites and source integrity. The admin workspace fixture checked responsive rows, long references, date formatting, search reset, empty/loading/error states and refresh retention. Reviewed desktop, phone and empty-log previews with synthetic events.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. The product scope, architecture, code standards and AI workflow rules continue to describe the read-only log and its access requirements.
+
+## Recruitment Member invitations table - 21 November 2026
+
+Member invitations uses a permanently visible full-width table below Membership tools. Rows group member identity, invitation status, email delivery and actions, and become labeled cards in narrow containers. The accepted-applicant membership panel also shows invitations without a disclosure.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, 211 Node tests, production build, TypeScript, eleven Chromium suites and source integrity. Browser checks covered the four table headings, member and delivery data, pending actions, empty and recovery states, and narrow rows. Reviewed the desktop table and phone cards using synthetic invitations.
+
+Reviewed the six Recruitment context documents and updated UI direction, manual testing and this tracker. The existing product scope, architecture, code standards and AI workflow rules cover this presentation change.
+
+## Recruitment Organization members workspace - 21 November 2026
+
+Organization members pairs Membership tools with a visible Member invitations panel, stacking them on narrower screens. The tools keep the form inline. Invitation cards show the membership response separately from email delivery and keep the Membership ID link and refresh visible. The loading layout follows the same panels.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, 211 Node tests, production build, TypeScript, eleven Chromium suites and source integrity. The browser fixture verified unavailable and empty invitation lists, refresh, pending/accepted/canceled labels, unavailable email, retained form input, revocation feedback and layout at four widths. Reviewed desktop and phone previews. Tests used synthetic data.
+
+Reviewed all six Recruitment context documents. Updated UI direction, manual testing, the user guide and this tracker. Existing scope, architecture, code standards and AI workflow rules cover this presentation change.
+
+## Recruitment Staff accounts directory and drawer - 21 November 2026
+
+Staff accounts groups search and Refresh below the directory heading and matching count. Account initials, role labels and color-coded access badges carry through from the desktop table or phone cards to the drawer. The drawer presents the account identity, access controls and compact private history. The existing form, confirmation and focus return behavior is preserved.
+
+Lint, 211 Node tests, production build, TypeScript, source integrity and ten Chromium suites passed in the final CI run on Node 24.22.1. The applicant-submission suite exceeded the runner's time limit and passed on a standalone rerun against the same build. Staff fixtures verified directory search, empty-state reset, desktop/phone reflow, keyboard focus return, unfinished input and access-change recovery. Reviewed desktop and phone directory and drawer renders. Verification used synthetic data.
+
+Reviewed all six Recruitment context documents. Updated UI direction, manual testing and this tracker. Product scope, architecture, code standards and AI workflow rules cover this presentation change.
+
+## Recruitment Intake workspace - 21 November 2026
+
+Intake shows submission availability, configured state and Philippine-time schedule beside the change form from 1200 pixels. On smaller screens the panels stack. Private intake history occupies its own collapsible panel with compact audit rows and an illustrated empty state. The loading layout mirrors the panels.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, 211 Node tests, production build, TypeScript, eleven Chromium suites and source integrity. The Intake fixture verified all five availability states, keyboard access to history, pagination, failure recovery, confirmation and access loss with synthetic data. Reviewed desktop and phone renders of the main layout and expanded history.
+
+Reviewed all six Recruitment context documents. Updated UI direction, manual testing and this tracker. The existing product scope, architecture, code standards and AI workflow rules cover the presentation change.
+
+## Recruitment Applications status summary - 21 November 2026
+
+The Applications status summary separates the matching total from six read-only tiles. Each tile pairs a status label with a tinted icon and a larger count. The tiles sit in one row on desktop and reflow into two rows on phones.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, Node tests, production build, TypeScript, Chromium and source integrity checks. The queue suite verified the read-only tiles and responsive grid. Reviewed the populated desktop and empty phone renders.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. The existing product scope, architecture, code standards and AI workflow rules cover this presentation change.
+
+## Recruitment illustrated empty states - 21 November 2026
+
+The Applications queue and other Recruitment lists use a shared illustrated panel for confirmed empty data and searches with no matches. The Applications status summary uses a lightly tinted surface, and a filtered queue can be reset from its no-results panel. Overview, the evaluator queue, Staff accounts, membership invitations, Security activity, Intake and review histories, and the public role directory use the same presentation. Embedded histories use a compact version.
+
+`npm run verify:ci` passed on Node 24.22.1 with 211 Node tests, eleven Chromium suites, lint, build, TypeScript and source integrity. The queue fixture rendered an empty dataset at desktop and phone widths, confirmed the artwork is decorative, and exercised the no-results reset. Reviewed both empty queue renders.
+
+Reviewed the six context documents and updated UI direction, manual testing and this tracker. The product scope, architecture, code standards and AI workflow rules continue to describe the current behavior.
+
+## Recruitment Applications toolbar and filter drawer - 21 November 2026
+
+The admin Applications queue uses a compact toolbar with integrated search, a Filters drawer and a More actions popover. The drawer holds the queue views and advanced fields. Draft selections persist on close and Apply commits the advanced filters against the applied search. The status summary shows all six counts as read-only labels. Export feedback and cancellation stay visible below the toolbar.
+
+`npm run verify:ci` passed on Node 24.22.1 with 211 Node tests, eleven Chromium suites, lint, build, TypeScript and source integrity. Browser checks covered the responsive drawer and static summary, focus return, combined filters, pending and dirty record guards, paginated totals, search isolation, CSV scope and recovery. Reviewed desktop and phone renders.
+
+Reviewed the six context documents and updated UI direction, the recruitment user guide, the manual testing flow and this tracker. The product scope, architecture, code standards and AI workflow rules continue to describe the current contracts.
+
+## Recruitment Overview and orange navigation - 21 November 2026
+
+The Overview uses three compact application metrics, a six-status breakdown, a right-hand Intake and Active staff column at desktop widths, and a full-width recent applications table. The dashboard and loading skeleton reflow together. The sidebar and drawer use stronger orange for the current row and soft orange on hover, with dark text, icons and an active marker.
+
+`npm run verify:ci` passed on Node 24.22.1 with 211 Node tests, eleven Chromium suites, lint, build, TypeScript and source integrity. Browser fixtures checked populated, empty and unavailable states, responsive layout, keyboard focus, forced colors, and the existing workspace scrolling and popover. Reviewed desktop and phone renders. An evaluator focus timeout on the first run did not recur in the full rerun.
+
+Reviewed all six context documents. Updated UI direction and this tracker. The existing product scope, data and authorization contracts, code standards and AI workflow rules describe the current behavior.
+
+## Recruitment admin sidebar and account popover - 21 November 2026
+
+The desktop sidebar has no scroll area and keeps the account control at the bottom. Short desktop windows use the existing Admin sections drawer. The account actions and sign-out warnings now open in a native popover beside the desktop control or near the same control in the drawer.
+
+`npm run verify:ci` passed on Node 24.22.1 with 211 Node tests and eleven Chromium suites. The admin browser test verified popup placement, stable navigation and workspace scroll, light dismissal, Escape and focus return, sign-out guards, a short desktop window and enlarged text on a narrow phone. Reviewed desktop and mobile popup renders.
+
+Reviewed the six context documents and updated UI direction, the manual testing flow and this tracker. The product scope, architecture, code standards and AI workflow rules continue to describe the current behavior.
+
+## Recruitment admin workspace scrolling - 21 November 2026
+
+The six administrator routes fit the current viewport. The workspace handles content scrolling while the desktop sidebar and mobile menu bar stay in view. The workspace can receive keyboard focus. Switching admin sections starts at the top, and returning from an application or staff record restores focus and the prior position in its list.
+
+`npm run verify:ci` passed on Node 24.22.1, including 211 Node tests and eleven Chromium suites. Browser fixtures confirmed a fixed document and separate workspace scrolling at desktop and mobile widths, keyboard scrolling, and mobile application queue position and focus restoration. Reviewed the desktop and mobile Overview renders.
+
+Reviewed the six context documents and updated UI direction, the manual testing flow and this tracker. The product scope, architecture, code standards and AI workflow rules remain applicable.
+
+## Light Alpha administration refresh - 21 November 2026
+
+Refreshed the six Recruitment administration routes with a warm canvas, plum navigation and orange primary actions. Overview leads into Applications, queue shortcuts are visible, Intake groups state and changes, and the staff drawer separates identity, change controls and history. Organization members gives invitations their own panel. Security activity filters already-loaded events by action or reference. The routes reuse the existing access checks, read and write contracts, and navigation guards.
+
+Root `npm run verify:ci` passed on Node 24.22.1 with zero-warning lint, 211 Node tests, production build, TypeScript, eleven Chromium suites and source integrity. Reviewed desktop and mobile renders across all six routes with synthetic data. Browser checks covered 320, 375, 768, 1280 and 1440 pixels, keyboard and focus, reduced motion, forced colors, pending edits and activity filtering. Hosted verification remains pending.
+
+Reviewed all six context documents. Updated UI direction, the user guide, the manual testing flow and this tracker. The product scope, architecture, code standards and AI workflow requirements continue to describe the current contracts and implementation process.
+
+## Light Recruitment staff workspace - 20 November 2026
+
+Redesigned all six administrator routes, the evaluator workspace, staff sign-in and authenticator screens using the applicant palette and Alpha wave frame. The Overview has a lead applications metric, four supporting cards, a six-status breakdown, the Philippine-time intake schedule and recent applications. Selected applications use a 45:55 queue and detail split from 1280px. Smaller screens use full-width views and preserve the current filters and unfinished edits when returning to the queue. Intake, staff accounts, organization members and security activity use the same spacing and action hierarchy.
+
+Root `npm run verify:ci` passed on Node 24.22.1 with zero-warning lint, 211 Node tests, the production build, TypeScript, eleven Chromium suites and source integrity. Reviewed Overview renders at 320, 375, 768, 1280 and 1440 pixels and desktop and phone renders of the staff workflows. The browser checks exercised enlarged text, focus, reduced motion, forced colors, loading and recovery. Verification used synthetic records and accounts.
+
+Reviewed all six context documents and updated UI direction, code standards and this tracker. The project overview, architecture and AI workflow rules already cover the product scope, authorization and implementation process used here.
 
 ## Recruitment uses its existing Supabase project on the main deployment - 20 November 2026
 
