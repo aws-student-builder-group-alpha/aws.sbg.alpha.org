@@ -9,6 +9,7 @@ import { getStaffData, mergeStaffMembers, postStaffChange } from "@/recruitment/
 import { useVerifiedAccess } from "@/app/(recruitment)/recruitment/components/access-guard";
 import { Badge, Callout, EmptyState, FieldError, Icon, Modal, PageHeading } from "@/app/(recruitment)/recruitment/components/ui";
 import { useInlineValidation } from "@/app/(recruitment)/recruitment/components/inline-validation";
+import { useEntrance } from "@/app/(recruitment)/recruitment/components/motion";
 import { formatDate } from "@/recruitment/lib/format-date";
 import { actionLabel, isStaffHistory, isStaffMember, roleLabel, statusLabel } from "@/recruitment/lib/staff";
 import type { StaffMember, StaffHistory, StaffRole, StaffAction, StaffRequest, StaffFailure, StaffStatus } from "@/recruitment/lib/staff";
@@ -85,6 +86,7 @@ export function StaffManager({ accountId, initialStaff }: { accountId: string; i
   const [adding, setAdding] = useState(false);
   const [mobileDetail, setMobileDetail] = useState(false);
   const directoryRef = useRef<HTMLElement>(null);
+  useEntrance(directoryRef, { preset: "workspace" });
   const addStaffButton = useRef<HTMLButtonElement>(null);
   const directoryScroll = useRef(0);
   const [email, setEmail] = useState("");
@@ -231,7 +233,7 @@ export function StaffManager({ accountId, initialStaff }: { accountId: string; i
           </table>
         </div>}
       </section>
-      <Modal title={adding ? "Add staff access" : "Staff account"} className="admin-staff-drawer" active={mobileDetail && accessVerified} dismissible={!pending && !confirmation} onClose={closeDetail}><section className="staff-member-detail" tabIndex={-1} ref={detailRef} aria-label={adding ? "Add staff access" : "Selected staff account"}>
+      <Modal title={adding ? "Add staff access" : "Staff account"} className="admin-staff-drawer" workspaceDrawer active={mobileDetail && accessVerified} dismissible={!pending && !confirmation} onClose={closeDetail}><section className="staff-member-detail" tabIndex={-1} ref={detailRef} aria-label={adding ? "Add staff access" : "Selected staff account"}>
         <button type="button" className="text-button workspace-back" disabled={pending || !!confirmation} onClick={closeDetail}><Icon name="arrow" size={16} />Back to staff list</button>
         {adding ? <Callout className="staff-add-guidance"><p>Their Google account must have signed in once.</p></Callout> : member && <header className="admin-staff-identity">
           <StaffAvatar email={member.email} />

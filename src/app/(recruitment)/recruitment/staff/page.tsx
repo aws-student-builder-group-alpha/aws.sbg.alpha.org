@@ -15,7 +15,7 @@ async function StaffEntry({ searchParams }: { searchParams: Promise<Record<strin
   if (session.kind === "staff" && session.membership.status === "active" && !session.needsMfa) redirect(session.membership.role === "administrator" ? "/recruitment/admin" : "/recruitment/reviewer");
   if (session.kind === "staff" && session.membership.status === "active" && session.membership.role === "administrator") {
     const { data, error } = await session.client.auth.mfa.listFactors();
-    return <AccessGuard accountId={session.identity.id} expected="administrator-mfa"><StaffAuthPage wide title="Administrator verification" titleHidden={!error && !!data}>
+    return <AccessGuard accountId={session.identity.id} expected="administrator-mfa"><StaffAuthPage wide title="Administrator verification" titleHidden={!error && !!data} animate={!error && !!data}>
       <p className="workspace-account">Signed in as <strong>{session.identity.email}</strong></p>
       {error || !data ? <Callout tone="warning">Authenticator details could not be loaded. Reload and try again.</Callout> : <MfaForm accountId={session.identity.id} factors={data.totp.map(factor => ({ id: factor.id, name: factor.friendly_name || "Authenticator" }))} />}
     </StaffAuthPage></AccessGuard>;

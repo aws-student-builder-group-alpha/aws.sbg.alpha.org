@@ -717,3 +717,20 @@
     :is(.staff-avatar, .audit-event-icon) { outline: 1px solid CanvasText; outline-offset: -1px; }
   }
 }
+
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  .alpha-app .recruitment-process[data-workspace-frame="administrator"] {
+    :is(.intake-history, .staff-access-history) summary > svg {
+      transition: transform var(--dur-micro) var(--ease-out);
+    }
+    .admin-account-popover:popover-open {
+      animation: admin-popover-enter var(--dur-micro) var(--ease-out);
+    }
+    .admin-account-popover:is(:focus-within, :active) { opacity: 1 !important; }
+  }
+}
+
+@keyframes admin-popover-enter {
+  from { opacity: .9; }
+  to { opacity: 1; }
+}

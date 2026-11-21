@@ -1,3 +1,19 @@
+## Main-site mobile navigation matches Recruitment - 21 November 2026
+
+The expanded main-site menu uses the Recruitment palette, Urban Starblues links and Alpha mark. The native fullscreen dialog covers the homepage frame and community dock and scrolls on short screens. Main-site links, account access and sign-out confirmation remain available. Canceling sign-out returns to the mobile menu.
+
+Compared both menus in Chromium at 375px. The main-site menu passed viewport checks at 320, 375, 768 and 1024px, including scroll containment, reduced motion, Escape focus return, closing on desktop resize and the Events anchor. A local fixture verified signed-in member and administrator links and sign-out cancellation and confirmation. Focused ESLint, TypeScript and all four section navigation tests passed.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. Product scope, architecture, code standards and workflow rules continue to apply.
+
+## Recruitment staff workspace motion - 21 November 2026
+
+Added short entrances to Overview, Applications, Intake, Staff accounts, Organization members, Security activity, Evaluator and Staff sign-in and authenticator. Drawers slide in on desktop and fade in on phones. The account popover and native history chevrons use shorter motion. Filtering, typing and refresh keep their current content steady. Reduced motion and forced colors skip the new effects.
+
+On Node 24.22.1, `npm run verify:ci` passed lint, 212 Node tests, the production build, TypeScript and source integrity. Ten Chromium suites passed in that run, including all staff workspace motion checks. The applicant submission suite reached the runner's 120-second limit on Windows and passed when run independently. The motion checks used the shared GSAP implementation on desktop and phone, and covered media preferences and keyboard focus returning from the drawers.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. The existing product scope, architecture, code standards and workflow rules apply to the presentation change.
+
 ## Unified Vercel production workflow - 21 November 2026
 
 Replaced the relay that tried to commit directly to protected `main`. The replacement stages the exact successful Recruitment CI commit in `awslc-alpha-org` and promotes it when live mode is enabled and the commit is still current. Tests cover workflow triggers, staged and live releases, superseded commits, blocked promotion on deployment errors, and target and SHA checks. Seventeen focused Node tests, workflow YAML checks, and focused lint passed.

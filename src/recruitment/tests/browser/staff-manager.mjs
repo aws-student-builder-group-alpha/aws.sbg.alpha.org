@@ -2,7 +2,7 @@ import {recruitmentStyleShell} from "../fixtures/recruitment-build.mjs";
 // Real manager, UI, transport, access guard, HTTP handlers, and SQL; synthetic identity/motion dependencies.
 // Synthetic identities only; screenshots exercise the actual shared frame.
 import assert from "node:assert/strict";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance, openDisclosure } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance, openDisclosure, watchWorkspaceEntrance, assertWorkspaceEntrance, assertResponsiveEntrances } from "../fixtures/browser-motion.mjs";
 import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -36,7 +36,7 @@ modules.set("next/link", "exports.__esModule=true;exports.default=props=>require
 modules.set("next/image", "exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
 modules.set("next/navigation", "exports.usePathname=()=>window.shellPath||'/recruitment/admin/staff';exports.useSelectedLayoutSegments=()=>(window.shellPath||'/recruitment/admin/staff').split('/').filter(Boolean).slice(1);");
 modules.set("@/app/(recruitment)/recruitment/auth/actions", "exports.signOut=async()=>{};");
-await installBrowserMotion(modules);
+await installBrowserMotion(modules, { realEntrances: true });
 await installRecruitmentUI(modules);
 modules.set("./ui", modules.get("@/app/(recruitment)/recruitment/components/ui"));
 const bundle = `(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([name, code]) => JSON.stringify(name) + ":function(module,exports,require){" + code + "\n}").join(",")}};
@@ -165,6 +165,22 @@ try {
   }
   async function confirm() { await page.getByRole("button", { name: "Confirm access change", exact: true }).click(); }
   async function history() { return rpc(owner, "list_staff_history", { p_target_id: target.userId }); }
+
+  const members = await rpc(owner, "list_staff_members");
+  await assertResponsiveEntrances(page, async () => {
+    await watchWorkspaceEntrance(page, ".staff-directory");
+    await page.evaluate(({ owner, members }) => window.mount(owner, members), { owner, members });
+    await assertWorkspaceEntrance(page, ".staff-directory");
+    const drawer = "dialog.admin-staff-drawer[open]";
+    const account = page.locator(".staff-member-list button").filter({ hasText: second + "@example.test" });
+    await watchWorkspaceEntrance(page, drawer);
+    await account.click();
+    await assertWorkspaceEntrance(page, drawer);
+    await page.keyboard.press("Escape");
+    await page.locator(drawer).waitFor({ state: "hidden" });
+    await page.waitForFunction(email => document.activeElement?.getAttribute("aria-label") === "Open staff account " + email, second + "@example.test");
+  });
+  passed.push("directory and account drawer enter on desktop and phone, with keyboard focus restored");
 
   await mount({historyUnavailable:true});await page.getByRole("button",{name:"Retry history",exact:true}).waitFor();assert.equal(await page.locator(".workspace-disclosure").evaluate(node=>node.open),true);delete faults.historyUnavailable;await page.getByRole("button",{name:"Retry history",exact:true}).click();await page.getByRole("button",{name:"Retry history",exact:true}).waitFor({state:"detached"});
   await mount();assert.equal(await page.locator(".workspace-disclosure").evaluate(node=>node.open),false);assert.equal(await page.locator(".staff-history").count(),1);await openDisclosure(page,"Access history");await page.locator(".workspace-disclosure > summary").click();await assertRecruitmentSurface(page,"Staff directory");await assertInlineFailure(page,"Review access change","staff-reason");await assertEnlargedProcess(page,"staff-reason");await page.setViewportSize({width:375,height:812});

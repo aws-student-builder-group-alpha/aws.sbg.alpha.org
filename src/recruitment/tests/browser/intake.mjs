@@ -1,7 +1,7 @@
 import {recruitmentStyleShell} from "../fixtures/recruitment-build.mjs";
 // Actual UI, transport, HTTP authorization and SQL; synthetic identity/navigation/motion only.
 import assert from "node:assert/strict";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance, openDisclosure } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance, openDisclosure, watchWorkspaceEntrance, assertWorkspaceEntrance, assertResponsiveEntrances } from "../fixtures/browser-motion.mjs";
 import { readFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -20,7 +20,7 @@ for(const [alias,original] of [["@/recruitment/lib/intake","./intake.ts"],["@/re
 for(const [name,pkg,file] of [["react","react","react.development.js"],["react/jsx-runtime","react","react-jsx-runtime.development.js"],["react-dom","react-dom","react-dom.development.js"],["react-dom/client","react-dom","react-dom-client.development.js"],["scheduler","scheduler","scheduler.development.js"]])modules.set(name,await readFile(path.join(path.dirname(require.resolve(pkg+"/package.json")),"cjs",file),"utf8"));
 modules.set("next/link","exports.__esModule=true;exports.default=props=>require('react/jsx-runtime').jsx('a',props);");modules.set("next/image","exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
 modules.set("next/navigation","exports.usePathname=()=>'/recruitment/admin/intake';exports.useSelectedLayoutSegments=()=>['admin','intake'];");modules.set("@/app/(recruitment)/recruitment/auth/actions","exports.signOut=async()=>{};");
-await installBrowserMotion(modules);
+await installBrowserMotion(modules, { realEntrances: true });
 await installRecruitmentUI(modules);
 const bundle=`(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([n,c])=>JSON.stringify(n)+":function(module,exports,require){"+c+"\n}").join(",")}};const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked module: '+name);const m=cache[name]={exports:{}};modules[name](m,m.exports,require);}return cache[name].exports;}const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let version=0;window.mount=props=>root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:jsx(require('./access-guard').AccessGuard,{accountId:props.accountId,expected:'administrator',children:jsx(require('workspace').IntakeWorkspace,props)})},String(++version)));})();`;
 const origin="https://intake.example.test",runtime=await evaluationRuntime(origin);
@@ -58,6 +58,13 @@ try{
    await page.locator(".intake-availability").getByText(title, { exact: true }).waitFor();
    assert.equal(await page.locator(".intake-configured dd").textContent(), configured);
  }
+ await assertResponsiveEntrances(page, async () => {
+   const panels = ".intake-workspace-columns";
+   await watchWorkspaceEntrance(page, panels);
+   await mount();
+   await assertWorkspaceEntrance(page, panels);
+ });
+ passed.push("intake panels enter on desktop and phone");
  await mount({historyUnavailable:true});await page.getByRole("button",{name:"Retry intake history",exact:true}).waitFor();assert.equal(await page.locator(".workspace-disclosure").evaluate(node=>node.open),true);delete faults.historyUnavailable;await page.getByRole("button",{name:"Retry intake history",exact:true}).click();await page.getByRole("button",{name:"Retry intake history",exact:true}).waitFor({state:"detached"});
  await mount();
  const history = page.locator(".intake-history");

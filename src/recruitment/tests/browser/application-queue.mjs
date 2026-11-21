@@ -1,7 +1,7 @@
 import {recruitmentStyleShell} from "../fixtures/recruitment-build.mjs";
 // Actual components, HTTP authorization, transport and SQL; synthetic identity/navigation/motion only.
 import assert from "node:assert/strict";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertProcessAppearance } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertProcessAppearance, watchWorkspaceEntrance, assertWorkspaceEntrance, assertResponsiveEntrances } from "../fixtures/browser-motion.mjs";
 import { readFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -27,7 +27,7 @@ for(const [name,pkg,file] of [["react","react","react.development.js"],["react/j
 modules.set("next/link","exports.__esModule=true;exports.default=props=>require('react/jsx-runtime').jsx('a',props);");
 modules.set("next/image","exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
 modules.set("next/navigation","exports.usePathname=()=>window.shellPath||'/recruitment/admin/applications';exports.useSelectedLayoutSegments=()=>(window.shellPath||'/recruitment/admin/applications').split('/').filter(part=>part&&part!=='recruitment');");modules.set("@/app/(recruitment)/recruitment/auth/actions","exports.signOut=async()=>{};");
-await installBrowserMotion(modules);
+await installBrowserMotion(modules, { realEntrances: true });
 await installRecruitmentUI(modules);
 const bundle=`(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([n,c])=>JSON.stringify(n)+":function(module,exports,require){"+c+"\n}").join(",")}};const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked module: '+name);const m=cache[name]={exports:{}};modules[name](m,m.exports,require);}return cache[name].exports;}const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let version=0;window.mount=props=>{window.shellPath=props.initialList.role==='administrator'?'/recruitment/admin/applications':'/recruitment/reviewer';root.render(jsx(require('recruitment-test-frame').Frame,{frame:props.initialList.role,staff:{role:props.initialList.role,status:'active',needsMfa:false},children:jsx(require('./access-guard').AccessGuard,{accountId:props.accountId,expected:props.initialList.role,children:jsx(require('workspace').EvaluationWorkspace,props)})},String(++version)));};})();`;
 const origin="https://evaluations.example.test",runtime=await evaluationRuntime(origin),created=await runtime.createApplication();
@@ -83,6 +83,19 @@ try{
   await page.screenshot({path:path.join(output,'empty-queue-'+width+'.png')});
  }
  passed.push('the confirmed empty queue shows illustrated guidance at desktop and phone widths');
+ await assertResponsiveEntrances(page, async () => {
+   const overview = ".workspace-queue-overview";
+   const drawer = "dialog.queue-filter-drawer[open]";
+   await watchWorkspaceEntrance(page, overview);
+   await mount(runtime.admin);
+   await assertWorkspaceEntrance(page, overview);
+   await watchWorkspaceEntrance(page, drawer);
+   await openFilters();
+   await assertWorkspaceEntrance(page, drawer);
+   await closeFilters();
+   assert.equal(await filterToggle.evaluate(node => node === document.activeElement), true);
+ });
+ passed.push("applications and filter drawer enter on desktop and phone, with focus restored on close");
  await mount(runtime.admin);await match(25,36);assert.equal(await page.locator('.queue-status-counts div').filter({hasText:'Withdrawn'}).locator('dd').textContent(),'5');await page.getByRole('button',{name:'Load more applications',exact:true}).click();await match(36,36);assert.equal(await page.getByRole('button',{name:'Load more applications',exact:true}).count(),0);passed.push('matching counts include all pages and Withdrawn while loading more deduplicates rows');
 
  faults.holdSearch='';

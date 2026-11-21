@@ -8,12 +8,14 @@ interface SignOutModalProps {
 	onConfirm: () => void
 	onCancel: () => void
 	isPending?: boolean
+	focusCancel?: boolean
 }
 
 export default function SignOutModal({
 	onConfirm,
 	onCancel,
 	isPending,
+	focusCancel,
 }: SignOutModalProps) {
 	useEffect(() => {
 		function handleEscape(e: KeyboardEvent) {
@@ -82,6 +84,7 @@ export default function SignOutModal({
 					<button
 						type='button'
 						onClick={onCancel}
+						autoFocus={focusCancel}
 						className={cn(
 							'flex-1 rounded-xl py-2.5',
 							'border border-white/[0.08]',

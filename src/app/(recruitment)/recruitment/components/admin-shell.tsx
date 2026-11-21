@@ -124,6 +124,6 @@ export function AdminShell({ children, account }: { children: ReactNode; account
       <div className="admin-mobile-bar"><span>Alpha · Recruitment</span><button type="button" className="button button-secondary" aria-haspopup="dialog" aria-expanded={menu} onClick={() => setMenu(true)}><Icon name="menu" size={18} />Admin sections</button></div>
       <div className="admin-workspace" ref={workspace} role="region" aria-label="Admin workspace" tabIndex={0}>{children}</div>
     </div>
-    {menu && <Modal title="Admin sections" className="admin-navigation-drawer" onClose={() => setMenu(false)}><AdminBrand /><SectionLinks path={path} onNavigate={() => setMenu(false)} />{account || <AdminAccount />}</Modal>}
+    {menu && <Modal title="Admin sections" className="admin-navigation-drawer" workspaceDrawer onClose={() => setMenu(false)}><AdminBrand /><SectionLinks path={path} onNavigate={() => setMenu(false)} />{account || <AdminAccount />}</Modal>}
   </div>;
 }

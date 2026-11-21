@@ -2,6 +2,7 @@
 import { ApplicantOutreach } from './applicant-outreach';
 import { DetailSkeleton, ListSkeleton } from "./workspace-skeleton";
 import { AdminPageHeader } from "./admin-shell";
+import { useEntrance } from "./motion";
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useReducer, useRef, useState, type ReactNode } from "react";
@@ -169,6 +170,13 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
   const availableEvaluators = detail ? evaluators.filter(person => person.email.toLowerCase() !== detail.application.email.toLowerCase()) : evaluators;
   const confirmation = state.confirmation;
   const confirmedEvaluatorId = confirmation?.action === "assign" ? confirmation.evaluatorId : "";
+  const summary = useRef<HTMLElement>(null);
+  useEntrance(summary, {
+    preset: "workspace-fade",
+    selector: "[data-record-summary]",
+    enabled: redesign && detail?.role === "evaluator",
+    motionKey: detail?.application.id,
+  });
   const focusedApplication = useRef("");
   useEffect(() => {
     if (redesign && state.verified && detail && focusedApplication.current !== applicationId) {
@@ -182,10 +190,10 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
     {!state.verified && <Callout tone="warning"><p role="alert">Application access could not be verified. Details are hidden until the check succeeds.</p><button type="button" className="button button-secondary" onClick={() => void load()}>Retry application access</button></Callout>}
     <div hidden={!state.verified} inert={!state.verified || undefined}>
       {detail && <>
-        <section className="panel record-identity">
+        <section ref={summary} className="panel record-identity">
           <div className="subheading"><h2 ref={heading} tabIndex={-1}>{detail.application.data.profile.fullName}</h2><StatusBadge status={detail.application.status} /></div>
-          <p className="application-reference">{detail.application.reference}</p>
-          <p>{opportunityName(detail.application.data.opportunityId)}. Submitted {formatDate(detail.application.submittedAt)}, Philippine time.</p>
+          <p className="application-reference" data-record-summary>{detail.application.reference}</p>
+          <p data-record-summary>{opportunityName(detail.application.data.opportunityId)}. Submitted {formatDate(detail.application.submittedAt)}, Philippine time.</p>
           <div className="inline-actions"><button type="button" className="text-button" disabled={state.busy} onClick={reload}>Reload latest details</button></div>
         </section>
         <RecordSections redesign={redesign} administrator={detail.role === "administrator"} pending={!!state.pending || decisionPending}
@@ -239,6 +247,8 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
 }
 
 export function EvaluationWorkspace({ accountId, initialList, redesign = false }: { accountId: string; initialList: EvaluationList; redesign?: boolean }) {
+  const queueOverview = useRef<HTMLDivElement>(null);
+  useEntrance(queueOverview, { preset: "workspace", enabled: redesign });
   const [list, setList] = useState(initialList), [selected, setSelected] = useState("");
   const [filters, setFilters] = useState<QueueFilters>(initialList.queue?.filters ?? defaultQueueFilters);
   const [applied, setApplied] = useState<QueueFilters>(initialList.queue?.filters ?? defaultQueueFilters);
@@ -338,7 +348,7 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
   return <main id="main-content" className={`container portal staff-portal evaluation-workspace${enhanced ? ` workspace-redesign workspace-evaluation ${administrator ? "workspace-admin" : "workspace-reviewer"}` : ""}`} data-mobile-view={enhanced ? mobileDetail ? "detail" : "list" : undefined}>
     {list.role === "administrator" && !enhanced && <AdminNavigation current="applications" />}
     {enhanced ? administrator ? <AdminPageHeader title="Applications" description="Review submissions, assign evaluators and publish recruitment outcomes." /> : <AdminPageHeader title="Evaluator workspace" description="Review the applications assigned to you and save your recommendations." /> : pageHeading}
-    <div className={enhanced ? "workspace-queue-overview" : undefined}>
+    <div ref={queueOverview} className={enhanced ? "workspace-queue-overview" : undefined}>
     {administrator ? <ApplicationQueueControls trailingActions={exportControl} filters={filters} applied={applied} busy={busy || exportBusy} frozen={exportBusy} notice={navigationNotice}
       onChange={setFilters} onSearch={searchApplications}
       onApply={() => applyFilters({ ...filters, search: applied.search }, "Filters were not applied. Your record edits are still open.")}
