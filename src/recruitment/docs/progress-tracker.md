@@ -1,6 +1,6 @@
 ## Unified Vercel production workflow - 21 November 2026
 
-Replaced the relay that tried to commit directly to protected `main`. The replacement stages the exact successful Recruitment CI commit in `awslc-alpha-org` and promotes it when live mode is enabled and the commit is still current. Tests cover staged and live releases, superseded commits, blocked promotion on deployment errors, and target and SHA checks. Eight focused Node tests, workflow YAML checks, and focused lint passed.
+Replaced the relay that tried to commit directly to protected `main`. The replacement stages the exact successful Recruitment CI commit in `awslc-alpha-org` and promotes it when live mode is enabled and the commit is still current. Tests cover workflow triggers, staged and live releases, superseded commits, blocked promotion on deployment errors, and target and SHA checks. Seventeen focused Node tests, workflow YAML checks, and focused lint passed.
 
 The GitHub environment `unified-vercel-production` was created with a verified `main`-only branch policy. The current Vercel account could not access the unified Vercel scope. Credentials, staged verification and production promotion remain pending. The root README records the environment and first-stage verification requirements.
 
