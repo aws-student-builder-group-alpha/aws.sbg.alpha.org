@@ -167,7 +167,8 @@ try {
    await page.setViewportSize({width,height:950});await page.emulateMedia({colorScheme,reducedMotion:'reduce'});
    await assertRecruitmentSurface(page,"MFA "+width);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
-   assert.equal(await page.getByRole('banner').evaluate(el=>el.getBoundingClientRect().height),width<1024?64:80);
+   const headerRow = page.getByRole('banner').locator('.header-inner');
+   assert.equal(await headerRow.evaluate(el => el.getBoundingClientRect().height), width <= 560 ? 56 : 60);
    if(colorScheme==='light'&&[375,1440].includes(width))await page.screenshot({path:path.join(output,'setup-'+width+'.png'),fullPage:true});
   }
   await assertInlineFailure(page,'Enable and continue','mfa-code');

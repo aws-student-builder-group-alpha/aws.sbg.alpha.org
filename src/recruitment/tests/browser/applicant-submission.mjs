@@ -11,15 +11,18 @@ import { setTimeout as delay } from "node:timers/promises";
 import { applicationRuntime } from "../fixtures/application-runtime.mjs";
 import { createCommunityRoutes } from "../fixtures/staff-http-runtime.mjs";
 import { validSubmission, validSimplifiedSubmission } from "../fixtures/submission.mjs";
+import { enrollmentFixture } from "../fixtures/community-storage.mjs";
 import { blockedDestination } from "../../lib/application-progress.ts";
 import { draftFromRow, upgradeDraft } from "../../lib/drafts.ts";
 import { getOpportunity } from "../../lib/catalog.ts";
+import { moveCalendarDate } from "../../lib/availability-calendar.ts";
 
 const require = createRequire(import.meta.url), project = fileURLToPath(new URL("../../", import.meta.url));
 const { loadBindings, transform } = require("next/dist/build/swc");
 await loadBindings();
 const modules = new Map();
 for (const [name, relative] of [
+  ["./application-sidebar","../app/(recruitment)/recruitment/application/application-sidebar.tsx"],
   ["home","../app/(recruitment)/recruitment/opportunities/opportunity-directory.tsx"],
   ["@/recruitment/lib/intake","lib/intake.ts"],["./staff.ts","lib/staff.ts"],["./application-queue.ts","lib/application-queue.ts"],["./evaluations.ts","lib/evaluations.ts"],["editor","../app/(recruitment)/recruitment/apply/draft-editor.tsx"],["@/app/(recruitment)/recruitment/apply/start-draft","../app/(recruitment)/recruitment/apply/start-draft.tsx"],["./start-draft","../app/(recruitment)/recruitment/apply/start-draft.tsx"],["./apply-entry","../app/(recruitment)/recruitment/apply/apply-entry.tsx"],["entry","../app/(recruitment)/recruitment/components/applicant-access.tsx"],["portal","../app/(recruitment)/recruitment/application/application-portal.tsx"],
   ["@/app/(recruitment)/recruitment/components/application-content","../app/(recruitment)/recruitment/components/application-content.tsx"],["@/app/(recruitment)/recruitment/components/access-guard","../app/(recruitment)/recruitment/components/access-guard.tsx"],
@@ -52,10 +55,11 @@ modules.set("./components/home-preloader","exports.HomePreloader=()=>null;");
 modules.set("./components/hero-gradient","exports.HeroGradient=()=>null;");
 modules.set("./immersive-home.css","");
 const homeStyles = await readFile(path.join(project,"../app/(recruitment)/recruitment/immersive-home.css"),"utf8") + await readFile(path.join(project,"../app/(recruitment)/recruitment/opportunities/opportunities.css"),"utf8");
+const applicationStyles = await readFile(path.join(project,"../app/(recruitment)/recruitment/application/applications.css"),"utf8");
 const bundle = `(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([name,code])=>JSON.stringify(name)+":function(module,exports,require){"+code+"\n}").join(",")}};
 const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked browser module: '+name);const module=cache[name]={exports:{}};modules[name](module,module.exports,require);}return cache[name].exports;}
 const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let revision=0;
-const renderShell=(content,signedIn=true)=>require('react/jsx-runtime').jsxs(require('react').Fragment,{children:[jsx(require('@/app/(recruitment)/recruitment/components/ui').SiteHeader,{signedIn}),window.shellPath==='/recruitment/application'?jsx(require('./recruitment-shell').RecruitmentShell,{frame:'applicant',children:content}):content,jsx(require('@/app/(recruitment)/recruitment/components/ui').Footer,{})]},String(++revision));
+const renderShell=(content,signedIn=true)=>require('react/jsx-runtime').jsxs(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(applicationStyles)}}),jsx(require('@/app/(recruitment)/recruitment/components/ui').SiteHeader,{signedIn}),window.shellPath==='/recruitment/application'?jsx(require('./recruitment-shell').RecruitmentShell,{frame:'applicant',children:content}):content,jsx(require('@/app/(recruitment)/recruitment/components/ui').Footer,{})]},String(++revision));
 window.mount=(kind,props)=>{window.shellPath=kind==='editor'?'/recruitment/apply':'/recruitment/application';window.destination='';require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('@/app/(recruitment)/recruitment/components/access-guard').AccessGuard,{accountId:props.applicant?.id||props.accountId,expected:'applicant',blockedContent:kind==='editor'?jsx(require('./apply-entry').ApplyAccessChanged,{}):undefined,children:jsx(require(kind==='editor'?'editor':'portal')[kind==='editor'?'DraftEditor':'ApplicationPortal'],props)}))));};
 function EnrollmentProbe({accountId}){const React=require('react'),[account,setAccount]=React.useState(accountId),[ready,setReady]=React.useState(false),[revision,setRevision]=React.useState(0);window.changeEnrollmentAccount=setAccount;window.rotateEnrollmentCallback=()=>setRevision(value=>value+1);const onReady=React.useCallback(value=>{window.enrollmentCallbacks.push(value);setReady(value)},[revision]);return require('react/jsx-runtime').jsxs('main',{id:'main-content',className:'container portal narrow',children:[jsx(require('@/app/(recruitment)/recruitment/components/enrollment-upload').EnrollmentUpload,{accountId:account,onReady}),jsx('output',{id:'enrollment-ready',children:String(ready)})]});}
 window.mountEnrollment=accountId=>{window.shellPath='/recruitment/apply';window.enrollmentCallbacks=[];require('react-dom').flushSync(()=>root.render(renderShell(jsx(EnrollmentProbe,{accountId}))));};
@@ -158,11 +162,14 @@ try {
   }
   async function selectStep(index) {
     const target=[1,2,3,5].indexOf(index);
-    const current=Number((await page.locator('.process-step-label').textContent()).match(/Step (\d)/)[1])-1;
+    const navigation=page.getByRole('navigation',{name:'Application progress',exact:true});
+    const steps=navigation.locator('.process-segment');
+    const activeStep=navigation.locator('[aria-current="step"]');
+    const current=await activeStep.evaluate(node=>Array.from(node.parentElement.children).indexOf(node));
     if(target<current)await page.getByRole('button',{name:new RegExp(`Go back to step ${target+1}:`)}).click();
     for(let position=current;position<target;position++){
       await page.getByRole('button',{name:'Continue',exact:true}).click();
-      await page.waitForFunction(position=>document.querySelector('.process-step-label')?.textContent.startsWith(`Step ${position+2} `),position);
+      await steps.nth(position+1).and(activeStep).waitFor();
     }
     if(target!==current)await page.waitForFunction(()=>document.activeElement?.matches('.process-step-heading'));
   }
@@ -176,7 +183,7 @@ try {
   }
   async function mountPortal() {
     const state=await runtime.rpc("get_application_state");
-    await page.evaluate(props=>window.mount("portal",props),{accountId:runtime.identity.id,initialApplication:state.application});
+    await page.evaluate(props=>window.mount("portal",props),{accountId:runtime.identity.id,initialApplication:state.application,applications:state.applications});
     await page.getByRole("heading",{name:"Application reference",exact:true}).waitFor();
     assert.equal(await page.locator(".workspace-heading,.apply-workspace-heading").count(),0);
     assert.equal(await page.locator(".application-receipt .badge").count(),1);
@@ -211,7 +218,10 @@ try {
           assert.equal(rail.marker,32);assert.equal(rail.connector,'none');
         }
         else assert.ok(placement.sidebarBottom<=placement.contentTop+1,label+' progress sits above the form');
-        assert.equal(await page.locator('.process-action-bar').evaluate(n=>getComputedStyle(n).position),width>=900&&!await page.locator('.process-action-bar .process-recovery,.process-action-bar .notice').count()?'sticky':'static');
+        const isStory = await page.locator('.process-story-section').count() > 0;
+        const hasRecovery = await page.locator('.process-action-bar .process-recovery,.process-action-bar .notice').count() > 0;
+        const expectedActionPosition = width >= 900 && !isStory && !hasRecovery ? 'sticky' : 'static';
+        assert.equal(await page.locator('.process-action-bar').evaluate(n => getComputedStyle(n).position), expectedActionPosition);
       }
 
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,label+" "+colorScheme+" "+width);
@@ -238,6 +248,8 @@ try {
     const release=faults.releaseEnrollmentRead;faults.holdEnrollmentRead=false;release();await delay(50);
     assert.equal(await page.locator('#enrollment-ready').textContent(),'true','Late '+outcome+' read cannot undo a confirmed upload');
     assert.equal(await page.getByRole('status').filter({hasText:'proof-'+outcome+'.pdf'}).count(),1);
+    assert.equal(await page.locator('#enrollment-filename strong').textContent(),'proof-'+outcome+'.pdf');
+    assert.equal(await page.locator('#proofOfEnrollment').evaluate(node=>getComputedStyle(node).opacity),'0','Saved filename replaces the native empty selection display');
     assert.equal(await page.getByRole('alert').count(),0);
   }
   faults={posts:[]};
@@ -246,6 +258,7 @@ try {
   faults.enrollmentUploadFailure=true;await chooseProof('replacement-fails.pdf');
   await page.getByRole('alert').filter({hasText:'Synthetic upload was not confirmed.'}).waitFor();
   assert.equal(await page.getByRole('status').filter({hasText:'proof-error.pdf'}).count(),1,'Failed replacement keeps the confirmed document');
+  assert.equal(await page.locator('#enrollment-filename strong').textContent(),'proof-error.pdf','Failed replacement keeps the confirmed filename inside the picker');
   assert.equal(await page.locator('#enrollment-ready').textContent(),'true');
   faults.enrollmentUploadFailure=false;await page.getByRole('button',{name:'Reload saved document',exact:true}).click();await proofReady();
   assert.equal(await page.getByRole('alert').count(),0,'Explicit reload recovers the saved document');
@@ -292,7 +305,7 @@ try {
   await page.getByRole('heading',{name:'Start your application',exact:true}).waitFor();
   assert.equal(await page.getByRole('heading',{name:'Your next chapter starts here.',exact:true}).count(),0,'Entry has one task heading without a promotional hero');
   assert.equal(await page.locator('.application-chapter').count(),0,'Chapter identity appears in the masthead without a repeated application label');
-  assert.match(await page.locator('.brand-masthead').textContent(),/Rizal Technological University/);
+  assert.match(await page.getByRole('banner').locator('.alpha-navigation-name').textContent(), /Student Builder Group.*Alpha/);
   assert.equal(await page.locator('.application-guide,.application-introduction').count(),0,'Entry omits the separate introduction and roadmap');
   assert.equal(await page.getByRole('link',{name:'Read the recruitment privacy notice',exact:true}).getAttribute('href'),'/recruitment/privacy');
   assert.match(await page.locator('.apply-requested').textContent(),/BuildHer\+/);
@@ -369,10 +382,20 @@ try {
   assert.notEqual(await page.locator('#fullName').evaluate(node=>getComputedStyle(node).borderTopColor),normalFieldBorder,'Focus border overrides the normal field border');
   await page.locator('#fullName').evaluate(node=>node.blur());
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(artifactDir,`apply-editor-${width}.png`)});}
+  for(const width of [375,1440]) {
+    await page.setViewportSize({width,height:width===375?812:950});
+    const row=page.locator('.process-action-inner');
+    const exit=await row.getByRole('button',{name:'Save & exit',exact:true}).boundingBox();
+    const back=await row.locator('.process-actions').getByRole('button',{name:'Back',exact:true}).boundingBox();
+    const next=await row.locator('.process-actions').getByRole('button',{name:'Continue',exact:true}).boundingBox();
+    assert.ok(exit.x+exit.width<=back.x&&back.x+back.width<=next.x,'Save & exit precedes the Back and Continue group');
+    assert.ok(Math.abs(exit.y+exit.height/2-back.y-back.height/2)<1&&back.y===next.y,'All three actions align on the same row');
+    const label=await page.locator('.application-workbench-header .application-workbench-label').boundingBox();
+    const saved=await page.locator('.application-workbench-header .process-save-state').boundingBox();
+    assert.ok(saved.y>=label.y+label.height-1,'The save status sits below Your application');
+    assert.equal(await row.locator('.process-save-state').count(),0,'The footer contains only actions');
+  }
   await page.setViewportSize({width:375,height:812});
-  const actionBounds=await page.locator('.process-actions > *').evaluateAll(nodes=>nodes.map(node=>({top:node.getBoundingClientRect().top,bottom:node.getBoundingClientRect().bottom})));
-  assert.equal(actionBounds[0].top,actionBounds[1].top,'Back and Continue share the mobile row');
-  assert.ok(actionBounds[2].top>=actionBounds[1].bottom,'Save & exit has its own quiet mobile row');
   const created=await savedDraftData();
   assert.equal(created.stage,1);assert.equal(created.processingConsent,true);assert.equal(created.opportunityId,"buildher");
   passed.push("preparation creates no draft before consent, then opens About you with the requested opportunity");
@@ -403,9 +426,9 @@ try {
 
   const existing=validSimplifiedSubmission();
   await mountEditor(existing,{requestedOpportunity:"core-finance"});
-  const request=page.getByText("Your draft is for",{exact:false});
+  const request=page.getByRole("region", {name:"Switch to Co-Finance Head?"});
   await request.waitFor();
-  assert.match(await request.textContent(),/Co-Finance Head/);
+  assert.match(await request.textContent(), /Your draft is for Executive Secretary\. Your answers will be kept\./);
   await page.screenshot({path:path.join(artifactDir,"apply-keep-draft-375.png")});
   await page.getByRole("button",{name:"Keep my draft",exact:true}).click();
   assert.equal(await request.count(),0);
@@ -430,10 +453,22 @@ try {
   Object.assign(creativeDraft,{opportunityId:creative.id,scenarioReviewedOpportunityId:creative.id,stage:3});
   creativeDraft.answers.scenario="";
   await mountEditor(creativeDraft);
+  await page.setViewportSize({width:1440,height:900});
+  const completedStep=page.getByRole('button',{name:'Go back to step 2: Opportunity',exact:true});
+  await completedStep.hover();
+  const marker=completedStep.locator('.progress-icon');
+  assert.deepEqual(await marker.evaluate(node=>{
+    const style=getComputedStyle(node);
+    return [style.backgroundColor,style.color,style.outlineStyle];
+  }),['rgb(35, 47, 62)','rgb(255, 255, 255)','none'],'Hover keeps the completed check visible on its dark fill');
+  assert.equal(await page.locator('.process-segment[aria-current=step]').evaluate(node=>getComputedStyle(node).backgroundColor),'rgb(238, 231, 248)','The current step keeps its lavender fill while a completed step is hovered');
+  await page.mouse.move(1,1);
+  await page.getByRole('button',{name:'Go back to step 1: About you',exact:true}).focus();
+  await page.keyboard.press('Tab');
+  assert.ok(await completedStep.evaluate(node=>node.matches(':focus-visible')&&getComputedStyle(node).outlineColor==='rgb(112, 80, 158)'),'Keyboard focus outlines the completed row');
   await page.setViewportSize({width:375,height:812});
-  const jump=page.getByRole("link",{name:"Go to the role scenario",exact:true});
-  await jump.press("Enter");
-  await page.waitForFunction(()=>document.activeElement?.id==="scenario-prompt");
+  assert.equal(await page.getByText(/^Writing for /).count(),0);
+  assert.equal(await page.getByRole("link",{name:"Go to the role scenario",exact:true}).count(),0);
   const creativeResponse=page.getByRole("textbox",{name:creative.scenario,exact:true});
   assert.match(await creativeResponse.getAttribute("aria-describedby"),/scenario-help/);
   await page.getByRole("button",{name:"Continue",exact:true}).press("Enter");
@@ -462,7 +497,18 @@ try {
   assert.equal(await page.locator('.process-root .error-summary').count(),0);
   assert.equal(await page.locator('[role="alert"] [role="alert"]').count(),0,'Errors have no nested announcements');
   await page.locator('#fullName').fill('Student Applicant');
-  await selectStep(3);assert.equal(await page.locator('#resumeUrl').evaluate(node=>node.required),true,'Resume is explicitly required for submission');assert.equal(await page.getByText('A resume is required before you submit. You can save a draft without it.',{exact:true}).isVisible(),true);assert.equal(await page.locator('.process-intake-availability .callout').count(),0);assert.equal(await page.locator('.process-resume-help').evaluate(node=>node.open),false);assert.equal(await page.getByText(/For Google Drive, choose Share/).isVisible(),false);await openDisclosure(page,'How to share your resume');await page.locator('.process-resume-help > summary').click();await page.locator('#resumeUrl').fill('');
+  await selectStep(3);
+  assert.equal(await page.locator('#resumeUrl').evaluate(node=>node.required),true,'Resume is explicitly required for submission');
+  assert.equal(await page.getByText('A resume is required before you submit. You can save a draft without it.',{exact:true}).isVisible(),true);
+  assert.equal(await page.locator('.process-intake-availability .callout').count(),0);
+  assert.equal(await page.locator('.process-resume-help').evaluate(node=>node.open),false);
+  assert.equal(await page.locator('.process-resume-steps').isVisible(),false);
+  await openDisclosure(page,'How to share your resume');
+  const resumeSteps=page.getByRole('list',{name:'Google Drive sharing steps'});
+  assert.equal(await resumeSteps.getByRole('listitem').count(),3);
+  assert.equal(await resumeSteps.getByRole('heading',{name:'Test the link',exact:true}).isVisible(),true);
+  await page.locator('.process-resume-help > summary').click();
+  await page.locator('#resumeUrl').fill('');
   await page.getByRole('button',{name:'Continue',exact:true}).click();
   await page.locator('#resumeUrl-error').waitFor();
   await page.waitForFunction(()=>document.activeElement?.id==='resumeUrl');
@@ -481,30 +527,76 @@ try {
   passed.push('required enrollment proof blocks submission and focuses its upload control');
 
   const invalidProfile=validSimplifiedSubmission();invalidProfile.stage=1;invalidProfile.profile.university='';invalidProfile.profile.mobile='invalid';
+  invalidProfile.profile.campus='Saved campus';
   await mountEditor(invalidProfile);
   await page.getByRole('button',{name:'Continue',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='university');
   assert.equal(await page.locator('#university').getAttribute('aria-describedby'),'university-error');
   assert.equal(await page.locator('#mobile').isVisible(),true,'Optional details are immediately visible');
+  assert.equal(await page.locator('#campus').count(),0,'About you omits the Campus field on existing drafts');
   await page.locator('#university').fill('Rizal Technological University');
   await page.getByRole('button',{name:'Continue',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='mobile');
   assert.equal(await page.locator('#mobile').isVisible(),true,'Invalid optional control is revealed before focus');
   for(const width of [375,1440]){await page.setViewportSize({width,height:width===375?812:950});await page.locator('#mobile').focus();await page.screenshot({path:path.join(artifactDir,`apply-inline-errors-${width}.png`)});}
   await layout('inline profile validation');
   await page.locator('#mobile').fill('+63 917 123 4567');await autosave();
+  assert.equal((await savedDraftData()).profile.campus,invalidProfile.profile.campus,'Editing other fields preserves the saved campus value');
   assert.equal(await page.locator('#mobile').evaluate(node=>node===document.activeElement),true,'Typing and autosave never jump to another error');
 
   const ineligible=validSimplifiedSubmission();ineligible.profile.year='3';
   await mountEditor(ineligible);await page.getByRole('button',{name:'Continue',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='track');
   assert.equal(await page.locator('#track').getAttribute('aria-invalid'),'true');
   assert.ok((await page.locator('#track').getAttribute('aria-describedby')).includes('eligibility-error'));
-  assert.equal(await page.locator('.process-eligibility .callout').count(),0,'Eligibility remains compact at its group');
+  const trackStatus=page.locator('.application-workbench-column > .application-track-status');
+  assert.equal(await trackStatus.getByRole('status').getAttribute('id'),'eligibility-error');
+  assert.ok(await trackStatus.evaluate(node=>{
+    const column=node.parentElement, bounds=node.getBoundingClientRect(), edge=column.getBoundingClientRect();
+    return column.firstElementChild===node&&['top','left','right'].every(key=>Math.abs(bounds[key]-edge[key])<1)&&getComputedStyle(node).backgroundColor!=='rgba(0, 0, 0, 0)';
+  }),'The eligibility background fills the top edge of the form column');
   await page.getByRole('button',{name:'Switch to Committee and keep my details',exact:true}).click();
+  const committees=page.getByRole('region',{name:'Committees',exact:true});
+  assert.equal(await committees.getByRole('radio').count(),6,'Department committee roles share a single section');
+  assert.equal(await committees.getByRole('heading').count(),1,'Committees has only the section heading');
+  for(const title of ['Secretariat Committee Member','Operations and Events Committee Member']) {
+    assert.equal(await committees.getByRole('radio',{name:title,exact:true}).count(),1,'Committees shows '+title);
+  }
+  const skillBuilders=page.getByRole('region',{name:'Skill Builders',exact:true});
+  assert.equal(await skillBuilders.getByRole('radio').count(),3);
+  assert.equal(await skillBuilders.getByRole('radio',{name:'Cloud · SkillBuilders',exact:true}).count(),1);
+  const buildHer=page.getByRole('region',{name:'BuildHer+',exact:true});
+  assert.equal(await buildHer.getByRole('radio',{name:'BuildHer+ Ambassador',exact:true}).count(),1);
   await page.getByRole('button',{name:'Continue',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='opportunityId');
   assert.equal(await page.locator('#opportunityId').getAttribute('aria-invalid'),'true');
+  assert.equal(await trackStatus.count(),0,'Switching to Committee clears the status');
 
-  const missingDays=validSimplifiedSubmission();missingDays.stage=3;missingDays.profile.availability=[];
-  await mountEditor(missingDays);await page.getByRole('button',{name:'Continue',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='availabilityDays');
+  const missingAvailability=validSimplifiedSubmission();missingAvailability.stage=3;missingAvailability.profile.availability=[];
+  await mountEditor(missingAvailability);
+  assert.equal(await page.locator('#resumeUrl-hint').textContent(),'Provide a view-only link. It must be viewable without signing in.');
+  assert.deepEqual(await page.locator('#enrollment-hint dt').allTextContents(),['Document','Must show','File limits']);
+  for(const field of ['motivation','collaboration','scenario']) {
+    assert.match(await page.locator(`label[for="${field}"]`).textContent(),/\?\s*\*$/);
+    assert.equal(await page.locator('#'+field).evaluate(node=>node.required),true);
+  }
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.waitForFunction(()=>document.activeElement?.id==='availabilityDays');
   assert.equal(await page.locator('#availabilityDays').getAttribute('aria-invalid'),'true');
+  const calendarToday=await page.evaluate(()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Manila'}).format(new Date()));
+  assert.equal(await page.locator('[data-date]').evaluateAll((nodes,today)=>nodes.filter(node=>node.dataset.date<today).every(node=>node.disabled),calendarToday),true);
+  const range={startDate:moveCalendarDate(calendarToday,1),endDate:moveCalendarDate(calendarToday,3),startTime:'09:00',endTime:'12:30'};
+  for(const [field,value] of Object.entries(range)) {
+    const input=page.locator('#'+field);
+    if (field.endsWith('Date')) {
+      assert.equal(await input.getAttribute('type'),'date');
+      await input.fill(value);
+    } else {
+      await input.selectOption(value);
+    }
+  }
+  await autosave();
+  assert.deepEqual((await savedDraftData()).profile.availability,range);
+  assert.equal(await page.locator('#availabilityDays').getAttribute('aria-invalid'),'false');
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByText(range.startDate+' to '+range.endDate+', 09:00 to 12:30 Philippine time',{exact:true}).waitFor();
+  passed.push('story fields show direct required questions, enrollment requirements and a saved date and time range');
   const missingAccuracy=validSimplifiedSubmission();missingAccuracy.accuracy=false;
   await mountEditor(missingAccuracy);await page.getByRole('button',{name:'Submit application',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='accuracy');
   assert.equal(await page.locator('#accuracy').getAttribute('aria-invalid'),'true');
@@ -523,9 +615,9 @@ try {
   await page.getByRole('button',{name:'Retry save',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='university');
   assert.equal((await runtime.db.query('select data from applicant_drafts where owner_id=$1',[runtime.identity.id])).rows[0].data.answers.collaboration,asyncSave.answers.collaboration,'Rejected saves never invent an acknowledgement');
 
-  await mountEditor(validSimplifiedSubmission(),{saveFailure:{code:'VALIDATION',message:'Check the final saved fields.',errors:{campus:'Review the campus value.'}}});
-  await page.locator('#updatesConsent').check();await page.getByRole('button',{name:'Submit application',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='campus');
-  assert.equal(await page.locator('#campus').isVisible(),true);
+  await mountEditor(validSimplifiedSubmission(),{saveFailure:{code:'VALIDATION',message:'Check the final saved fields.',errors:{preferredName:'Review the preferred name.'}}});
+  await page.locator('#updatesConsent').check();await page.getByRole('button',{name:'Submit application',exact:true}).click();await page.waitForFunction(()=>document.activeElement?.id==='preferredName');
+  assert.equal(await page.locator('#preferredName').isVisible(),true);
   assert.equal(faults.posts.filter(post=>post.action==='submit').length,0,'A failed final save never submits');
 
   await mountEditor(validSimplifiedSubmission(),{submitFailure:{code:'CONFLICT',message:'Generic command conflict.',errors:{form:'Reload the latest application form.',stage:'Unsupported step.',unknownField:'Unknown field.'}}});
@@ -718,7 +810,7 @@ try {
   await layout("frozen submission recovery");
   faults.stallAfterCommit=null;
   await page.getByRole("button",{name:"Retry same submission",exact:true}).focus();await page.keyboard.press("Enter");
-  await page.waitForFunction(()=>window.destination==="/recruitment/application");
+  await page.waitForFunction(()=>window.destination.startsWith("/recruitment/application?application="));
   assert.deepEqual(faults.posts.filter(post=>post.action==="submit"),[submit,submit]);
   assert.equal((await runtime.rpc("get_application_state")).application.history.length,1);
   passed.push("field errors preserve answers and focus; submission freezes, flushes acknowledged revision, retries exact operation with one receipt/history");
@@ -745,6 +837,21 @@ try {
   assert.equal(state.application.status,"Withdrawn");assert.equal(state.application.history.length,2);
   const withdrawals=faults.posts.filter(post=>post.action==="withdraw");assert.deepEqual(withdrawals[0],withdrawals[1]);
   passed.push("portal is read-only; withdrawal dialog Escape restores focus; lost acknowledgement retries once, terminal status and public history remain");
+  const otherRole=validSimplifiedSubmission();otherRole.opportunityId='core-operations';otherRole.scenarioReviewedOpportunityId=otherRole.opportunityId;
+  const previousVersion=(await runtime.db.query('select version from applicant_drafts where owner_id=$1',[runtime.identity.id])).rows[0].version;
+  const nextDraft=await runtime.rpc('save_applicant_draft',{p_data:otherRole,p_expected_version:previousVersion,p_mutation_id:crypto.randomUUID()});
+  await enrollmentFixture(runtime.db,runtime.identity.id);
+  const secondApplication=await runtime.rpc('submit_applicant_application',{p_expected_version:nextDraft.version,p_mutation_id:crypto.randomUUID()});
+  await mountPortal();
+  assert.equal(await page.getByRole('navigation',{name:'Your applications',exact:true}).getByRole('link').count(),2);
+  assert.equal(await page.locator('.application-switcher[aria-current="page"]').getAttribute('href'),'/recruitment/application?application='+secondApplication.id);
+  await layout('multiple application sidebar');
+  await page.evaluate(props=>window.mount('portal',props),{accountId:runtime.identity.id,initialApplication:state.application,applications:(await runtime.rpc('get_application_state')).applications});
+  await page.getByRole('heading',{name:'Application reference',exact:true}).waitFor();
+  assert.equal(await page.locator('.application-reference').textContent(),state.application.reference);
+  assert.equal(await page.getByRole('button',{name:'Withdraw application',exact:true}).count(),0);
+  passed.push('multiple role receipts have separate sidebar entries, selected status and withdrawal actions across desktop/phone layouts');
+
   await page.setViewportSize({width:1440,height:950});await page.emulateMedia({colorScheme:"light"});
   await page.screenshot({path:path.join(artifactDir,"light-prefers-light-1440.png"),fullPage:true});
 
@@ -761,7 +868,7 @@ try {
   assert.equal(await page.getByRole('button',{name:'Retry same submission',exact:true}).isEnabled(),true,'Failed reconciliation preserves the exact submission retry');
   assert.equal(await page.locator('.application-fields').evaluate(node=>node.disabled),true);
   faults.stateFailure=false;
-  faults.stallBeforeSubmit=false;await page.getByRole("button",{name:"Retry same submission",exact:true}).click();await page.waitForFunction(()=>window.destination==="/recruitment/application");
+  faults.stallBeforeSubmit=false;await page.getByRole("button",{name:"Retry same submission",exact:true}).click();await page.waitForFunction(()=>window.destination.startsWith("/recruitment/application?application="));
   passed.push("an empty reconciliation read never assumes an aborted submission rolled back; same request remains frozen and retryable");
 
   await mountEditor();
@@ -825,7 +932,7 @@ try {
   assert.equal(await page.evaluate(()=>window.destination),"");
   passed.push("account change unmounts private form, aborts waiting command, and ignores obsolete response");
   await mountEditor();
-  await page.getByRole("button",{name:"Submit application",exact:true}).click();await page.waitForFunction(()=>window.destination==="/recruitment/application");
+  await page.getByRole("button",{name:"Submit application",exact:true}).click();await page.waitForFunction(()=>window.destination.startsWith("/recruitment/application?application="));
   const reviewing=(await runtime.rpc("get_application_state")).application;
   const syntheticAdmin=await runtime.addIdentity(),syntheticEvaluator=await runtime.addIdentity();
   for(const [person,role] of [[syntheticAdmin,"administrator"],[syntheticEvaluator,"evaluator"]])await runtime.db.query("insert into staff_memberships(user_id,role,status) values($1,$2,'active')",[person.id,role]);
@@ -870,7 +977,8 @@ try {
       assert.ok(Math.abs(inner.width-(width-2*gutter))<=1,label+' uses the full shared header width');
       assert.ok(Math.abs(logo.x-gutter)<=1,label+' anchors the logo to the shared gutter');
       assert.equal(logo.width,36,label+' uses the landing logo size');
-      assert.ok(Math.abs(wordmark.x+wordmark.width/2-width/2)<=1,label+' centers the wordmark');
+      assert.equal(Boolean(wordmark),!compactMenu,label+' shows the wordmark with desktop navigation');
+      if(wordmark) assert.ok(Math.abs(wordmark.x+wordmark.width/2-width/2)<=1,label+' centers the wordmark');
       assert.ok(await page.locator('.site-header').evaluate(node=>node.offsetHeight)>=(width<=560?56:60),label+' uses the main-site navbar minimum height');
       assert.equal(compactMenu,width<1280,label+' uses the main-site desktop breakpoint');
       assert.ok(Math.abs(end.x+end.width-(width-gutter))<=1,label+' anchors navigation/menu to the shared right gutter');
@@ -883,6 +991,8 @@ try {
         const menu=page.locator('.site-header .mobile-menu-button');
         await menu.focus();await page.keyboard.press('Enter');
         assert.equal(await menu.getAttribute('aria-expanded'),'true');
+        assert.deepEqual(await page.locator('.nav-chapter-links a').allTextContents(),['Home','Events','Opportunities','Team','Connect','Skill Builders']);
+        assert.equal(await page.locator('.main-nav a[href="/recruitment/opportunities"]').count(),1,'The mobile menu has one opportunities link');
         assert.equal(await page.locator('.main-nav').evaluate(node=>getComputedStyle(node).animationName),'none','Reduced motion disables the circular reveal');
         await page.keyboard.press('Tab');
         assert.equal(await page.locator('.main-nav a').first().evaluate(node=>node===document.activeElement),true,'Tab enters the opened menu');
@@ -923,7 +1033,7 @@ try {
   }
   const chapterLinks=['Why join','Roles','Events','Team','Connect','Skillbuilders'];
   for(const [props,expected] of [
-    [{},['Become a Member','Login']],
+    [{},['Become a Member','Membership ID','Login']],
     [{signedIn:true},['My application']],
     [{signedIn:true,member:true},[]],
     [{signedIn:true,staff:{role:'administrator',status:'active',needsMfa:false}},['Applications','Intake','Staff management']],
@@ -935,8 +1045,9 @@ try {
     for(const route of ['/recruitment','/recruitment/privacy','/recruitment/apply','/recruitment/application','/recruitment/staff','/recruitment/admin','/recruitment/admin/applications','/recruitment/admin/intake','/recruitment/reviewer','/recruitment/404']){
       await page.evaluate(({route,props})=>window.mountShell(route,props),{route,props});
       if(route.startsWith('/recruitment/admin')){assert.equal(await page.locator('.site-header,.site-header-space').count(),0);continue;}
-      assert.deepEqual(await page.locator('.main-nav a').allTextContents(),[...chapterLinks,'Membership',...expected],'Chapter navigation plus preserved role tools on '+route);
-      for(const [label,href] of [['Why join','/#about'],['Roles','/#recruitment'],['Events','/#events'],['Team','/#members'],['Connect','/#contact'],['Skillbuilders','/skillbuilder'],['Membership','/recruitment/membership']]) assert.equal(await page.locator('.main-nav').getByRole('link',{name:label,exact:true}).getAttribute('href'),href);
+      const primaryLinks = props.signedIn ? ['Membership ID', ...expected] : expected;
+      assert.deepEqual(await page.locator('.main-nav a').allTextContents(),[...chapterLinks,...primaryLinks],'Chapter navigation plus preserved role tools on '+route);
+      for(const [label,href] of [['Why join','/#about'],['Roles','/#recruitment'],['Events','/#events'],['Team','/#members'],['Connect','/#contact'],['Skillbuilders','/skillbuilder'],['Membership ID','/recruitment/membership']]) assert.equal(await page.locator('.main-nav').getByRole('link',{name:label,exact:true}).getAttribute('href'),href);
         if (!props.signedIn) assert.equal(await page.locator('.main-nav').getByRole('link',{name:'Login',exact:true}).getAttribute('href'),'/recruitment/application');
         await assertApplyContrast();
         if(props.signedIn) { await page.locator('.account-trigger').click(); assert.equal(await page.locator('.account-trigger').getAttribute('aria-expanded'),'true'); }
@@ -958,7 +1069,7 @@ try {
     await page.setViewportSize({width,height:500});await page.evaluate(props=>{window.scrollTo({top:0,behavior:'instant'});window.mountNavigation('/recruitment/opportunities',props);},adminMenu);
     await page.locator('main').waitFor();
     await page.evaluate(()=>document.documentElement.style.fontSize='32px');
-    await page.waitForFunction(()=>{const header=document.querySelector('.site-header');return header.offsetHeight>100&&parseFloat(getComputedStyle(header.querySelector('.alpha-navigation-name')).fontSize)>20&&Math.abs(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height'))-header.offsetHeight)<1;});
+    await page.waitForFunction(()=>{const header=document.querySelector('.site-header');return header.offsetHeight>100&&getComputedStyle(header.querySelector('.alpha-navigation-name')).display==='none'&&Math.abs(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height'))-header.offsetHeight)<1;});
     const menu=page.getByRole('button',{name:'Open menu',exact:true});await menu.waitFor();
     const overflowBefore=await page.evaluate(()=>document.body.style.overflow);
     const before=await page.locator('main').boundingBox(),height=await page.locator('.site-header').evaluate(node=>node.offsetHeight);
@@ -998,7 +1109,17 @@ try {
     }
   }
   await page.emulateMedia({reducedMotion:'no-preference'});
-  await page.evaluate(()=>{window.mountNavigation('/recruitment/opportunities');window.scrollTo({top:0,behavior:'instant'});document.activeElement?.blur();});
+  for (const width of [375,1440]) {
+    await page.setViewportSize({width,height:900});
+    await page.evaluate(()=>{window.scrollTo({top:0,behavior:'instant'});window.mountNavigation('/recruitment/apply');document.activeElement?.blur();});
+    await page.evaluate(()=>window.scrollTo({top:800,behavior:'instant'}));
+    await page.waitForFunction(()=>document.querySelector('.site-header').dataset.scrolled==='true');
+    const header=page.locator('.site-header');
+    assert.equal(await header.getAttribute('data-hidden'),'false','Apply keeps the navbar visible on downward scroll');
+    assert.ok(Math.abs((await header.boundingBox()).y)<.5,'Apply keeps the navbar at the top of the viewport');
+  }
+  await page.evaluate(()=>{window.scrollTo({top:0,behavior:'instant'});window.mountNavigation('/recruitment/opportunities');document.activeElement?.blur();});
+  await page.waitForFunction(()=>window.scrollY===0&&document.querySelector('.site-header').dataset.scrolled==='false');
   await page.evaluate(()=>window.scrollTo({top:800,behavior:'instant'}));
   await page.waitForFunction(()=>document.querySelector('.site-header').dataset.hidden==='true');
   await page.evaluate(()=>window.scrollTo({top:400,behavior:'instant'}));
@@ -1109,7 +1230,7 @@ try {
   const modalApplicant=await runtime.addIdentity();runtime.setIdentity(modalApplicant);runtime.setKind('authenticated');delete faults.access;
   const accessStates=[
     [{kind:'applicant',applicant:modalApplicant,hasDraft:true,submitted:false},'Continue application','/recruitment/apply?opportunity=core-creatives'],
-    [{kind:'applicant',applicant:modalApplicant,hasDraft:true,submitted:true},'View your application','/recruitment/application'],
+    [{kind:'applicant',applicant:modalApplicant,hasDraft:true,submitted:true},'Continue','/recruitment/apply?opportunity=core-creatives'],
     [{kind:'member'},'Open Membership ID','/recruitment/membership'],
     [{kind:'staff'},'Staff workspace','/recruitment/staff'],
     [{kind:'unconfigured'},'Retry access',null],

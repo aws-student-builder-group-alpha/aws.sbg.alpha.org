@@ -12,20 +12,20 @@ export async function installRecruitmentUI(modules) {
   const { code: sitePaths } = await transform(await readFile(pathsFile, "utf8"), { filename: pathsFile, jsc: { parser: { syntax: "typescript" } }, module: { type: "commonjs" } });
   modules.set("@/recruitment/lib/site-paths", sitePaths);
   modules.set("./site-paths.ts", sitePaths);
-  for (const relative of ["components/navigation-wordmark.tsx", "components/aws-logo.tsx", "lib/navigation.ts", "lib/recruitment.ts"]) {
+  for (const relative of ["components/application-nav-banner.tsx", "components/navigation-wordmark.tsx", "components/aws-logo.tsx", "lib/navigation.ts", "lib/recruitment.ts"]) {
     const filename = fileURLToPath(new URL(`../../../${relative}`, import.meta.url));
     const { code } = await transform(await readFile(filename, "utf8"), { filename, jsc: { parser: { syntax: "typescript", tsx: relative.endsWith(".tsx") }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
     const modulePath = relative.replace(/\.tsx?$/, "");
     modules.set(`@/${modulePath}`, code);
     modules.set(`./${modulePath.split("/").at(-1)}`, code);
   }
-  for (const name of ["use-opportunity-availability", "inline-validation", "admin-navigation-guard", "admin-shell", "workspace-skeleton", "recruitment-shell", "wave-gradient", "enrollment-upload", "notification-inbox", "member-administration", "member-invitations", "applicant-outreach"]) {
+  for (const name of ["use-opportunity-availability", "inline-validation", "admin-navigation-guard", "admin-shell", "workspace-skeleton", "recruitment-shell", "wave-gradient", "availability-selector", "enrollment-upload", "notification-inbox", "member-administration", "member-invitations", "applicant-outreach"]) {
     const filename = fileURLToPath(new URL(`../../../app/(recruitment)/recruitment/components/${name}.${["inline-validation", "use-opportunity-availability", "admin-navigation-guard"].includes(name) ? "ts" : "tsx"}`, import.meta.url));
     const { code } = await transform(await readFile(filename, "utf8"), { filename, jsc: { parser: { syntax: "typescript", tsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
     modules.set(`./${name}`, code);
     modules.set(`@/app/(recruitment)/recruitment/components/${name}`, code);
   }
-  for(const name of ['opportunity-availability','community','community-client','http-request','format-date']){
+  for(const name of ['availability-calendar','opportunity-availability','community','community-client','http-request','format-date']){
     const filename=fileURLToPath(new URL(`../../lib/${name}.ts`,import.meta.url));
     const {code}=await transform(await readFile(filename,'utf8'),{filename,jsc:{parser:{syntax:'typescript'}},module:{type:'commonjs'}});
     modules.set(`@/recruitment/lib/${name}`,code);modules.set(`./${name}.ts`,code);
