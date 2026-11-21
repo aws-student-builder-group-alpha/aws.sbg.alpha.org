@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
 import SignOutModal from "@/components/sign-out-modal"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
-import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS, MEMBERSHIP_LINK } from "@/lib/navigation"
+import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS } from "@/lib/navigation"
 import "./navigation.css"
 
 interface NavigationProps {
@@ -53,7 +53,7 @@ export default function Navigation({
 	const [isSigningOut, setIsSigningOut] = useState(false)
 	const navRef = useRef<HTMLElement>(null)
 	const accountRef = useRef<HTMLDivElement>(null)
-	const pageLinks = [MEMBERSHIP_LINK, ...MAIN_PAGE_LINKS]
+	const pageLinks = MAIN_PAGE_LINKS
 	const mobileLinks = [...MAIN_SECTION_LINKS, ...pageLinks]
 
 	useEffect(() => {
