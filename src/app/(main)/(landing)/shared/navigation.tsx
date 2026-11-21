@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
+import ApplicationNavBanner from "@/components/application-nav-banner"
 import NavigationWordmark from "@/components/navigation-wordmark"
 import Link from "next/link"
 import {
@@ -256,6 +257,7 @@ export default function Navigation({
 					<span className="alpha-recruiting-details">Join the Core Team or a Committee.</span>
 					<span className="alpha-recruiting-cta">Find your role <ArrowRight size={15} aria-hidden="true" /></span>
 				</a>}
+				<ApplicationNavBanner pathname={pathname} inert={isMobileMenuOpen} />
 				<div className={`transition-colors duration-300 ${bgStyle}`}>
 				<div className="alpha-navigation-gutter">
 					<div className="alpha-navigation-row relative flex items-center h-16 lg:h-20">

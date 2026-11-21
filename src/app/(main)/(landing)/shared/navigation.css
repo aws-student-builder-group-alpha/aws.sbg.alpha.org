@@ -1,12 +1,16 @@
 .alpha-recruiting-banner{display:flex;align-items:center;justify-content:center;gap:12px;min-height:32px;padding:5px 16px;background:var(--alpha-frame-edge,#ffb13e);color:#17202c;font-size:12px;line-height:1.5;transition:background-color .2s}
 .alpha-recruiting-banner:hover{background:#ffc367}
+.alpha-recruiting-banner.alpha-application-banner{background:#c7adff;color:#21162c}
+.alpha-recruiting-banner.alpha-application-banner:hover{background:#dfcbff}
+.alpha-application-banner-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alpha-application-banner .alpha-recruiting-cta{flex-shrink:0}
 .alpha-recruiting-dot{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px #17202c12;flex-shrink:0}
 .alpha-recruiting-banner strong{font-weight:700}
 .alpha-recruiting-cta{display:inline-flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid #17202c40;font-weight:600}
 .alpha-recruiting-banner:focus-visible{outline:3px solid white;outline-offset:-4px}
 @media(max-width:560px){.alpha-recruiting-details{display:none}.alpha-recruiting-banner{font-size:11px;gap:10px}}
 @media(prefers-reduced-motion:reduce){.alpha-recruiting-banner{transition:none}}
-.alpha-landing:has(.alpha-recruiting-banner:hover){--alpha-frame-edge:#ffc367}
+.alpha-landing:has(.alpha-recruiting-banner:not(.alpha-application-banner):hover){--alpha-frame-edge:#ffc367}
 
 .alpha-landing{--alpha-frame-radius:clamp(14px,1.3vw,22px);--alpha-frame-edge:#ffb13e}
 .alpha-viewport-frame{position:fixed;inset:0;z-index:70;border-radius:var(--alpha-frame-radius);pointer-events:none}

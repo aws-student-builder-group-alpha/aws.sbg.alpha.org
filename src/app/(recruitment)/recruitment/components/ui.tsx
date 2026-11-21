@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import ApplicationNavBanner from "@/components/application-nav-banner";
 import NavigationWordmark from "@/components/navigation-wordmark";
 import { usePathname, useSelectedLayoutSegments } from "next/navigation";
 import { useFormStatus } from "react-dom";
@@ -195,18 +196,18 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
   const dark = !!frame || ["/recruitment", "/recruitment/membership"].includes(path);
   function closeMenu() { setMenuOpen(false); menuButton.current?.focus(); }
   useEffect(() => {
-    const row = rowRef.current;
-    if (!row) return;
+    const header = headerRef.current;
+    if (!header) return;
     const style = document.documentElement.style;
     const previous = style.getPropertyValue("--site-header-height");
     let published = "";
     const measure = () => {
-      if (!row.getClientRects().length) return;
-      published = `${row.getBoundingClientRect().height}px`;
+      if (!header.getClientRects().length) return;
+      published = `${header.getBoundingClientRect().height}px`;
       style.setProperty("--site-header-height", published);
     };
     const observer = new ResizeObserver(measure);
-    observer.observe(row); measure();
+    observer.observe(header); measure();
     return () => { observer.disconnect(); if (style.getPropertyValue("--site-header-height") === published) { if (previous) style.setProperty("--site-header-height", previous); else style.removeProperty("--site-header-height"); } };
   }, []);
   useEffect(() => {
@@ -269,6 +270,7 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
     <div className="site-header-space" data-workspace-frame={frame} data-tone={dark ? "dark" : "light"} aria-hidden="true" />
     <header ref={headerRef} className="site-header" data-workspace-frame={frame} data-adaptive={path === "/recruitment" ? "home" : "page"} data-tone={dark ? "dark" : "light"} data-menu-open={menuOpen}
       onKeyDown={event => { if (event.key === "Escape") { if (menuOpen) { event.preventDefault(); closeMenu(); } else if (accountOpen) { event.preventDefault(); setAccountOpen(false); accountButton.current?.focus(); } } }}>
+      {signedIn && !staff && <ApplicationNavBanner pathname={path} inert={menuOpen} />}
       <div ref={rowRef} className="header-inner">
         <a href={alphaSiteOrigin + "/"} className="brand" aria-label="Alpha home">
           <Image src="/optimized/alpha-logo.webp" alt="" width={36} height={36} priority />
