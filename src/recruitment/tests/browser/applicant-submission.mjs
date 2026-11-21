@@ -1013,7 +1013,7 @@ try {
   passed.push('shared-header routes use the white navbar surface; scroll hides/reveals with focus and reduced-motion guards');
 
   await page.evaluate(()=>window.mountHome());
-  const directory=page.locator(".roles-grid");
+  const directory=page.locator(".roles-sections");
   async function assertCardSurfaces() {
     const pastels = ['rgb(252, 227, 207)', 'rgb(217, 240, 232)', 'rgb(228, 221, 247)', 'rgb(220, 238, 250)', 'rgb(247, 224, 236)', 'rgb(237, 240, 244)'];
     for (const card of await directory.locator('.role-card').all()) {
@@ -1029,7 +1029,7 @@ try {
     assert.equal(await directory.locator(".role-card").count(),16);
     await page.getByRole("heading",{name:"Available Roles",exact:true}).waitFor();
     assert.deepEqual(await directory.locator('.role-card').evaluateAll(nodes=>nodes.filter(node=>{const box=node.getBoundingClientRect();return box.left<0||box.right>innerWidth+1;}).map(node=>node.textContent)),[], 'Whole cards fit '+width+'px');
-    assert.equal(await directory.evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width>=1200?3:width>560?2:1);
+    assert.equal(await directory.locator('.roles-grid').first().evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width>=1200?3:width>560?2:1);
     if(width===375||width===1440) await page.screenshot({path:path.join(artifactDir,'opportunity-cards-'+width+'.png')});
   }
   await page.getByRole("button",{name:"Core Team",exact:true}).click();

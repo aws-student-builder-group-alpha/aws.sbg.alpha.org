@@ -15,9 +15,10 @@ const { code } = transformSync(source, {
   jsc: { parser: { syntax: "typescript", tsx: true }, transform: { react: { runtime: "automatic" } } },
   module: { type: "commonjs" },
 });
+let search = "";
 const modules = {
   "next/link": { __esModule: true, default: ({ scroll, ...props }) => React.createElement("a", props) },
-  "next/navigation": { useRouter: () => ({}), useSearchParams: () => new URLSearchParams() },
+  "next/navigation": { useRouter: () => ({}), useSearchParams: () => new URLSearchParams(search) },
   "@/recruitment/lib/catalog": catalog,
   "@/recruitment/lib/opportunity-availability": availability,
   "@/app/(recruitment)/recruitment/components/ui": { Icon: () => null },
@@ -63,4 +64,28 @@ test("vacancy sorting uses remaining places, preserves ties and leaves catalog i
 test("unavailable vacancy data retains the catalog order", () => {
   const roles = catalog.opportunities.slice(0, 4);
   assert.deepEqual(availability.sortByVacancies(roles, null), roles);
+});
+
+
+test("opportunities render in separate expanded tracks and respect search and filters", () => {
+  try {
+    const render = () => renderToStaticMarkup(React.createElement(OpportunityDirectory, { entry: { kind: "anonymous" } }));
+    const html = render();
+    const sections = [...html.matchAll(/<details class="roles-section"[^>]*data-track="([^"]+)"[^>]*open=""[^>]*>([\s\S]*?)<\/details>/g)];
+    assert.deepEqual(sections.map(section => section[1]), ["CORE_TEAM", "COMMITTEE"]);
+    assert.deepEqual(sections.map(section => [...section[2].matchAll(/class="role-card"/g)].length), [6, 10]);
+
+    search = "track=CORE_TEAM";
+    const core = render();
+    assert.match(core, /class="roles-section" data-track="CORE_TEAM"/);
+    assert.doesNotMatch(core, /class="roles-section" data-track="COMMITTEE"/);
+
+    search = "q=web";
+    const web = render();
+    assert.doesNotMatch(web, /class="roles-section" data-track="CORE_TEAM"/);
+    assert.match(web, /class="roles-section" data-track="COMMITTEE"/);
+    assert.equal([...web.matchAll(/class="role-card"/g)].length, 1);
+  } finally {
+    search = "";
+  }
 });

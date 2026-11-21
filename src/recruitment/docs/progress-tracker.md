@@ -1,3 +1,11 @@
+## Collapsible opportunity tracks and visual polish - 21 November 2026
+
+Grouped the available cards into independently collapsible Core Team and Committee sections, initially expanded. Section headings show matching counts. Search/track filters omit empty groups, and vacancy sorting operates within each section. Added heading hierarchy for sections/cards, compact result-heading and card spacing, subtle icon surfaces and lighter card shadows. Preserved the current sidebar refinements and keep application guidance after results on phones.
+
+Four focused tests passed, covering grouping/filter/search, applicant continuation and vacancy sorting. Updated existing browser fixture grid selection for the grouped layout. In the connected browser, Core Team collapsed independently and reopened with Enter. Both sections had the correct six/ten cards. The live vacancy snapshot now responded: Core Team showed six one-place roles, while Committee was ordered with eight-place roles before four-place and one-place roles. At 390px both grids use one column without horizontal overflow and guidance follows results. TSX/CSS parsing and Git whitespace checks passed. Full browser fixtures and TypeScript were not rerun; existing full-check limitations remain recorded below.
+
+Reviewed all six context documents for impact. Updated product overview, UI direction and this tracker for the grouped directory. Architecture, code standards and workflow contracts need no changes because the same URL filters, availability snapshot, role dialogs and application access remain in use. Unrelated concurrent repository work is preserved.
+
 ## Lighter shadows and transparent guide - 21 November 2026
 
 Lightened card offset shadows to 15 percent opacity, with a 22 percent hover shadow. Removed the outer application guide's background and border. The highlighted recruitment-date panel remains.
