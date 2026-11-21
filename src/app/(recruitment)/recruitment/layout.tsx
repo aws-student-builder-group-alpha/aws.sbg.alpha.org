@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Suspense, type ReactNode } from "react";
 import { Footer, SiteHeader } from "./components/ui";
 import { SessionHeader } from "./components/session-header";
 import { PageLoader } from "./components/page-loader";
 import { recruitmentPath } from "@/recruitment/lib/site-paths";
+import { SITE_PREFERENCES_BOOTSTRAP } from "@/lib/site-preferences";
 import "./globals.css";
 import "@/recruitment/tokens.css";
 import "./redesign.css";
@@ -28,7 +30,7 @@ export const metadata: Metadata = {
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="light" data-scroll-behavior="smooth">
+    <html lang="en" data-theme="light" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <link
           rel="preload"
@@ -39,6 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="alpha-app">
+        <Script id="alpha-site-preferences" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: SITE_PREFERENCES_BOOTSTRAP }} />
         <noscript><style>{`.recruitment-page-loader{display:none!important}`}</style></noscript>
         <PageLoader />
         <Suspense fallback={<SiteHeader pendingSession />}>
