@@ -33,12 +33,59 @@ export function AdminPageSkeleton({ view = "overview" }: { view?: AdminSkeletonV
     <LoadingRegion label={`Loading ${pageNames[view].toLowerCase()}…`}>
       <div className="workspace-skeleton-heading"><SkeletonBlock className="skeleton-title" /><SkeletonBlock className="skeleton-line skeleton-medium" /></div>
       {view === "overview" ? <>
-        <div className="admin-overview-lead"><div className="admin-cycle-note"><SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-paragraph" /></div><div className="admin-metrics">{Array.from({ length: 4 }, (_, index) => <div className="admin-metric" key={index}><SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-title" /></div>)}</div></div>
-        <div className="admin-overview-grid"><div className="admin-surface admin-status-overview"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={2} /></div><div className="admin-surface"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={2} /></div></div>
+        <div className="admin-overview-grid">
+          <div className="admin-overview-primary">
+            <div className="admin-metrics">{Array.from({ length: 3 }, (_, index) => <div className="admin-metric" key={index}>
+              <SkeletonBlock className="skeleton-line skeleton-medium" /><SkeletonBlock className="skeleton-title" />
+            </div>)}</div>
+            <div className="admin-surface admin-status-overview"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={2} /></div>
+          </div>
+          <div className="admin-overview-context">
+            <div className="admin-surface"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={2} /></div>
+            <div className="admin-surface"><SkeletonBlock className="skeleton-title" /><SkeletonBlock className="skeleton-line skeleton-medium" /></div>
+          </div>
+        </div>
         <div className="admin-surface admin-recent"><SkeletonBlock className="skeleton-title" /><SkeletonRows rows={5} /></div>
-      </> : <div className="admin-surface">
-        <SkeletonBlock className="skeleton-field skeleton-medium" />
-        {view === "intake" || view === "members" ? <div className="workspace-skeleton-fields">{Array.from({ length: 4 }, (_, index) => <SkeletonBlock className="skeleton-field" key={index} />)}</div> : <SkeletonRows rows={5} />}
+      </> : view === "intake" ? <div className="admin-skeleton-stack">
+        <div className="intake-workspace-columns">
+          <div className="admin-surface">
+            <SkeletonBlock className="skeleton-title" />
+            <SkeletonBlock className="skeleton-paragraph" />
+            <SkeletonBlock className="skeleton-line skeleton-short" />
+            <div className="intake-schedule">
+              <SkeletonBlock className="skeleton-field" />
+              <SkeletonBlock className="skeleton-field" />
+            </div>
+          </div>
+          <div className="admin-surface">
+            <SkeletonBlock className="skeleton-title" />
+            <SkeletonBlock className="skeleton-field" />
+            <SkeletonBlock className="skeleton-paragraph" />
+            <SkeletonBlock className="skeleton-field skeleton-medium" />
+          </div>
+        </div>
+        <div className="admin-surface intake-skeleton-history"><SkeletonBlock className="skeleton-line skeleton-medium" /></div>
+      </div> : view === "members" ? <div className="member-workspace">
+        <div className="admin-surface">
+          <SkeletonBlock className="skeleton-title" />
+          <SkeletonBlock className="skeleton-paragraph" />
+          <SkeletonBlock className="skeleton-paragraph" />
+        </div>
+        <div className="admin-surface">
+          <SkeletonBlock className="skeleton-title" />
+          <SkeletonBlock className="skeleton-line skeleton-medium" />
+          <SkeletonBlock className="skeleton-paragraph" />
+        </div>
+      </div> : <div className="admin-skeleton-stack">
+        {view === "applications" && <div className="admin-surface">
+          <SkeletonBlock className="skeleton-field" />
+          <SkeletonBlock className="skeleton-title" />
+          <SkeletonBlock className="skeleton-line skeleton-medium" />
+        </div>}
+        <div className="admin-surface">
+          <SkeletonBlock className="skeleton-field skeleton-medium" />
+          <SkeletonRows rows={5} />
+        </div>
       </div>}
     </LoadingRegion>
   </main>;

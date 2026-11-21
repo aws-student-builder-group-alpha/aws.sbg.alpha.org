@@ -53,7 +53,7 @@
  .role-card:hover,.role-card:hover .role-open-arrow svg { transform:none; }
  .role-card::before { animation:none; opacity:0; }
 }
-.roles-note,.roles-help{font-size:14px;line-height:1.8;color:#526174;margin-top:32px}.roles-empty{padding:40px;text-align:center}.roles-help summary{cursor:pointer;min-height:44px;font-weight:600}.roles-help a{text-decoration:underline}
+.roles-note,.roles-help{font-size:14px;line-height:1.8;color:#526174;margin-top:32px}.roles-page .recruitment-empty-state{border:1px solid #e1e6ed}.roles-help summary{cursor:pointer;min-height:44px;font-weight:600}.roles-help a{text-decoration:underline}
 .alpha-app .role-entry-modal {
  --role-light:#59442c; --role-dark:#2b2119;
  display:block; container:role-dialog / inline-size;

@@ -12,6 +12,8 @@ import type { StaffRole, StaffStatus } from "@/recruitment/lib/staff";
 
 const paths: Record<string, ReactNode> = {
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  filter: <path d="M4 6h16M7 12h10m-7 6h4" />,
+  more: <><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>,
   arrow: <path d="M4 12h15M13 5l7 7-7 7" />,
   external: (
     <>
@@ -380,6 +382,25 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
     </Badge>
   );
 }
+export function EmptyState({ title, description, icon = "file", heading: Heading = "h3", compact = false, announce = false, children }: {
+  title: string;
+  description: string;
+  icon?: string;
+  heading?: "h2" | "h3" | "h4";
+  compact?: boolean;
+  announce?: boolean;
+  children?: ReactNode;
+}) {
+  return <div className="recruitment-empty-state" data-compact={compact || undefined}>
+    <div className="empty-state-art" aria-hidden="true"><span><Icon name={icon} size={26} /></span></div>
+    <div className="empty-state-copy" aria-live={announce ? "polite" : undefined}>
+      <Heading>{title}</Heading>
+      <p>{description}</p>
+    </div>
+    {children && <div className="empty-state-actions">{children}</div>}
+  </div>;
+}
+
 export function Callout({
   children,
   tone = "info",

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getOpportunity, opportunities, opportunityLabel, trackLabel, type Track } from "@/recruitment/lib/catalog";
 import type { Applicant } from "@/recruitment/lib/drafts";
-import { Icon, Modal } from "@/app/(recruitment)/recruitment/components/ui";
+import { EmptyState, Icon, Modal } from "@/app/(recruitment)/recruitment/components/ui";
 import { StartDraft } from "@/app/(recruitment)/recruitment/apply/start-draft";
 import { signIn } from "@/app/(recruitment)/recruitment/auth/actions";
 import { useOpportunityAvailability } from "@/app/(recruitment)/recruitment/components/use-opportunity-availability";
@@ -42,7 +42,9 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
     <div className="role-card-footer"><p className="role-places">{availabilityLabel(availability,role.id)}</p><div className="role-card-action"><span>View role</span><span className="role-open-arrow" aria-hidden="true"><Icon name="arrow" size={21} /></span></div></div>
    </Link>
   </article>)}</div>
-  {!visible.length && <div className="roles-empty"><h2>No matching roles</h2><p>Try a different department or search term.</p><button className="button button-secondary" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Show all roles</button></div>}
+  {!visible.length && <EmptyState heading="h2" icon="search" title="No matching roles" description="Try a different department or search term." announce>
+    <button className="button button-secondary" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Show all roles</button>
+  </EmptyState>}
   <p className="roles-note">Recruitment: 1–30 November 2026, Philippine time. One application per account. Vacancy counts can change; final decisions are made by Alpha.</p>
   <details className="roles-help" id="faq"><summary>How to apply</summary><p>Choose one role, sign in with Google, and consent to recruitment processing. Complete your details, role choice, three short responses, resume link, enrollment proof, and available days. Review before submitting. A portfolio is optional.</p><Link href="/recruitment/privacy">Read the privacy notice</Link></details>
   {selected && <Modal title={opportunityLabel(selected)} className={"role-entry-modal role-entry-" + selected.track.toLowerCase()} dismissible={!busy} onClose={close} headerContent={

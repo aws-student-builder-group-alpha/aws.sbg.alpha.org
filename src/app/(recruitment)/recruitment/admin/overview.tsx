@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { AdminPageHeader } from "@/app/(recruitment)/recruitment/components/admin-shell";
-import { Icon, StatusBadge, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
+import { EmptyState, Icon, StatusBadge, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
 import type { EvaluationList } from "@/recruitment/lib/evaluations";
 import type { IntakeState } from "@/recruitment/lib/intake";
 import type { StaffMember } from "@/recruitment/lib/staff";
@@ -23,72 +23,70 @@ export function AdminOverview({ applications, staff, intake }: { applications: E
   const router = useRouter();
   const [refreshing, refresh] = useTransition();
   const queue = applications?.queue;
+  const activeStaff = staff?.filter(member => member.status === "active").length;
   const cards = [
-    { label: "Under review", value: queue?.statusCounts["Under Review"], icon: "file", href: "/recruitment/admin/applications" },
-    { label: "Accepted", value: queue?.statusCounts.Accepted, icon: "check", href: "/recruitment/admin/applications" },
-    { label: "Active staff", value: staff?.filter(member => member.status === "active").length, icon: "people", href: "/recruitment/admin/staff" },
-    { label: "Intake status", value: intakeStatus(intake), icon: "calendar", href: "/recruitment/admin/intake" },
+    { label: "Total applications", value: queue?.total, icon: "file" },
+    { label: "Under review", value: queue?.statusCounts["Under Review"], icon: "people" },
+    { label: "Accepted", value: queue?.statusCounts.Accepted, icon: "check" },
   ];
 
   return <main id="main-content" className="admin-page admin-overview">
     <AdminPageHeader title="Overview" description="Track applications, staff access and the recruitment schedule.">
+      <Link href="/recruitment/admin/applications" className="button button-orange">Open applications <Icon name="arrow" size={16} /></Link>
       <button type="button" className="button button-secondary" disabled={refreshing} onClick={() => refresh(() => router.refresh())}>
         {refreshing ? "Refreshing…" : "Refresh overview"}
       </button>
     </AdminPageHeader>
 
-    <div className="admin-overview-lead">
-      <section className="admin-cycle-note" aria-labelledby="application-total-title">
-        <div>
-          <h2 id="application-total-title">Total applications</h2>
-          <strong>{queue?.total ?? "Unavailable"}</strong>
-          <p>{queue ? "Across all submitted applications" : "Refresh overview to retry"}</p>
-        </div>
-        <Link href="/recruitment/admin/applications">Open applications <Icon name="arrow" size={16} /></Link>
-      </section>
-      <div className="admin-metrics">{cards.map(card => <Link className="admin-metric" key={card.label} href={card.href}>
-        <span><Icon name={card.icon} size={16} />{card.label}</span>
-        <strong>{card.value ?? "Unavailable"}</strong>
-        {card.value === undefined && <small>Refresh overview to retry</small>}
-      </Link>)}</div>
-    </div>
-
     <div className="admin-overview-grid">
-      <section className="admin-surface admin-status-overview" aria-labelledby="status-overview-title">
-        <h2 id="status-overview-title">Application status</h2>
-        {!queue ? <p role="status">Status breakdown is unavailable. Refresh overview to retry.</p> : <>
-          {queue.total === 0 ? <p>Status totals will appear after the first submission.</p> :
-            <div className="admin-status-track" aria-hidden="true">{statuses.map((status, index) => <span
-              key={status} className={`admin-status-segment status-color-${index}`}
-              style={{ flexGrow: queue.statusCounts[status] }}
-            />)}</div>}
-          <dl className="admin-status-legend">{statuses.map((status, index) => <div key={status}>
-            <dt><span aria-hidden="true" className={`admin-status-dot status-color-${index}`} />{status}</dt>
-            <dd>{queue.statusCounts[status]}</dd>
-          </div>)}</dl>
-        </>}
-      </section>
+      <div className="admin-overview-primary">
+        <dl className="admin-metrics" aria-label="Application totals">{cards.map(card => <div className="admin-metric" key={card.label}>
+          <dt><span className="admin-metric-icon"><Icon name={card.icon} size={17} /></span>{card.label}</dt>
+          <dd className="admin-metric-value" data-unavailable={card.value === undefined || undefined}>{card.value ?? "Unavailable"}</dd>
+        </div>)}</dl>
 
-      <section className="admin-surface" aria-labelledby="intake-schedule-title">
-        <h2 id="intake-schedule-title">Intake schedule</h2>
-        {intake ? <>
-          <p className="admin-schedule-zone">Philippine time</p>
-          <dl className="admin-schedule">
-            <div><dt>Opens</dt><dd><time dateTime={intake.opensAt}>{formatDate(intake.opensAt)}</time></dd></div>
-            <div><dt>Closes</dt><dd><time dateTime={intake.closesAt}>{formatDate(intake.closesAt)}</time></dd></div>
-          </dl>
-        </> : <p role="status">Schedule unavailable. Refresh overview to retry.</p>}
-        <Link href="/recruitment/admin/intake" className="admin-inline-link">Manage intake <Icon name="arrow" size={16} /></Link>
-      </section>
+        <section className="admin-surface admin-status-overview" aria-labelledby="status-overview-title">
+          <h2 id="status-overview-title">Application status</h2>
+          {!queue ? <p role="status">Status breakdown is unavailable. Refresh overview to retry.</p> : <>
+            {queue.total === 0 ? <p>Status totals will appear after the first submission.</p> :
+              <div className="admin-status-track" aria-hidden="true">{statuses.map((status, index) => <span
+                key={status} className={`admin-status-segment status-color-${index}`}
+                style={{ flexGrow: queue.statusCounts[status] }}
+              />)}</div>}
+            <dl className="admin-status-legend">{statuses.map((status, index) => <div key={status}>
+              <dt><span aria-hidden="true" className={`admin-status-dot status-color-${index}`} />{status}</dt>
+              <dd>{queue.statusCounts[status]}</dd>
+            </div>)}</dl>
+          </>}
+        </section>
+      </div>
+
+      <div className="admin-overview-context">
+        <section className="admin-surface" aria-labelledby="intake-schedule-title">
+          <h2 id="intake-schedule-title">Intake</h2>
+          {intake ? <>
+            <p className="admin-intake-state" data-accepting={intake.accepting || undefined}>{intakeStatus(intake)}</p>
+            <dl className="admin-schedule">
+              <div><dt>Opens</dt><dd><time dateTime={intake.opensAt}>{formatDate(intake.opensAt)}</time></dd></div>
+              <div><dt>Closes</dt><dd><time dateTime={intake.closesAt}>{formatDate(intake.closesAt)}</time></dd></div>
+            </dl>
+            <p className="admin-schedule-zone">Philippine time</p>
+          </> : <p role="status">Intake unavailable. Refresh overview to retry.</p>}
+          <Link href="/recruitment/admin/intake" className="admin-inline-link">Manage intake <Icon name="arrow" size={16} /></Link>
+        </section>
+
+        <section className="admin-surface" aria-labelledby="active-staff-title">
+          <h2 id="active-staff-title">Active staff</h2>
+          <p className="admin-metric-value" data-unavailable={activeStaff === undefined || undefined}>{activeStaff ?? "Unavailable"}</p>
+          <Link href="/recruitment/admin/staff" className="admin-inline-link">Manage staff <Icon name="arrow" size={16} /></Link>
+        </section>
+      </div>
     </div>
 
     <section className="admin-surface admin-recent" aria-labelledby="recent-applications-title">
-      <div className="admin-section-heading">
-        <h2 id="recent-applications-title">Recent applications</h2>
-        <Link href="/recruitment/admin/applications">View all applications <Icon name="arrow" size={16} /></Link>
-      </div>
+      <h2 id="recent-applications-title">Recent applications</h2>
       {!applications ? <p role="status">Applications could not be loaded. Refresh overview to retry.</p> :
-        !applications.items.length ? <p>No submitted applications yet.</p> : <table className="admin-recent-table" aria-labelledby="recent-applications-title" role="table">
+        !applications.items.length ? <EmptyState compact title="No submitted applications yet." description="The five most recent submissions will appear here." /> : <table className="admin-recent-table" aria-labelledby="recent-applications-title" role="table">
           <thead><tr><th scope="col">Applicant</th><th scope="col">Reference</th><th scope="col">Status</th><th scope="col">Submitted · Philippine time</th></tr></thead>
           <tbody role="rowgroup">{applications.items.slice(0, 5).map(item => <tr key={item.id} role="row">
             <td role="cell"><strong>{item.name}</strong></td>

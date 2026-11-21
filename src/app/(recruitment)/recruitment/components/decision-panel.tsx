@@ -9,7 +9,7 @@ import type { DecisionCommand, DecisionFailure, DecisionHistory, DecisionReceipt
 import { decisionEditorReducer, initialDecisionEditor } from "@/recruitment/lib/decision-workspace-state";
 import { evaluationTextLength, isRecommendation, recommendations } from "@/recruitment/lib/evaluations";
 import { useVerifiedAccess } from "./access-guard";
-import { Callout, FieldError, Modal, formatDate } from "./ui";
+import { Callout, EmptyState, FieldError, Modal, formatDate } from "./ui";
 import { useInlineValidation } from "./inline-validation";
 
 export function DecisionHistoryList({ accountId, applicationId, onDenied }: { accountId: string; applicationId: string; onDenied: (failure: DecisionFailure) => void }) {
@@ -37,7 +37,7 @@ export function DecisionHistoryList({ accountId, applicationId, onDenied }: { ac
   }, [accountId, applicationId, onDenied]);
   return <section className="decision-history" aria-labelledby="decision-history-title">
     <h3 id="decision-history-title">Private decision history</h3>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button type="button" className="text-button" onClick={() => void load()}>Retry decision history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading decision history..." /> : <p>No decisions have been published.</p> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
+    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button type="button" className="text-button" onClick={() => void load()}>Retry decision history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading decision history..." /> : <EmptyState compact heading="h4" icon="check" title="No decisions have been published." description="Published outcomes and amendments will appear here." /> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
       <div className="subheading"><strong>{event.action === "publish" ? "Published" : "Amended"}: {event.outcome}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
       <p>{event.previousStatus} to {event.outcome}. {event.actor.email}</p>
       {event.reason && <p className="evaluation-note">Reason: {event.reason}</p>}

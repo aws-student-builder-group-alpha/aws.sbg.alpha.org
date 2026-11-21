@@ -24,12 +24,12 @@
   }
   .admin-page-heading p { max-width: 70ch; margin: 8px 0 0; color: var(--muted); font-size: .9375rem; line-height: 1.6; }
   .admin-heading-actions { display: flex; flex: none; flex-wrap: wrap; gap: 8px; }
-  :is(.admin-surface, .admin-metric, .staff-directory, .intake-panel, .community-admin-panel, .workspace-queue-overview, .evaluation-list, .workspace-detail) {
+  :is(.admin-surface, .admin-metric, .staff-directory, .community-admin-panel, .workspace-queue-overview, .evaluation-list, .workspace-detail) {
     border: 1px solid var(--staff-rule);
     border-radius: 16px;
     background: var(--surface);
   }
-  :is(.admin-surface, .staff-directory, .intake-panel, .community-admin-panel) h2 { color: var(--foreground); font-size: 1.125rem; line-height: 1.35; letter-spacing: -.02em; }
+  :is(.admin-surface, .staff-directory, .community-admin-panel) h2 { color: var(--foreground); font-size: 1.125rem; line-height: 1.35; letter-spacing: -.02em; }
   :is(.admin-surface, .staff-directory) h2 { margin: 0; }
   :is(.button, .text-button, .icon-button) { min-height: 44px; }
   .button { padding: 8px 16px; border-radius: 10px; font-weight: 650; white-space: normal; }
@@ -39,7 +39,7 @@
   .button-secondary:hover:not(:disabled) { background: var(--surface-alt); }
   :is(.field label, .application-fields > label) { font-weight: 600; }
   :focus-visible { outline: 3px solid #965500; outline-offset: 3px; }
-  :is(.workspace-help, .workspace-disclosure, .queue-views-disclosure) > summary { min-height: 44px; padding-block: 8px; cursor: pointer; }
+  :is(.workspace-help, .workspace-disclosure) > summary { min-height: 44px; padding-block: 8px; cursor: pointer; }
   .workspace-disclosure { border-top: 1px solid var(--staff-rule); }
   .staff-history-list li { padding: 16px; border: 1px solid var(--staff-rule); border-radius: 12px; background: var(--surface-alt); }
   .staff-history-list .subheading { gap: 8px 16px; flex-wrap: wrap; }
@@ -125,7 +125,7 @@
 }
 @media (forced-colors: active) {
   .alpha-app .recruitment-process:is([data-workspace-frame="administrator"], [data-workspace-frame="evaluator"], [data-workspace-frame="staff"]) {
-    :is(.admin-shell, .admin-metric, .admin-cycle-note, .admin-surface, .workspace-reviewer, .workspace-queue-overview, .evaluation-list, .workspace-detail, .staff-auth-card) { border-color: CanvasText; box-shadow: none; }
+    :is(.admin-shell, .admin-metric, .admin-surface, .workspace-reviewer, .workspace-queue-overview, .evaluation-list, .workspace-detail, .staff-auth-card) { border-color: CanvasText; box-shadow: none; }
     :focus-visible { outline-color: Highlight; }
   }
 }
