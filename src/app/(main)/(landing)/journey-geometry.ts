@@ -1,3 +1,5 @@
+export const HERO_WOLF_TILT = -14
+
 export interface WolfStop {
   x: number
   y: number
@@ -148,6 +150,6 @@ export function stepWolfPose(from: WolfPose, to: WolfPose, elapsed: number): Wol
   const approach = (value: number, target: number, speed: number) => value + Math.sign(target - value) * Math.min(Math.abs(target - value), speed * seconds)
   return {
     ...to, x: from.x + (distance ? dx / distance * travel : 0), y: from.y + (distance ? dy / distance * travel : 0),
-    width: approach(from.width, to.width, 100), rotation: approach(from.rotation, to.rotation, 60),
+    width: approach(from.width, to.width, to.width > from.width ? 320 : 100), rotation: approach(from.rotation, to.rotation, 60),
   }
 }

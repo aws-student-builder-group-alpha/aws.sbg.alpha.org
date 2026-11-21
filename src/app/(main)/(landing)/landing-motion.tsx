@@ -22,6 +22,7 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
       const small = Boolean(mediaContext.conditions.small)
       const context = gsap.context(() => {
         scenes.forEach(scene => {
+          if (scene.classList.contains("alpha-benefit-learn")) return
           const heading = scene.querySelector("h2")
           if (heading) gsap.fromTo(heading, { y: small ? 12 : 24 }, {
             y: small ? -8 : -16, ease: "none",
@@ -45,6 +46,7 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
           scrollTrigger: { trigger: ".alpha-motion-ribbon", start: "top bottom", end: "bottom top", scrub: true },
         })
         gsap.utils.toArray<HTMLElement>(".alpha-benefit").forEach((scene, index) => {
+          if (scene.classList.contains("alpha-benefit-learn")) return
           const art = scene.querySelector(".alpha-benefit-art")
           const snapshot = scene.querySelector(".alpha-scene-snapshot")
           const photo = scene.querySelector(".alpha-photo-frame")
@@ -57,6 +59,29 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
           if (snapshot) timeline.fromTo(snapshot, { y: travel * .6, x: index % 2 ? -8 : 8, rotation: -5 }, { y: -travel * .6, x: index % 2 ? 8 : -8, rotation: 5, duration: 1, ease: "none" }, 0)
           if (!small) timeline.fromTo(words, { xPercent: word => word ? 3 : -3 }, { xPercent: word => word ? -3 : 3, duration: 1, ease: "none" }, 0)
         })
+        const cloudStory = root.current?.querySelector<HTMLElement>(".alpha-cloud-lab")
+        if (cloudStory) {
+          gsap.to(cloudStory, {
+            "--cloud-progress": 1, ease: "none",
+            scrollTrigger: { trigger: cloudStory, start: "top center", end: "bottom center", scrub: true },
+          })
+          cloudStory.querySelectorAll(".alpha-cloud-chapter").forEach((chapter, index) => {
+            const art = chapter.querySelector(".alpha-cloud-art")
+            const photo = chapter.querySelector(".alpha-cloud-print img")
+            const caption = chapter.querySelector(".alpha-cloud-caption")
+            const side = index % 2 ? -1 : 1
+            const reveal = gsap.timeline({
+              scrollTrigger: { trigger: chapter, start: "top 94%", end: "center 52%", scrub: true },
+            })
+            reveal.fromTo(art, {
+              x: side * (small ? 18 : 64), y: small ? 34 : 72,
+              rotateY: side * (small ? 8 : 24), scale: .8, opacity: .25, transformPerspective: 900,
+            }, { x: 0, y: 0, rotateY: 0, scale: 1, opacity: 1, duration: .86, ease: "power2.out" }, 0)
+            reveal.fromTo(photo, { scale: 1.24, xPercent: side * 6 }, { scale: 1, xPercent: 0, duration: .86, ease: "power2.out" }, 0)
+            reveal.fromTo(caption, { y: 30, opacity: .4 }, { y: 0, opacity: 1, duration: .6, ease: "power2.out" }, .4)
+            reveal.fromTo(art, { "--cloud-scan": "-20%" }, { "--cloud-scan": "135%", duration: .52, ease: "none" }, .48)
+          })
+        }
         gsap.utils.toArray<HTMLElement>(".alpha-role-panel").forEach((panel, index) => {
           const fan = gsap.timeline({ scrollTrigger: { trigger: ".alpha-role-panels", start: "top 95%", end: "bottom top", scrub: true } })
           fan.fromTo(panel, { xPercent: index ? -4 : 4, y: 32, rotation: index ? 5 : -5 }, { xPercent: 0, y: 0, rotation: 0, duration: .35, ease: "none" }, 0)

@@ -3,7 +3,7 @@
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef, useState } from "react"
 import PixelWolf from "./hero/pixel-wolf"
-import { wolfPose, wolfCoversText, safeWolfPose, wolfRoute, wolfSegmentClear, stepWolfPose, resizeWolfPose, type WolfPoint, type WolfPose } from "./journey-geometry"
+import { HERO_WOLF_TILT, wolfPose, wolfCoversText, safeWolfPose, wolfRoute, wolfSegmentClear, stepWolfPose, resizeWolfPose, type WolfPoint, type WolfPose } from "./journey-geometry"
 
 export default function JourneyWolf() {
   const reducedMotion = useReducedMotion()
@@ -20,9 +20,12 @@ export default function JourneyWolf() {
       if (!motion.matches) return
       const hosts = Array.from(page.querySelectorAll<HTMLElement>("[data-wolf-stop]"))
       if (hosts.length < 2) return
+      const learnIndex = hosts.findIndex(host => host.dataset.wolfStop === "learn")
+      const learnHost = hosts[learnIndex]
+      const learnColumn = learnHost?.closest(".alpha-learn-column")
       // Whole content blocks are protected, including photos and service demos.
       // The mascot belongs beside these elements, never on their surface.
-      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-video-toggle, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-roles-heading>p, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-dock, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer>.container, nav"
+      const readingSelector = ".alpha-opening-title, .alpha-opening-eyebrow, .alpha-opening-bottom, .alpha-opening-memory, .alpha-benefit-copy, .alpha-benefit-art, .alpha-scene-snapshot, .alpha-scene-heading, .alpha-quote, .alpha-roles-heading>p, .alpha-role-panel, .alpha-button, .alpha-team h2, .alpha-team-grid, .alpha-community-dock, .alpha-proof .alpha-hero-visual, .alpha-text-link, .alpha-kicker, .alpha-scene-stamp, .alpha-upcoming, .alpha-closing-friend, .alpha-finale footer>.container, nav"
       let frame = 0
       let active = true
       let previousPose: WolfPose | null = null
@@ -43,7 +46,9 @@ export default function JourneyWolf() {
         if (routeTarget) routeTarget.y -= scrollDelta
         const stops = hosts.map((host, index) => {
           const rect = (host.dataset.wolfStop === "opening" ? host.closest(".alpha-opening-scene")! : host).getBoundingClientRect()
-          const y = rect.top + rect.height / 2 + scroll
+          // Use the column's start for the route so the sticky perch doesn't move the checkpoint.
+          const top = index === learnIndex && learnColumn ? learnColumn.getBoundingClientRect().top : rect.top
+          const y = top + rect.height / 2 + scroll
           return { x: rect.left + rect.width / 2, y, width: host.offsetWidth, scroll: index === 0 ? 0 : Math.max(0, y - window.innerHeight * .55) }
         })
         // Very short viewports may put consecutive checkpoints at the same scroll offset.
@@ -65,10 +70,24 @@ export default function JourneyWolf() {
             const width = hosts[0].offsetWidth
             // Center the wolf's face, excluding the SVG's shadow and empty space.
             const centered = { x: rect.left + rect.width / 2 - width * 176 / 360, y: rect.top + rect.height / 2 - width * 148 / 360 }
-            desired = { ...desired, x: centered.x + (desired.x - centered.x) * blend, y: centered.y + (desired.y - centered.y) * blend, width: width + (desired.width - width) * blend, rotation: desired.rotation * blend }
+            desired = {
+              ...desired,
+              x: centered.x + (desired.x - centered.x) * blend,
+              y: centered.y + (desired.y - centered.y) * blend,
+              width: width + (desired.width - width) * blend,
+              rotation: HERO_WOLF_TILT + (desired.rotation - HERO_WOLF_TILT) * blend,
+            }
           }
         }
-        const target = heroDocked ? desired : safeWolfPose(desired, regions, document.documentElement.clientWidth, window.innerHeight, header, previousPose ?? undefined)
+        let learnDock: WolfPose | null = null
+        if (!heroDocked && learnHost) {
+          const rect = learnHost.getBoundingClientRect()
+          if (rect.top >= header + 24 && rect.bottom <= window.innerHeight - 110) {
+            const perch = { x: rect.left, y: rect.top, width: rect.width, rotation: 0, index: learnIndex }
+            if (!wolfCoversText(perch, regions)) learnDock = perch
+          }
+        }
+        const target = heroDocked ? desired : learnDock ?? safeWolfPose(desired, regions, document.documentElement.clientWidth, window.innerHeight, header, previousPose ?? undefined)
         let moving = false
         // Initial placement happens once. A temporarily blocked route never resets it.
         if (!previousPose && target) previousPose = target
@@ -120,7 +139,7 @@ export default function JourneyWolf() {
           button.setAttribute("aria-hidden", String(!visible))
           button.style.width = `${pose.width}px`
           button.style.transform = `translate3d(${pose.x}px,${pose.y}px,0) rotate(${pose.rotation}deg)`
-          button.dataset.stop = String(desired.index)
+          button.dataset.stop = String(pose.index)
           button.tabIndex = visible ? 0 : -1
         } else {
           button.dataset.visible = "false"

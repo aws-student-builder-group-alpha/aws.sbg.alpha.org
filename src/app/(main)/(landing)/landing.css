@@ -228,7 +228,7 @@
  .alpha-transition-fill{clip-path:none!important}
 }
 
-.alpha-opening-title>span:nth-child(2) .alpha-type-letter{background:linear-gradient(150deg,#ffe2a8 5%,#ffbd54 35%,#ff9900 70%,#e97618);background-clip:text;-webkit-background-clip:text;color:transparent}
+.alpha-opening-title>span:nth-child(2) .alpha-type-letter{padding:.2em .1em .2em 0;margin:-.2em -.1em -.2em 0;background:linear-gradient(150deg,#ffe2a8 5%,#ffbd54 35%,#ff9900 70%,#e97618);background-clip:text;-webkit-background-clip:text;color:transparent}
 .alpha-landing .alpha-opening-start{min-width:clamp(340px,30vw,500px);justify-content:space-between;gap:32px;padding:18px 26px}
 @media(max-width:799px){.alpha-landing .alpha-opening-start{flex:none;width:100%;min-width:0;font-size:13px;padding:16px 18px;gap:14px}.alpha-landing .alpha-opening-recruit{width:100%}.alpha-landing .alpha-opening-bottom{gap:14px}}
 @media(max-width:350px){.alpha-landing .alpha-opening-start{font-size:12px;padding:16px 14px;gap:12px}}

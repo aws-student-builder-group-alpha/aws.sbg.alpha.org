@@ -1,34 +1,35 @@
-"use client"
-
-import { useState } from "react"
 import Image from "next/image"
-import { ArrowUpRight, Check } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 import "./cloud-lab.css"
 
-const SERVICES = [
-  { id: "s3", name: "Amazon S3", category: "Storage", title: "Give your files a home.", description: "Store the photos, uploads, and assets behind your next project.", url: "https://aws.amazon.com/s3/", color: "#9dcc45" },
-  { id: "lambda", name: "AWS Lambda", category: "Serverless", title: "Turn an event into action.", description: "Run your code when something happens, without managing servers.", url: "https://aws.amazon.com/lambda/", color: "#ffac58" },
-  { id: "ec2", name: "Amazon EC2", category: "Compute", title: "Launch your first server.", description: "Run an application on a virtual machine in the cloud.", url: "https://aws.amazon.com/ec2/", color: "#ffac58" },
-  { id: "dynamodb", name: "Amazon DynamoDB", category: "Database", title: "Put your app’s data to work.", description: "Store and retrieve your application’s data in a managed NoSQL database.", url: "https://aws.amazon.com/dynamodb/", color: "#d7a2ff" },
+const STEPS = [
+  { id: "store", title: "Store it.", description: "Upload your event photos to the cloud.", name: "Amazon S3", icon: "s3", url: "https://aws.amazon.com/s3/" },
+  { id: "resize", title: "Resize it.", description: "Make a thumbnail when someone uploads a photo.", name: "AWS Lambda", icon: "lambda", url: "https://aws.amazon.com/lambda/" },
+  { id: "tag", title: "Tag it.", description: "Save tags so friends can find their photos.", name: "Amazon DynamoDB", icon: "dynamodb", url: "https://aws.amazon.com/dynamodb/" },
+  { id: "share", title: "Share it.", description: "Put the gallery online and share the link.", name: "Amazon EC2", icon: "ec2", url: "https://aws.amazon.com/ec2/" },
 ] as const
 
 export default function CloudLab() {
-  const [selected, setSelected] = useState<string>("s3")
-  const service = SERVICES.find(item => item.id === selected) ?? SERVICES[0]
   return <div className="alpha-cloud-lab">
-    <div className="alpha-cloud-lab-header"><span>YOUR CLOUD TOOLKIT</span><Image src="/aws-logo-white.png" width={118} height={70} alt="AWS" /></div>
-    <div className="alpha-cloud-services" role="group" aria-label="Explore AWS services">
-      {SERVICES.map(item => <button key={item.id} type="button" className="alpha-cloud-service" aria-pressed={selected === item.id} aria-controls="alpha-cloud-detail" onClick={() => setSelected(item.id)}>
-        <Image src={`/aws-services/${item.id}.png`} width={64} height={64} alt="" />
-        <span><small>{item.category}</small><strong>{item.name}</strong></span>
-        {selected === item.id && <Check className="alpha-cloud-selected" size={15} aria-hidden="true" />}
-      </button>)}
-    </div>
-    <div id="alpha-cloud-detail" className="alpha-cloud-detail" aria-live="polite" aria-atomic="true">
-      <span className="alpha-cloud-detail-label" style={{ color: service.color }}>{service.category} / {service.name}</span>
-      <h3>{service.title}</h3><p>{service.description}</p>
-      <a href={service.url}>Explore {service.name}<ArrowUpRight size={16} aria-hidden="true" /></a>
-    </div>
-    <a className="alpha-cloud-icon-credit" href="https://aws.amazon.com/architecture/icons/">AWS Architecture Icons</a>
+    {STEPS.map(step => <section key={step.id} className="alpha-cloud-chapter" data-step={step.id} aria-labelledby={`alpha-cloud-${step.id}`}>
+      <div className="alpha-cloud-art" aria-hidden="true">
+        <div className="alpha-cloud-print">
+          <Image src="/optimized/gallery/full/scd-2026-audience.webp" alt="" fill sizes="(min-width: 800px) 34vw, 78vw" />
+          {step.id === "tag" && <span className="alpha-cloud-photo-tag">Student Community Day</span>}
+        </div>
+        {step.id === "share" && <div className="alpha-cloud-contact-sheet">
+          <div><Image src="/optimized/gallery/full/scd-2026-team.webp" alt="" fill sizes="(min-width: 800px) 17vw, 39vw" /></div>
+          <div><Image src="/optimized/gallery/full/scd-2026-certificates.webp" alt="" fill sizes="(min-width: 800px) 17vw, 39vw" /></div>
+        </div>}
+      </div>
+      <div className="alpha-cloud-caption">
+        <h3 id={`alpha-cloud-${step.id}`}>{step.title}</h3>
+        <p>{step.description}</p>
+        <a className="alpha-cloud-service-link" href={step.url}>
+          <Image className="alpha-cloud-service-icon" src={`/aws-services/${step.icon}.png`} width={40} height={40} alt="" />
+          <span>{step.name}</span><ArrowUpRight size={15} aria-hidden="true" />
+        </a>
+      </div>
+    </section>)}
   </div>
 }

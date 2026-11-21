@@ -1,25 +1,273 @@
-.alpha-cloud-lab{position:relative;padding:28px;border:1px solid #c7adff40;border-radius:24px;background:radial-gradient(ellipse at 100% 0,#7651a52b,transparent 60%),#19171f;color:#fff8ed;box-shadow:0 24px 70px #05020c40,inset 0 1px 0 #ffffff14}
-.alpha-cloud-lab-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
-.alpha-cloud-lab-header>span{font:10px var(--font-geist-mono),monospace;letter-spacing:.12em;color:#c8bdD6}
-.alpha-cloud-lab-header>img{width:40px;height:auto}
-.alpha-cloud-services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.alpha-cloud-service{position:relative;display:flex;align-items:center;gap:12px;padding:18px 14px;border:1px solid #ffffff1a;border-radius:12px;background:#ffffff04;text-align:left;cursor:pointer;transition:background .2s,border-color .2s,translate .2s;min-width:0}
-.alpha-cloud-service img{width:42px;height:42px;flex-shrink:0}
-.alpha-cloud-service>span{min-width:0}
-.alpha-cloud-service small{display:block;margin-bottom:5px;color:#b9aec6;font-size:10px}
-.alpha-cloud-service strong{display:block;font-size:clamp(11px,1vw,15px);font-weight:650;line-height:1.3}
-.alpha-cloud-service[aria-pressed="true"]{background:#c7adff12;border-color:#c7adff88}
-.alpha-cloud-service:hover{background:#ffffff0c;border-color:#c7adff77;translate:0 -2px}
-.alpha-cloud-selected{position:absolute;right:8px;top:8px;color:#c7adff}
-.alpha-cloud-detail{min-height:200px;padding:26px 0 0;margin-top:24px;border-top:1px solid #ffffff1a}
-.alpha-cloud-detail-label{font:10px var(--font-geist-mono),monospace}
-.alpha-cloud-detail h3{margin:14px 0 10px;font-size:clamp(22px,2vw,30px);line-height:1.15;letter-spacing:-.035em;font-weight:650}
-.alpha-benefit .alpha-cloud-detail p{margin:0;color:#c5bbd0;font-size:14px;line-height:1.6;max-width:390px}
-.alpha-cloud-detail>a{display:inline-flex;align-items:center;gap:10px;margin-top:18px;min-height:28px;font-size:12px;font-weight:600;color:#fff8ed;text-decoration:underline;text-underline-offset:4px}
-.alpha-cloud-icon-credit{display:inline-block;margin-top:18px;font-size:9px;color:#a99bb8;text-underline-offset:3px}
-.alpha-cloud-icon-credit:hover{text-decoration:underline}
-.alpha-benefit-learn .alpha-benefit-art{height:auto;min-height:0}
-@media(max-width:1100px){.alpha-cloud-lab{padding:22px}.alpha-cloud-service{padding:16px 10px;gap:9px}.alpha-cloud-service img{width:34px;height:34px}}
-@media(max-width:799px){.alpha-cloud-lab{padding:22px 18px}.alpha-cloud-service strong{font-size:12px}.alpha-cloud-detail{min-height:200px}.alpha-cloud-detail h3{font-size:24px}}
-@media(max-width:350px){.alpha-cloud-lab{padding:20px 14px}.alpha-cloud-services{gap:8px}.alpha-cloud-service{flex-direction:column;align-items:start;gap:12px;padding:16px 12px}.alpha-cloud-service strong{font-size:11px}.alpha-cloud-lab-header>span{font-size:8px;letter-spacing:.08em}}
-@media(prefers-reduced-motion:reduce){.alpha-cloud-service{transition:none}.alpha-cloud-service:hover{translate:none}}
+.alpha-benefit.alpha-benefit-learn {
+  --cloud-accent: var(--alpha-violet);
+  align-items: start;
+  gap: clamp(32px, 7vw, 120px);
+  background:
+    radial-gradient(ellipse at 82% 8%, #c7adff24, transparent 35%),
+    radial-gradient(ellipse at 36% 64%, #c7adff13, transparent 45%),
+    var(--alpha-night);
+}
+
+.alpha-benefit-learn .alpha-benefit-art {
+  height: auto;
+}
+
+.alpha-learn-column {
+  align-self: stretch;
+  min-width: 0;
+}
+
+.alpha-learn-wolf {
+  width: clamp(86px, 9vw, 128px);
+  aspect-ratio: 9 / 8;
+  margin-bottom: 42px;
+}
+
+.alpha-learn-wolf svg {
+  width: 100%;
+  height: 100%;
+}
+
+.alpha-landing[data-journey-active="true"] .alpha-learn-wolf svg {
+  visibility: hidden;
+}
+
+.alpha-benefit-learn .alpha-learn-story p {
+  max-width: 28ch;
+  text-wrap: pretty;
+}
+
+.alpha-benefit-learn .alpha-learn-story .alpha-learn-welcome {
+  max-width: none;
+  margin-top: 12px;
+  color: var(--cloud-accent);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.alpha-cloud-lab {
+  --cloud-progress: 0;
+  position: relative;
+  padding-inline-start: clamp(20px, 3vw, 48px);
+}
+
+.alpha-cloud-lab::before,
+.alpha-cloud-lab::after {
+  content: "";
+  position: absolute;
+  inset-block: 10% 10%;
+  inset-inline-start: 4px;
+  width: 1px;
+  background: #c7adff36;
+  pointer-events: none;
+}
+
+.alpha-cloud-lab::after {
+  background: var(--cloud-accent);
+  box-shadow: 0 0 12px var(--cloud-accent);
+  transform: scaleY(var(--cloud-progress));
+  transform-origin: top;
+}
+
+.alpha-cloud-chapter {
+  --cloud-tilt: -6deg;
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: clamp(20px, 3vw, 40px);
+  min-height: clamp(420px, 69svh, 660px);
+  padding-block: 32px;
+}
+
+.alpha-cloud-chapter:nth-child(even) {
+  --cloud-tilt: 5deg;
+}
+
+.alpha-cloud-chapter + .alpha-cloud-chapter {
+  border-top: 1px solid #c7adff36;
+}
+
+.alpha-cloud-art {
+  --cloud-scan: -20%;
+  position: relative;
+  isolation: isolate;
+  width: min(92%, 540px);
+  margin-inline: auto;
+  perspective: 900px;
+}
+
+.alpha-cloud-art::before {
+  content: "";
+  position: absolute;
+  inset: -15% -8%;
+  z-index: -1;
+  background: repeating-radial-gradient(ellipse at center, #c7adff28 0 1px, transparent 2px 20px);
+  mask-image: radial-gradient(ellipse, #000, transparent 71%);
+}
+
+.alpha-cloud-print {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.88;
+  border: 5px solid var(--cloud-accent);
+  border-radius: 12px;
+  background: var(--alpha-ink);
+  overflow: hidden;
+  box-shadow: 0 24px 48px #0007;
+  rotate: var(--cloud-tilt);
+}
+
+.alpha-cloud-print::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent calc(var(--cloud-scan) - 17%), #e0ccff80 var(--cloud-scan), transparent calc(var(--cloud-scan) + 17%));
+  pointer-events: none;
+}
+
+.alpha-cloud-art img {
+  object-fit: cover;
+}
+
+[data-step="store"] .alpha-cloud-print {
+  box-shadow: 7px 8px 0 #8269ac, 14px 16px 0 #584671, 0 25px 48px #0007;
+}
+
+[data-step="resize"] .alpha-cloud-print {
+  width: 62%;
+  aspect-ratio: 1.16;
+  margin-inline: auto;
+  outline: 1px dashed #c7adff99;
+  outline-offset: 7px;
+}
+
+.alpha-cloud-photo-tag {
+  position: absolute;
+  inset-inline-start: 10px;
+  inset-block-end: 10px;
+  z-index: 1;
+  padding: 6px 9px;
+  border-radius: 4px;
+  background: var(--cloud-accent);
+  color: var(--alpha-ink);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+[data-step="share"] .alpha-cloud-art {
+  display: grid;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid #c7adff8c;
+  border-radius: 12px;
+  background: #20182b;
+  rotate: -4deg;
+  box-shadow: 0 24px 48px #0007;
+}
+
+[data-step="share"] .alpha-cloud-print {
+  aspect-ratio: 2.6;
+  border: 0;
+  border-radius: 6px;
+  rotate: none;
+  box-shadow: none;
+}
+
+.alpha-cloud-contact-sheet {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.alpha-cloud-contact-sheet > div {
+  position: relative;
+  aspect-ratio: 2.15;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.alpha-cloud-caption h3 {
+  color: var(--cloud-accent);
+  font-size: clamp(38px, 5.9vw, 100px);
+  font-weight: 900;
+  line-height: .96;
+  letter-spacing: -.06em;
+  text-transform: uppercase;
+}
+
+.alpha-benefit .alpha-cloud-caption p {
+  max-width: 36ch;
+  margin: 10px 0 0;
+  font-size: 15px;
+}
+
+.alpha-cloud-service-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  color: var(--cloud-accent);
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.alpha-cloud-service-icon {
+  width: 32px;
+  height: 32px;
+  padding: 3px;
+  border: 1px solid #c7adff66;
+  border-radius: 8px;
+  background: #c7adff14;
+  object-fit: contain;
+  transition: transform .2s, background-color .2s;
+}
+
+.alpha-cloud-service-link:hover .alpha-cloud-service-icon {
+  transform: rotate(-6deg) scale(1.1);
+  background: #c7adff2b;
+}
+
+@media (min-width: 800px) {
+  .alpha-benefit.alpha-benefit-learn {
+    padding-top: 180px;
+  }
+
+  .alpha-learn-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .alpha-learn-wolf {
+    order: 1;
+    margin: 42px 0 0;
+  }
+}
+
+@media (min-width: 800px) and (min-height: 620px) {
+  .alpha-learn-rail {
+    position: sticky;
+    top: 180px;
+  }
+
+  .alpha-benefit-learn .alpha-learn-story h2 {
+    font-size: min(7.8vw, 15svh, 140px);
+  }
+}
+
+@media (max-width: 799px) {
+  .alpha-cloud-chapter {
+    min-height: clamp(350px, 63svh, 510px);
+  }
+
+  .alpha-learn-wolf {
+    margin-bottom: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alpha-cloud-service-icon { transition: none; }
+}

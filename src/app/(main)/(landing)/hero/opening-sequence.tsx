@@ -3,9 +3,9 @@
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef } from "react"
 import Image from "next/image"
-import { ArrowDown } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { HERO_WOLF_TILT } from "../journey-geometry"
 import KineticType from "../kinetic-type"
 import PixelWolf from "./pixel-wolf"
 import HeroBackground from "./hero-background"
@@ -55,15 +55,11 @@ export default function OpeningSequence() {
   <div className="alpha-opening-scene">
    <div className="alpha-opening-orbit alpha-opening-orbit-one" aria-hidden="true"><i /><i /><i /></div>
    <div className="alpha-opening-orbit alpha-opening-orbit-two" aria-hidden="true"><i /><i /></div>
-   <a href="#alpha-community" className="alpha-opening-mascot" data-wolf-stop="opening" aria-label="Why join Alpha?"><PixelWolf dimensional pose="wave" /></a>
+   <a href="#alpha-community" className="alpha-opening-mascot" data-wolf-stop="opening" aria-label="Why join Alpha?"><span className="alpha-opening-wolf"><PixelWolf dimensional pose="wave" tilt={HERO_WOLF_TILT} /></span></a>
    <div className="alpha-opening-memory alpha-opening-memory-one" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-certificates.webp" alt="" fill sizes="190px" /></div>
    <div className="alpha-opening-memory alpha-opening-memory-two" aria-hidden="true"><Image src="/optimized/gallery/full/scd-2026-team.webp" alt="" fill sizes="155px" /></div>
    <span className="alpha-opening-star alpha-opening-star-one" aria-hidden="true">✦</span>
    <span className="alpha-opening-star alpha-opening-star-two" aria-hidden="true">+</span>
-  </div>
-  <div className="alpha-opening-bottom">
-   <p>We’re recruiting<br /><span>Core Team &amp; Committee.</span></p>
-   <a href="#about" className="alpha-opening-recruit">Why join Alpha?<ArrowDown size={15} aria-hidden="true" /></a>
   </div>
  </section>
 }

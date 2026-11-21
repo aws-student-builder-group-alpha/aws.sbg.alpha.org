@@ -1,11 +1,13 @@
 /** Pixel interpretation of Alpha's gray wolf, cream muzzle and orange cap. */
-export default function PixelWolf({ className = "", pose = "hello", dimensional = false }: {
+export default function PixelWolf({ className = "", pose = "hello", dimensional = false, tilt = 0 }: {
   className?: string
   pose?: "hello" | "wink" | "wave"
   dimensional?: boolean
+  tilt?: number
 }) {
   const silhouette = "M64 112V24H96V40H112V64H240V40H256V24H288V112H304V144H320V160H304V192H288V224H256V256H224V272H128V256H96V240H80V208H48V192H32V176H48V144H64Z"
   return <svg className={`alpha-pixel-wolf ${dimensional ? "alpha-wolf-sculpture" : ""} ${className}`} viewBox="0 0 360 320" fill="none" aria-hidden="true" shapeRendering="crispEdges">
+    <g transform={tilt ? `rotate(${tilt} 180 160)` : undefined}>
     {dimensional && <><ellipse cx="190" cy="296" rx="125" ry="12" fill="#090611" opacity=".35" /><path d={silhouette} transform="translate(20 -16)" fill="#453253" stroke="#261b31" strokeWidth="6" /><path d="M64 24L84 8H116L96 24ZM256 24L276 8H308L288 24ZM304 144L324 128H340V144L320 160Z" fill="#b39bc9" /></>}
     <g stroke="#332437" strokeWidth="6" strokeLinejoin="miter">
       <path d={silhouette} fill="#696978" />
@@ -27,5 +29,6 @@ export default function PixelWolf({ className = "", pose = "hello", dimensional 
     </g>
     {pose === "wave" && <g className="alpha-wolf-paw" fill="#fff8ed" stroke="#332437" strokeWidth="5"><path d="M48 208H32V192H16V160H24V144H40V152H48V144H64V160H72V184H64V200H48Z" /><path d="M32 164V180M48 164V180" strokeWidth="4" /></g>}
     {dimensional && <g className="alpha-wolf-spark" fill="#ffb13e"><path d="M320 40H328V56H344V64H328V80H320V64H304V56H320Z" /><path d="M24 248H32V256H40V264H32V272H24V264H16V256H24Z" fill="#c7adff" /></g>}
+    </g>
   </svg>
 }
