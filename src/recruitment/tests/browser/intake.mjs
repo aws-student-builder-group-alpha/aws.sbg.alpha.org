@@ -82,11 +82,21 @@ try{
  assert.equal(await page.locator('.site-header,.site-header-space').count(),0);
  await assertInlineFailure(page,'Review intake change','intake-action');await page.getByLabel('Intake change',{exact:true}).selectOption('pause');await assertInlineFailure(page,'Review intake change','intake-reason');await page.getByLabel('Private reason (required)',{exact:true}).fill('??'.repeat(501));await assertInlineFailure(page,'Review intake change','intake-reason');await assertEnlargedProcess(page,'intake-reason');await page.getByLabel('Private reason (required)',{exact:true}).fill('');await page.getByLabel('Intake change',{exact:true}).selectOption('');
  await mount();
- for (const width of [375, 1024, 1200, 1440]) {
+ for (const width of [320, 375, 768, 1024, 1200, 1440]) {
    await page.setViewportSize({ width, height: 950 });
    const columns = selector => page.locator(selector).evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
    assert.equal(await columns(".intake-workspace-columns"), width >= 1200 ? 2 : 1);
-   assert.equal(await columns(".intake-schedule"), width >= 480 ? 2 : 1);
+   assert.equal(await columns(".intake-schedule"), 1);
+   assert.equal(await page.locator(".intake-schedule").isVisible(),true);
+   if(width===375){
+     const help=page.locator(".intake-help");
+     await help.locator("summary").focus();await page.keyboard.press("Enter");
+     await help.getByText(/Draft saving, evaluation/).waitFor();
+     await page.keyboard.press("Space");
+     await page.getByLabel("Intake change",{exact:true}).selectOption("close");
+     await page.getByText("Permanent closure",{exact:true}).waitFor();
+     await page.getByLabel("Intake change",{exact:true}).selectOption("");
+   }
    if (width === 375 || width === 1440) {
      await page.evaluate(() => { document.activeElement?.blur(); document.querySelector(".admin-workspace").scrollTop = 0; });
      await page.screenshot({ path: path.join(output, `intake-${width}.png`) });

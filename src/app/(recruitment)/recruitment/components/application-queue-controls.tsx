@@ -5,7 +5,7 @@ import { applicationStatuses, type ApplicationStatus } from "@/recruitment/lib/a
 import { getOpportunity, opportunities, opportunityLabel } from "@/recruitment/lib/catalog";
 import { changeQueueTrack, defaultQueueFilters, queueIsFiltered, sameQueueFilters } from "@/recruitment/lib/application-queue";
 import type { ApplicationQueue, QueueFilters } from "@/recruitment/lib/application-queue";
-import { Callout, Icon, Modal } from "./ui";
+import { Callout, Icon, Modal, WorkspaceDisclosureLabel } from "./ui";
 
 const queueViews = [
   ["Unassigned", "Submitted", "unassigned", "all"],
@@ -121,12 +121,20 @@ export function ApplicationQueueControls({ filters, applied, busy, frozen, notic
 }
 
 export function ApplicationQueueCounts({ queue, shown }: { queue: ApplicationQueue; shown: number }) {
-  return <section className="application-queue-counts" aria-labelledby="queue-counts-heading">
+  const id = useId();
+  const [expanded, setExpanded] = useState(false);
+  return <section className="application-queue-counts" aria-labelledby={`${id}-heading`} data-expanded={expanded}>
     <header className="queue-counts-heading">
-      <h2 id="queue-counts-heading">Status breakdown</h2>
+      <h2 id={`${id}-heading`}>
+        <span className="queue-counts-title">Status breakdown</span>
+        <button className="queue-counts-toggle" type="button" aria-expanded={expanded} aria-controls={`${id}-counts`}
+          onClick={() => setExpanded(value => !value)}>
+          <WorkspaceDisclosureLabel icon="chart">Status breakdown</WorkspaceDisclosureLabel>
+        </button>
+      </h2>
       <p role="status">{shown} shown of {queue.total} matching applications</p>
     </header>
-    <dl className="queue-status-counts">
+    <dl id={`${id}-counts`} className="queue-status-counts">
       {applicationStatuses.map(status => <div className="queue-status-cell" key={status} data-status={status}>
         <dt>{status}</dt>
         <dd>

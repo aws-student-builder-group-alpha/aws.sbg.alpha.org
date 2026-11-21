@@ -30,7 +30,11 @@ modules.set("next/navigation","exports.usePathname=()=>window.shellPath||'/recru
 await installBrowserMotion(modules, { realEntrances: true });
 await installRecruitmentUI(modules);
 const bundle=`(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([n,c])=>JSON.stringify(n)+":function(module,exports,require){"+c+"\n}").join(",")}};const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked module: '+name);const m=cache[name]={exports:{}};modules[name](m,m.exports,require);}return cache[name].exports;}const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let version=0;window.mount=props=>{window.shellPath=props.initialList.role==='administrator'?'/recruitment/admin/applications':'/recruitment/reviewer';root.render(jsx(require('recruitment-test-frame').Frame,{frame:props.initialList.role,staff:{role:props.initialList.role,status:'active',needsMfa:false},children:jsx(require('./access-guard').AccessGuard,{accountId:props.accountId,expected:props.initialList.role,children:jsx(require('workspace').EvaluationWorkspace,props)})},String(++version)));};})();`;
-const origin="https://evaluations.example.test",runtime=await evaluationRuntime(origin),created=await runtime.createApplication();
+const origin="https://evaluations.example.test",runtime=await evaluationRuntime(origin);
+const longApplication=validSubmission();
+longApplication.answers.motivation += "\n" + "Extended synthetic reading content. ".repeat(30);
+longApplication.resumeUrl="https://example.test/documents/"+"reference".repeat(45)+"?download=1";
+const created=await runtime.createApplication(longApplication);
 const shell=await recruitmentStyleShell(),styles=[...shell.matchAll(/href="([^"?]+\.css)(?:\?[^"]*)?"/g)].map(m=>m[1]);assert.ok(styles.length,"Run npm run build first");
 let browser,faults={posts:[]};const errors=[],passed=[];
 const output=path.join(project,".next/verification/application-queue");await mkdir(output,{recursive:true});
@@ -42,6 +46,16 @@ try{
   if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css",body:await readFile(path.join(project,"../../.next",url.pathname.slice("/_next/".length)))});
   if(url.pathname.startsWith("/recruitment/brand/"))return route.fulfill({body:await readFile(path.join(project,"../../public",url.pathname))});
   if(url.pathname==="/recruitment/api/access")return route.fulfill({json:faults.access||await runtime.access()});
+  if(url.pathname==="/recruitment/api/community"){
+   if(incoming.method()==="POST"){
+    (faults.emailSends ??= []).push(incoming.postDataJSON());
+    return route.fulfill({json:{ok:true,data:{state:"uncertain"}}});
+   }
+   return route.fulfill({json:{ok:true,data:{emailReady:true,items:[{
+     id:"synthetic-email",kind:"update",subject:"Previous synthetic email",body:"Earlier message text",
+     calendly_url:null,state:"sent",created_at:"2026-11-21T00:00:00Z",completed_at:null,
+   }]}}});
+  }
   if(!["/recruitment/api/evaluations","/recruitment/api/decisions"].includes(url.pathname))return route.fulfill({contentType:"text/html",body:`<html lang="en" data-theme="light"><head>${styles.map(s=>`<link rel="stylesheet" href="${s}">`).join("")}</head><body class="alpha-app"><div id="root"></div></body></html>`});
   if(faults.detailUnavailable&&url.searchParams.get("mode")==="detail")return route.fulfill({status:503,json:{ok:false,code:"UNAVAILABLE",message:"Synthetic detail outage"}});
   const body=incoming.method()==="POST"?JSON.parse(incoming.postData()):null;if(body)faults.posts.push(body);
@@ -56,7 +70,7 @@ try{
  // Bulk rows are synthetic queue fixtures; production transitions remain covered separately.
  for(let i=0;i<35;i++){
   const owner=await runtime.addIdentity(),statuses=['Submitted','Under Review','Accepted','Waitlisted','Not Selected','Withdrawn'],status=statuses[i%6],committee=i%2===1;
-  const data={...validSubmission(),track:committee?'COMMITTEE':'CORE_TEAM',opportunityId:committee?'committee-secretariat':'core-secretariat'};data.profile.fullName=i===0?'Literal %_ Applicant':'Queue Applicant '+i;
+  const data={...validSubmission(),track:committee?'COMMITTEE':'CORE_TEAM',opportunityId:committee?'committee-secretariat':'core-secretariat'};data.profile.fullName=i===0?'Literal %_ Applicant':i===34?'Alexandria Maximiliana Verylongsurname Synthetic Applicant':'Queue Applicant '+i;
   const app=(await runtime.db.query("insert into applications(owner_id,reference,email,data,privacy_version,consented_at,source_draft_version,submit_mutation_id,status,withdrawn_at,withdraw_mutation_id,submitted_at) values($1,$2,$3,$4,'synthetic',now(),1,$5,$6,$7,$8,$9) returning id",[owner.id,'ALPHA-2026-'+crypto.randomUUID().replaceAll('-','').slice(0,12).toUpperCase(),owner.email,data,crypto.randomUUID(),status,status==='Withdrawn'?new Date():null,status==='Withdrawn'?crypto.randomUUID():null,new Date(1793000000000+i*1000)])).rows[0];
   await runtime.db.query('insert into application_public_history(application_id,version,status) values($1,1,$2)',[app.id,status]);
   if(!['Submitted','Withdrawn'].includes(status)){const assignment=crypto.randomUUID();await runtime.db.query('insert into evaluation_assignments(id,application_id,generation,evaluator_id,assigned_by) values($1,$2,1,$3,$4)',[assignment,app.id,runtime.first.id,runtime.admin.id]);if(status!=='Under Review'||i%12===1)await runtime.db.query("insert into evaluation_reviews(assignment_id,recommendation,notes,version) values($1,'Waitlisted','Synthetic private note',1)",[assignment]);}
@@ -116,6 +130,7 @@ try{
  assert.ok(firstRow && firstRow.y>=81 && firstRow.y+firstRow.height<=900,'Applications appear below the landing navbar and above the fold without expanding filters');
  assert.equal(await page.locator('.site-header,.site-header-space').count(),0);
  const summary=page.locator('.queue-status-counts');
+ const summaryToggle=page.getByRole('button',{name:'Status breakdown',exact:true});
  assert.equal(await summary.locator('button,a,summary,[tabindex]').count(),0);
  assert.equal(await summary.locator('dt').count(),6);
  assert.equal(await summary.locator('.queue-status-icon[aria-hidden="true"] svg').count(),6);
@@ -123,7 +138,23 @@ try{
  assert.equal(await page.getByRole('button',{name:'Apply filters',exact:true}).isVisible(),false);
  for (const width of [320,375,768,1280,1440,1920]) {
   await page.setViewportSize({width,height:1000});
+  if(width<768){
+   assert.equal(await summary.isVisible(),false);
+   assert.equal(await summaryToggle.getAttribute('aria-expanded'),'false');
+   await match(36,36);
+   await summaryToggle.focus();await page.keyboard.press('Enter');
+   assert.equal(await summaryToggle.getAttribute('aria-expanded'),'true');
+   assert.equal(await summary.isVisible(),true);
+   assert.ok(await summaryToggle.locator('.workspace-disclosure-chevron').evaluate(node=>parseFloat(getComputedStyle(node).transitionDuration)<.001));
+  }else{
+   assert.equal(await summaryToggle.isVisible(),false);
+   assert.equal(await summary.isVisible(),true);
+  }
   assert.equal(await summary.evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width<768?3:6);
+  if(width<768){
+   await page.keyboard.press('Space');
+   assert.equal(await summary.isVisible(),false);
+  }
   await openFilters();
   const bounds=await filterDrawer.boundingBox();
   assert.equal(bounds.width,width<768?width:430);
@@ -136,6 +167,20 @@ try{
  assert.equal(await filterToggle.getAttribute('aria-expanded'),'false');
  assert.equal(await page.getByLabel('Application status',{exact:true}).isVisible(),false);
  await page.setViewportSize({width:375,height:1000});
+ const narrowCard=page.getByRole('button',{name:/Alexandria Maximiliana/});
+ await narrowCard.waitFor();
+ assert.equal(await narrowCard.locator('.admin-application-card-status').isVisible(),true);
+ assert.equal(await narrowCard.locator('.admin-application-card-role').isVisible(),true);
+ assert.equal(await narrowCard.locator('.admin-application-meta time').isVisible(),true);
+ assert.equal(await narrowCard.locator('.admin-application-card-review').isVisible(),true);
+ assert.equal(await narrowCard.locator('xpath=../following-sibling::td').first().isVisible(),false);
+ await page.setViewportSize({width:320,height:850});
+ await page.evaluate(()=>{document.documentElement.style.fontSize='200%'});
+ assert.equal(await narrowCard.evaluate(node=>node.scrollWidth>node.clientWidth+1),false);
+ await page.evaluate(()=>{document.documentElement.style.fontSize=''});
+ await page.setViewportSize({width:375,height:812});
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ await scrollWorkspaceToTop();
  const mobileRow=await page.locator('.evaluation-list-item').first().boundingBox();
  assert.ok(mobileRow && mobileRow.y>=73 && mobileRow.y+mobileRow.height<=812,'The first application also fits below the landing navbar in an 812px-high mobile screen with filters collapsed');
  assert.equal(await filterToggle.getAttribute('aria-expanded'),'false');
@@ -156,8 +201,73 @@ try{
  assert.ok(queueScroll>0);
  await record.click();
  await page.getByRole('heading',{name:'Submitted application',exact:true}).waitFor();
+ const submitted=page.getByRole('tabpanel',{name:'Application',exact:true});
+ const jumpLinks=submitted.getByRole('navigation',{name:'Application sections'});
+ const answers=submitted.getByRole('heading',{name:'Written answers',exact:true});
+ assert.deepEqual(await jumpLinks.getByRole('link').allTextContents(),['Applicant details','Chosen opportunity','Written answers','Supporting evidence']);
+ assert.equal(await submitted.getByRole('heading',{name:'Experience & interests',exact:true}).isVisible(),true);
+ assert.ok(await submitted.getByText(/Extended synthetic reading content/).isVisible());
+ const evidence=submitted.getByRole('region',{name:'Supporting evidence',exact:true});
+ await evidence.getByRole('link',{name:'Open résumé',exact:true}).waitFor();
+ assert.equal(await evidence.getByRole('link',{name:'Open résumé',exact:true}).getAttribute('href'),longApplication.resumeUrl);
+ assert.equal(await evidence.getByRole('link',{name:'Open portfolio',exact:true}).count(),0);
+ for(const width of [320,375,768,1280,1440]){
+   await page.setViewportSize({width,height:900});
+   assert.equal(await page.locator('.workspace-detail').evaluate(node=>node.scrollWidth>node.clientWidth+1),false);
+   const tabs=page.getByRole('tablist',{name:'Application details'});
+   assert.equal(await tabs.evaluate(node=>getComputedStyle(node).position),'static');
+   if(width===320){
+     await page.evaluate(()=>{document.documentElement.style.fontSize='200%'});
+     assert.equal(await page.locator('.workspace-detail').evaluate(node=>node.scrollWidth>node.clientWidth+1),false);
+     await page.evaluate(()=>{document.documentElement.style.fontSize=''});
+   }
+   if(width===1440){
+     await jumpLinks.getByRole('link',{name:'Written answers',exact:true}).focus();
+     await page.keyboard.press('Enter');
+     await page.waitForFunction(()=>document.activeElement?.textContent==='Written answers');
+     const tabBounds=await tabs.boundingBox();
+     assert.ok((await answers.boundingBox()).y>=tabBounds.y+tabBounds.height-1,'Tabs scroll above the section heading');
+   }
+ }
+ await page.setViewportSize({width:375,height:1000});
+ passed.push('staff reading cards retain full legacy answers and evidence URLs with keyboard section navigation');
+ const communication=page.locator('.record-communication');
+ const communicationToggle=communication.locator(':scope > summary');
+ assert.equal(await communication.evaluate(node=>node.open),false);
+ assert.equal(await communication.evaluate(node=>node.previousElementSibling.matches('.record-identity')),true);
+ const enrollment=evidence.getByRole('link',{name:'Download proof of enrollment'});
+ assert.equal(new URL(await enrollment.getAttribute('href'),origin).searchParams.get('applicationId'),created.app.id);
+ await communicationToggle.focus();await page.keyboard.press('Enter');
+ const priorMessage=communication.locator('.outreach-message-list details');
+ await priorMessage.getByText('Accepted by Gmail',{exact:true}).waitFor();
+ assert.equal(await priorMessage.getByText('Earlier message text',{exact:true}).isVisible(),false);
+ await priorMessage.locator('summary').click();
+ await priorMessage.getByText('Earlier message text',{exact:true}).waitFor();
+ await priorMessage.locator('summary').click();
+ const subject=communication.getByLabel('Subject',{exact:true});
+ await subject.fill('Synthetic email subject');
+ await communicationToggle.click();
+ assert.equal(await subject.isVisible(),false);
  const applicationTab=page.getByRole('tab',{name:'Application',exact:true});await applicationTab.focus();await page.keyboard.press('ArrowRight');
  assert.equal(await page.getByRole('tab',{name:'Review & decision',exact:true}).getAttribute('aria-selected'),'true');
+ await communicationToggle.click();
+ assert.equal(await subject.inputValue(),'Synthetic email subject');
+ await communication.getByRole('button',{name:'Review and send email',exact:true}).click();
+ const emailReview=page.getByRole('dialog',{name:'Review email',exact:true});
+ await emailReview.getByRole('heading',{name:'Synthetic email subject',exact:true}).waitFor();
+ await page.screenshot({path:path.join(output,'email-review-375.png')});
+ assert.equal(faults.emailSends?.length ?? 0,0);
+ await page.keyboard.press('Escape');
+ assert.equal(await subject.inputValue(),'Synthetic email subject');
+ await communication.getByRole('button',{name:'Review and send email',exact:true}).click();
+ await emailReview.getByRole('button',{name:'Send email',exact:true}).click();
+ const retryEmail=communication.getByRole('button',{name:'Check same email request',exact:true});
+ await retryEmail.waitFor();
+ await communicationToggle.click();await communicationToggle.click();
+ await retryEmail.click();await until(()=>faults.emailSends?.length===2);
+ assert.deepEqual(faults.emailSends[0],faults.emailSends[1]);
+ await communicationToggle.click();
+ passed.push('communication begins collapsed, retains edits across tabs and retries the same synthetic email after reopening');
  await page.getByLabel('Evaluator',{exact:true}).selectOption(runtime.first.id);
  await page.getByLabel('Assignment reason (optional)',{exact:true}).fill('Preserve my assignment draft');
  await page.getByRole('tab',{name:'History',exact:true}).click();await page.getByRole('heading',{name:'Private evaluation history',exact:true}).waitFor();

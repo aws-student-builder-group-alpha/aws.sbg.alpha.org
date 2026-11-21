@@ -42,6 +42,13 @@ try{
   if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css",body:await readFile(path.join(buildDirectory,url.pathname.replace(/^\/recruitment(?=\/_next\/)/,"").slice("/_next/".length)))});
   if(url.pathname.startsWith("/recruitment/brand/"))return route.fulfill({body:await readFile(path.join(project,"../../public",url.pathname))});
   if(url.pathname==="/recruitment/api/access")return route.fulfill({json:faults.access||await runtime.access()});
+  if(url.pathname==="/recruitment/api/community"){
+   if(incoming.method()==="POST"){
+    (faults.emailSends ??= []).push(incoming.postDataJSON());
+    return route.fulfill({json:{ok:true,data:{state:"uncertain"}}});
+   }
+   return route.fulfill({json:{ok:true,data:{items:[],emailReady:true}}});
+  }
   if(!["/recruitment/api/evaluations","/recruitment/api/decisions"].includes(url.pathname))return route.fulfill({contentType:"text/html",body:`<html lang="en" data-theme="light"><head>${styles.map(s=>`<link rel="stylesheet" href="${s}">`).join("")}</head><body class="alpha-app"><div id="root"></div></body></html>`});
   if(faults.detailUnavailable&&url.searchParams.get("mode")==="detail")return route.fulfill({status:503,json:{ok:false,code:"UNAVAILABLE",message:"Synthetic detail outage"}});
   const body=incoming.method()==="POST"?JSON.parse(incoming.postData()):null;if(body)faults.posts.push(body);
@@ -67,7 +74,35 @@ try{
    await assertWorkspaceEntrance(page, summary);
  });
  passed.push("evaluator queue and new record summary enter on desktop and phone");
- await mount(runtime.first);await choose();await page.setViewportSize({width:375,height:812});
+ await mount(runtime.first);
+ await page.setViewportSize({width:375,height:812});
+ const row=page.locator('.evaluation-list-item').filter({hasText:created.app.reference});
+ await row.locator('.reviewer-card-meta time').waitFor();
+ assert.equal(await row.locator('.reviewer-card-cue').textContent(),'Recommendation needed');
+ await choose();
+ const communication=page.locator('.record-communication'), disclosure=communication.locator(':scope > summary');
+ assert.equal(await communication.evaluate(node=>node.open),false);
+ await page.getByRole('tab',{name:'Application',exact:true}).click();
+ await page.getByRole('tabpanel',{name:'Application',exact:true}).getByRole('link',{name:'Download proof of enrollment',exact:true}).waitFor();
+ await disclosure.focus();await page.keyboard.press('Enter');
+ const subject=communication.getByLabel('Subject',{exact:true});
+ await subject.fill('Synthetic evaluator email');
+ await communication.getByLabel('Calendly scheduling link').fill('https://calendly.com/alpha/interview');
+ await disclosure.click();
+ await page.getByRole('tab',{name:'Recommendation',exact:true}).click();
+ await disclosure.click();
+ assert.equal(await subject.inputValue(),'Synthetic evaluator email');
+ await communication.getByRole('button',{name:'Review and send email',exact:true}).click();
+ const emailReview=page.getByRole('dialog',{name:'Review email',exact:true});
+ await emailReview.getByText('https://calendly.com/alpha/interview').waitFor();
+ await emailReview.getByRole('button',{name:'Send email',exact:true}).click();
+ const retryEmail=communication.getByRole('button',{name:'Check same email request',exact:true});
+ await retryEmail.waitFor();
+ await disclosure.click();await disclosure.click();
+ await retryEmail.click();await until(()=>faults.emailSends?.length===2);
+ assert.deepEqual(faults.emailSends[0],faults.emailSends[1]);
+ await disclosure.click();
+ passed.push('evaluator communication preserves a draft and retries the same synthetic email across tabs and disclosure changes');
  const before=faults.posts.length;await assertInlineFailure(page,'Save recommendation','evaluation-recommendation');await page.getByRole('combobox',{name:'Recommendation',exact:true}).selectOption('Accepted');await page.getByLabel('Private notes (optional)').fill('??'.repeat(5001));await assertInlineFailure(page,'Save recommendation','evaluation-notes');await assertEnlargedProcess(page,'evaluation-notes');await page.getByRole('combobox',{name:'Recommendation',exact:true}).selectOption('');await page.getByLabel('Private notes (optional)').fill('Preserved evaluator input');
  await page.setViewportSize({width:375,height:812});
  const recommendationTab=page.getByRole('tab',{name:'Recommendation',exact:true});await recommendationTab.focus();await page.keyboard.press('Home');assert.equal(await page.getByRole('tab',{name:'Application',exact:true}).getAttribute('aria-selected'),'true');await page.keyboard.press('End');assert.equal(await page.getByRole('tab',{name:'Previous reviews',exact:true}).getAttribute('aria-selected'),'true');await page.keyboard.press('ArrowLeft');
