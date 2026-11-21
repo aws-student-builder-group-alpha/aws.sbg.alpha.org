@@ -1,5 +1,6 @@
 "use client";
 import {
+  formatAvailability,
   getOpportunity,
   opportunityLabel,
   questionsFor,
@@ -60,8 +61,8 @@ export function ApplicationContent({
             </dd>
           </div>
           <div>
-            <dt>Available days</dt>
-            <dd>{app.profile.availability.join(", ")}</dd>
+            <dt>Availability</dt>
+            <dd>{formatAvailability(app.profile.availability)}</dd>
           </div>
           {app.profile.preferredName && (
             <div>

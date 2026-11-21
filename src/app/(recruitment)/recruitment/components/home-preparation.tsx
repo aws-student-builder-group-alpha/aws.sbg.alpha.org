@@ -3,7 +3,7 @@ import { ApplicationAction, Icon } from "./ui";
 import { ImmersiveCard } from "./immersive-card";
 
 const preparation = [
-  ["Your student details", "University, program, current year and available days."],
+  ["Your student details", "University, program, current year and availability."],
   ["Three short answers", "Why you want to join, a time you worked with others, and your chosen role’s scenario. Up to 150 words each."],
   ["Resume and enrollment proof", "A view-only HTTPS resume link and a private enrollment upload are required. Your portfolio is optional."],
 ];

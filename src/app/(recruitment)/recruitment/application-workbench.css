@@ -140,3 +140,35 @@
  .alpha-app .application-workbench .application-step-guidance{font-size:14px;line-height:1.6}
  .alpha-app .application-step-navigation .process-step-label{margin-top:10px}
 }
+
+.alpha-app .availability-selector{container-type:inline-size;margin-top:24px}
+.alpha-app .availability-selector-layout{display:grid;gap:24px}
+.alpha-app .availability-calendar-panel{padding:20px;border:1px solid #e5deed;border-radius:18px;background:#fff}
+.alpha-app .availability-calendar-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.alpha-app .availability-calendar-heading strong{font-size:18px;color:#2d2634;letter-spacing:-.02em}
+.alpha-app .availability-calendar-heading button{display:grid;place-items:center;min-width:44px;min-height:44px;border:1px solid #e6dfed;border-radius:12px;background:#faf8fc;color:#49345f;cursor:pointer}
+.alpha-app .availability-chevron-back{display:flex;transform:rotate(180deg)}
+.alpha-app .availability-calendar-instruction{margin:0;font-size:13px;line-height:1.7;color:#6b6076}
+.alpha-app .availability-weekdays,.alpha-app .availability-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.alpha-app .availability-weekdays{margin:20px 0 8px;text-align:center;font-size:12px;font-weight:600;color:#74677f}
+.alpha-app .availability-calendar-days{user-select:none}
+.alpha-app .availability-calendar-days button{min-width:0;min-height:44px;padding:4px;border:1px solid transparent;border-radius:10px;background:transparent;color:#312b39;font:inherit;font-size:14px;cursor:pointer;touch-action:none}
+.alpha-app .availability-calendar-days button[data-outside=true]{color:#8a8093}
+.alpha-app .availability-calendar-days button[aria-current=date]{border-color:#b3a0c7;font-weight:700}
+.alpha-app .availability-calendar-days button:hover{background:#eee6f6}
+.alpha-app .availability-calendar-days button[data-selected=true]{background:#eee5f8;color:#4f3272}
+.alpha-app .availability-calendar-days button[data-endpoint=true]{background:#70509e;color:#fff;font-weight:700;border-color:#70509e}
+.alpha-app .availability-selector button:focus-visible{outline:2px solid #9b630a;outline-offset:2px;position:relative;z-index:1}
+.alpha-app .availability-selector button:disabled{opacity:.4;cursor:default}
+.alpha-app .availability-schedule-panel{display:flex;flex-direction:column;gap:18px;padding:24px;border:1px solid #eee7f3;border-radius:18px;background:#faf8fc;min-width:0}
+.alpha-app .availability-panel-title{display:flex;align-items:center;gap:8px;color:#5b4274}
+.alpha-app .availability-panel-title h4{margin:0;font-size:16px;font-weight:600;color:#302738}
+.alpha-app .availability-panel-title > span{margin-left:auto;font-size:12px;color:#6b6076}
+.alpha-app .availability-hours-title{margin-top:6px;padding-top:24px;border-top:1px solid #e4dcea;flex-wrap:wrap}
+.alpha-app .availability-date-fields,.alpha-app .availability-time-fields{display:grid;gap:18px;min-width:0}
+.alpha-app .availability-selector .field{min-width:0}
+.alpha-app .availability-selector .field input,.alpha-app .availability-selector .field select{width:100%;min-width:0;background-color:#fff;border-radius:12px}
+.alpha-app .availability-selection-status{margin:auto 0 0;padding-top:16px;border-top:1px solid #e4dcea;color:#5b4274;font-size:13px;line-height:1.7}
+@container (min-width:620px){.alpha-app .availability-selector-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px}}
+@container (max-width:619px) and (min-width:400px){.alpha-app .availability-date-fields,.alpha-app .availability-time-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:479px){.alpha-app .availability-calendar-panel{padding:16px 12px}.alpha-app .availability-schedule-panel{padding:20px}}

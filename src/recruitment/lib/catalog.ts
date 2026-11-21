@@ -164,6 +164,7 @@ export const questionIds = [
   "scenario",
 ] as const;
 export type QuestionId = (typeof questionIds)[number];
+export type AvailabilityRange = { startDate: string; endDate: string; startTime: string; endTime: string };
 export type Profile = {
   fullName: string;
   preferredName: string;
@@ -177,9 +178,17 @@ export type Profile = {
   year: string;
   yearExplanation: string;
   enrolled: boolean;
-  availability: string[];
+  availability: string[] | AvailabilityRange;
   experience: string;
 };
+
+export function formatAvailability(availability: Profile["availability"], separator = ", ") {
+  if (Array.isArray(availability)) return availability.join(separator);
+  const { startDate, endDate, startTime, endTime } = availability;
+  const dates = startDate === endDate ? startDate : [startDate, endDate].filter(Boolean).join(" to ");
+  const times = [startTime, endTime].filter(Boolean).join(" to ");
+  return [dates, times && `${times} Philippine time`].filter(Boolean).join(separator);
+}
 
 export const wordCount = (value: string) =>
   value.trim() ? value.trim().split(/\s+/u).length : 0;

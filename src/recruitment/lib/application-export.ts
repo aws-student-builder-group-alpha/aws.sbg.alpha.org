@@ -1,6 +1,6 @@
 import { applicationStatuses } from "./applications.ts";
 import type { ApplicationStatus } from "./applications.ts";
-import { getOpportunity, questionIds, opportunityLabel } from "./catalog.ts";
+import { formatAvailability, getOpportunity, questionIds, opportunityLabel } from "./catalog.ts";
 import { isDraftInput, record } from "./drafts.ts";
 import type { DraftInput } from "./drafts.ts";
 import { isQueueFilters } from "./application-queue.ts";
@@ -67,7 +67,7 @@ export function createExportChunks(snapshot: ExportSnapshot, maxBytes = EXPORT_M
     if (!opportunity) throw new Error("Unknown export opportunity");
     add([row.reference, row.status, philippineTimestamp(row.submittedAt), philippineTimestamp(row.withdrawnAt),
       p.fullName, p.preferredName, row.email, p.mobile, p.university, p.otherUniversity, p.campus, p.program, p.programLevel, p.year, p.yearExplanation, p.enrolled,
-      row.track === "CORE_TEAM" ? "Core Team" : "Committee", row.opportunityId, opportunityLabel(opportunity), p.availability.join("; "), p.experience,
+      row.track === "CORE_TEAM" ? "Core Team" : "Committee", row.opportunityId, opportunityLabel(opportunity), formatAvailability(p.availability, "; "), p.experience,
       ...questionIds.map(id => row.answers[id]), row.accuracy, row.processingConsent, row.updatesConsent, String(row.formVersion ?? 1)]);
   }
   return { chunks, bytes };

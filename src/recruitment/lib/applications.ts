@@ -1,4 +1,4 @@
-import { hasDraftShape, isDraftInput, record, validateDraft } from "./drafts.ts";
+import { availabilitySubmissionError, hasDraftShape, isDraftInput, record, validateDraft } from "./drafts.ts";
 import type { DraftInput, DraftCode } from "./drafts.ts";
 import { isCoreEligible, normalizePhone, questionsFor, wordCount } from "./catalog.ts";
 
@@ -59,7 +59,8 @@ export function validateSubmission(value: unknown): Record<string, string> {
   if (!p.enrolled) errors.enrolled = "Confirm that you are currently enrolled.";
   if (value.track === "CORE_TEAM" && !isCoreEligible({ ...p, email: "" })) errors.eligibility = "Core Team requires an enrolled first- or second-year undergraduate.";
   if (!value.opportunityId) errors.opportunityId = "Choose an opportunity in your selected track.";
-  if (!p.availability.length) errors.availabilityDays = "Choose at least one available day.";
+  const availabilityError = availabilitySubmissionError(p.availability, value.formVersion);
+  if (availabilityError) errors.availabilityDays ??= availabilityError;
   if (value.formVersion !== 2 && !p.experience.trim()) errors.experience = "Tell us about your experience or interests. Beginners are welcome.";
   for (const q of questionsFor(value.opportunityId, value.formVersion)) {
     const count = wordCount(value.answers[q.id]);

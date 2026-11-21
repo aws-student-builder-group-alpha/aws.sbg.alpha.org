@@ -36,6 +36,34 @@ test("storage accepts unfinished v2 work, final gates retain availability, resum
   data.profile.availability=[];assert.ok(blockedDestination(data,5).errors.availabilityDays);
   assert.ok(validateDraft({...data,formVersion:3}).form);assert.ok(validateDraft({...data,unexpected:true}).form);
 });
+test("availability ranges survive autosave, validate on submission, and preserve legacy weekdays",async()=>{
+  rt.as(await rt.addIdentity());
+  const data=validSimplifiedSubmission();
+  const range={startDate:"2026-11-22",endDate:"2026-11-24",startTime:"09:00",endTime:"12:30"};
+  for(const update of [{startDate:"2026-02-29"},{endTime:"24:00"},{extra:"unexpected"}]) {
+    const invalid={...data,profile:{...data.profile,availability:{...range,...update}}};
+    assert.ok(validateDraft(invalid).availabilityDays);
+    assert.equal((await rt.db.query("select public.valid_draft_payload($1) valid",[invalid])).rows[0].valid,false);
+  }
+  data.profile.availability={...range,endTime:""};
+  assert.deepEqual(validateDraft(data),{});
+  assert.equal(blockedDestination(data,5).errors.availabilityDays,"Choose a start and end date and time.");
+  const draft=await save(data);
+  assert.deepEqual(draft.data.profile.availability,data.profile.availability);
+  await assert.rejects(submit(draft.version),error=>error.code==="PT422"&&JSON.parse(error.detail).availabilityDays===validateSubmission(data).availabilityDays);
+  for(const update of [{endDate:"2026-11-21"},{endTime:"09:00"},{startTime:"06:45"},{endTime:"22:15"},{startTime:"22:00",endTime:"23:00"}]) {
+    data.profile.availability={...range,...update};
+    const sql=(await rt.db.query("select private.submission_errors($1) errors",[data])).rows[0].errors;
+    assert.ok(sql.availabilityDays);
+    assert.equal(sql.availabilityDays,validateSubmission(data).availabilityDays);
+  }
+  assert.deepEqual(validateSubmission({...data,profile:{...data.profile,availability:{...range,startTime:"07:00",endTime:"22:00"}}}),{});
+  data.profile.availability=range;
+  assert.deepEqual(validateSubmission(data),{});
+  const confirmed=await save(data,draft.version);
+  assert.deepEqual((await submit(confirmed.version)).data.profile.availability,range);
+  assert.equal(validateSubmission(validSimplifiedSubmission()).availabilityDays,undefined);
+});
 test("upgrade preserves every old string and pending save retries before writing the new shape",async()=>{
   const data=validSubmission();data.stage=4;
   const initial={...data,id:crypto.randomUUID(),version:1,savedAt:new Date().toISOString(),status:"Draft",profile:{...data.profile,email:"synthetic@example.test"}};
@@ -70,4 +98,5 @@ test("mixed CSV keeps original column positions and identifies form versions wit
   assert.ok(result.rows.some(row=>row.formVersion===1));assert.ok(result.rows.some(row=>row.formVersion===2));assert.equal(exportHeaders.length,30);assert.equal(exportHeaders[29],"Form version");
   assert.equal(JSON.stringify(result).includes("scenarioReviewedOpportunityId"),false);
   const text=new TextDecoder().decode(Buffer.concat(createExportChunks(result).chunks));assert.match(text,/"Form version"/);assert.equal(text.includes("Old experience"),false);
+  assert.ok(text.includes("2026-11-22 to 2026-11-24; 09:00 to 12:30 Philippine time"));
 });

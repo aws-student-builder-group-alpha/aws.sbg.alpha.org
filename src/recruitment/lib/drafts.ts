@@ -1,8 +1,10 @@
 import { getOpportunity, questionIds } from "./catalog.ts";
-import type { Profile, QuestionId, Track } from "./catalog.ts";
+import type { AvailabilityRange, Profile, QuestionId, Track } from "./catalog.ts";
 
 export const PRIVACY_VERSION = "2026-10-18";
 export const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+export const emptyAvailabilityRange: AvailabilityRange = { startDate: "", endDate: "", startTime: "", endTime: "" };
+const availabilityKeys = Object.keys(emptyAvailabilityRange);
 export const profileLimits = { fullName: 120, preferredName: 60, mobile: 32, university: 160, otherUniversity: 160, campus: 120, program: 160, programLevel: 20, year: 10, yearExplanation: 160, experience: 2000 } as const;
 export type DraftInput = {
   formVersion?: 2;
@@ -57,6 +59,28 @@ export function record(value: unknown): value is Record<string, unknown> {
 function exactKeys(value: Record<string, unknown>, keys: string[]) {
   return Object.keys(value).length === keys.length && Object.keys(value).every(key => keys.includes(key));
 }
+function isAvailabilityRange(value: unknown): value is AvailabilityRange {
+  return record(value) && exactKeys(value, availabilityKeys) && availabilityKeys.every(key => typeof value[key] === "string");
+}
+function isAvailabilityDate(value: string) {
+  if (!/^(?!0000)\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+function isAvailabilityTime(value: string) {
+  return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
+}
+export function availabilitySubmissionError(availability: Profile["availability"], formVersion?: 2) {
+  if (Array.isArray(availability)) {
+    if (!availability.length) return formVersion === 2 ? "Choose a start and end date and time." : "Choose at least one available day.";
+    return;
+  }
+  const { startDate, endDate, startTime, endTime } = availability;
+  if (!startDate || !endDate || !startTime || !endTime) return "Choose a start and end date and time.";
+  if (endDate < startDate) return "Choose an end date on or after the start date.";
+  if (endTime <= startTime) return "Choose an end time after the start time.";
+  if (startTime < "07:00" || startTime >= "22:00" || endTime <= "07:00" || endTime > "22:00") return "Choose hours between 7:00 AM and 10:00 PM.";
+}
 export function isEvidenceUrl(value: string) {
   if (!value) return true;
   try { const url = new URL(value); return value.length <= 2048 && !/[\s\\]/u.test(value) && url.protocol === "https:" && !!url.hostname && !url.username && !url.password; } catch { return false; }
@@ -73,7 +97,14 @@ export function validateDraft(value: unknown): Record<string, string> {
     if (typeof field !== "string" || field.length > limit) errors[key] = `Use no more than ${limit} characters.`;
   }
   if (typeof value.profile.enrolled !== "boolean") errors.enrolled = "Choose your enrollment status.";
-  if (!Array.isArray(value.profile.availability) || value.profile.availability.length > 7 || value.profile.availability.some(day => typeof day !== "string" || !days.includes(day)) || new Set(value.profile.availability).size !== value.profile.availability.length) errors.availabilityDays = "Choose valid, distinct days.";
+  const availability = value.profile.availability;
+  if (Array.isArray(availability)) {
+    if (availability.length > 7 || availability.some(day => typeof day !== "string" || !days.includes(day)) || new Set(availability).size !== availability.length) errors.availabilityDays = "Choose valid, distinct days.";
+  } else if (value.formVersion !== 2 || !isAvailabilityRange(availability)
+    || [availability.startDate, availability.endDate].some(date => date !== "" && !isAvailabilityDate(date))
+    || [availability.startTime, availability.endTime].some(time => time !== "" && !isAvailabilityTime(time))) {
+    errors.availabilityDays = "Choose valid dates and times.";
+  }
   if (!["", "undergraduate", "postgraduate", "other"].includes(String(value.profile.programLevel))) errors.programLevel = "Choose a supported program level.";
   if (!["", "1", "2", "3", "4", "5", "6+", "other"].includes(String(value.profile.year))) errors.year = "Choose a supported academic year.";
   if (value.track !== "CORE_TEAM" && value.track !== "COMMITTEE") errors.track = "Choose a supported track.";
@@ -93,7 +124,9 @@ export function hasDraftShape(value: unknown): value is DraftInput {
   const base = emptyDraftInput(record(value) && value.formVersion === 2 ? 2 : 1);
   if (!record(value) || !exactKeys(value, Object.keys(base)) || !record(value.profile) || !exactKeys(value.profile, Object.keys(base.profile)) || !record(value.answers) || !exactKeys(value.answers, [...questionIds])) return false;
   return Object.keys(profileLimits).every(key => typeof (value.profile as Record<string, unknown>)[key] === "string")
-    && typeof value.profile.enrolled === "boolean" && Array.isArray(value.profile.availability) && value.profile.availability.every(day => typeof day === "string")
+    && typeof value.profile.enrolled === "boolean" && (Array.isArray(value.profile.availability)
+      ? value.profile.availability.every(day => typeof day === "string")
+      : value.formVersion === 2 && isAvailabilityRange(value.profile.availability))
     && ["", "undergraduate", "postgraduate", "other"].includes(String(value.profile.programLevel))
     && ["", "1", "2", "3", "4", "5", "6+", "other"].includes(String(value.profile.year))
     && (value.track === "CORE_TEAM" || value.track === "COMMITTEE") && typeof value.opportunityId === "string"

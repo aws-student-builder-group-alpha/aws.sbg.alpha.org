@@ -6,8 +6,8 @@ import { ApplicationContent } from "@/app/(recruitment)/recruitment/components/a
 import { ProcessActionBar, ProcessProgress, ProcessShell } from "@/app/(recruitment)/recruitment/components/process-shell";
 import { Callout, FieldError, Icon, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
 import { getOpportunity, isCoreEligible, opportunities, opportunityLabel, questionsFor, wordCount } from "@/recruitment/lib/catalog";
-import type { Profile, Track } from "@/recruitment/lib/catalog";
-import { editableDraft, upgradeDraft, isEvidenceUrl, validateDraft } from "@/recruitment/lib/drafts";
+import type { AvailabilityRange, Profile, Track } from "@/recruitment/lib/catalog";
+import { availabilitySubmissionError, editableDraft, emptyAvailabilityRange, upgradeDraft, isEvidenceUrl, validateDraft } from "@/recruitment/lib/drafts";
 import type { Applicant, Draft, DraftInput } from "@/recruitment/lib/drafts";
 import { DraftSaveQueue } from "@/recruitment/lib/draft-save-queue";
 import { applicationCommand, applicationState, saveApplicantDraft } from "@/recruitment/lib/application-client";
@@ -20,13 +20,14 @@ import { ApplyEntry } from "./apply-entry";
 import { useOpportunityAvailability } from "@/app/(recruitment)/recruitment/components/use-opportunity-availability";
 import { availabilityLabel } from "@/recruitment/lib/opportunity-availability";
 import { EnrollmentUpload } from "@/app/(recruitment)/recruitment/components/enrollment-upload";
+import { AvailabilitySelector } from "@/app/(recruitment)/recruitment/components/availability-selector";
 
 const steps = ["About you", "Opportunity", "Your story", "Review"];
 const headings: Record<number, string> = { 1: "About you", 2: "Choose your opportunity", 3: "Your story", 5: "Review & submit" };
 const stepGuidance: Record<number, string> = {
   1: "Start with your contact and academic details.",
   2: "Find a role that fits your interests and eligibility.",
-  3: "Share your responses, supporting documents and available days.",
+  3: "Share your responses, supporting documents and availability.",
   5: "Check your details and answers before submitting.",
 };
 const validationStages: Record<string, number> = Object.fromEntries(([
@@ -194,6 +195,9 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
   const showRequested = requested && requested.id !== app.opportunityId
     && requested.id !== initialDraft.opportunityId && requested.id !== dismissedOpportunity;
   const questions = questionsFor(app.opportunityId, 2);
+  const savedAvailability = app.profile.availability;
+  const legacyWeekdays = Array.isArray(savedAvailability) ? savedAvailability : [];
+  const availabilityRange = Array.isArray(savedAvailability) ? emptyAvailabilityRange : savedAvailability;
   useEffect(() => {
     if (state.phase !== "dirty") return;
     const timer = setTimeout(() => { void queue.save(); }, 900);
@@ -210,10 +214,16 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
     document.addEventListener("click", navigating, true);
     return () => { window.removeEventListener("beforeunload", leaving); document.removeEventListener("click", navigating, true); };
   }, [state.phase, frozen, practice]);
-  const profile = (key: keyof Profile, value: string | boolean | string[]) => {
+  const profile = (key: keyof Profile, value: Profile[keyof Profile]) => {
     if (key === "email") return;
     patch({ profile: { ...app.profile, [key]: value } });
   };
+  function changeAvailability(availability: AvailabilityRange) {
+    profile("availability", availability);
+    if (fieldErrors.availabilityDays && !availabilitySubmissionError(availability, 2)) {
+      setErrors(previous => { const next = { ...previous }; delete next.availabilityDays; return next; });
+    }
+  }
   function changeResponse(id: (typeof questions)[number]["id"], value: string) {
     const answers = { ...app.answers, [id]: value };
     patch({ answers });
@@ -227,7 +237,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
   };
   const inputProps = (key: string) => ({ id: key, required: !["preferredName", "mobile", "campus", "portfolioUrl"].includes(key), "aria-required": !["preferredName", "mobile", "campus", "portfolioUrl"].includes(key), "data-validation-field": key, "aria-invalid": !!errors[key], "aria-describedby": [(["experience", "resumeUrl", "portfolioUrl"].includes(key) ? key + "-hint" : ""), errors[key] ? key + "-error" : ""].filter(Boolean).join(" ") || undefined, onBlur: (event: FocusEvent<HTMLElement>) => {
     // Navigation validates on activation; avoid moving its target during pointerdown.
-    if (event.relatedTarget instanceof Element && event.relatedTarget.closest(".process-action-bar,.process-track,.process-day-picker")) return;
+    if (event.relatedTarget instanceof Element && event.relatedTarget.closest(".process-action-bar,.process-track")) return;
     blur(key);
   } });
   const hasControl = (key: string) => Object.hasOwn(validationStages, key)
@@ -460,8 +470,9 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                   </section>
                   <fieldset className="process-days" id="availabilityDays" data-validation-field="availabilityDays" tabIndex={-1} aria-describedby={`availabilityDays-hint${errors.availabilityDays ? " availabilityDays-error" : ""}`} aria-invalid={!!errors.availabilityDays}>
                     <legend>When are you usually available? <span className="required-mark" aria-hidden="true">*</span></legend>
-                    <p className="field-hint" id="availabilityDays-hint">Select your recurring available days in this weekly calendar. No Google Calendar connection is needed.</p>
-                    <div className="process-day-picker weekly-calendar" role="group" aria-label="Weekly availability">{["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => <label key={day}><input type="checkbox" aria-label={day} checked={app.profile.availability.includes(day)} onChange={event => profile("availability", event.target.checked ? [...app.profile.availability, day] : app.profile.availability.filter(value => value !== day))} /><span><strong>{day.slice(0, 3)}</strong><small>{app.profile.availability.includes(day) ? "Available" : "Select day"}</small></span></label>)}</div>
+                    <p className="field-hint" id="availabilityDays-hint">Choose a date range and the hours you’re available each day. Use Philippine time.</p>
+                    {legacyWeekdays.length > 0 && <p className="field-hint">Saved weekdays: {legacyWeekdays.join(", ")}. Enter a date and time range to update them.</p>}
+                    <AvailabilitySelector value={availabilityRange} onChange={changeAvailability} optional={legacyWeekdays.length > 0} disabled={frozen || exiting} error={errors.availabilityDays} />
                     {errors.availabilityDays && <FieldError id="availabilityDays-error">{errors.availabilityDays}</FieldError>}
                   </fieldset>
                   <p className="field-hint" id="story-instructions">All three responses are required. Use your own words and keep each answer to 150 words or fewer.</p>
