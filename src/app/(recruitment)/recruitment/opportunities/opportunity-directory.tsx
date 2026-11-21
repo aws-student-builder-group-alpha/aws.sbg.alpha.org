@@ -81,7 +81,7 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
           </div>
         </div>
         <div className="roles-results-bar">
-          <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL", "CORE_TEAM", "COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track", value === "ALL" ? "" : value)}>{value === "ALL" ? "All roles" : trackLabel(value)}</button>)}</div>
+          <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL", "CORE_TEAM", "COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track", value === "ALL" ? "" : value)}>{value === "ALL" ? "All roles" : trackLabel(value)}<Icon name="arrow" size={14} /></button>)}</div>
           {(filter !== "ALL" || query || sort !== "any") && <button className="roles-reset" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Reset</button>}
         </div>
         <div className="roles-sections" id="available-roles">{(["CORE_TEAM", "COMMITTEE"] as const).map(track => {
@@ -127,10 +127,10 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
           <h2 id="roles-guide-heading">How to apply</h2>
           <ol className="roles-steps">
             <li><h3>Choose your role</h3><p>Sign in with Google and review recruitment consent.</p></li>
-            <li><h3>Complete your details</h3><p>Add your details, three responses, resume link, enrollment proof and available days. A portfolio is optional.</p></li>
+            <li><h3>Complete your details</h3><p>Add your details, three responses, resume link, enrollment proof and availability. A portfolio is optional.</p></li>
             <li><h3>Review and submit</h3><p>Check your answers, then submit.</p></li>
           </ol>
-          <p className="roles-note">One application per account. Vacancy counts can change; final decisions are made by Alpha.</p>
+          <p className="roles-note">One application per role. Vacancy counts can change; final decisions are made by Alpha.</p>
           <Link className="roles-privacy" href="/recruitment/privacy"><Icon name="shield" size={16} /><span>Read the privacy notice</span><Icon name="external" size={14} /></Link>
         </section>
       </aside>
@@ -149,22 +149,34 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
       }>
         <div className="role-entry-body">
           <div className="role-entry-description">
-            <section className="role-entry-section"><h3>About this role</h3><p>{selected.description}</p></section>
-            <section className="role-entry-section"><h3>Who can apply</h3><p>{selected.track === "CORE_TEAM" ? "Currently enrolled first- and second-year undergraduates." : "Currently enrolled students at any year or program level."}</p></section>
-            <section className="role-entry-section"><h3>Before you apply</h3><ul className="role-entry-checklist">
-              <li><Icon name="file" size={18} /><span>A view-only HTTPS resume link and current enrollment proof.</span></li>
-              <li><Icon name="sparkles" size={18} /><span>Three short responses, up to 150 words each.</span></li>
-              <li><Icon name="calendar" size={18} /><span>Your available weekdays. A portfolio is optional.</span></li>
-            </ul></section>
+            <section className="role-entry-section">
+              <h3>About this role</h3>
+              <p>{selected.description}</p>
+            </section>
+            <section className="role-entry-section">
+              <h3>Who can apply</h3>
+              <p>{selected.track === "CORE_TEAM"
+                ? "You can apply if you’re currently enrolled in the first or second year of an undergraduate program at any university."
+                : "You can apply if you’re currently enrolled at any university, regardless of your year or program level."}</p>
+            </section>
+            <section className="role-entry-section">
+              <h3>Before you apply</h3>
+              <ul className="role-entry-checklist">
+                <li><Icon name="file" size={18} /><span>Have your registration form (COR) or official enrollment certificate ready. It must show your name, school, and current term. Use PDF, JPG, or PNG up to 3 MB.</span></li>
+                <li><Icon name="calendar" size={18} /><span>Note the dates and times you’re available.</span></li>
+                <li><Icon name="sparkles" size={18} /><span>Plan for three short answers, up to 150 words each.</span></li>
+                <li><Icon name="clip" size={18} /><span>Prepare a view-only link to your resume. A portfolio link is optional.</span></li>
+              </ul>
+            </section>
           </div>
           <aside className="role-entry-action" aria-label="Application access">
 
-            {entry.kind === "applicant" ? entry.submitted ? <><h3>Your application is submitted</h3><p>Follow your status and view your submitted answers.</p><Link className="button button-orange" href="/recruitment/application">View your application<Icon name="arrow" size={18} /></Link></> : entry.hasDraft ? <><h3>Continue your application</h3><p>Your draft is preserved. You can review a role change before switching.</p><Link className="button button-orange" href={"/recruitment/apply?opportunity=" + selected.id}>Continue application<Icon name="arrow" size={18} /></Link></> : <AccessGuard accountId={entry.applicant.id} expected="applicant" blockedContent={<p>Your account changed. Reload to verify access.</p>}><StartDraft key={selected.id} embedded applicant={entry.applicant} requestedOpportunity={selected.id} onBusyChange={setBusy} onCreated={() => { router.push("/recruitment/apply"); router.refresh(); }} /></AccessGuard>
+            {entry.kind === "applicant" ? entry.submitted ? <><h3>Apply for this role</h3><p>Your submitted applications stay saved. You can apply once for each role.</p><Link className="button button-orange" href={"/recruitment/apply?opportunity=" + selected.id}>Continue<Icon name="arrow" size={18} /></Link></> : entry.hasDraft ? <><h3>Continue your application</h3><p>Your draft is preserved. You can review a role change before switching.</p><Link className="button button-orange" href={"/recruitment/apply?opportunity=" + selected.id}>Continue application<Icon name="arrow" size={18} /></Link></> : <AccessGuard accountId={entry.applicant.id} expected="applicant" blockedContent={<p>Your account changed. Reload to verify access.</p>}><StartDraft key={selected.id} embedded applicant={entry.applicant} requestedOpportunity={selected.id} onBusyChange={setBusy} onCreated={() => { router.push("/recruitment/apply"); router.refresh(); }} /></AccessGuard>
               : entry.kind === "member" ? <><h3>Your Alpha membership</h3><p>Your membership workspace keeps your Alpha ID ready when you need it.</p><Link href="/recruitment/membership" className="button button-orange">Open Membership ID<Icon name="arrow" size={18} /></Link></>
                 : entry.kind === "staff" ? <><h3>Staff account</h3><p>Use a separate Google account for applications.</p><Link href="/recruitment/staff" className="button button-secondary">Staff workspace<Icon name="arrow" size={18} /></Link></>
                   : entry.kind === "anonymous" ? <><h3>Apply for this role</h3><p>Sign in with Google, review consent, then start your application.</p><form action={signIn}><input type="hidden" name="destination" value="apply" /><input type="hidden" name="opportunity" value={selected.id} /><button className="button button-orange" type="submit">Continue with Google<Icon name="arrow" size={18} /></button></form><p className="role-entry-reassurance"><Icon name="shield" size={16} />No draft is created before your consent.</p><Link className="role-entry-privacy" href="/recruitment/privacy">Read the privacy notice<Icon name="external" size={14} /></Link></>
                     : <><h3>Application access unavailable</h3><p>Please reload and try again. Your saved progress is preserved.</p><button className="button button-secondary" type="button" onClick={() => router.refresh()}>Retry access<Icon name="arrow" size={18} /></button></>}
-            <p className="role-entry-account-note">One application per account.</p>
+            <p className="role-entry-account-note">One application per role.</p>
           </aside>
         </div>
       </Modal>

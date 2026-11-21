@@ -17,7 +17,14 @@ const { code } = transformSync(source, {
 });
 let search = "";
 const modules = {
-  "next/link": { __esModule: true, default: ({ scroll, ...props }) => React.createElement("a", props) },
+  "next/link": {
+    __esModule: true,
+    default: (linkProps) => {
+      const anchorProps = { ...linkProps };
+      delete anchorProps.scroll;
+      return React.createElement("a", anchorProps);
+    },
+  },
   "next/navigation": { useRouter: () => ({}), useSearchParams: () => new URLSearchParams(search) },
   "@/recruitment/lib/catalog": catalog,
   "@/recruitment/lib/opportunity-availability": availability,

@@ -17,8 +17,10 @@ const departments = [
     key: "finance",
     name: "Finance and Resource",
     role: "Co-Finance Head",
-    description:
-      "Turn resources into possibilities. Help the team plan budgets, document expenses, and make every contribution count.",
+    officerDescription:
+      "Before a workshop, work with Operations to estimate the cost of materials, equipment, and other event needs. Compare actual spending with the budget, keep receipts and reimbursement records together, and flag missing documentation before the team closes out the event. Check which supplies Alpha already has before budgeting for new ones.",
+    committeeDescription:
+      "Collect quotes and receipts for event supplies, update the expense log, and help the finance officers track what Alpha has on hand. Flag price changes or missing receipts as they come up. After an event, match each expense to its supporting record so the team can reconcile the budget.",
     scenario:
       "How would you document a small event budget and handle an expense without a receipt?",
     icon: "wallet",
@@ -27,8 +29,10 @@ const departments = [
     key: "secretariat",
     name: "Secretariat",
     role: "Executive Secretary",
-    description:
-      "Bring clarity to the big picture. Keep decisions, documents, and the team's next steps thoughtfully organized.",
+    officerDescription:
+      "Prepare the agenda for Core Team meetings, record decisions, and note who owns each follow-up and when it is due. Share the minutes after the meeting and keep approved documents in a shared archive. If a decision is unclear, confirm it with the officers before adding it to the record.",
+    committeeDescription:
+      "Help assemble meeting materials and turn discussion notes into draft minutes for review. Once officers confirm a decision, file the approved minutes and update the follow-up list. When another team needs a record, point them to the current version.",
     scenario:
       "How would you turn an unclear meeting discussion into accurate decisions and action items?",
     icon: "file",
@@ -37,8 +41,10 @@ const departments = [
     key: "operations",
     name: "Operations and Events",
     role: "Operations Secretary",
-    description:
-      "Make good ideas happen. Help organize welcoming events and keep the people behind them moving together.",
+    officerDescription:
+      "Keep a working schedule for Alpha’s workshops and meetups, from setup and registration to the last session. Confirm venue or call details with the event lead and make sure each volunteer knows their assignment. On event day, update the schedule and tell the team when a speaker, room, or assignment changes.",
+    committeeDescription:
+      "Help get the room or online meeting ready, test equipment, and check in attendees. Follow the event schedule and tell the operations lead about delays or missing supplies. Afterward, help log attendance and note what the next event team should change.",
     scenario:
       "An event volunteer cancels shortly before registration opens. How would you respond?",
     icon: "calendar",
@@ -47,8 +53,10 @@ const departments = [
     key: "creatives",
     name: "Creatives and Graphics",
     role: "Vice Chief Creatives Officer",
-    description:
-      "Give our ideas a visual voice. Create thoughtful graphics and help the community tell a consistent story.",
+    officerDescription:
+      "Work with the Chief Creatives Officer to assign design requests and review drafts for recruitment, events, and workshops. Check that dates, venues, and sign-up instructions are easy to read on a phone and that the artwork follows Alpha’s visual guidelines. Keep shared templates and final files organized so other designers can pick up the work.",
+    committeeDescription:
+      "Turn event briefs into posters, social graphics, or slides using Alpha’s templates. Confirm event details with the requesting team, revise drafts after feedback, and save the editable files alongside the versions ready to post.",
     scenario:
       "Explain your approach to a readable recruitment graphic and keeping a team's designs consistent.",
     icon: "sparkles",
@@ -57,8 +65,10 @@ const departments = [
     key: "marketing",
     name: "Marketing and Management",
     role: "Marketing Secretary",
-    description:
-      "Connect the right story with the right people. Help more students discover what they can build with Alpha.",
+    officerDescription:
+      "Plan how Alpha will promote recruitment and events to students who are new to the club. Keep a publishing calendar that lines up graphics, captions, and reminders with sign-up deadlines. After a campaign, review sign-ups and post engagement with the team to decide what to change next time.",
+    committeeDescription:
+      "Write captions and event announcements, check the date and sign-up link with the organizers, and help publish reminders on schedule. Bring recurring questions from students back to the Marketing team so the next post answers them up front.",
     scenario:
       "Propose a simple campaign to reach students unfamiliar with cloud computing and explain how you would assess results.",
     icon: "megaphone",
@@ -67,8 +77,10 @@ const departments = [
     key: "relations",
     name: "Relations and Communications",
     role: "Vice Chief Relations Officer",
-    description:
-      "Build bridges beyond the classroom. Nurture partnerships and make every conversation feel like an open door.",
+    officerDescription:
+      "Work with the Chief Relations Officer to connect Alpha with campus organizations, speakers, and other tech communities. For a joint event, confirm what each group will provide, who the contacts are, and when decisions are due. Brief Alpha’s event team on the arrangements and follow up with partners after the activity.",
+    committeeDescription:
+      "Find potential speakers or partner organizations for upcoming activities and draft invitations for review. Keep track of replies and follow-up dates. When a guest confirms, help send their schedule and joining instructions so they know where to go and whom to contact.",
     scenario:
       "How would you introduce Alpha to a prospective community partner and follow up professionally?",
     icon: "people",
@@ -81,7 +93,7 @@ export const opportunities: Opportunity[] = [
     track: "CORE_TEAM" as const,
     department: d.name,
     title: d.role,
-    description: d.description,
+    description: d.officerDescription,
     scenario: d.scenario,
     capacity: 1,
     icon: d.icon,
@@ -91,7 +103,7 @@ export const opportunities: Opportunity[] = [
     track: "COMMITTEE" as const,
     department: `${d.name} Committee`,
     title: "Committee Member",
-    description: d.description,
+    description: d.committeeDescription,
     scenario: d.scenario,
     capacity: 8,
     icon: d.icon,
@@ -100,18 +112,24 @@ export const opportunities: Opportunity[] = [
     {
       key: "cloud",
       title: "Cloud",
+      description:
+        "Build a small AWS project with other SkillBuilders, such as hosting a static website or connecting an app to cloud storage. Check access settings and costs, and remove lab resources when you finish. Write down the setup and any problems you solved so another student can repeat the lab.",
       scenario:
         "Describe a beginner cloud project you want to build and how you would learn what you need.",
     },
     {
       key: "ai",
       title: "AI/ML",
+      description:
+        "Work with peers on a small project such as classifying a set of sample images. Use data you have permission to work with, try the model on examples it did not train on, and document where it gets things wrong. Share a demo or notebook that explains the results and their limits.",
       scenario:
         "Describe a practical AI/ML learning project and how you would check its output and use data responsibly.",
     },
     {
       key: "web",
       title: "Web Development",
+      description:
+        "Build and test web features with other SkillBuilders, from a project gallery to an event sign-up page. Check that the page works on a phone and with a keyboard, review changes with teammates, and leave setup instructions so someone else can run the project locally.",
       scenario:
         "Describe a web feature you want to build and how you would make it usable on a phone.",
     },
@@ -121,8 +139,7 @@ export const opportunities: Opportunity[] = [
     department: "SkillBuilders Department",
     title: "Committee Member",
     specialization: s.title,
-    description:
-      "Learn by building, together. Explore hands-on projects, share what you discover, and grow your technical confidence.",
+    description: s.description,
     scenario: s.scenario,
     capacity: s.key === "cloud" ? 1 : 8,
     icon: "code",
@@ -133,7 +150,7 @@ export const opportunities: Opportunity[] = [
     department: "BuildHer+ Department",
     title: "Ambassador",
     description:
-      "Make room for more voices in technology. Champion inclusive learning and help beginners find their community.",
+      "Help women, LGBTQIA+ students, and other underrepresented students take part in Alpha’s tech activities. Share workshop invitations that explain what beginners need to bring, welcome first-time attendees, and ask what made it hard to join or follow along. Bring that feedback to the team planning the next session.",
     scenario:
       "Propose an inclusive activity that supports participation in technology and explain how you would welcome beginners.",
     capacity: 4,
