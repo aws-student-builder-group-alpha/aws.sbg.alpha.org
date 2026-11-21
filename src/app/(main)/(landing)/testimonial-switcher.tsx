@@ -17,7 +17,7 @@ export default function TestimonialSwitcher() {
 
   useEffect(() => {
     if (hovered || focused) return
-    const timer = window.setTimeout(() => setCurrent((index) => (index + 1) % testimonials.length), 3000)
+    const timer = window.setTimeout(() => setCurrent((index) => (index + 1) % testimonials.length), 4000)
     return () => window.clearTimeout(timer)
   }, [current, hovered, focused])
 

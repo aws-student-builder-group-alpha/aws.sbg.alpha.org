@@ -55,10 +55,16 @@
 .alpha-proof .alpha-hero-visual-heading{display:none}
 .alpha-proof .alpha-hero-photo{border-radius:0;border:8px solid var(--alpha-cream)}
 .alpha-proof .alpha-hero-photo-controls{margin-top:50px}
-.alpha-proof-bottom{margin-top:65px;display:flex;justify-content:space-between;align-items:end;gap:50px}
-.alpha-quote{max-width:660px;border-left:3px solid var(--alpha-violet);padding-left:24px}
+.alpha-proof-bottom{margin-top:65px;display:grid;justify-items:center;align-items:end;gap:24px}
+.alpha-proof-bottom>.alpha-text-link{justify-self:end}
+@media(min-width:1150px){
+ .alpha-proof-bottom{grid-template-columns:1fr minmax(0,660px) 1fr}
+ .alpha-proof-bottom>.alpha-testimonial{grid-column:2}
+ .alpha-proof-bottom>.alpha-text-link{grid-column:3}
+}
+.alpha-quote{max-width:660px}
 .alpha-quote blockquote{font-size:clamp(18px,2.2vw,28px);line-height:1.5;letter-spacing:-.02em}
-.alpha-quote figcaption{font-size:16px;line-height:1.6;margin-top:20px;color:var(--alpha-violet)}
+.alpha-quote figcaption{font-size:16px;line-height:1.6;margin-top:20px;color:var(--alpha-violet);text-align:center}
 .alpha-quote figcaption span{display:block;color:#d0c9d9;font-size:14px}
 .alpha-upcoming{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:60px;border-top:1px solid #ffffff30;padding-top:30px}
 .alpha-upcoming time{font:12px var(--font-geist-mono),monospace;color:var(--alpha-violet)}
@@ -83,7 +89,7 @@
 .alpha-finale footer{background:transparent;padding-top:30px;padding-bottom:30px}
 .alpha-finale footer .text-white\/40,.alpha-finale footer .text-white\/50,.alpha-finale footer .text-white\/30{color:#c5b9d0}
 @media(max-width:1100px){.alpha-landing .alpha-opening-bottom{gap:20px}.alpha-landing .alpha-opening-bottom>p{max-width:230px}.alpha-landing .alpha-opening-start{gap:24px}.alpha-benefit{padding:80px 6vw;min-height:540px}.alpha-wolf-sticker{width:125px}.alpha-wolf-people{width:180px}.alpha-proof-wolf{width:110px}.alpha-role-panel{padding:26px}}
-@media(max-width:799px){.alpha-scene{padding:70px 24px}.alpha-benefit{grid-template-columns:1fr;gap:30px;padding:65px 8vw 85px;min-height:0}.alpha-benefit h2{font-size:clamp(62px,15vw,110px);margin:20px 0}.alpha-benefit-build .alpha-benefit-copy{order:0}.alpha-benefit-art{width:90%;margin:0 auto}.alpha-photo-frame{aspect-ratio:1.35}.alpha-benefit-people .alpha-photo-frame{aspect-ratio:1.35}.alpha-wolf-learn{left:-20px;top:-15px}.alpha-wolf-people{left:-20px}.alpha-role-panels{grid-template-columns:1fr;gap:28px}.alpha-role-panel{padding:28px}.alpha-roles-heading{align-items:start;flex-direction:column;margin-bottom:35px;gap:20px}.alpha-roles-heading>p{font-size:14px;align-self:end}.alpha-proof-top{gap:16px}.alpha-proof-wolf{width:70px;flex-shrink:0}.alpha-proof .alpha-hero-visual{padding:0 8px 0 0}.alpha-proof .alpha-hero-photo{border-width:4px}.alpha-proof .alpha-hero-photo-controls{gap:8px;justify-content:space-between}.alpha-proof-bottom{flex-direction:column;align-items:start;gap:25px;margin-top:40px}.alpha-upcoming{grid-template-columns:1fr}.alpha-team-track{gap:16px}.alpha-team .member-card{width:220px}.alpha-member-photo{height:220px}.alpha-closing .alpha-actions{flex-direction:column;align-items:center}.alpha-closing .alpha-button{width:min(100%,340px);font-size:13px}.alpha-closing .alpha-scene-heading{font-size:clamp(40px,8.4vw,64px)}.alpha-kicker{font-size:10px}.alpha-team>div{padding:0}.alpha-landing .alpha-opening-bottom>p{max-width:100%;width:100%;font-size:13px}.alpha-landing .alpha-opening-bottom{gap:16px}.alpha-landing .alpha-opening-start{font-size:13px;flex:1}.alpha-landing .alpha-opening-recruit{width:auto;flex-direction:row;border:0;padding:0;font-size:11px;gap:8px}.alpha-landing .alpha-opening-bottom{bottom:32px}}
+@media(max-width:799px){.alpha-scene{padding:70px 24px}.alpha-benefit{grid-template-columns:1fr;gap:30px;padding:65px 8vw 85px;min-height:0}.alpha-benefit h2{font-size:clamp(62px,15vw,110px);margin:20px 0}.alpha-benefit-build .alpha-benefit-copy{order:0}.alpha-benefit-art{width:90%;margin:0 auto}.alpha-photo-frame{aspect-ratio:1.35}.alpha-benefit-people .alpha-photo-frame{aspect-ratio:1.35}.alpha-wolf-learn{left:-20px;top:-15px}.alpha-wolf-people{left:-20px}.alpha-role-panels{grid-template-columns:1fr;gap:28px}.alpha-role-panel{padding:28px}.alpha-roles-heading{align-items:start;flex-direction:column;margin-bottom:35px;gap:20px}.alpha-roles-heading>p{font-size:14px;align-self:end}.alpha-proof-top{gap:16px}.alpha-proof-wolf{width:70px;flex-shrink:0}.alpha-proof .alpha-hero-visual{padding:0 8px 0 0}.alpha-proof .alpha-hero-photo{border-width:4px}.alpha-proof .alpha-hero-photo-controls{gap:8px;justify-content:space-between}.alpha-proof-bottom{margin-top:40px}.alpha-upcoming{grid-template-columns:1fr}.alpha-team-track{gap:16px}.alpha-team .member-card{width:220px}.alpha-member-photo{height:220px}.alpha-closing .alpha-actions{flex-direction:column;align-items:center}.alpha-closing .alpha-button{width:min(100%,340px);font-size:13px}.alpha-closing .alpha-scene-heading{font-size:clamp(40px,8.4vw,64px)}.alpha-kicker{font-size:10px}.alpha-team>div{padding:0}.alpha-landing .alpha-opening-bottom>p{max-width:100%;width:100%;font-size:13px}.alpha-landing .alpha-opening-bottom{gap:16px}.alpha-landing .alpha-opening-start{font-size:13px;flex:1}.alpha-landing .alpha-opening-recruit{width:auto;flex-direction:row;border:0;padding:0;font-size:11px;gap:8px}.alpha-landing .alpha-opening-bottom{bottom:32px}}
 @media(max-width:350px){.alpha-scene{padding-left:20px;padding-right:20px}.alpha-role-panel{padding:22px}.alpha-button{font-size:12px;padding:14px;gap:12px}.alpha-proof-wolf{width:48px}.alpha-proof .alpha-hero-photo-number{display:none}.alpha-landing .alpha-opening-start{font-size:11px;padding:14px 12px;gap:10px}.alpha-landing .alpha-opening-recruit{font-size:10px}.alpha-landing .alpha-opening-bottom>p{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.alpha-landing *,.alpha-landing *::before,.alpha-landing *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.alpha-button:hover{translate:none}}
 .alpha-pixel-wolf{display:block;overflow:visible;transform-origin:center}
@@ -254,8 +260,8 @@
 .alpha-journey-wolf[data-stop="0"] .alpha-wolf-sculpture{animation:none}
 @keyframes alpha-journey-idle{50%{transform:translateY(-3px) rotate(1deg)}}
 
-.alpha-testimonial{flex:1;min-width:0}
-.alpha-testimonial-controls{display:flex;align-items:center;gap:12px;margin:20px 0 0 27px;color:#d0c9d9;font-size:12px}
+.alpha-testimonial{width:min(100%,660px);min-width:0}
+.alpha-testimonial-controls{display:flex;justify-content:center;align-items:center;gap:12px;margin:28px 0 0;color:#d0c9d9;font-size:12px}
 .alpha-testimonial-controls button{display:grid;place-items:center;width:36px;height:36px;border:1px solid #81758f;border-radius:50%;color:inherit;cursor:pointer;transition:background .2s,color .2s}
 .alpha-testimonial-controls button:hover,.alpha-testimonial-controls button:focus-visible{background:var(--alpha-violet);color:#211c28}
 .alpha-testimonial-controls button:focus-visible{outline:2px solid white;outline-offset:3px}
