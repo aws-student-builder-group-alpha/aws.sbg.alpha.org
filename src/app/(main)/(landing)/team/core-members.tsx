@@ -10,6 +10,7 @@ interface Member {
 	role: string
 	description: string
 	image: string
+	imageZoom?: number
 	linkedin?: string
 	email?: string
 	blog?: string
@@ -30,19 +31,21 @@ const MEMBERS: Member[] = [
 			"https://www.facebook.com/profile.php?id=100009325386830",
 	},
 	{
-		name: "Emmanuel Toraja Fabella",
-		role: "Executive Secretary",
+		name: "Emmanuel T. Fabella",
+		role: "Co-Founder, Executive Secretary",
 		description:
 			"Ensuring smooth operations and organizational excellence.",
 		image: "/optimized/board-members/fabella.webp",
+		imageZoom: 1.25,
 		linkedin:
 			"https://www.linkedin.com/in/emmanuel-fabella/",
 		email: "emmanuelfabella606@gmail.com",
+		blog: "https://emmanuelfabella.dev",
 		facebook:
 			"https://www.facebook.com/1emmanuelfabella1",
 	},
 	{
-		name: "Ram Christopher Broqueza Baarde",
+		name: "Ram Christopher B. Baarde",
 		role: "Co-Founder, Co-Captain, and Chief Finance Officer",
 		description:
 			"Strategic financial management and co-leadership of the club.",
@@ -55,7 +58,7 @@ const MEMBERS: Member[] = [
 			"https://www.facebook.com/ramchristopher.software/",
 	},
 	{
-		name: "Jin Anthony Serna Pradas",
+		name: "Jin Anthony S. Pradas",
 		role: "Chief Operations Officer",
 		description:
 			"Overseeing daily operations and ensuring club efficiency.",
@@ -90,7 +93,7 @@ const MEMBERS: Member[] = [
 			"https://www.facebook.com/gionardo.da.vinci",
 	},
 	{
-		name: "David Aldreen Flores Marquez",
+		name: "David Aldreen F. Marquez",
 		role: "Vice-Chief Marketing Officer",
 		description:
 			"Supporting marketing initiatives and community outreach.",
@@ -156,7 +159,15 @@ function SocialIcon({ href, label, children }: { href: string; label: string; ch
 function MemberCard({ member, index }: { member: Member; index: number }) {
   return <article className="alpha-team-card" role="listitem" aria-labelledby={`alpha-member-${index}`}>
     <div className="alpha-team-portrait">
-      <Image src={member.image} alt={member.name} fill sizes="(min-width: 1300px) 220px, (min-width: 900px) 25vw, (min-width: 600px) 33vw, 45vw" loading="eager" className="alpha-team-image" />
+      <Image
+        src={member.image}
+        alt={member.name}
+        fill
+        sizes="(min-width: 1300px) 220px, (min-width: 900px) 25vw, (min-width: 600px) 33vw, 45vw"
+        loading="eager"
+        className="alpha-team-image"
+        style={member.imageZoom ? { transform: `scale(${member.imageZoom})` } : undefined}
+      />
       <span className="alpha-team-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
     </div>
     <div className="alpha-team-bio"><h3 id={`alpha-member-${index}`}>{member.name}</h3><p>{member.role}</p></div>
