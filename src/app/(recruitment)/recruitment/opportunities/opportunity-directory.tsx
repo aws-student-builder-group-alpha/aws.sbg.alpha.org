@@ -31,18 +31,29 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
  const close = () => change("opportunity","");
  return <main id="main-content" className="roles-page">
   <header className="roles-heading"><div><p className="roles-kicker">Your place at Alpha</p><h1>Available Roles</h1><p>Beginners are welcome. Find a team to learn and build with.</p></div>{entry.kind === "applicant" && !entry.hasDraft && !entry.submitted ? <a href="#available-roles" className="button button-secondary">Choose a role to apply <Icon name="arrow" /></a> : <Link href={entry.kind === "member" ? "/recruitment/membership" : entry.kind === "staff" ? "/recruitment/staff" : "/recruitment/application?resume=1"} className="button button-secondary">{entry.kind === "member" ? "Membership ID" : entry.kind === "staff" ? "Staff workspace" : entry.kind === "applicant" && entry.submitted ? "View your application" : "Continue application"} <Icon name="arrow" /></Link>}</header>
-  <div className="roles-tools"><form role="search" onSubmit={event => { event.preventDefault(); const value = new FormData(event.currentTarget).get("q"); change("q", typeof value === "string" ? value : ""); }}><label htmlFor="role-search">Search roles</label><div className="roles-search"><input key={query} id="role-search" name="q" type="search" defaultValue={query} maxLength={120} placeholder="Role, department, or specialization" /><button className="button button-orange" type="submit">Search</button></div></form>
-   <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL","CORE_TEAM","COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track",value === "ALL" ? "" : value)}>{value === "ALL" ? "All roles" : trackLabel(value)}</button>)}</div>
+  <div className="roles-layout">
+   <aside className="roles-sidebar" aria-label="Role filters">
+    <div className="roles-sidebar-intro"><Icon name="people" size={28} /><h2>Find your team.</h2><p>Bring your curiosity. Build something together.</p><a href="#faq">How to apply <Icon name="arrow" size={16} /></a></div>
+    <div className="roles-filter-heading"><h2>Filters</h2>{(filter !== "ALL" || query) && <button type="button" onClick={() => router.replace("/recruitment/opportunities")}>Reset</button>}</div>
+    <div className="roles-tabs" role="group" aria-label="Filter opportunities"><p>Recruitment track</p>{(["ALL","CORE_TEAM","COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track",value === "ALL" ? "" : value)}><span className="roles-filter-marker" aria-hidden="true" />{value === "ALL" ? "All roles" : trackLabel(value)}<span className="roles-filter-count" aria-hidden="true">{value === "ALL" ? opportunities.length : opportunities.filter(role => role.track === value).length}</span></button>)}</div>
+    <p className="roles-sidebar-note">Core Team is open to first- and second-year undergraduates. Committee welcomes currently enrolled students at any year or program level.</p>
+   </aside>
+   <div className="roles-results">
+    <div className="roles-tools"><form role="search" onSubmit={event => { event.preventDefault(); const value = new FormData(event.currentTarget).get("q"); change("q", typeof value === "string" ? value : ""); }}><label htmlFor="role-search">Search roles</label><div className="roles-search"><input key={query} id="role-search" name="q" type="search" defaultValue={query} maxLength={120} placeholder="Role, department, or specialization" /><button className="button button-orange" type="submit">Search</button></div></form></div>
+    <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
+    <div className="roles-grid" id="available-roles">{visible.map(role => <article key={role.id} className="role-card-item">
+     <Link className="role-card" data-track={role.track} href={"/recruitment/opportunities?" + new URLSearchParams({ ...Object.fromEntries(params), opportunity: role.id })} scroll={false} aria-label={"View role: " + opportunityLabel(role)}>
+      <div className="role-card-surface">
+       <div className="role-card-top"><span className="role-track">{trackLabel(role.track)}</span><span className="role-symbol"><Icon name={role.icon} size={24} /></span></div>
+       <div className="role-card-heading"><p className="role-department">{role.department}</p><h2>{role.specialization || role.title}</h2></div>
+       <div className="role-card-tags"><span>{role.track === "CORE_TEAM" ? "1st–2nd year" : "All year levels"}</span>{role.specialization && <span>Skillbuilders</span>}</div>
+      </div>
+      <div className="role-card-footer"><p className="role-places">{availabilityLabel(availability,role.id)}</p><div className="role-card-action"><span>View role</span><Icon name="arrow" size={16} /></div></div>
+     </Link>
+    </article>)}</div>
+    {!visible.length && <div className="roles-empty"><h2>No matching roles</h2><p>Try a different department or search term.</p><button className="button button-secondary" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Show all roles</button></div>}
+   </div>
   </div>
-  <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
-  <div className="roles-grid" id="available-roles">{visible.map(role => <article key={role.id} className="role-card-item">
-   <Link className="role-card" data-track={role.track} href={"/recruitment/opportunities?" + new URLSearchParams({ ...Object.fromEntries(params), opportunity: role.id })} scroll={false} aria-label={"View role: " + opportunityLabel(role)}>
-    <div className="role-card-top"><span className="role-track">{trackLabel(role.track)}</span><span className="role-symbol"><Icon name={role.icon} size={28} /></span></div>
-    <div className="role-card-heading"><p className="role-department">{role.department}</p><h2>{role.specialization || role.title}</h2></div>
-    <div className="role-card-footer"><p className="role-places">{availabilityLabel(availability,role.id)}</p><div className="role-card-action"><span>View role</span><span className="role-open-arrow" aria-hidden="true"><Icon name="arrow" size={21} /></span></div></div>
-   </Link>
-  </article>)}</div>
-  {!visible.length && <div className="roles-empty"><h2>No matching roles</h2><p>Try a different department or search term.</p><button className="button button-secondary" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Show all roles</button></div>}
   <p className="roles-note">Recruitment: 1–30 November 2026, Philippine time. One application per account. Vacancy counts can change; final decisions are made by Alpha.</p>
   <details className="roles-help" id="faq"><summary>How to apply</summary><p>Choose one role, sign in with Google, and consent to recruitment processing. Complete your details, role choice, three short responses, resume link, enrollment proof, and available days. Review before submitting. A portfolio is optional.</p><Link href="/recruitment/privacy">Read the privacy notice</Link></details>
   {selected && <Modal title={opportunityLabel(selected)} className={"role-entry-modal role-entry-" + selected.track.toLowerCase()} dismissible={!busy} onClose={close} headerContent={

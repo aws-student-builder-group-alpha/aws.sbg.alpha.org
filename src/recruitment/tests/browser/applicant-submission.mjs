@@ -1012,26 +1012,27 @@ try {
 
   await page.evaluate(()=>window.mountHome());
   const directory=page.locator(".roles-grid");
-  async function assertTrackColors() {
-    const colors={CORE_TEAM:['rgb(89, 68, 44)','rgb(43, 33, 25)'],COMMITTEE:['rgb(81, 65, 111)','rgb(36, 28, 53)']};
-    for(const card of await directory.locator('.role-card').all()) {
-      const gradient=await card.evaluate(node=>getComputedStyle(node).backgroundImage);
-      for(const color of colors[await card.getAttribute('data-track')]) assert.ok(gradient.includes(color),'Glossy gradient follows its track');
+  async function assertCardSurfaces() {
+    const pastels = ['rgb(252, 227, 207)', 'rgb(217, 240, 232)', 'rgb(228, 221, 247)', 'rgb(220, 238, 250)', 'rgb(247, 224, 236)', 'rgb(237, 240, 244)'];
+    for (const card of await directory.locator('.role-card').all()) {
+      assert.equal(await card.evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 255, 255)', 'Cards have a white action area');
+      const surface = card.locator('.role-card-surface');
+      assert.ok(pastels.includes(await surface.evaluate(node => getComputedStyle(node).backgroundColor)), 'Role identity uses a pastel surface');
     }
   }
-  await assertTrackColors();
+  await assertCardSurfaces();
   for(const width of [320,375,768,1440]){
     await page.setViewportSize({width,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     assert.equal(await directory.locator(".role-card").count(),16);
     await page.getByRole("heading",{name:"Available Roles",exact:true}).waitFor();
     assert.deepEqual(await directory.locator('.role-card').evaluateAll(nodes=>nodes.filter(node=>{const box=node.getBoundingClientRect();return box.left<0||box.right>innerWidth+1;}).map(node=>node.textContent)),[], 'Whole cards fit '+width+'px');
-    assert.equal(await directory.evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width>=1024?3:width>=640?2:1);
+    assert.equal(await directory.evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width>=1200?3:width>560?2:1);
     if(width===375||width===1440) await page.screenshot({path:path.join(artifactDir,'opportunity-cards-'+width+'.png')});
   }
   await page.getByRole("button",{name:"Core Team",exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===6);
-  await assertTrackColors();
+  await assertCardSurfaces();
   const trigger=page.getByRole('link',{name:'View role: Vice Chief Creatives Officer',exact:true});
   assert.equal(await directory.locator('.role-description').count(),0,'Descriptions appear only in the modal');
   assert.equal(await directory.locator('.role-card a,.role-card button').count(),0,'Each card is one link without nested controls');
@@ -1058,14 +1059,14 @@ try {
   await trigger.click({position:{x:12,y:12}});await details.waitFor();await page.keyboard.press('Escape');await details.waitFor({state:'detached'});
   await page.getByRole('button',{name:'Committee',exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===10);
-  await assertTrackColors();
+  await assertCardSurfaces();
   assert.equal(await page.getByRole('button',{name:'Member',exact:true}).count(),0);
   await page.getByRole('button',{name:'All roles',exact:true}).click();
   await page.locator('#role-search').fill('web');
   await page.getByRole('button',{name:'Search',exact:true}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.role-card').length===1);
   assert.match(await directory.textContent(),/Web Development/);
-  await assertTrackColors();
+  await assertCardSurfaces();
   assert.ok(new URL(page.url()).searchParams.get('q')==='web');
   await directory.locator('.role-card').click();
   const webDetails=page.getByRole('dialog');await webDetails.waitFor();

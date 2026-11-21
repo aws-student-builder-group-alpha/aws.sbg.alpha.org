@@ -1,3 +1,11 @@
+## Opportunity directory reference update - 21 November 2026
+
+Implemented the supplied job-directory reference using a desktop sidebar, pastel card panels, white action rows, eligibility labels and a responsive grid. Existing URL search/track/role state, role details and application access controls continue through the same entry points. Updated the existing browser layout assertions for pastel surfaces and the new grid breakpoints.
+
+Checked the local page in the connected browser. Core Team returned six roles, Committee returned ten, and searching Cloud within Committee returned one. The role dialog opened and Escape restored the directory. At 390px the directory used one column with no horizontal overflow. TSX compilation and Git whitespace checks passed. The local API reported unavailable vacancies and application access, so provider sign-in and submission remain unverified. Root verification is blocked by the installed TypeScript 7 lint incompatibility. TypeScript also reports stale generated route types and the existing dotenv/config import.
+
+Reviewed project overview, architecture, code standards, AI workflow rules, progress tracker and UI direction. UI direction records the latest presentation decision and this tracker records evidence. Other documents need no changes because catalog data, eligibility, access and persistence contracts are unchanged.
+
 ## Recruitment uses its existing Supabase project on the main deployment - 20 November 2026
 
 The unified app routes Recruitment to project `xndpudtctuqxnbkhhmre` and Skillbuilder to its own project. Recruitment uses a dedicated session cookie and `/recruitment/auth/callback`. Its vacancy API, staff checks, private storage and optional mail receipts use Recruitment credentials. The visual baseline includes the current homepage and recruitment staff redesign.

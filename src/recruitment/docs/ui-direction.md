@@ -1,3 +1,7 @@
+## Opportunity directory cards and filters - 21 November 2026
+
+The latest owner reference replaces the glossy brown and violet catalog cards with white cards containing pastel role identity panels and a separate availability/action row. Use a desktop filter sidebar with recruitment guidance and the existing All roles, Core Team and Committee controls. Search sits above the results. Phones move filters above the results and show one card per row. Eligibility labels use the existing track rules. Each whole card opens its existing role dialog while retaining track and search URL state.
+
 ## Unified application - 17 November 2026
 
 This decision supersedes earlier standalone deployment and combined-preview instructions. The main site and recruitment now share one root package, build and runtime. Main routes retain their URLs; recruitment pages and APIs live under `/recruitment`. Supporting code, tests and historical migrations are in `src/recruitment`; private assets are served from `public/recruitment`.
