@@ -173,7 +173,7 @@ export default function CoreMembers() {
   return <section id="members" data-theme="dark" className="alpha-team alpha-scene" aria-labelledby="alpha-team-heading">
     <div className="alpha-team-inner">
       <header className="alpha-team-heading">
-        <div><span className="alpha-team-eyebrow">Our people</span><h2 id="alpha-team-heading">Meet your future <em>teammates.</em></h2></div>
+        <div><h2 id="alpha-team-heading">Meet your future <em>teammates.</em></h2></div>
         <div className="alpha-team-heading-meta"><span className="alpha-team-size">{MEMBERS.length} core members</span><span className="alpha-team-wolf-stop" data-wolf-stop="team" aria-hidden="true" /></div>
       </header>
       <div className="alpha-team-grid" role="list" aria-label="Your future teammates">
