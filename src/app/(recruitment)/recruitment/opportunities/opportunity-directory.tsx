@@ -33,9 +33,8 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
   const close = () => change("opportunity", "");
   return <main id="main-content" className="roles-page">
     <div className="roles-layout">
-      <aside className="roles-sidebar" aria-label="Recruitment information and filters">
+      <aside className="roles-sidebar" aria-label="Recruitment information">
         <div className="roles-sidebar-intro">
-          <Icon name="people" size={28} />
           <h3>Beginners are welcome.</h3>
           <p>Find a team to learn and build with.</p>
           <div className="roles-period">
@@ -44,17 +43,12 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
             <span>Philippine time</span>
           </div>
         </div>
-        <div className="roles-filters">
-          <div className="roles-filter-heading"><h2>Filters</h2>{(filter !== "ALL" || query || sort !== "any") && <button type="button" onClick={() => router.replace("/recruitment/opportunities")}>Reset</button>}</div>
-          <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL", "CORE_TEAM", "COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track", value === "ALL" ? "" : value)}><span className="roles-filter-marker" aria-hidden="true" />{value === "ALL" ? "All roles" : trackLabel(value)}<span className="roles-filter-count" aria-hidden="true">{value === "ALL" ? opportunities.length : opportunities.filter(role => role.track === value).length}</span></button>)}</div>
-        </div>
-        <hr className="roles-sidebar-divider" />
         <section className="roles-guide" aria-labelledby="roles-guide-heading">
           <h2 id="roles-guide-heading">How to apply</h2>
           <ol className="roles-steps">
-            <li><h3>Choose your role</h3><p>Sign in with Google and consent to recruitment processing.</p></li>
-            <li><h3>Complete your details</h3><p>Add your role choice, three short responses, resume link, enrollment proof, and available days.</p></li>
-            <li><h3>Review and submit</h3><p>Review your application before submitting. A portfolio is optional.</p></li>
+            <li><h3>Choose your role</h3><p>Sign in with Google and review recruitment consent.</p></li>
+            <li><h3>Complete your details</h3><p>Add your details, three responses, resume link, enrollment proof and available days. A portfolio is optional.</p></li>
+            <li><h3>Review and submit</h3><p>Check your answers, then submit.</p></li>
           </ol>
           <p className="roles-note">One application per account. Vacancy counts can change; final decisions are made by Alpha.</p>
           <Link className="roles-privacy" href="/recruitment/privacy"><Icon name="shield" size={16} /><span>Read the privacy notice</span><Icon name="external" size={14} /></Link>
@@ -89,14 +83,20 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
             </select>
           </div>
         </div>
-        <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
+        <div className="roles-results-bar">
+          <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL", "CORE_TEAM", "COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track", value === "ALL" ? "" : value)}>{value === "ALL" ? "All roles" : trackLabel(value)}</button>)}</div>
+          <div className="roles-result-status">
+            <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
+            {(filter !== "ALL" || query || sort !== "any") && <button className="roles-reset" type="button" onClick={() => router.replace("/recruitment/opportunities")}>Reset</button>}
+          </div>
+        </div>
         <div className="roles-sections" id="available-roles">{(["CORE_TEAM", "COMMITTEE"] as const).map(track => {
           const roles = visible.filter(role => role.track === track);
           if (!roles.length) return null;
           return <details className="roles-section" key={track} data-track={track} open>
             <summary>
               <h2>{trackLabel(track)}</h2>
-              <span className="roles-section-count">{roles.length} {roles.length === 1 ? "opportunity" : "opportunities"}</span>
+              <span className="roles-section-meta"><span>{roles.length} {roles.length === 1 ? "opportunity" : "opportunities"}</span><span>{track === "CORE_TEAM" ? "1st–2nd year undergraduates" : "All year levels"}</span></span>
               <Icon name="chevron" size={18} />
             </summary>
             <div className="roles-grid">{roles.map(role => {
@@ -104,9 +104,10 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
           return <article key={role.id} className="role-card-item">
             <Link className="role-card" data-track={role.track} href={"/recruitment/opportunities?" + new URLSearchParams({ ...Object.fromEntries(params), opportunity: role.id })} scroll={false} aria-label={"View role: " + opportunityLabel(role)}>
               <div className="role-card-surface">
-                <div className="role-card-top"><span className="role-track">{trackLabel(role.track)}</span><span className="role-symbol"><Icon name={role.icon} size={24} /></span></div>
+                <div className="role-card-top">
                 <div className="role-card-heading">{!showDepartmentTitle && <p className="role-department">{role.department}</p>}<h3>{role.specialization || (showDepartmentTitle ? `${role.department} Member` : role.title)}</h3></div>
-                <div className="role-card-tags"><span>{role.track === "CORE_TEAM" ? "1st–2nd year" : "All year levels"}</span>{role.specialization && <span>Skillbuilders</span>}</div>
+                <span className="role-symbol"><Icon name={role.icon} size={22} /></span>
+                </div>
               </div>
               <div className="role-card-footer"><p className="role-places">{availabilityLabel(availability, role.id)}</p><div className="role-card-action"><span>View role</span><Icon name="arrow" size={16} /></div></div>
             </Link>

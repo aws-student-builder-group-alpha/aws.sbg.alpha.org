@@ -1,3 +1,11 @@
+## Simplified opportunity browsing - 21 November 2026
+
+Reduced visual competition across the directory. Moved track filters beside the results and removed the separate Filters heading, radio decorations and repeated counts. Replaced the dark welcome panel with plain sidebar text, shortened the expanded application steps, and removed decorative sidebar and section separators. Track and eligibility information now appears once per collapsible section. Compact pastel cards retain light shadows and focus on role titles, plain icons, availability and View role.
+
+The connected desktop page showed the quieter layout. Committee filtering returned ten roles, and its section collapsed and reopened using native controls and keyboard. At 390px the results use one column, visible controls/cards fit within the viewport, and guidance follows results. Four focused directory tests passed, as did SWC TSX compilation, PostCSS parsing and Git whitespace checks. Full browser fixtures, lint, TypeScript and build were not rerun; previously recorded full-check limitations remain. Provider sign-in and submission were outside this presentation check.
+
+Reviewed project overview, architecture, code standards, AI workflow rules, progress tracker and UI direction. Updated UI direction and this tracker. Product scope, application flows, architecture and standards are unchanged. Unrelated concurrent edits are preserved.
+
 ## Collapsible opportunity tracks and visual polish - 21 November 2026
 
 Grouped the available cards into independently collapsible Core Team and Committee sections, initially expanded. Section headings show matching counts. Search/track filters omit empty groups, and vacancy sorting operates within each section. Added heading hierarchy for sections/cards, compact result-heading and card spacing, subtle icon surfaces and lighter card shadows. Preserved the current sidebar refinements and keep application guidance after results on phones.
