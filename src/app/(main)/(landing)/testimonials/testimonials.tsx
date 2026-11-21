@@ -19,21 +19,21 @@ const TESTIMONIALS: Testimonial[] = [
 		quote:
 			"Joining the club was the best decision! I've learned so much about cloud computing and the community has been incredibly supportive throughout my journey.",
 		author: "Emmanuel Fabella",
-		role: "Information Technology",
+		role: "BS Information Technology",
 		company: "Rizal Technological University",
 	},
 	{
 		quote:
 			"Joining the club was a great decision! The hands-on projects and supportive community have been amazing. The community are incredibly knowledgeable and always willing to help us grow.",
 		author: "Jogiofernesto Ardales",
-		role: "Information Technology",
+		role: "BS Information Technology",
 		company: "Rizal Technological University",
 	},
 	{
 		quote:
 			"I love the collaborative learning environment. The workshops are well-structured and the mentors are very approachable.",
 		author: "David Aldreen Marquez",
-		role: "Information Technology",
+		role: "BS Information Technology",
 		company: "Rizal Technological University",
 	},
 ]

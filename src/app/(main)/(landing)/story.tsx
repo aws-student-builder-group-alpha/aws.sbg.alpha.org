@@ -9,6 +9,7 @@ import { getTopUpcomingEvents, formatEventDate } from "@/data/events"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
 import CloudLab from "./cloud-lab"
 import PixelWolf from "./hero/pixel-wolf"
+import TestimonialSwitcher from "./testimonial-switcher"
 
 export function MotionRibbon() {
   return <div className="alpha-motion-ribbon" aria-hidden="true"><svg viewBox="0 0 1600 220" fill="none"><defs><path id="alpha-ribbon-curve" d="M-600 110C-200 10 100 210 500 110S1200 10 1600 110S2300 210 2700 110" /></defs><use href="#alpha-ribbon-curve" stroke="#ffb13e" strokeWidth="116" /><text fill="#211c28"><textPath href="#alpha-ribbon-curve" startOffset="-8%">LEARN + BUILD + BELONG + LEARN + BUILD + BELONG + LEARN + BUILD + BELONG + </textPath></text></svg></div>
@@ -56,7 +57,7 @@ export function CommunityProof() {
   return <section id="events" className="alpha-proof alpha-scene" data-theme="dark" aria-labelledby="community-heading">
     <div className="alpha-proof-top"><div><h2 id="community-heading" className="alpha-scene-heading" aria-label="This could be your Day One."><KineticType text="This could" />{" "}<KineticType text="be" /><br />your <em><KineticType text="Day One." /></em></h2></div><span className="alpha-proof-wolf" data-wolf-stop="community" aria-hidden="true" /></div>
     <PhotoCarousel />
-    <div className="alpha-proof-bottom"><figure className="alpha-quote"><blockquote>“I love the collaborative learning environment. The workshops are well-structured and the mentors are very approachable.”</blockquote><figcaption>David Aldreen Marquez <span>Information Technology, Rizal Technological University</span></figcaption></figure><Link className="alpha-text-link" href="/events">View all events <ArrowUpRight size={20} aria-hidden="true" /></Link></div>
+    <div className="alpha-proof-bottom"><TestimonialSwitcher /><Link className="alpha-text-link" href="/events">View all events <ArrowUpRight size={20} aria-hidden="true" /></Link></div>
     {upcoming.length > 0 && <div className="alpha-upcoming" aria-label="Upcoming events">{upcoming.map(event => <article key={event.id}><time dateTime={event.date}>{formatEventDate(event.date)}</time><h3>{event.title}</h3><a className="alpha-text-link" href={event.registrationLink || event.sourceUrl || "/events"}>View event <ArrowUpRight size={18} aria-hidden="true" /></a></article>)}</div>}
   </section>
 }

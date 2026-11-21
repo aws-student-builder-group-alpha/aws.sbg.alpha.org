@@ -58,8 +58,8 @@
 .alpha-proof-bottom{margin-top:65px;display:flex;justify-content:space-between;align-items:end;gap:50px}
 .alpha-quote{max-width:660px;border-left:3px solid var(--alpha-violet);padding-left:24px}
 .alpha-quote blockquote{font-size:clamp(18px,2.2vw,28px);line-height:1.5;letter-spacing:-.02em}
-.alpha-quote figcaption{font-size:13px;line-height:1.6;margin-top:20px;color:var(--alpha-violet)}
-.alpha-quote figcaption span{display:block;color:#d0c9d9;font-size:11px}
+.alpha-quote figcaption{font-size:16px;line-height:1.6;margin-top:20px;color:var(--alpha-violet)}
+.alpha-quote figcaption span{display:block;color:#d0c9d9;font-size:14px}
 .alpha-upcoming{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:60px;border-top:1px solid #ffffff30;padding-top:30px}
 .alpha-upcoming time{font:12px var(--font-geist-mono),monospace;color:var(--alpha-violet)}
 .alpha-upcoming h3{font-size:24px;margin:15px 0}
@@ -253,3 +253,12 @@
 .alpha-journey-wolf .alpha-wolf-sculpture{animation:alpha-journey-idle 6s ease-in-out infinite}
 .alpha-journey-wolf[data-stop="0"] .alpha-wolf-sculpture{animation:none}
 @keyframes alpha-journey-idle{50%{transform:translateY(-3px) rotate(1deg)}}
+
+.alpha-testimonial{flex:1;min-width:0}
+.alpha-testimonial-controls{display:flex;align-items:center;gap:12px;margin:20px 0 0 27px;color:#d0c9d9;font-size:12px}
+.alpha-testimonial-controls button{display:grid;place-items:center;width:36px;height:36px;border:1px solid #81758f;border-radius:50%;color:inherit;cursor:pointer;transition:background .2s,color .2s}
+.alpha-testimonial-controls button:hover,.alpha-testimonial-controls button:focus-visible{background:var(--alpha-violet);color:#211c28}
+.alpha-testimonial-controls button:focus-visible{outline:2px solid white;outline-offset:3px}
+
+.alpha-quote-measure{display:none}
+@media(min-width:800px){.alpha-testimonial-quotes{display:grid}.alpha-testimonial-quotes>.alpha-quote{grid-area:1 / 1;width:100%}.alpha-testimonial-quotes>.alpha-quote-measure{display:block;visibility:hidden}}
