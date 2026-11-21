@@ -28,7 +28,6 @@ export function Benefits() {
           <div className="alpha-learn-wolf" data-wolf-stop="learn" aria-hidden="true"><PixelWolf dimensional pose="wave" /></div>
           <div className="alpha-benefit-copy alpha-learn-story">
             <h2 id="learn-cloud-heading" aria-label="Learn cloud."><KineticType text="Learn" /><em><KineticType text="cloud." /></em></h2>
-            <p>Turn campus photos into a gallery your friends can open.</p>
             <p className="alpha-learn-welcome">Open to beginners. No AWS experience needed.</p>
           </div>
         </div>

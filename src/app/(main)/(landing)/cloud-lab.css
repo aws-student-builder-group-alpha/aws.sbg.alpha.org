@@ -83,10 +83,6 @@
   --cloud-tilt: 5deg;
 }
 
-.alpha-cloud-chapter + .alpha-cloud-chapter {
-  border-top: 1px solid #c7adff36;
-}
-
 .alpha-cloud-art {
   --cloud-scan: -20%;
   position: relative;
