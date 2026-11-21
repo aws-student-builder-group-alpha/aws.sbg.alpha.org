@@ -256,8 +256,12 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
   else if (staff?.role === "administrator") links.push({ href: "/recruitment/admin/applications", label: "Applications" }, { href: "/recruitment/admin/intake", label: "Intake" }, { href: "/recruitment/admin/staff", label: "Staff management" });
   else if (staff) links.push({ href: "/recruitment/reviewer", label: "Organization Head" });
   const opportunities = RECRUITMENT_URL + "/opportunities";
-  const rolesHref = path === opportunities ? "#available-roles" : opportunities;
+  const isOpportunitiesPage = path === opportunities;
+  const isMembershipPage = path === MEMBERSHIP_LINK.href;
+  const showMembershipCta = !isOpportunitiesPage && !isMembershipPage;
   const loginHref = RECRUITMENT_URL + "/application";
+  const showGuestActions = !staff && !signedIn && !pendingSession;
+  const guestDivider = isOpportunitiesPage && <span className="nav-action-divider" aria-hidden="true" />;
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
     <div className="site-header-space" data-workspace-frame={frame} data-tone={dark ? "dark" : "light"} aria-hidden="true" />
@@ -275,9 +279,9 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
           <button ref={closeButton} type="button" className="nav-close icon-button" aria-label="Close menu" onClick={closeMenu}><Icon name="close" size={28} /></button>
           <div className="nav-chapter-links">{MAIN_SECTION_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}</div>
           <div className="nav-primary-actions">
-            {!staff && !signedIn && !pendingSession && <Link className="nav-apply" href={rolesHref}>Become a Member</Link>}
-            <Link href={MEMBERSHIP_LINK.href} aria-current={path === MEMBERSHIP_LINK.href ? "page" : undefined}>Membership ID</Link>
-            {!staff && !signedIn && !pendingSession && <Link href={loginHref}>Login</Link>}
+            {showMembershipCta && showGuestActions && <Link className="nav-apply" href={opportunities}>Become a Member</Link>}
+            <Link href={MEMBERSHIP_LINK.href} aria-current={isMembershipPage ? "page" : undefined}>Membership ID</Link>
+            {showGuestActions && <>{guestDivider}<Link href={loginHref}>Login</Link></>}
             {signedIn && (
               <div ref={accountRef} className="account-navigation" data-open={accountOpen}>
                 <button ref={accountButton} type="button" className="account-trigger" aria-expanded={accountOpen} aria-controls={accountId} onClick={() => setAccountOpen(!accountOpen)}>
@@ -296,7 +300,13 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
         </nav>
       </div>
     </header>
-    <noscript><nav className="header-no-script" aria-label="Chapter links">{MAIN_SECTION_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}{links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}<Link href={rolesHref}>Become a Member</Link><Link href={MEMBERSHIP_LINK.href}>Membership ID</Link>{!signedIn && <Link href={loginHref}>Login</Link>}</nav></noscript>
+    <noscript><nav className="header-no-script" aria-label="Chapter links">
+      {MAIN_SECTION_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}
+      {links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}
+      {showMembershipCta && <Link href={opportunities}>Become a Member</Link>}
+      <Link href={MEMBERSHIP_LINK.href} aria-current={isMembershipPage ? "page" : undefined}>Membership ID</Link>
+      {!signedIn && <>{guestDivider}<Link href={loginHref}>Login</Link></>}
+    </nav></noscript>
   </>;
 }
 
