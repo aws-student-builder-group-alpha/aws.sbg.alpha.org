@@ -26,7 +26,7 @@ The owner approved applying the main website header presentation and behavior ac
 
 ## Opportunity directory controls - 21 November 2026
 
-The owner requested vacancy sorting beside search, defaulting to Any with a highest-to-lowest option based on remaining places. Results are grouped in independently collapsible Core Team and Committee sections, initially expanded. Search and filters restrict the groups; sorting applies within each track. Continue Application appears only for applicants with a saved draft or submitted application. Beginner guidance, recruitment dates and expanded application instructions sit with the left filters; the directory reuses the landing footer. Catalog identities, eligibility and application access continue through existing flows.
+The owner requested vacancy sorting beside search, defaulting to Any with a highest-to-lowest option based on remaining places. Results are grouped in independently collapsible Core Team and Committee sections, initially expanded. Search and filters restrict the groups; sorting applies within each track. Continue Application appears only for applicants with a saved draft or submitted application. Beginner guidance, recruitment dates and expanded application instructions sit in a quiet left sidebar, while track filters sit with results. The directory reuses the landing footer. Catalog identities, eligibility and application access continue through existing flows.
 
 ## Compact opportunity browsing - 14 November 2026
 

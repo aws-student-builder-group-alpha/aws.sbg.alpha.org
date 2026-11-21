@@ -35,7 +35,7 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
     <div className="roles-layout">
       <aside className="roles-sidebar" aria-label="Recruitment information">
         <div className="roles-sidebar-intro">
-          <h3>Beginners are welcome.</h3>
+          <h3>Beginners are <span>welcome.</span></h3>
           <p>Find a team to learn and build with.</p>
           <div className="roles-period">
             <p><Icon name="calendar" size={16} />Recruitment</p>
@@ -56,7 +56,7 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
       </aside>
       <div className="roles-results">
         <header className="roles-heading">
-          <h1>Available Roles</h1>
+          <h1>Available <span>Roles</span></h1>
           {entry.kind === "applicant" && (entry.hasDraft || entry.submitted) && (
             <Link href="/recruitment/application?resume=1" className="button button-secondary">
               Continue Application <Icon name="arrow" />
@@ -96,7 +96,7 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
           return <details className="roles-section" key={track} data-track={track} open>
             <summary>
               <h2>{trackLabel(track)}</h2>
-              <span className="roles-section-meta"><span>{roles.length} {roles.length === 1 ? "opportunity" : "opportunities"}</span><span>{track === "CORE_TEAM" ? "1st–2nd year undergraduates" : "All year levels"}</span></span>
+              <span className="roles-section-meta"><span>{roles.length} {roles.length === 1 ? "opportunity" : "opportunities"}</span></span>
               <Icon name="chevron" size={18} />
             </summary>
             <div className="roles-grid">{roles.map(role => {
@@ -105,9 +105,11 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
             <Link className="role-card" data-track={role.track} href={"/recruitment/opportunities?" + new URLSearchParams({ ...Object.fromEntries(params), opportunity: role.id })} scroll={false} aria-label={"View role: " + opportunityLabel(role)}>
               <div className="role-card-surface">
                 <div className="role-card-top">
-                <div className="role-card-heading">{!showDepartmentTitle && <p className="role-department">{role.department}</p>}<h3>{role.specialization || (showDepartmentTitle ? `${role.department} Member` : role.title)}</h3></div>
-                <span className="role-symbol"><Icon name={role.icon} size={22} /></span>
+                  <span className="role-track">{trackLabel(role.track)}</span>
+                  <span className="role-symbol"><Icon name={role.icon} size={22} /></span>
                 </div>
+                <div className="role-card-heading">{!showDepartmentTitle && <p className="role-department">{role.department}</p>}<h3>{role.specialization || (showDepartmentTitle ? `${role.department} Member` : role.title)}</h3></div>
+                <div className="role-card-tags"><span>{role.track === "CORE_TEAM" ? "1st–2nd year" : "All year levels"}</span>{role.specialization && <span>Skillbuilders</span>}</div>
               </div>
               <div className="role-card-footer"><p className="role-places">{availabilityLabel(availability, role.id)}</p><div className="role-card-action"><span>View role</span><Icon name="arrow" size={16} /></div></div>
             </Link>
