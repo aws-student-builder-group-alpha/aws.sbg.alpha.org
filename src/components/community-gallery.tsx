@@ -3,23 +3,18 @@
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, ChevronLeft, ChevronRight, Images, MapPin, Play, X } from 'lucide-react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import DepthSurface from './depth-surface'
+import GalleryCollage from './gallery-collage'
 import { useGalleryZoom } from './use-gallery-zoom'
 import { storyCategories, type CommunityStory } from '@/data/community-stories'
+import { galleryImage } from '@/lib/gallery-image'
 import './community-gallery.css'
 import './event-showcase.css'
 
 const slideInterval = 3000
-
-function galleryImage(src: string, variant: "card" | "full") {
-  if (!src.startsWith("/gallery/")) return src
-  const filename = src.slice("/gallery/".length).replace(/\.[^.]+$/, ".webp")
-  return "/optimized/gallery/" + variant + "/" + filename
-}
 
 function StoryDetails({ story, open }: { story: CommunityStory; open: boolean }) {
   const [slide, setSlide] = useState(0)
@@ -204,25 +199,8 @@ export default function CommunityGallery({ stories, filterable = false, presenta
     {filterable && view === 'list' && <p className="gallery-result-count" role="status" aria-live="polite">{visible.length} {visible.length===1?'story':'stories'} · {filter}</p>}
     <div className="gallery-grid" key={view}>{visible.map((story,index)=><StoryCard key={story.id} story={story} index={index} largeImage={presentation === 'showcase' && view === 'gallery'} />)}</div>
     {presentation === 'showcase' && <div className="gallery-zoom-guide"><p>Scroll to explore. Select an image for details.</p><span className="gallery-zoom-progress" aria-hidden="true" /><span className="sr-only">Use List view to browse every event without the zoom animation.</span></div>}
-  </div>{presentation === 'showcase' && view === 'gallery' && <GalleryCollage stories={stories} />}</>
-}
-
-function GalleryCollage({ stories }: { stories: CommunityStory[] }) {
- const reducedMotion = useReducedMotion()
- const root = useRef<HTMLElement>(null)
- useEffect(() => {
-  if (reducedMotion) return
-  const media = gsap.matchMedia()
-  media.add('(prefers-reduced-motion: no-preference)', () => {
-   const context = gsap.context(() => { gsap.fromTo('.gallery-collage-grid', { opacity: .15, scale: 1.03 }, { opacity: 1, scale: 1, ease: 'none', scrollTrigger: { trigger: root.current, start: 'top 85%', end: 'top 15%', scrub: true } }) }, root)
-   return () => context.revert()
-  })
-  return () => media.revert()
- }, [reducedMotion])
- const photos = [...stories.map(story => story.images[0]), ...stories.flatMap(story => story.images.slice(1))]
- if (!photos.length) return null
- return <section ref={root} className="gallery-collage" aria-label="Our community, together">
-  <div className="gallery-collage-grid" aria-hidden="true">{Array.from({ length: 36 }, (_, index) => <div key={index}><Image src={galleryImage(photos[index % photos.length].src, 'card')} alt="" fill sizes="(min-width: 768px) 17vw, 34vw" /></div>)}</div>
-  <div className="gallery-collage-message"><h3>This is what we’ve<br />built together.</h3></div>
- </section>
+  </div>{presentation === 'showcase' && view === 'gallery' && (
+    <GalleryCollage photos={[...stories.map(story => story.images[0]), ...stories.flatMap(story => story.images.slice(1))]
+      .map(photo => galleryImage(photo.src, 'card'))} />
+  )}</>
 }
