@@ -69,11 +69,14 @@ export function MemberInvitations({accountId,revision=0,workspace=false}:{accoun
           const status = invitationStatus(item.state);
           return <tr key={item.id} role="row">
             <td role="cell" className="member-invitation-identity">
-              <strong>{item.full_name}</strong>
+              <div className="member-invitation-name">
+                <strong>{item.full_name}</strong>
+                {workspace && <span className="member-invitation-compact-status"><Badge tone={status.tone}>{status.label}</Badge></span>}
+              </div>
               <span>{item.position}</span>
               {item.email && <span>{item.email}</span>}
             </td>
-            <td role="cell" data-label="Invitation status"><Badge tone={status.tone}>{status.label}</Badge></td>
+            <td role="cell" className="member-invitation-status-cell" data-label="Invitation status"><Badge tone={status.tone}>{status.label}</Badge></td>
             <td role="cell" data-label="Email delivery">{emailStatus(item.delivery)}</td>
             <td role="cell" className="member-invitation-actions-cell">{item.state === "pending" && <div className="community-member-actions">
               <button type="button" className="button button-secondary" disabled={busy || !ready || item.delivery !== "not_sent"} onClick={() => void act(item, true)}>Send invitation email</button>

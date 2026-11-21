@@ -10,7 +10,7 @@ import type { IntakeCommand, IntakeFailure, IntakeHistory, IntakeState } from "@
 import { initialIntakeEditor, intakeEditorReducer } from "@/recruitment/lib/intake-workspace-state";
 import { evaluationTextLength } from "@/recruitment/lib/evaluations";
 import { useVerifiedAccess } from "./access-guard";
-import { Callout, EmptyState, FieldError, Icon, Modal, PageHeading, formatDate } from "./ui";
+import { Callout, EmptyState, FieldError, Icon, Modal, PageHeading, WorkspaceDisclosureLabel, formatDate } from "./ui";
 import { useInlineValidation } from "./inline-validation";
 import { useEntrance } from "./motion";
 
@@ -56,8 +56,8 @@ function IntakeHistoryList({ accountId, onFailure }: { accountId: string; onFail
     return () => { active.current = false; request.current?.abort(); };
   }, [accountId, onFailure]);
   const nextOffset = history.nextOffset;
-  return <details ref={historyPanel} className="admin-surface workspace-disclosure intake-history" open={!!error || undefined}>
-    <summary><span><Icon name="shield" size={18} />Private intake history</span><Icon name="chevron" size={16} /></summary>
+  return <details ref={historyPanel} className="workspace-disclosure-card workspace-disclosure intake-history" open={!!error || undefined}>
+    <summary><WorkspaceDisclosureLabel icon="shield">Private intake history</WorkspaceDisclosureLabel></summary>
     <section className="intake-history-body" aria-labelledby="intake-history-title">
       <h2 className="sr-only" id="intake-history-title">Private intake history</h2>
       <p className="muted">Reasons are visible only to administrators. History starts with changes made through these controls.</p>
@@ -171,7 +171,6 @@ export function IntakeWorkspace({ accountId, initialState }: { accountId: string
                 <div><dt><Icon name="calendar" size={16} />Opens</dt><dd><time dateTime={data.opensAt}>{formatDate(data.opensAt)}</time></dd></div>
                 <div><dt><Icon name="calendar" size={16} />Closes</dt><dd><time dateTime={data.closesAt}>{formatDate(data.closesAt)}</time></dd></div>
               </dl>
-              <details className="workspace-help"><summary>About intake controls</summary><p>Draft saving, evaluation, decisions, and withdrawal remain available. These controls do not change the dates. Resume respects the scheduled opening and deadline.</p></details>
             </section>
             <section className="admin-surface intake-controls" aria-labelledby="intake-controls-heading">
               <h2 id="intake-controls-heading">Change intake</h2>
@@ -202,6 +201,10 @@ export function IntakeWorkspace({ accountId, initialState }: { accountId: string
             </section>
           </div>
           <IntakeHistoryList key={data.version} accountId={accountId} onFailure={fail} />
+          <details className="workspace-disclosure-card intake-help">
+            <summary><WorkspaceDisclosureLabel icon="info">About intake controls</WorkspaceDisclosureLabel></summary>
+            <p>Draft saving, evaluation, decisions, and withdrawal remain available. These controls do not change the dates. Resume respects the scheduled opening and deadline.</p>
+          </details>
         </>}
       </div>
     </div>

@@ -109,8 +109,24 @@ try {
 
 
   await page.getByRole("button",{name:"Refresh overview"}).click();assert.equal(await page.evaluate(()=>window.refreshes),1);
+  const legend = page.locator('.admin-status-legend');
+  const legendToggle = page.getByRole('button',{name:'Application status',exact:true});
+  const recentRows = page.getByRole('table',{name:'Recent applications'});
   for(const width of [320,375,768,1024,1280,1440,1920]){
     await page.setViewportSize({width,height:950});await assertRecruitmentSurface(page,"Admin overview "+width);
+    assert.equal(await legend.isVisible(),width>=768);
+    assert.equal(await legendToggle.isVisible(),width<768);
+    assert.equal(await recentRows.locator('.admin-recent-meta').first().isVisible(),width<768);
+    assert.equal(await recentRows.getByRole('button').count(),0);
+    if(width===375){
+      assert.equal(await page.locator('.admin-status-track').isVisible(),true);
+      await legendToggle.focus();await page.keyboard.press('Enter');
+      assert.equal(await legendToggle.getAttribute('aria-expanded'),'true');
+      assert.equal(await legend.isVisible(),true);
+      assert.equal(await legend.locator('a,button').count(),0);
+      await page.keyboard.press('Space');
+      assert.equal(await legend.isVisible(),false);
+    }
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     assert.equal(await page.locator('.admin-shell').evaluate(node=>getComputedStyle(node).borderRadius),width<768?'22px':'28px');
     const pagePadding=await page.locator('.admin-page').evaluate(node=>getComputedStyle(node).paddingInlineStart);
@@ -344,6 +360,7 @@ try {
   ]));
   const activityTable=page.getByRole('table',{name:'Activity log'});
   await activityTable.waitFor();
+  assert.equal(await activityTable.getByRole('button').count(),0);
   assert.deepEqual(await activityTable.getByRole('columnheader').allTextContents(),['Event','Reference','Philippine time']);
   await activityTable.getByText('Nov 17, 2026, 8:00 AM',{exact:true}).waitFor();
   await activityFilter.fill('APPLICATION.UNDER_REVIEW');

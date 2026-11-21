@@ -202,15 +202,19 @@ try {
   await page.waitForFunction(email => document.activeElement?.getAttribute("aria-label") === "Open staff account " + email, target.email);
   await search.fill(target.email);
   assert.equal(await directory.getByRole("button").count(), 1);
-  await directory.getByRole("cell", { name: /\bActive$/ }).waitFor();
+  await account.locator(".staff-account-meta .badge").filter({hasText:"Active"}).waitFor();
   assert.equal(await account.locator(".staff-avatar").getAttribute("aria-hidden"), "true");
   await search.fill("no-staff-match@example.test");
   await page.getByText("No staff match your search.", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Clear search", exact: true }).click();
   assert.equal(await search.inputValue(), "");
-  for (const width of [375, 1440]) {
+  for (const width of [320, 375, 768, 1440]) {
     await page.setViewportSize({ width, height: 950 });
-    assert.equal(await directory.locator("tbody tr").first().evaluate(row => getComputedStyle(row).display), width === 375 ? "grid" : "table-row");
+    const firstRow=directory.locator("tbody tr").first();
+    assert.equal(await firstRow.evaluate(row => getComputedStyle(row).display), width < 768 ? "block" : "table-row");
+    assert.equal(await firstRow.locator(".staff-account-meta").isVisible(),width<768);
+    assert.equal(await firstRow.locator("time").isVisible(),width>=768);
+    assert.equal(await firstRow.getByRole("button").count(),1);
     assert.equal(await page.locator(".admin-workspace").evaluate(workspace => workspace.scrollWidth > workspace.clientWidth + 1), false);
     await page.evaluate(() => { document.activeElement?.blur(); document.querySelector(".admin-workspace").scrollTop = 0; });
     await page.screenshot({ path: path.join(previewDir, `staff-directory-${width}.png`) });
@@ -381,12 +385,12 @@ try {
   assert.equal(await page.getByLabel("Verified Google email").count(), 0);
   const invitationTable = invitationPanel.getByRole("table", { name: "Member invitations" });
   await invitationTable.waitFor();
-  assert.deepEqual(await invitationTable.getByRole("columnheader").allTextContents(), ["Member", "Invitation status", "Email delivery", "Actions"]);
+  assert.deepEqual(await invitationTable.locator("th").allTextContents(), ["Member", "Invitation status", "Email delivery", "Actions"]);
   const pendingInvitation = invitationTable.getByRole("row").filter({ hasText: "existing-member@example.test" });
-  await pendingInvitation.getByText("Pending", { exact: true }).waitFor();
+  await pendingInvitation.getByText("Pending", { exact: true }).filter({visible:true}).waitFor();
   await pendingInvitation.getByText("Not sent", { exact: true }).waitFor();
-  await invitationPanel.getByText("Accepted", { exact: true }).waitFor();
-  await invitationPanel.getByText("Canceled", { exact: true }).waitFor();
+  await invitationPanel.getByText("Accepted", { exact: true }).filter({visible:true}).waitFor();
+  await invitationPanel.getByText("Canceled", { exact: true }).filter({visible:true}).waitFor();
   await invitationPanel.getByText(/Accepted by Gmail/).waitFor();
   await invitationPanel.getByText(/Delivery unconfirmed/).waitFor();
   assert.equal(await pendingInvitation.getByRole("button", { name: "Send invitation email" }).isDisabled(), true);
@@ -400,7 +404,7 @@ try {
   await page.getByRole("button", { name: "Review membership change", exact: true }).click();
   await page.getByRole("status").filter({ hasText: "Membership revoked." }).waitFor();
   assert.doesNotMatch(await page.getByRole("status").textContent(), /download/);
-  for (const width of [320, 390, 768, 1440]) {
+  for (const width of [320, 375, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 950 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
     const colors = await page.locator(".community-admin-panel").evaluateAll(panels => panels.map(panel => ({
@@ -417,6 +421,7 @@ try {
     assert.equal(await page.locator(".admin-workspace").evaluate(node => node.scrollWidth > node.clientWidth + 1), false);
     if (width === 390 || width === 1440) {
       assert.equal(await invitationTable.locator("tbody tr").first().evaluate(row => getComputedStyle(row).display), width === 390 ? "grid" : "table-row");
+      assert.equal(await invitationTable.locator(".member-invitation-compact-status").first().isVisible(),width===390);
     }
     await page.locator(".admin-workspace").evaluate(node => { node.scrollTop = 0; });
     if (width === 390 || width === 1440) await page.screenshot({ path: path.join(previewDir, "member-admin-" + width + ".png") });

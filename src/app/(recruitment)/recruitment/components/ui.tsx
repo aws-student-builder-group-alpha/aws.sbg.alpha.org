@@ -144,6 +144,14 @@ export function Icon({
     </svg>
   );
 }
+export function WorkspaceDisclosureLabel({ icon, children }: { icon: string; children: ReactNode }) {
+  return <>
+    <span className="workspace-disclosure-icon"><Icon name={icon} size={18} /></span>
+    {children}
+    <Icon name="chevron" size={16} className="workspace-disclosure-chevron" />
+  </>;
+}
+
 export function Brand({ compact = false }: { compact?: boolean }) {
   return <a href={alphaSiteOrigin + "/"} className={compact ? "brand" : "brand brand-masthead"} aria-label="Alpha home">
     <Image src={recruitmentPath("/recruitment/brand/alpha-logo.webp")} alt="" width={compact ? 44 : 48} height={compact ? 44 : 48} priority />

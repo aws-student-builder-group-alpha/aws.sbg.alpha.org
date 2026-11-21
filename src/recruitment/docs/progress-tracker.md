@@ -1,3 +1,37 @@
+## Applicant communication review and delivery history - 21 November 2026
+
+The administrator and evaluator communication cards show the verified recipient and fixed sender, then a focused composer and a separate delivery history. The review dialog displays the outgoing subject, message and scheduling link. Canceling returns to the same draft. History has timestamped messages with delivery badges and expandable bodies. An uncertain send keeps its original request for retry.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, 212 Node tests, the production build, TypeScript, eleven Chromium suites and source integrity. The Applications and Evaluator checks used synthetic mail responses and covered canceling a review without sending, the interview link preview, history disclosures, draft retention, and exact retries. Reviewed the phone email preview.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. The existing product scope, architecture, code standards and workflow rules cover the communication workflow.
+
+## Recruitment applicant record tabs - 21 November 2026
+
+Administrator and evaluator records share a compact header, clearer tabs and section links. The staff Application presentation keeps full answers open in reading cards and groups evidence as labeled links. Recommendation separates editing and saved reviews. Review & decision separates assignment, saved review and publication. Previous reviews and administrator History use compact event cards with Philippine timestamps.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, 212 Node tests, the production build, TypeScript, eleven Chromium suites and source integrity. The Applications checks verified five widths, enlarged text, keyboard jump links below sticky tabs, long legacy answers, missing optional portfolio evidence and original link destinations. Evaluations and Decisions verified draft and retry retention, focus restoration, confirmations and role-specific history visibility. Reviewed synthetic phone and desktop previews.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. The existing product scope, architecture, code standards and workflow rules cover the presentation changes.
+
+## Compact signed-in Recruitment workspaces - 21 November 2026
+
+Overview keeps its phone totals and status bar visible with a collapsible legend. Intake uses a compact schedule and separate disclosures for help and private history. Staff accounts, Organization members and Security activity use shorter narrow rows with their current actions and wide tables. The Evaluator queue uses compact applicant rows, with a dedicated communication disclosure and enrollment proof in the Application tab.
+
+`npm run verify:ci` passed on Node 24.22.1, including lint, 212 Node tests, the production build, TypeScript, eleven Chromium suites and source integrity. Browser checks covered collapsible counts, read-only records, enlarged text, drawer focus return, visible intake warnings and exact synthetic email retries from the evaluator workspace. Reviewed synthetic phone previews for Overview, Intake, Staff accounts, Member invitations and Security activity.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. The existing product scope, architecture, code standards and workflow rules cover the presentation changes.
+
+## Recruitment Applications phone queue and communication - 21 November 2026
+
+The matching total stays visible and the phone status counts open from a dedicated control. Narrow queue cards use one button with the name, status, role, reference, submission time and a short review cue. The wide table keeps its columns.
+
+Applicant communication now opens in its own card below the record summary. The composer stays mounted across tab and disclosure changes. The Application tab contains enrollment proof, and the Review & decision tab contains the membership tools for accepted applicants.
+
+`npm run verify:ci` passed on Node 24.22.1 with lint, 212 Node tests, the production build, TypeScript, eleven Chromium suites and source integrity. The Applications suite verified phone disclosure and enlarged text, enrollment placement, composer retention, exact synthetic email retry and list focus return. The Decisions suite verified that accepted applicants' membership tools appear under Review & decision.
+
+Reviewed the six Recruitment context documents and updated UI direction and this tracker. The existing product scope, architecture, code standards and workflow rules cover the layout changes.
+
 ## Main-site mobile navigation matches Recruitment - 21 November 2026
 
 The expanded main-site menu uses the Recruitment palette, Urban Starblues links and Alpha mark. The native fullscreen dialog covers the homepage frame and community dock and scrolls on short screens. Main-site links, account access and sign-out confirmation remain available. Canceling sign-out returns to the mobile menu.
