@@ -1,92 +1,80 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { AnimatePresence, motion } from "framer-motion"
-import gsap from "gsap"
+import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
+import PixelWolf from "@/app/(main)/(landing)/hero/pixel-wolf"
+import { getReducedMotion, subscribeToSitePreferences } from "@/lib/site-preferences"
 
-export default function PageLoader() {
-	const pathname = usePathname()
-	// Let the homepage opening animate from its first frame.
-	const [isLoading, setIsLoading] = useState(() => pathname !== "/")
-	const loaderRef = useRef<HTMLDivElement>(null)
-	const barRef = useRef<HTMLDivElement>(null)
-	const textRef = useRef<HTMLDivElement>(null)
+const INTRO_SESSION_KEY = "alpha-intro-shown"
 
-	useEffect(() => {
-		if (!loaderRef.current) return
-		let seenIntro = false
-		try {
-			seenIntro = sessionStorage.getItem("alpha-intro-shown") === "1"
-			sessionStorage.setItem("alpha-intro-shown", "1")
-		} catch { /* A blocked storage API must not prevent the page from opening. */ }
-		if (seenIntro || document.documentElement.dataset.reducedMotion === "true" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-			gsap.set(loaderRef.current, { autoAlpha: 0, pointerEvents: "none" })
-			setIsLoading(false)
-			return
-		}
+export default function PageLoader({ replayOnDocument = false }: { replayOnDocument?: boolean }) {
+  const pathname = usePathname()
+  // Keep the entry route's replay policy when the layout persists through navigation.
+  const [isHomeEntry] = useState(() => pathname === "/")
+  const shouldReplay = replayOnDocument || isHomeEntry
+  const root = useRef<HTMLDivElement>(null)
+  const seenIntro = useRef<boolean | null>(null)
 
-		const tl = gsap.timeline({
-			onComplete: () => setIsLoading(false),
-		})
+  useEffect(() => {
+    const overlay = root.current
+    if (!overlay) return
 
-		tl.fromTo(
-			textRef.current,
-			{ y: 30, opacity: 0 },
-			{
-				y: 0,
-				opacity: 1,
-				duration: 0.3,
-				ease: "power3.out",
-			},
-		)
-			.fromTo(
-				barRef.current,
-				{ scaleX: 0 },
-				{
-					scaleX: 1,
-					duration: 0.5,
-					ease: "power2.inOut",
-				},
-				"-=0.1",
-			)
-			.to(loaderRef.current, {
-				yPercent: -100,
-				duration: 0.6,
-				ease: "power4.inOut",
-			})
-		return () => { tl.kill() }
-	}, [])
+    const dismiss = () => {
+      overlay.hidden = true
+      overlay.removeAttribute("data-home-intro")
+    }
+    if (!shouldReplay && seenIntro.current === null) {
+      seenIntro.current = false
+      try {
+        seenIntro.current = sessionStorage.getItem(INTRO_SESSION_KEY) === "1"
+        sessionStorage.setItem(INTRO_SESSION_KEY, "1")
+      } catch { /* The intro can still dismiss when storage is unavailable. */ }
+    }
 
-	return (
-		<AnimatePresence>
-			{isLoading && (
-				<motion.div
-					ref={loaderRef}
-					aria-hidden="true"
-					className="fixed inset-0 z-[10000] flex
-						flex-col items-center justify-center
-						bg-[#232f3e]"
-					exit={{ opacity: 0 }}
-					transition={{ duration: 0.3 }}
-				>
-					<div
-						ref={textRef}
-						className="urban-starblues text-white
-							text-3xl sm:text-5xl opacity-0"
-					>
-						AWS Student Builder Group - Alpha
-					</div>
-					<div className="mt-6 w-48 h-[2px] bg-white/20
-						rounded-full overflow-hidden">
-						<div
-							ref={barRef}
-							className="h-full bg-[#ff9900] origin-left"
-							style={{ transform: "scaleX(0)" }}
-						/>
-					</div>
-				</motion.div>
-			)}
-		</AnimatePresence>
-	)
+    if ((!shouldReplay && seenIntro.current) || getReducedMotion()) {
+      dismiss()
+      return
+    }
+
+    const restore = (event: PageTransitionEvent) => { if (event.persisted) dismiss() }
+    const unsubscribe = subscribeToSitePreferences(() => { if (getReducedMotion()) dismiss() })
+    window.addEventListener("pageshow", restore)
+    window.addEventListener("pagehide", dismiss)
+    document.addEventListener("focusin", dismiss, { once: true })
+
+    return () => {
+      unsubscribe()
+      window.removeEventListener("pageshow", restore)
+      window.removeEventListener("pagehide", dismiss)
+      document.removeEventListener("focusin", dismiss)
+    }
+  }, [shouldReplay])
+
+  useEffect(() => {
+    if (pathname !== "/") root.current?.removeAttribute("data-home-intro")
+  }, [pathname])
+
+  return (
+    <div
+      ref={root}
+      className="alpha-page-loader"
+      data-home-intro={isHomeEntry ? "" : undefined}
+      aria-hidden="true"
+      inert
+      onAnimationEnd={event => {
+        if (event.target === event.currentTarget) event.currentTarget.hidden = true
+      }}
+    >
+      <div className="alpha-page-loader-content">
+        <div className="alpha-page-loader-scene">
+          <div className="alpha-page-loader-sticker">
+            <p className="alpha-page-loader-title">Loading</p>
+          </div>
+          <div className="alpha-page-loader-curl" />
+          <PixelWolf className="alpha-page-loader-wolf" dimensional pose="wave" tilt={-8} />
+        </div>
+        <div className="alpha-page-loader-track" />
+      </div>
+    </div>
+  )
 }

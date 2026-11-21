@@ -3,7 +3,7 @@ import Script from "next/script";
 import { Suspense, type ReactNode } from "react";
 import { Footer, SiteHeader } from "./components/ui";
 import { SessionHeader } from "./components/session-header";
-import { PageLoader } from "./components/page-loader";
+import PageLoader from "@/components/page-loader";
 import { recruitmentPath } from "@/recruitment/lib/site-paths";
 import { SITE_PREFERENCES_BOOTSTRAP } from "@/lib/site-preferences";
 import "./globals.css";
@@ -13,7 +13,7 @@ import "./application-workbench.css";
 import "./community.css";
 import "@/app/(main)/(landing)/shared/navigation.css";
 import "./header.css";
-import "./page-loader.css";
+import "@/components/page-loader.css";
 import "./staff-auth.css";
 import "./admin-workspace.css";
 import "./workspace-loading.css";
@@ -42,8 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="alpha-app">
         <Script id="alpha-site-preferences" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: SITE_PREFERENCES_BOOTSTRAP }} />
-        <noscript><style>{`.recruitment-page-loader{display:none!important}`}</style></noscript>
-        <PageLoader />
+        <PageLoader replayOnDocument />
         <Suspense fallback={<SiteHeader pendingSession />}>
           <SessionHeader />
         </Suspense>
