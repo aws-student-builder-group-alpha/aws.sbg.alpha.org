@@ -23,6 +23,12 @@ import { EnrollmentUpload } from "@/app/(recruitment)/recruitment/components/enr
 
 const steps = ["About you", "Opportunity", "Your story", "Review"];
 const headings: Record<number, string> = { 1: "About you", 2: "Choose your opportunity", 3: "Your story", 5: "Review & submit" };
+const stepGuidance: Record<number, string> = {
+  1: "Start with your contact and academic details.",
+  2: "Find a role that fits your interests and eligibility.",
+  3: "Share your responses, supporting documents and available days.",
+  5: "Check your details and answers before submitting.",
+};
 const validationStages: Record<string, number> = Object.fromEntries(([
   [1, ["fullName", "email", "university", "otherUniversity", "program", "programLevel", "year", "yearExplanation", "preferredName", "mobile", "campus", "enrolled"]],
   [2, ["track", "eligibility", "opportunityId"]],
@@ -308,22 +314,22 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
           {signOutFailed && <Callout tone="warning"><p role="alert">Sign-out could not be confirmed. Please retry using Sign out in the navigation.</p></Callout>}
           <div className="process-step-heading" tabIndex={-1} key={stage}>
             <h1>{headings[stage]}</h1>
-            <p className="application-account">{applicant.email}</p>
-            {opportunity && <p className="application-role-summary"><Icon name={opportunity.icon} size={18} /><span>{opportunityLabel(opportunity)}</span></p>}
+            <p className="application-step-guidance">{stepGuidance[stage]}</p>
+            {opportunity && !showRequested && <p className="application-role-summary"><Icon name={opportunity.icon} size={18} /><span>Applying for <strong>{opportunityLabel(opportunity)}</strong></span></p>}
           </div>
-          {showRequested && <Callout title="Keep or change your opportunity">
-            <p>Your draft is for <strong>{opportunity ? opportunityLabel(opportunity) : "an opportunity you haven’t chosen yet"}</strong>. You opened <strong>{opportunityLabel(requested)}</strong>.</p>
-            <div className="inline-actions">
-              <button type="button" className="text-button" disabled={frozen || exiting} onClick={() => resolveRequested(true)}>Use this opportunity</button>
-              <button type="button" className="text-button" disabled={frozen || exiting} onClick={() => resolveRequested(false)}>Keep my draft</button>
+          {showRequested && <section className="application-role-choice" aria-labelledby="application-role-choice-title">
+            <h2 id="application-role-choice-title">Switch to {opportunityLabel(requested)}?</h2>
+            <p>Your draft is for <strong>{opportunity ? opportunityLabel(opportunity) : "an opportunity you haven’t chosen yet"}</strong>. Your answers will be kept.</p>
+            <div className="application-role-choice-actions">
+              <button type="button" className="button button-orange" disabled={frozen || exiting} onClick={() => resolveRequested(true)}>Use this opportunity</button>
+              <button type="button" className="button button-secondary" disabled={frozen || exiting} onClick={() => resolveRequested(false)}>Keep my draft</button>
             </div>
-          </Callout>}
+          </section>}
           <form id="application-draft-form" noValidate onSubmit={(event) => { event.preventDefault(); if (stage === 5) void submit(); else next(); }}>
             <fieldset className="application-fields" disabled={frozen}>
               {stage === 1 && (
                 <div className="process-form-section">
-                  <h2 className="process-group-title">Your details</h2>
-                  <div className="process-fields">
+                  <div className="process-fields process-contact-fields">
                     <Field id="fullName" label="Full name" error={errors.fullName}>
                       <input {...inputProps("fullName")} value={app.profile.fullName} onChange={(event) => profile("fullName", event.target.value)} maxLength={120} autoComplete="name" placeholder="Alex Rivera" />
                     </Field>

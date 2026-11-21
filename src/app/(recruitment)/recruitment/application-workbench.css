@@ -1,6 +1,6 @@
-/* Apply: a centered workspace, with content-driven height and responsive progress. */
-.alpha-app .application-workbench-page{padding:32px 24px;min-height:0}
-.alpha-app .process-card.application-workbench{--color-process-field:#fff;--process-field:#fff;display:block;width:min(100%,860px);min-height:0;margin:0 auto;padding:0;overflow:visible;border:1px solid #dce3eb;border-radius:24px;background:#fff;box-shadow:0 24px 60px #00000026;color:#232f3e}
+/* Apply: a calm form workspace with compact, content-sized progress. */
+.alpha-app .application-workbench-page{padding:40px 24px 64px;min-height:0}
+.alpha-app .process-card.application-workbench{--color-process-field:#fff;--process-field:#fff;display:block;width:min(100%,860px);min-height:0;margin:0 auto;padding:0;overflow:visible;border:1px solid #dce3eb;border-radius:20px;background:#fff;box-shadow:0 20px 56px #0000001f;color:#232f3e}
 .alpha-app .application-workbench-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 40px 20px}
 .alpha-app .application-workbench-label{font-size:14px;font-weight:600;color:#536073}
 .alpha-app .application-progress-panel{display:contents}
@@ -10,28 +10,36 @@
 .alpha-app .application-step-navigation .process-track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .alpha-app .application-step-navigation .process-segment{display:flex;flex-direction:row;align-items:center;gap:8px;min-width:0;min-height:48px;padding:8px;border:1px solid transparent;border-radius:10px;background:transparent;color:#536073;text-align:left}
 .alpha-app .application-step-navigation .process-segment::after{display:none}
-.alpha-app .application-step-navigation .process-segment.current{background:#fff4e3;border-color:#efd5af;color:#232f3e}
+.alpha-app .application-step-navigation .process-segment.current{background:#eee7f8;border-color:#ddd4e9;color:#322b3c}
 .alpha-app .application-step-navigation .progress-icon{display:grid;place-items:center;flex:0 0 26px;height:26px;border-radius:50%;background:#f1f4f7;border:1px solid #c5cfdb;color:#536073;font-size:12px}
-.alpha-app .application-step-navigation .current .progress-icon{background:#ff9900;border-color:#ff9900;color:#172636}
+.alpha-app .application-step-navigation .current .progress-icon{background:#70509e;border-color:#70509e;color:#fff}
 .alpha-app .application-step-navigation .done .progress-icon{background:#232f3e;border-color:#232f3e;color:#fff}
 .alpha-app .application-step-navigation .progress-copy{min-width:0;padding:0}
 .alpha-app .application-step-navigation .progress-name{font-size:14px;line-height:1.4;font-weight:550;white-space:normal}
 .alpha-app .application-step-navigation .process-step-label{margin:16px 0 0;font-size:14px;color:#536073;line-height:1.5}
 .alpha-app .application-workbench-content{width:100%;max-width:800px;min-width:0;margin:0 auto;padding:32px 40px 0}
-.alpha-app .application-workbench .process-step-heading{margin:0 0 32px}
-.alpha-app .application-workbench .process-step-heading h1{margin:0;color:#232f3e;font-size:28px;font-weight:650;line-height:1.2;letter-spacing:-.035em}
-.alpha-app .application-workbench .process-step-heading .application-account{margin:8px 0 0;color:#536073;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
-.alpha-app .application-workbench .process-step-heading .application-role-summary{display:flex;align-items:flex-start;gap:8px;padding:12px 16px;margin:20px 0 0;max-width:none;border:1px solid #e2e7ed;border-radius:10px;background:#f8fafc;font-size:14px;line-height:1.5;color:#232f3e}
-.application-role-summary svg{flex:none;color:#965500;margin-top:2px}
+.alpha-app .application-workbench .process-step-heading{margin:0 0 28px}
+.alpha-app .application-workbench .process-step-heading h1{margin:0;color:#232f3e;font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.04em}
+.alpha-app .application-workbench .application-step-guidance{margin:10px 0 0;color:#655e6d;font-size:15px;line-height:1.65}
+.alpha-app .application-workbench .process-step-heading .application-role-summary{display:flex;align-items:center;gap:9px;margin:16px 0 0;padding:0;border:0;background:transparent;font-size:14px;line-height:1.6;color:#655e6d}
+.application-role-summary svg{flex:none;color:#70509e}
+.application-role-summary strong{color:#322b3c;font-weight:600}
+.alpha-app .application-workbench .application-role-choice{margin:0 0 28px;padding:20px 22px;border:1px solid #ddd4e9;border-radius:12px;background:#f8f5fc}
+.alpha-app .application-workbench .application-role-choice h2{margin:0 0 8px;color:#322b3c;font-size:17px;font-weight:650;line-height:1.4;letter-spacing:-.02em}
+.alpha-app .application-workbench .application-role-choice p{margin:0;color:#655e6d;font-size:14px;line-height:1.65}
+.application-role-choice-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:16px}
+.alpha-app .application-workbench .application-role-choice .button{min-height:44px;padding:10px 14px;border-radius:8px;font-size:14px;font-weight:600}
+.alpha-app .application-workbench .application-role-choice .button-orange{background:#ffb13e;border-color:#eda12e;color:#211c28;box-shadow:none}
+.alpha-app .application-workbench .application-role-choice .button-secondary{background:#fff;border-color:#c7bdd2;color:#493b5b}
 .alpha-app .application-workbench .process-form-section{gap:24px}
 .alpha-app .application-workbench .process-fields{gap:24px}
 .alpha-app .application-workbench .process-field-pair{gap:24px}
-.alpha-app .application-workbench .process-group{gap:24px;margin:8px 0 0;padding-top:32px;border-top:1px solid #e5e9ee}
+.alpha-app .application-workbench .process-group{gap:24px;margin:12px 0 0;padding-top:8px;border-top:0}
 .alpha-app .application-workbench .process-group-title{font-size:18px;line-height:1.4;letter-spacing:-.02em;text-transform:none;font-weight:600;color:#232f3e}
 .alpha-app .application-workbench .field{gap:8px}
-.alpha-app .application-workbench .field :is(input:where(:not([type=checkbox]):not([type=radio])),select,textarea){min-height:48px;background:#fff;border-color:#8793a3;border-radius:8px}
+.alpha-app .application-workbench .field :is(input:where(:not([type=checkbox]):not([type=radio])),select,textarea){min-height:50px;background:#fcfbfd;border-color:#bdb5c6;border-radius:9px}
 .alpha-app .application-workbench .field input[readonly]{background:#f5f7f9}
-.alpha-app .application-workbench .field :is(input,select,textarea):focus{border-color:#965500}
+.alpha-app .application-workbench .field :is(input,select,textarea):focus{border-color:#70509e;outline:2px solid #70509e;outline-offset:2px;background:#fff}
 .alpha-app .application-workbench .field :is(input,select,textarea)[aria-invalid=true]{border-color:var(--danger)}
 .alpha-app .application-workbench .field label{font-weight:550}
 .alpha-app .application-workbench .process-response{padding:24px 0;border:0;border-top:1px solid #e5e9ee;border-radius:0;background:transparent}
@@ -43,28 +51,27 @@
 .alpha-app .application-workbench .process-actions .button{font-size:16px;min-height:48px}
 .alpha-app .application-workbench .process-text-action{font-size:14px;min-height:44px}
 @media(min-width:900px) and (min-height:768px){.alpha-app .application-workbench .process-action-bar{position:sticky;bottom:0;z-index:20;box-shadow:0 -12px 18px -20px #232f3e}}
-@media(min-width:600px){.alpha-app .application-workbench .process-field-pair{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:600px){.alpha-app .application-workbench :is(.process-field-pair,.process-contact-fields){grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:899px){.alpha-app .application-workbench-page{padding:24px 20px}.alpha-app .application-workbench-header{padding:24px 24px 16px}.alpha-app .application-step-navigation{padding:0 24px 24px}.alpha-app .application-workbench-content{padding:32px 24px 0}}
 @media(max-width:599px){.alpha-app .application-workbench-page{padding:20px 16px 32px}.alpha-app .application-workbench-header{padding:20px 20px 16px}.alpha-app .application-step-navigation{padding:0 20px 20px}.alpha-app .application-step-navigation .process-track{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.alpha-app .application-workbench-content{padding:24px 20px 0}.alpha-app .application-workbench .process-step-heading h1{font-size:24px}.alpha-app .application-workbench .process-action-inner{display:block}.alpha-app .application-workbench .process-save-state{margin:0 0 12px}.alpha-app .application-workbench .process-actions{display:grid;grid-template-columns:minmax(68px,.65fr) minmax(0,1.35fr)}.alpha-app .application-workbench .process-text-action{grid-column:1/-1}.alpha-app .application-workbench .process-response{padding-top:24px}.alpha-app .application-workbench .process-evidence-summary{padding:20px}.alpha-app .process-card.application-workbench{border-radius:20px}}
 @media(min-width:1024px){
-  .alpha-app .process-card.application-workbench{display:grid;grid-template-columns:240px minmax(0,1fr);width:min(100%,1120px);align-items:start;background-image:linear-gradient(to right,#f8fafc 0,#f8fafc 239px,#e5e9ee 239px,#e5e9ee 240px,#fff 240px,#fff 100%);background-origin:padding-box;background-clip:padding-box}
-  .alpha-app .application-progress-panel{display:flex;flex-direction:column;grid-column:1;grid-row:1;align-self:start;gap:24px;padding:24px 12px}
-  .alpha-app .application-workbench-header{flex:none;flex-wrap:wrap;gap:8px;padding:0 12px}
-  .alpha-app .application-step-navigation{display:flex;flex:1;min-height:0;padding:0;border:0}
-  .alpha-app .application-step-navigation .process-progress{display:flex;flex:1;min-height:0;flex-direction:column}
-  .alpha-app .application-step-navigation .process-track{flex:1;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(72px,1fr));gap:0}
-  .alpha-app .application-step-navigation .process-segment{position:relative;gap:12px;padding:12px;min-height:72px;border-radius:12px}
+  .alpha-app .process-card.application-workbench{display:grid;grid-template-columns:224px minmax(0,1fr);width:min(100%,1120px);align-items:start;background-image:linear-gradient(to right,#faf9fc 0,#faf9fc 223px,#eeeaf2 223px,#eeeaf2 224px,#fff 224px,#fff 100%);background-origin:padding-box;background-clip:padding-box}
+  .alpha-app .application-progress-panel{display:flex;flex-direction:column;grid-column:1;grid-row:1;align-self:start;gap:24px;padding:28px 16px}
+  .alpha-app .application-workbench-header{flex:none;flex-wrap:wrap;gap:8px;padding:0 8px}
+  .alpha-app .application-step-navigation{display:block;padding:0;border:0}
+  .alpha-app .application-step-navigation .process-progress{display:block}
+  .alpha-app .application-step-navigation .process-track{grid-template-columns:minmax(0,1fr);grid-template-rows:none;gap:8px}
+  .alpha-app .application-step-navigation .process-segment{position:relative;gap:10px;padding:10px;min-height:58px;border:0;border-radius:9px}
+  .alpha-app .application-step-navigation .process-segment.current{background:#eee7f8;color:#322b3c}
+  .alpha-app .application-step-navigation .current .progress-icon{background:#70509e;border-color:#70509e;color:#fff}
+  .alpha-app .application-step-navigation .process-segment.done:hover:not(:disabled){background:#f0edf5}
   .alpha-app .application-step-navigation .progress-icon{flex-basis:32px;height:32px;font-size:13px}
-  .alpha-app .application-step-navigation .process-segment::before,.alpha-app .application-step-navigation .process-segment::after{content:"";position:absolute;display:block;left:28px;width:2px;height:calc(50% - 16px);background:#c5cfdb;pointer-events:none}
-  .alpha-app .application-step-navigation .process-segment::before{top:0}
-  .alpha-app .application-step-navigation .process-segment::after{bottom:0}
-  .alpha-app .application-step-navigation .process-segment:first-child::before,.alpha-app .application-step-navigation .process-segment:last-child::after{display:none}
-  .alpha-app .application-step-navigation .done::after,.alpha-app .application-step-navigation .done::before,.alpha-app .application-step-navigation .current::before{background:#232f3e}
-  .alpha-app .application-step-navigation .process-step-label{flex:none;margin:20px 12px 0;padding-top:16px;border-top:1px solid #dce3eb}
+  .alpha-app .application-step-navigation .process-segment::before,.alpha-app .application-step-navigation .process-segment::after{display:none}
+  .alpha-app .application-step-navigation .process-step-label{margin:20px 8px 0;padding:0;border:0;font-size:13px;color:#655e6d}
   .alpha-app .application-workbench-content{grid-column:2;grid-row:1;padding-top:32px}
 }
 @media(min-width:1024px) and (min-height:48em){
-  .alpha-app .application-progress-panel{position:sticky;top:calc(var(--site-header-height) + 24px);height:calc(100dvh - var(--site-header-height) - 64px)}
+  .alpha-app .application-progress-panel{position:sticky;top:calc(var(--site-header-height) + 24px);height:auto}
 }
 /* Consent, access and recovery share the same centered working surface. */
 .alpha-app .apply-step-entry{display:block;width:100%;max-width:none;padding:32px 24px;min-height:0;margin:0}
@@ -126,3 +133,10 @@
 @media(max-width:599px){.alpha-app .application-workbench .application-step-navigation .process-segment{padding:8px 4px;gap:8px}.alpha-app .application-workbench .application-step-navigation .progress-icon{flex-basis:24px;height:24px}.alpha-app .application-workbench .application-step-navigation .progress-name{font-size:14px;white-space:nowrap}}
 
 @media(max-width:599px){.alpha-app .application-workbench .process-actions .button{min-width:0;padding-inline:12px;gap:8px}.alpha-app .application-workbench .process-actions .button svg{flex:none}}
+
+@media(max-width:599px){
+ .alpha-app .application-workbench .application-role-choice{padding:16px;margin-bottom:24px}
+ .alpha-app .application-workbench .application-role-choice h2{font-size:16px}
+ .alpha-app .application-workbench .application-step-guidance{font-size:14px;line-height:1.6}
+ .alpha-app .application-step-navigation .process-step-label{margin-top:10px}
+}

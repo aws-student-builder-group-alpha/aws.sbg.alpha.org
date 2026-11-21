@@ -205,13 +205,10 @@ try {
         assert.equal(placement.position,width>=1024?'sticky':'static',label+' progress uses the responsive position');
         if(width>=1024){
           assert.ok(placement.sidebarRight<=placement.contentLeft+1,label+' progress sits beside the form');
-          const fill=await page.locator('.application-progress-panel').evaluate(panel=>{const box=panel.getBoundingClientRect(),track=panel.querySelector('.process-track').getBoundingClientRect(),count=panel.querySelector('.process-step-label').getBoundingClientRect(),steps=[...panel.querySelectorAll('.process-segment')].map(node=>node.getBoundingClientRect());return {height:box.height,expected:innerHeight-parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height'))-64,inset:track.left-box.left,rightInset:box.right-track.right,bottomInset:box.bottom-count.bottom,heights:steps.map(step=>step.height),widths:steps.map(step=>step.width),trackWidth:track.width,marker:panel.querySelector('.progress-icon').getBoundingClientRect().width,connector:getComputedStyle(panel.querySelector('.process-segment'),'::after').display};});
-          assert.ok(Math.abs(fill.height-fill.expected)<1,label+' progress fills the available desktop height');
-          assert.ok(Math.abs(fill.inset-12)<1&&Math.abs(fill.rightInset-12)<1,label+' progress uses the sidebar width with 12px insets');
-          assert.ok(Math.abs(fill.bottomInset-24)<1,label+' step count is anchored at the sidebar bottom');
-          assert.ok(Math.max(...fill.heights)-Math.min(...fill.heights)<1,label+' step sections have equal heights');
-          assert.ok(fill.heights.every(height=>height>=72)&&fill.widths.every(value=>Math.abs(value-fill.trackWidth)<1),label+' each step fills its sidebar section');
-          assert.equal(fill.marker,32);assert.equal(fill.connector,'block');
+          const rail=await page.locator('.application-progress-panel').evaluate(panel=>{const box=panel.getBoundingClientRect(),steps=[...panel.querySelectorAll('.process-segment')].map(node=>node.getBoundingClientRect());return {height:box.height,heights:steps.map(step=>step.height),marker:panel.querySelector('.progress-icon').getBoundingClientRect().width,connector:getComputedStyle(panel.querySelector('.process-segment'),'::after').display};});
+          assert.ok(rail.height<480,label+' progress stays compact rather than filling the viewport');
+          assert.ok(rail.heights.every(height=>height>=44&&height<=72),label+' each step stays readable with a comfortable target');
+          assert.equal(rail.marker,32);assert.equal(rail.connector,'none');
         }
         else assert.ok(placement.sidebarBottom<=placement.contentTop+1,label+' progress sits above the form');
         assert.equal(await page.locator('.process-action-bar').evaluate(n=>getComputedStyle(n).position),width>=900&&!await page.locator('.process-action-bar .process-recovery,.process-action-bar .notice').count()?'sticky':'static');
