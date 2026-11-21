@@ -18,11 +18,11 @@
 .alpha-navigation-links{position:static;transform:none;margin-left:18px;gap:12px}
 .alpha-navigation-links .link-underline{font-size:12px}
 .alpha-navigation-name{position:absolute;left:50%;top:50%;translate:-50% -50%;display:flex;align-items:center;max-width:calc(100% - 120px);font-size:15px;line-height:1.25;font-weight:550;letter-spacing:-.025em;white-space:nowrap;pointer-events:none}
-.alpha-navigation-organization{display:flex;align-items:center;gap:9px}
-.alpha-navigation-aws{display:block;flex-shrink:0;height:1lh;aspect-ratio:477.88/295.8;overflow:visible}
+.alpha-navigation-organization{display:flex;align-items:baseline;gap:5px}
+.alpha-navigation-aws{display:block;flex-shrink:0;height:1cap;aspect-ratio:477.88/149;overflow:visible}
 .alpha-navigation-aws svg{display:block;width:100%;height:100%;overflow:visible}
-.alpha-navigation-chapter{margin-left:12px;padding-left:12px;border-left:1px solid #fff;font-weight:750;letter-spacing:-.02em}
-@media(max-width:650px){.alpha-navigation-name{font-size:10px;letter-spacing:-.025em}.alpha-navigation-organization{gap:6px}.alpha-navigation-chapter{margin-left:7px;padding-left:7px;font-size:10px}}
+.alpha-navigation-chapter{margin-left:12px;padding-left:12px;border-left:1px solid currentColor;font-weight:750;letter-spacing:-.02em}
+@media(max-width:650px){.alpha-navigation-name{font-size:10px;letter-spacing:-.025em}.alpha-navigation-organization{gap:4px}.alpha-navigation-chapter{margin-left:7px;padding-left:7px;font-size:10px}}
 @media(max-width:650px){.alpha-navigation-gutter{padding-inline:7vw}}
 
 
@@ -44,3 +44,41 @@
 
 .alpha-landing .alpha-navigation-name{color:var(--alpha-nav-ink)}
 .alpha-landing .alpha-navigation-links{gap:12px}
+
+.alpha-landing .alpha-navigation-actions .link-underline:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-reduced-motion=true]) .alpha-recruiting-cta svg {
+    transition: translate .2s ease-out;
+  }
+
+  :root:not([data-reduced-motion=true]) .alpha-landing .alpha-navigation-actions > a.inline-flex {
+    transition: translate .2s ease-out, box-shadow .2s ease-out;
+  }
+
+  :root:not([data-reduced-motion=true]) .alpha-landing nav :is(.alpha-navigation-actions .link-underline, button[aria-controls="mobile-navigation"]) {
+    transition: color .2s, scale .15s ease-out;
+  }
+
+  :root:not([data-reduced-motion=true]) .alpha-landing .alpha-navigation-actions > a.inline-flex:active {
+    translate: 0 1px;
+  }
+
+  :root:not([data-reduced-motion=true]) .alpha-landing nav :is(.alpha-navigation-actions .link-underline, button[aria-controls="mobile-navigation"]):active {
+    scale: .94;
+  }
+
+  @media (hover: hover) {
+    :root:not([data-reduced-motion=true]) .alpha-recruiting-banner:hover .alpha-recruiting-cta svg {
+      translate: 4px 0;
+    }
+
+    :root:not([data-reduced-motion=true]) .alpha-landing .alpha-navigation-actions > a.inline-flex:hover:not(:active) {
+      translate: 0 -2px;
+      box-shadow: inset 0 1px 0 #ffffff80, 0 6px 18px #ff990040;
+    }
+  }
+}

@@ -9,6 +9,7 @@ import "@/recruitment/tokens.css";
 import "./redesign.css";
 import "./application-workbench.css";
 import "./community.css";
+import "@/app/(main)/(landing)/shared/navigation.css";
 import "./header.css";
 import "./page-loader.css";
 import "./staff-auth.css";

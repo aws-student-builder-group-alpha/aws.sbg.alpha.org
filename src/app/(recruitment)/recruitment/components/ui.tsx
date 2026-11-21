@@ -1,11 +1,14 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import NavigationWordmark from "@/components/navigation-wordmark";
 import { usePathname, useSelectedLayoutSegments } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from "react";
 import { motionPresets, useEntrance, useGSAP } from "./motion";
 import { signOut, startApplication } from "@/app/(recruitment)/recruitment/auth/actions";
+import { MAIN_SECTION_LINKS, MEMBERSHIP_LINK } from "@/lib/navigation";
+import { RECRUITMENT_URL } from "@/lib/recruitment";
 import { alphaSiteOrigin, chapterLinks, recruitmentPath } from "@/recruitment/lib/site-paths";
 import type { ApplicationStatus } from "@/recruitment/lib/applications";
 import type { StaffRole, StaffStatus } from "@/recruitment/lib/staff";
@@ -142,16 +145,6 @@ export function Icon({
     </svg>
   );
 }
-export function Brand({ compact = false }: { compact?: boolean }) {
-  return <a href={alphaSiteOrigin + "/"} className={compact ? "brand" : "brand brand-masthead"} aria-label="Alpha home">
-    <Image src={recruitmentPath("/recruitment/brand/alpha-logo.webp")} alt="" width={compact ? 44 : 48} height={compact ? 44 : 48} priority />
-    <span>
-      <strong><span className="brand-full-name">{compact ? "AWS SBG — Alpha" : "AWS Student Builder Group - Alpha"}</span><span className="brand-short-name">{compact ? "Alpha" : "AWS SBG — Alpha"}</span></strong>
-      <small>{compact ? "Recruitment" : <><span className="brand-full-name">Rizal Technological University</span><span className="brand-short-name">RTU</span></>}</small>
-    </span>
-  </a>;
-}
-
 type HeaderStaff = { role: StaffRole; status: StaffStatus; needsMfa: boolean };
 type WorkspaceFrame = "applicant" | "administrator" | "evaluator" | "staff";
 function useWorkspaceFrame(): WorkspaceFrame | undefined {
@@ -258,38 +251,52 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
     return () => { rowObserver.disconnect(); document.body.style.overflow = previousOverflow; siblings.forEach(([node, inert]) => { node.toggleAttribute("inert", inert); }); desktop.removeEventListener("change", resize); };
   }, [menuOpen]);
   const links: { href: string; label: string }[] = [];
-  if (!staff && signedIn) links.push(member ? { href: "/recruitment/membership", label: "Membership ID" } : { href: "/recruitment/application?resume=1", label: "My application" });
+  if (!staff && signedIn && !member) links.push({ href: "/recruitment/application?resume=1", label: "My application" });
   else if (staff && (staff.status !== "active" || staff.needsMfa)) links.push({ href: "/recruitment/staff", label: "Staff sign-in" });
   else if (staff?.role === "administrator") links.push({ href: "/recruitment/admin/applications", label: "Applications" }, { href: "/recruitment/admin/intake", label: "Intake" }, { href: "/recruitment/admin/staff", label: "Staff management" });
   else if (staff) links.push({ href: "/recruitment/reviewer", label: "Organization Head" });
-  if (!member) links.push({ href: "/recruitment/membership", label: "Membership ID" });
+  const opportunities = RECRUITMENT_URL + "/opportunities";
+  const rolesHref = path === opportunities ? "#available-roles" : opportunities;
+  const loginHref = RECRUITMENT_URL + "/application";
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
     <div className="site-header-space" data-workspace-frame={frame} data-tone={dark ? "dark" : "light"} aria-hidden="true" />
     <header ref={headerRef} className="site-header" data-workspace-frame={frame} data-adaptive={path === "/recruitment" ? "home" : "page"} data-tone={dark ? "dark" : "light"} data-menu-open={menuOpen}
       onKeyDown={event => { if (event.key === "Escape") { if (menuOpen) { event.preventDefault(); closeMenu(); } else if (accountOpen) { event.preventDefault(); setAccountOpen(false); accountButton.current?.focus(); } } }}>
       <div ref={rowRef} className="header-inner">
-        <Brand />
+        <a href={alphaSiteOrigin + "/"} className="brand" aria-label="Alpha home">
+          <Image src="/optimized/alpha-logo.webp" alt="" width={36} height={36} priority />
+        </a>
+        <NavigationWordmark />
         <div className="header-actions"><button ref={menuButton} type="button" className="icon-button mobile-menu-button" aria-label="Open menu" aria-controls={menuId} aria-expanded={menuOpen} onClick={() => { setAccountOpen(false); setMenuOpen(true); }}><Icon name="menu" size={24} /></button></div>
         <nav ref={navRef} id={menuId} aria-label={menuOpen ? "Main navigation menu" : "Main navigation"} role={menuOpen ? "dialog" : undefined} aria-modal={menuOpen ? true : undefined} className="main-nav" data-open={menuOpen}
           onClick={event => { if ((event.target as HTMLElement).closest("a")) { if (menuOpen) closeMenu(); setAccountOpen(false); } }}
           onKeyDown={event => { if (menuOpen && event.key === "Tab") { const controls = Array.from(navRef.current?.querySelectorAll<HTMLElement>("a,button:not(:disabled)") || []).filter(node => node.getClientRects().length); const first = controls[0], last = controls.at(-1); if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } } }}>
           <button ref={closeButton} type="button" className="nav-close icon-button" aria-label="Close menu" onClick={closeMenu}><Icon name="close" size={28} /></button>
-          <div className="nav-chapter-links">{chapterLinks.map(link => <a key={link.path} href={alphaSiteOrigin + link.path}>{link.label}</a>)}</div>
-          <span className="nav-divider" aria-hidden="true" />
-          <div ref={accountRef} className="account-navigation" data-signed-in={signedIn} data-open={accountOpen}>
-            {signedIn && <button ref={accountButton} type="button" className="account-trigger" aria-expanded={accountOpen} aria-controls={accountId} onClick={() => setAccountOpen(!accountOpen)}><span>{accountLabel}</span><Icon name="chevron" size={16} /></button>}
-            <div id={accountId} className="account-dropdown">
-              {links.map(link => <Link key={link.href} href={link.href} aria-current={path === link.href.split("?")[0] ? "page" : undefined}>{link.label}</Link>)}
-              {!staff && !signedIn && !pendingSession && <ApplicationAction className="nav-apply">Apply now</ApplicationAction>}
-              {signedIn && <form action={signOut} onSubmit={event => { if (document.querySelector('[data-unsaved="true"]') && !window.confirm("Your latest changes have not been saved. Sign out anyway?")) event.preventDefault(); }}><button type="submit" className="text-button">Sign out</button></form>}
-            </div>
+          <div className="nav-chapter-links">{MAIN_SECTION_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}</div>
+          <div className="nav-primary-actions">
+            {!staff && !signedIn && !pendingSession && <Link className="nav-apply" href={rolesHref}>Become a Member</Link>}
+            <Link href={MEMBERSHIP_LINK.href} aria-current={path === MEMBERSHIP_LINK.href ? "page" : undefined}>Membership ID</Link>
+            {!staff && !signedIn && !pendingSession && <Link href={loginHref}>Login</Link>}
+            {signedIn && (
+              <div ref={accountRef} className="account-navigation" data-open={accountOpen}>
+                <button ref={accountButton} type="button" className="account-trigger" aria-expanded={accountOpen} aria-controls={accountId} onClick={() => setAccountOpen(!accountOpen)}>
+                  <span>{accountLabel}</span><Icon name="chevron" size={16} />
+                </button>
+                <div id={accountId} className="account-dropdown">
+                  {links.map(link => <Link key={link.href} href={link.href} aria-current={path === link.href.split("?")[0] ? "page" : undefined}>{link.label}</Link>)}
+                  <form action={signOut} onSubmit={event => { if (document.querySelector('[data-unsaved="true"]') && !window.confirm("Your latest changes have not been saved. Sign out anyway?")) event.preventDefault(); }}>
+                    <button type="submit" className="text-button">Sign out</button>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
           <Image className="mobile-menu-mark" src={recruitmentPath("/recruitment/brand/alpha-logo.webp")} alt="" width={48} height={48} />
         </nav>
       </div>
     </header>
-    <noscript><nav className="header-no-script" aria-label="Chapter links">{chapterLinks.map(link => <a key={link.path} href={alphaSiteOrigin + link.path}>{link.label}</a>)}{links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}<Link href="/recruitment/opportunities">Available roles</Link></nav></noscript>
+    <noscript><nav className="header-no-script" aria-label="Chapter links">{MAIN_SECTION_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}{links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}<Link href={rolesHref}>Become a Member</Link><Link href={MEMBERSHIP_LINK.href}>Membership ID</Link>{!signedIn && <Link href={loginHref}>Login</Link>}</nav></noscript>
   </>;
 }
 

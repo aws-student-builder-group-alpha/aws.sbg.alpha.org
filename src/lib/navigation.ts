@@ -12,3 +12,5 @@ export const MAIN_SECTION_LINKS = [
 export const MAIN_PAGE_LINKS = [
   { href: RECRUITMENT_URL + "/opportunities", label: "Apply now" },
 ]
+
+export const MEMBERSHIP_LINK = { href: RECRUITMENT_URL + "/membership", label: "Membership" }
