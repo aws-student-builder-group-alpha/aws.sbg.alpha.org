@@ -2,13 +2,14 @@
 
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useEffect, useRef, useState } from "react"
-import PixelWolf from "./hero/pixel-wolf"
+import PixelWolf, { isWolfLook, type WolfLook } from "./hero/pixel-wolf"
 import { HERO_WOLF_TILT, wolfPose, wolfCoversText, safeWolfPose, wolfRoute, wolfSegmentClear, stepWolfPose, resizeWolfPose, type WolfPoint, type WolfPose } from "./journey-geometry"
 
 export default function JourneyWolf() {
   const reducedMotion = useReducedMotion()
   const wolf = useRef<HTMLButtonElement>(null)
   const [excited, setExcited] = useState(false)
+  const [look, setLook] = useState<WolfLook>("opening")
   useEffect(() => {
     const button = wolf.current
     const page = button?.closest<HTMLElement>(".alpha-landing")
@@ -20,6 +21,12 @@ export default function JourneyWolf() {
       if (!motion.matches) return
       const hosts = Array.from(page.querySelectorAll<HTMLElement>("[data-wolf-stop]"))
       if (hosts.length < 2) return
+      const scenes = hosts.flatMap(host => {
+        const look = host.dataset.wolfStop
+        const scene = host.closest(".alpha-opening, .alpha-benefit, .alpha-roles, .alpha-proof, .alpha-team, .alpha-closing")
+        return scene && isWolfLook(look) ? [{ scene, look }] : []
+      })
+      let activeLook: WolfLook | undefined
       const learnIndex = hosts.findIndex(host => host.dataset.wolfStop === "learn")
       const learnHost = hosts[learnIndex]
       const learnColumn = learnHost?.closest(".alpha-learn-column")
@@ -138,6 +145,11 @@ export default function JourneyWolf() {
           const center = window.innerHeight / 2
           const photosInFocus = photos && photos.top < center && photos.bottom > center
           const visible = !photosInFocus && pose.x + pose.width > 0 && pose.x < document.documentElement.clientWidth && pose.y + pose.width * 8 / 9 > header && pose.y < window.innerHeight - 100
+          const nextLook = heroDocked ? "opening" : scenes.findLast(({ scene }) => scene.getBoundingClientRect().top <= center)?.look ?? "opening"
+          if (nextLook !== activeLook) {
+            activeLook = nextLook
+            setLook(nextLook)
+          }
           button.dataset.reading = String(reading)
           button.dataset.visible = String(visible)
           button.setAttribute("aria-hidden", String(!visible))
@@ -186,7 +198,7 @@ export default function JourneyWolf() {
     return () => { dispose(); motion.removeEventListener("change", sync) }
   }, [reducedMotion])
   return <button ref={wolf} type="button" className="alpha-journey-wolf" aria-label="Give Alpha a high five" onClick={() => setExcited(true)}>
-    <span className="alpha-journey-body" data-excited={excited} onAnimationEnd={event => { if (event.target === event.currentTarget) setExcited(false) }}><PixelWolf dimensional pose="wave" /></span>
+    <span className="alpha-journey-body" data-excited={excited} onAnimationEnd={event => { if (event.target === event.currentTarget) setExcited(false) }}><PixelWolf look={look} dimensional pose={excited || look === "opening" ? "wave" : undefined} /></span>
     <span className="alpha-wolf-hint">{excited ? "High five!" : "High five?"}</span>
   </button>
 }

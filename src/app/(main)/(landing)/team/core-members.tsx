@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { Mail, Globe } from "lucide-react"
 import { Facebook, Linkedin } from "@/components/icons"
+import { WolfPerch } from "../hero/pixel-wolf"
 import "./core-members.css"
 
 interface Member {
@@ -185,7 +186,7 @@ export default function CoreMembers() {
     <div className="alpha-team-inner">
       <header className="alpha-team-heading">
         <div><h2 id="alpha-team-heading">Meet your future <em>teammates.</em></h2></div>
-        <div className="alpha-team-heading-meta"><span className="alpha-team-size">{MEMBERS.length} core members</span><span className="alpha-team-wolf-stop" data-wolf-stop="team" aria-hidden="true" /></div>
+        <div className="alpha-team-heading-meta"><span className="alpha-team-size">{MEMBERS.length} core members</span><WolfPerch className="alpha-team-wolf-stop" look="team" /></div>
       </header>
       <div className="alpha-team-grid" role="list" aria-label="Your future teammates">
         {MEMBERS.map((member, index) => <MemberCard key={member.name} member={member} index={index} />)}

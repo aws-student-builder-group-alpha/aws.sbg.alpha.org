@@ -10,7 +10,7 @@ import { getTopUpcomingEvents, formatEventDate } from "@/data/events"
 import { galleryImage } from "@/lib/gallery-image"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
 import CloudLab from "./cloud-lab"
-import PixelWolf from "./hero/pixel-wolf"
+import { WolfPerch } from "./hero/pixel-wolf"
 import TestimonialSwitcher from "./testimonial-switcher"
 import PhotoJourney from "./photo-journey"
 
@@ -62,7 +62,7 @@ export function Benefits() {
     <article className="alpha-benefit alpha-benefit-learn" data-theme="dark" aria-labelledby="learn-cloud-heading">
       <div className="alpha-learn-column">
         <div className="alpha-learn-rail">
-          <div className="alpha-learn-wolf" data-wolf-stop="learn" aria-hidden="true"><PixelWolf dimensional pose="wave" /></div>
+          <WolfPerch className="alpha-learn-wolf" look="learn" />
           <div className="alpha-benefit-copy alpha-learn-story">
             <h2 id="learn-cloud-heading" aria-label="Learn cloud."><KineticType text="Learn" /><em><KineticType text="cloud." /></em></h2>
             <p className="alpha-learn-welcome">Open to beginners. No AWS experience needed.</p>
@@ -75,7 +75,7 @@ export function Benefits() {
       <div className="alpha-benefit-copy"><h2 aria-label={`${scene.first} ${scene.last}`}><KineticType text={scene.first} /><em><KineticType text={scene.last} /></em></h2><p>{scene.copy}</p></div>
       <div className="alpha-benefit-art">
         <figure className="alpha-photo-frame"><Image src={`/optimized/landing/${scene.image}.webp`} alt={scene.alt} fill sizes="(min-width: 800px) 42vw, 80vw" /></figure>
-        <div className={`alpha-wolf-sticker alpha-wolf-${scene.style}`} data-wolf-stop={scene.style} aria-hidden="true" />
+        <WolfPerch className={`alpha-wolf-sticker alpha-wolf-${scene.style}`} look={scene.style} />
         <figure className="alpha-scene-snapshot" aria-hidden="true"><Image src={`/optimized/landing/${scene.extra}.webp`} alt="" fill sizes="(min-width: 800px) 18vw, 28vw" /></figure><span className="alpha-scene-stamp" aria-hidden="true">0{index + 2} / ALPHA</span>
       </div>
     </article></Fragment>)}
@@ -92,7 +92,7 @@ export function CommunityProof() {
   const upcoming = getTopUpcomingEvents(2)
   return <section id="events" className="alpha-proof alpha-scene" data-theme="dark" aria-labelledby="community-heading">
     <div className="alpha-proof-intro">
-      <div className="alpha-proof-top"><div><h2 id="community-heading" className="alpha-scene-heading" aria-label="This could be your Day One."><KineticType text="This could" />{" "}<KineticType text="be" /><br />your <em><KineticType text="Day One." /></em></h2></div><span className="alpha-proof-wolf" data-wolf-stop="community" aria-hidden="true" /></div>
+      <div className="alpha-proof-top"><div><h2 id="community-heading" className="alpha-scene-heading" aria-label="This could be your Day One."><KineticType text="This could" />{" "}<KineticType text="be" /><br />your <em><KineticType text="Day One." /></em></h2></div><WolfPerch className="alpha-proof-wolf" look="community" /></div>
       <PhotoCarousel />
       <div className="alpha-proof-bottom"><TestimonialSwitcher /><Link className="alpha-text-link" href="/events">View all events <ArrowUpRight size={20} aria-hidden="true" /></Link></div>
     </div>
@@ -102,5 +102,5 @@ export function CommunityProof() {
 }
 
 export function ClosingInvitation() {
-  return <section id="contact" className="alpha-closing alpha-scene" data-theme="dark" aria-labelledby="closing-heading"><div className="alpha-closing-pack" aria-hidden="true"><span className="alpha-closing-wolf" data-wolf-stop="closing" /></div><h2 id="closing-heading" className="alpha-scene-heading" aria-label="Your next tech chapter starts here."><KineticType text="Your next" />{" "}<KineticType text="tech" />{" "}<KineticType text="chapter" /><br /><em><KineticType text="starts here." /></em></h2><RecruitmentActions /><a className="alpha-text-link" href="https://www.facebook.com/AWSStudentBuilderGroupAlpha">Say hello <ArrowUpRight size={18} aria-hidden="true" /></a></section>
+  return <section id="contact" className="alpha-closing alpha-scene" data-theme="dark" aria-labelledby="closing-heading"><div className="alpha-closing-pack" aria-hidden="true"><WolfPerch className="alpha-closing-wolf" look="closing" /></div><h2 id="closing-heading" className="alpha-scene-heading" aria-label="Your next tech chapter starts here."><KineticType text="Your next" />{" "}<KineticType text="tech" />{" "}<KineticType text="chapter" /><br /><em><KineticType text="starts here." /></em></h2><RecruitmentActions /><a className="alpha-text-link" href="https://www.facebook.com/AWSStudentBuilderGroupAlpha">Say hello <ArrowUpRight size={18} aria-hidden="true" /></a></section>
 }

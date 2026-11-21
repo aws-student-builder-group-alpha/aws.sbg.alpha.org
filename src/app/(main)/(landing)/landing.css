@@ -191,7 +191,9 @@
 /* One interactive wolf travels through open space between the section anchors. */
 .alpha-journey-wolf{display:none;position:fixed;top:0;left:0;z-index:35;aspect-ratio:9/8;padding:0;border:0;background:none;cursor:pointer;transform-origin:center;will-change:transform;touch-action:pan-y}
 .alpha-landing[data-journey-active="true"]>.alpha-journey-wolf{display:block}
-.alpha-landing[data-journey-active="true"] .alpha-opening-mascot>.alpha-pixel-wolf{visibility:hidden}
+.alpha-landing [data-wolf-stop]>.alpha-pixel-wolf{width:100%;height:100%}
+.alpha-landing[data-journey-active="true"] [data-wolf-stop]>.alpha-pixel-wolf{visibility:hidden;animation:none}
+.alpha-landing[data-journey-active="true"] [data-wolf-stop] :is(.alpha-wolf-eyes,.alpha-wolf-paw){animation:none}
 .alpha-landing[data-journey-active="true"] .alpha-opening-mascot{pointer-events:none;visibility:hidden}
 .alpha-wolf-sticker,.alpha-role-mascot,.alpha-proof-wolf,.alpha-closing-wolf{aspect-ratio:9/8}
 .alpha-journey-body{display:block;width:100%;height:100%;filter:drop-shadow(5px 9px 0 #12091e20)}
