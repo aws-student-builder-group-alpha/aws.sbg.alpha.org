@@ -203,8 +203,8 @@ export function isCoreEligible(profile: Profile) {
 export function questionsFor(opportunityId: string, formVersion = 1) {
   const opportunity = getOpportunity(opportunityId);
   if (formVersion === 2) return [
-    { id: "motivation" as const, label: "Why Alpha?", prompt: "Why do you want to join Alpha, and what would you like to contribute?", min: 1, max: 150 },
-    { id: "collaboration" as const, label: "Working together", prompt: "Tell us about a time you worked with others or handled a challenge. School and personal projects count.", min: 1, max: 150 },
+    { id: "motivation" as const, label: "Motivation and contribution", prompt: "Why do you want to join AWS Student Builder Group - Alpha, and what would you like to contribute?", min: 1, max: 150 },
+    { id: "collaboration" as const, label: "Collaboration", prompt: "How have you worked with others or handled a challenge?", min: 1, max: 150 },
     { id: "scenario" as const, label: "Put yourself in the role", prompt: opportunity?.scenario ?? "Choose an opportunity to see your role scenario.", min: 1, max: 150 },
   ];
   return [

@@ -1,7 +1,7 @@
 /* Apply: a calm form workspace with compact, content-sized progress. */
 .alpha-app .application-workbench-page{padding:40px 24px 64px;min-height:0}
 .alpha-app .process-card.application-workbench{--color-process-field:#fff;--process-field:#fff;display:block;width:min(100%,860px);min-height:0;margin:0 auto;padding:0;overflow:visible;border:1px solid #dce3eb;border-radius:20px;background:#fff;box-shadow:0 20px 56px #0000001f;color:#232f3e}
-.alpha-app .application-workbench-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 40px 20px}
+.alpha-app .application-workbench-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 16px;padding:24px 40px 20px}
 .alpha-app .application-workbench-label{font-size:14px;font-weight:600;color:#536073}
 .alpha-app .application-progress-panel{display:contents}
 .application-draft-badge{font-size:14px;line-height:1.5;padding:4px 10px;border:1px solid #e2c59b;border-radius:100px;background:#fff4e3;color:#875000}
@@ -14,16 +14,78 @@
 .alpha-app .application-step-navigation .progress-icon{display:grid;place-items:center;flex:0 0 26px;height:26px;border-radius:50%;background:#f1f4f7;border:1px solid #c5cfdb;color:#536073;font-size:12px}
 .alpha-app .application-step-navigation .current .progress-icon{background:#70509e;border-color:#70509e;color:#fff}
 .alpha-app .application-step-navigation .done .progress-icon{background:#232f3e;border-color:#232f3e;color:#fff}
+.alpha-app .application-step-navigation .process-segment.done:focus-visible{outline:2px solid #70509e;outline-offset:2px}
+@media(hover:hover){.alpha-app .application-step-navigation .process-segment.done:hover:not(:disabled){background:#eff1f4}}
 .alpha-app .application-step-navigation .progress-copy{min-width:0;padding:0}
 .alpha-app .application-step-navigation .progress-name{font-size:14px;line-height:1.4;font-weight:550;white-space:normal}
-.alpha-app .application-step-navigation .process-step-label{margin:16px 0 0;font-size:14px;color:#536073;line-height:1.5}
-.alpha-app .application-workbench-content{width:100%;max-width:800px;min-width:0;margin:0 auto;padding:32px 40px 0}
+.alpha-app .application-workbench-column{--application-column-gutter:40px;min-width:0}
+.alpha-app :is(.application-workbench-content,.application-track-status-inner){width:100%;max-width:800px;min-width:0;margin:0 auto;padding-inline:var(--application-column-gutter)}
+.alpha-app .application-workbench-content{padding-block-start:32px}
+.alpha-app .application-track-status{background:var(--process-accent-soft)}
+.alpha-app .application-track-status-inner {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:4px 20px;
+  padding-block:16px;
+}
+.alpha-app .application-track-status-copy {
+  flex:1 1 20rem;
+  min-width:0;
+  margin:0;
+  color:var(--process-ink);
+  font-size:.9375rem;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
+.alpha-app .application-track-status-inner .text-button {
+  min-height:44px;
+  font-size:.875rem;
+  text-align:left;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
 .alpha-app .application-workbench .process-step-heading{margin:0 0 28px}
 .alpha-app .application-workbench .process-step-heading h1{margin:0;color:#232f3e;font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.04em}
 .alpha-app .application-workbench .application-step-guidance{margin:10px 0 0;color:#655e6d;font-size:15px;line-height:1.65}
-.alpha-app .application-workbench .process-step-heading .application-role-summary{display:flex;align-items:center;gap:9px;margin:16px 0 0;padding:0;border:0;background:transparent;font-size:14px;line-height:1.6;color:#655e6d}
-.application-role-summary svg{flex:none;color:#70509e}
-.application-role-summary strong{color:#322b3c;font-weight:600}
+.alpha-app .application-workbench .process-step-heading .application-role-summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  max-width:none;
+  margin:16px 0 0;
+  padding:clamp(16px,2.8vw,30px);
+  border-radius:18px;
+  background:radial-gradient(ellipse at 85% 0%,#4b3463,transparent 65%),#211c28;
+  color:#fff8ed;
+}
+.application-role-summary-copy {
+  display:grid;
+  gap:4px;
+  min-width:0;
+  overflow-wrap:anywhere;
+  font-size:.875rem;
+  line-height:1.4;
+}
+.application-role-summary-copy strong {
+  color:inherit;
+  font-size:clamp(1.375rem,3vw,2.125rem);
+  font-weight:750;
+  line-height:1.1;
+  letter-spacing:-.045em;
+}
+.application-role-summary-icon {
+  display:grid;
+  place-items:center;
+  flex:none;
+  width:clamp(40px,5vw,56px);
+  aspect-ratio:1;
+  border-radius:12px;
+  background:linear-gradient(135deg,#ffd286,#ffb13e);
+  color:#211c28;
+}
 .alpha-app .application-workbench .application-role-choice{margin:0 0 28px;padding:20px 22px;border:1px solid #ddd4e9;border-radius:12px;background:#f8f5fc}
 .alpha-app .application-workbench .application-role-choice h2{margin:0 0 8px;color:#322b3c;font-size:17px;font-weight:650;line-height:1.4;letter-spacing:-.02em}
 .alpha-app .application-workbench .application-role-choice p{margin:0;color:#655e6d;font-size:14px;line-height:1.65}
@@ -37,38 +99,76 @@
 .alpha-app .application-workbench .process-group{gap:24px;margin:12px 0 0;padding-top:8px;border-top:0}
 .alpha-app .application-workbench .process-group-title{font-size:18px;line-height:1.4;letter-spacing:-.02em;text-transform:none;font-weight:600;color:#232f3e}
 .alpha-app .application-workbench .field{gap:8px}
-.alpha-app .application-workbench .field :is(input:where(:not([type=checkbox]):not([type=radio])),select,textarea){min-height:50px;background:#fcfbfd;border-color:#bdb5c6;border-radius:9px}
+.alpha-app .application-workbench .field :is(input:where(:not([type=checkbox]):not([type=radio])),select,textarea){min-height:50px;background:#fcfbfd;border-color:var(--color-control-rule);border-radius:9px}
 .alpha-app .application-workbench .field input[readonly]{background:#f5f7f9}
 .alpha-app .application-workbench .field :is(input,select,textarea):focus{border-color:#70509e;outline:2px solid #70509e;outline-offset:2px;background:#fff}
 .alpha-app .application-workbench .field :is(input,select,textarea)[aria-invalid=true]{border-color:var(--danger)}
 .alpha-app .application-workbench .field label{font-weight:550}
-.alpha-app .application-workbench .process-response{padding:24px 0;border:0;border-top:1px solid #e5e9ee;border-radius:0;background:transparent}
-.alpha-app .application-workbench .process-response-scenario{padding:24px 0 24px 16px;border-left:3px solid #ff9900}
+.alpha-app .application-workbench .process-response {
+  padding:24px;
+  border:1px solid #e5deed;
+  border-radius:18px;
+  background:#fcfaff;
+  gap:16px;
+  scroll-margin-top:96px;
+}
+.alpha-app .application-workbench .process-response .field {gap:14px}
+.alpha-app .application-workbench .process-response .field > label {
+  padding:0;
+  border:0;
+  background:transparent;
+  font-size:18px;
+  line-height:1.5;
+  letter-spacing:-.02em;
+  font-weight:650;
+}
+.alpha-app .application-workbench .process-response-scenario {
+  border-color:#ebd2a7;
+  background:#fff9ed;
+}
+.alpha-app .application-workbench .process-response .field textarea {
+  min-height:190px;
+  padding:16px;
+  border-radius:12px;
+  background:#fff;
+  line-height:1.7;
+}
+.alpha-app .application-workbench .process-response .process-word-count {
+  justify-self:end;
+  margin:0;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+}
+.alpha-app .application-workbench .process-response-scenario label > svg {
+  display:inline-block;
+  margin-inline-end:8px;
+  vertical-align:-3px;
+  color:#875000;
+}
 .alpha-app .application-workbench .process-action-bar{position:static;margin:32px 0 0;padding:0;border:0;background:#fff}
 .alpha-app .application-workbench .process-action-inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:20px 0 24px;border-top:1px solid #e5e9ee;background:#fff}
-.alpha-app .application-workbench .process-save-state{font-size:14px;line-height:1.5;color:#536073}
-.alpha-app .application-workbench .process-actions{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:12px}
-.alpha-app .application-workbench .process-actions .button{font-size:16px;min-height:48px}
-.alpha-app .application-workbench .process-text-action{font-size:14px;min-height:44px}
+.alpha-app .application-workbench-header .process-save-state{grid-column:1/-1;font-size:14px;line-height:1.5;color:#536073;overflow-wrap:anywhere}
+.alpha-app .application-workbench .process-actions{display:flex;align-items:center;flex-wrap:nowrap;justify-content:flex-end;gap:12px;width:auto;max-width:100%;margin-inline-start:auto}
+.alpha-app .application-workbench .process-actions .button{flex:0 1 auto;font-size:16px;min-height:48px}
+.alpha-app .application-workbench .process-text-action{display:inline-flex;align-items:center;font-size:14px;min-height:44px}
 @media(min-width:900px) and (min-height:768px){.alpha-app .application-workbench .process-action-bar{position:sticky;bottom:0;z-index:20;box-shadow:0 -12px 18px -20px #232f3e}}
-@media(min-width:600px){.alpha-app .application-workbench :is(.process-field-pair,.process-contact-fields){grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:899px){.alpha-app .application-workbench-page{padding:24px 20px}.alpha-app .application-workbench-header{padding:24px 24px 16px}.alpha-app .application-step-navigation{padding:0 24px 24px}.alpha-app .application-workbench-content{padding:32px 24px 0}}
-@media(max-width:599px){.alpha-app .application-workbench-page{padding:20px 16px 32px}.alpha-app .application-workbench-header{padding:20px 20px 16px}.alpha-app .application-step-navigation{padding:0 20px 20px}.alpha-app .application-step-navigation .process-track{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.alpha-app .application-workbench-content{padding:24px 20px 0}.alpha-app .application-workbench .process-step-heading h1{font-size:24px}.alpha-app .application-workbench .process-action-inner{display:block}.alpha-app .application-workbench .process-save-state{margin:0 0 12px}.alpha-app .application-workbench .process-actions{display:grid;grid-template-columns:minmax(68px,.65fr) minmax(0,1.35fr)}.alpha-app .application-workbench .process-text-action{grid-column:1/-1}.alpha-app .application-workbench .process-response{padding-top:24px}.alpha-app .application-workbench .process-evidence-summary{padding:20px}.alpha-app .process-card.application-workbench{border-radius:20px}}
+@media(min-width:600px){.alpha-app .application-workbench :is(.process-field-pair,.process-contact-fields,.process-choices){grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:899px){.alpha-app .application-workbench-page{padding:24px 20px}.alpha-app .application-workbench-header{padding:24px 24px 16px}.alpha-app .application-step-navigation{padding:0 24px 24px}.alpha-app .application-workbench-column{--application-column-gutter:24px}}
+@media(max-width:599px){.alpha-app .application-workbench-page{padding:20px 16px 32px}.alpha-app .application-workbench-header{padding:20px 20px 16px}.alpha-app .application-step-navigation{padding:0 20px 20px}.alpha-app .application-step-navigation .process-track{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.alpha-app .application-workbench-column{--application-column-gutter:20px}.alpha-app .application-workbench-content{padding-block-start:24px}.alpha-app .application-workbench .process-step-heading h1{font-size:24px}.alpha-app .application-workbench .process-response{padding-top:24px}.alpha-app .application-workbench .process-evidence-summary{padding:20px}.alpha-app .process-card.application-workbench{border-radius:20px}}
 @media(min-width:1024px){
   .alpha-app .process-card.application-workbench{display:grid;grid-template-columns:224px minmax(0,1fr);width:min(100%,1120px);align-items:start;background-image:linear-gradient(to right,#faf9fc 0,#faf9fc 223px,#eeeaf2 223px,#eeeaf2 224px,#fff 224px,#fff 100%);background-origin:padding-box;background-clip:padding-box}
   .alpha-app .application-progress-panel{display:flex;flex-direction:column;grid-column:1;grid-row:1;align-self:start;gap:24px;padding:28px 16px}
-  .alpha-app .application-workbench-header{flex:none;flex-wrap:wrap;gap:8px;padding:0 8px}
+  .alpha-app .application-workbench-header{flex:none;column-gap:8px;padding:0 8px}
   .alpha-app .application-step-navigation{display:block;padding:0;border:0}
   .alpha-app .application-step-navigation .process-progress{display:block}
   .alpha-app .application-step-navigation .process-track{grid-template-columns:minmax(0,1fr);grid-template-rows:none;gap:8px}
   .alpha-app .application-step-navigation .process-segment{position:relative;gap:10px;padding:10px;min-height:58px;border:0;border-radius:9px}
   .alpha-app .application-step-navigation .process-segment.current{background:#eee7f8;color:#322b3c}
   .alpha-app .application-step-navigation .current .progress-icon{background:#70509e;border-color:#70509e;color:#fff}
-  .alpha-app .application-step-navigation .process-segment.done:hover:not(:disabled){background:#f0edf5}
   .alpha-app .application-step-navigation .progress-icon{flex-basis:32px;height:32px;font-size:13px}
   .alpha-app .application-step-navigation .process-segment::before,.alpha-app .application-step-navigation .process-segment::after{display:none}
-  .alpha-app .application-step-navigation .process-step-label{margin:20px 8px 0;padding:0;border:0;font-size:13px;color:#655e6d}
-  .alpha-app .application-workbench-content{grid-column:2;grid-row:1;padding-top:32px}
+  .alpha-app .application-workbench-column{grid-column:2;grid-row:1}
+  .alpha-app .application-track-status{border-start-end-radius:19px}
 }
 @media(min-width:1024px) and (min-height:48em){
   .alpha-app .application-progress-panel{position:sticky;top:calc(var(--site-header-height) + 24px);height:auto}
@@ -106,41 +206,14 @@
 
 /* QA readability and predictable, visible form controls. */
 .alpha-app .application-workbench :is(.field>label,.checkbox-row,.field input,.field select,.field textarea){font-size:16px;line-height:1.6}
-.alpha-app .application-workbench :is(.field-hint,.progress-description,.process-step-label,.application-sidebar-note,.application-applicant strong,.application-applicant div>span,.process-word-count){font-size:14px;line-height:1.7}
+.alpha-app .application-workbench :is(.field-hint,.progress-description,.application-sidebar-note,.application-applicant strong,.application-applicant div>span,.process-word-count){font-size:14px;line-height:1.7}
 .alpha-app .application-workbench .progress-name{font-size:16px}
 .alpha-app .required-mark{color:#b42318;font-weight:700;margin-left:3px}
 .alpha-app .application-workbench .field select{appearance:none;padding-right:44px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23526174' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
 .alpha-app .process-optional{margin-top:24px}
-.alpha-app .weekly-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;border:1px solid #c4ccd5;border-radius:12px;padding:12px}
-.alpha-app .weekly-calendar label{min-width:0;position:relative}
-.alpha-app .weekly-calendar label span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:90px;border-radius:8px;font-size:16px;padding:12px 4px}
-.alpha-app .weekly-calendar label small{font-size:12px}
-.alpha-app .weekly-calendar input:focus-visible+span{outline:3px solid #965500;outline-offset:3px}
-.alpha-app .process-evidence-summary{padding:24px;border:1px solid #d4d9df;border-radius:12px;margin-block:24px;overflow-wrap:anywhere}
-.alpha-app .process-evidence-summary h3{font-size:20px}
-.alpha-app .process-evidence-summary a{color:#875000;text-decoration:underline}
-@media(max-width:767px){.alpha-app .weekly-calendar{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:400px){.alpha-app .weekly-calendar{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
-
-.alpha-app .required-label::after{content:" *";color:#b42318;font-weight:700}
-
-.alpha-app .application-workbench .field label .required-mark{color:#b42318}
-
-/* Long recovery messages stay in reading flow rather than covering fields. */
-.alpha-app .application-workbench .process-action-bar:has(.process-recovery,.notice){position:static;box-shadow:none}
-
-@media(max-width:599px){.alpha-app .application-workbench .application-step-navigation .process-segment{padding:8px 4px;gap:8px}.alpha-app .application-workbench .application-step-navigation .progress-icon{flex-basis:24px;height:24px}.alpha-app .application-workbench .application-step-navigation .progress-name{font-size:14px;white-space:nowrap}}
-
-@media(max-width:599px){.alpha-app .application-workbench .process-actions .button{min-width:0;padding-inline:12px;gap:8px}.alpha-app .application-workbench .process-actions .button svg{flex:none}}
-
-@media(max-width:599px){
- .alpha-app .application-workbench .application-role-choice{padding:16px;margin-bottom:24px}
- .alpha-app .application-workbench .application-role-choice h2{font-size:16px}
- .alpha-app .application-workbench .application-step-guidance{font-size:14px;line-height:1.6}
- .alpha-app .application-step-navigation .process-step-label{margin-top:10px}
-}
-
+.alpha-app .application-workbench .process-days > legend{font-size:16px;font-weight:550;line-height:1.6}
+.alpha-app .process-availability-fields{margin-top:16px}
+.alpha-app .process-availability-fields input{width:100%;min-width:0}
 .alpha-app .availability-selector{container-type:inline-size;margin-top:24px}
 .alpha-app .availability-selector-layout{display:grid;gap:24px}
 .alpha-app .availability-calendar-panel{padding:20px;border:1px solid #e5deed;border-radius:18px;background:#fff}
@@ -172,3 +245,136 @@
 @container (min-width:620px){.alpha-app .availability-selector-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px}}
 @container (max-width:619px) and (min-width:400px){.alpha-app .availability-date-fields,.alpha-app .availability-time-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:479px){.alpha-app .availability-calendar-panel{padding:16px 12px}.alpha-app .availability-schedule-panel{padding:20px}}
+.alpha-app .application-workbench .process-story-section {gap:48px}
+.alpha-app .process-story-document-heading{display:grid;gap:14px}
+.alpha-app .process-story-document-heading .process-group-title{margin:0}
+.alpha-app .process-resume-group{display:grid;gap:16px}
+.alpha-app .application-workbench .process-story-section .field{gap:12px}
+.alpha-app .application-workbench .process-story-section .process-review-links input:is([type=url],[type=file]){border-radius:14px}
+.alpha-app .process-story-response-heading{display:grid;gap:10px;margin-top:0}
+.alpha-app .process-story-response-title{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.alpha-app .process-story-response-title > span{font-size:13px;color:#685b76;font-variant-numeric:tabular-nums}
+.alpha-app .application-workbench .process-story-section .process-response:focus-within{border-color:#a28cba}
+.alpha-app .application-workbench .process-story-section .process-response-scenario:focus-within{border-color:#c48b37}
+.alpha-app .application-workbench .process-story-section .process-response textarea{field-sizing:content;min-height:156px;max-height:480px;resize:vertical}
+.alpha-app .process-story-section .process-review-links {
+  padding-top:0;
+  border-top:0;
+  gap:36px;
+}
+.alpha-app .process-story-section .process-resume-help{margin:0}
+.alpha-app .process-story-section .process-days{padding-block:0 36px;border-bottom:1px solid #e9e4ee}
+.alpha-app .process-story-section .process-days > legend{margin-bottom:12px}
+.alpha-app .process-story-section .process-days > .field-hint{margin:0}
+.alpha-app .process-story-section .process-days > .field-hint + .field-hint{margin-top:12px}
+.alpha-app .process-story-section .process-availability-fields{margin-top:20px}
+.alpha-app .application-workbench .process-story-section .process-response{padding:26px}
+.alpha-app .application-workbench .process-story-section .process-response .field{gap:16px}
+.alpha-app .process-story-section .process-response .field-hint{margin:0}
+.alpha-app .process-story-section .process-response > .checkbox-row{margin-top:4px}
+.alpha-app .process-story-section .enrollment-upload {
+  padding-block:32px;
+  border-block:1px solid #e9e4ee;
+  margin:0;
+}
+.alpha-app .application-workbench .process-story-section .enrollment-upload {
+  gap:20px;
+}
+.alpha-app .application-workbench-column:has(.process-story-section) .process-action-bar {
+  position:static;
+  margin-top:48px;
+  box-shadow:none;
+}
+.alpha-app .process-story-section input[type=file] {
+  padding:8px;
+  min-width:0;
+  max-width:100%;
+  font-size:14px;
+}
+.alpha-app .process-story-section input[type=file]::file-selector-button {
+  padding:10px 14px;
+  margin-inline-end:12px;
+  border:1px solid #d5c9e4;
+  border-radius:10px;
+  background:#f2ebfa;
+  color:#493360;
+  font:inherit;
+  font-weight:600;
+  cursor:pointer;
+}
+.alpha-app .process-story-section #story-instructions {
+  margin:0;
+  max-width:58ch;
+}
+.alpha-app .enrollment-file-control {
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+  padding:16px 18px;
+  border:1px solid #bdb5c6;
+  border-radius:14px;
+  background:#fff;
+}
+.alpha-app .enrollment-file-control:focus-within{outline:2px solid #70509e;outline-offset:3px;border-color:#70509e}
+.alpha-app .enrollment-file-control:has(input[aria-invalid=true]){border-color:var(--danger)}
+.alpha-app .enrollment-file-control[data-disabled=true]{opacity:.65}
+.alpha-app .enrollment-file-summary{display:grid;gap:6px;min-width:0}
+.alpha-app .enrollment-file-summary > span{font-size:14px;color:#635b70}
+.alpha-app .enrollment-file-summary strong{font-size:16px;font-weight:600;overflow-wrap:anywhere;line-height:1.6}
+.alpha-app .enrollment-file-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:1px solid #d5c9e4;border-radius:10px;background:#f2ebfa;color:#493360;font-size:14px;font-weight:600;white-space:nowrap}
+.alpha-app .enrollment-file-control input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;padding:0}
+.alpha-app .enrollment-file-control input:disabled{cursor:default}
+.alpha-app .enrollment-file-download{justify-self:start;font-size:14px;text-underline-offset:3px}
+@media(max-width:479px){
+  .alpha-app .enrollment-file-control{grid-template-columns:minmax(0,1fr);padding:16px}
+  .alpha-app .enrollment-file-action{justify-self:start}
+}
+@media(max-width:599px) {
+  .alpha-app .application-workbench .process-story-section{gap:36px}
+  .alpha-app .process-story-section .process-review-links{gap:28px}
+  .alpha-app .process-story-section .enrollment-upload{padding-block:28px}
+  .alpha-app .application-workbench .process-story-section .process-response{padding:18px}
+  .alpha-app .application-workbench .process-story-section .process-response .field > label{font-size:17px}
+}
+.alpha-app .enrollment-requirements {
+  padding:22px 24px;
+  border:1px solid #e2dbea;
+  border-radius:12px;
+  background:#f8f6fb;
+}
+.alpha-app .enrollment-requirements dl{display:grid;gap:18px;margin:0;line-height:1.7}
+.alpha-app .enrollment-requirements dl > div{display:grid;grid-template-columns:6rem minmax(0,1fr);gap:6px 20px}
+.alpha-app .enrollment-requirements dt{font-weight:650}
+.alpha-app .enrollment-requirements dd{margin:0;color:var(--process-muted)}
+.alpha-app .process-review-links .enrollment-requirements .field-hint{margin-top:22px;padding-top:18px;border-top:1px solid #e6dfec}
+@media (max-width:479px) {
+  .alpha-app .enrollment-requirements{padding:20px}
+  .alpha-app .enrollment-requirements dl > div{grid-template-columns:minmax(0,1fr)}
+}
+.alpha-app .process-evidence-summary{padding:24px;border:1px solid #d4d9df;border-radius:12px;margin-block:24px;overflow-wrap:anywhere}
+.alpha-app .process-evidence-summary h3{font-size:20px}
+.alpha-app .process-evidence-summary a{color:#875000;text-decoration:underline}
+
+
+.alpha-app .required-label::after{content:" *";color:#b42318;font-weight:700}
+
+.alpha-app .application-workbench .field label .required-mark{color:#b42318}
+
+/* Long recovery messages stay in reading flow rather than covering fields. */
+.alpha-app .application-workbench .process-action-bar:has(.process-recovery,.notice){position:static;box-shadow:none}
+
+@media(max-width:599px){.alpha-app .application-workbench .application-step-navigation .process-segment{padding:8px 4px;gap:8px}.alpha-app .application-workbench .application-step-navigation .progress-icon{flex-basis:24px;height:24px}.alpha-app .application-workbench .application-step-navigation .progress-name{font-size:14px;white-space:nowrap}}
+
+@media(max-width:599px){
+  .alpha-app .application-workbench :is(.process-action-inner,.process-actions){gap:8px}
+  .alpha-app .application-workbench .process-actions .button{min-width:0;padding-inline:10px;gap:8px}
+  .alpha-app .application-workbench .process-actions .button svg{flex:none}
+}
+
+@media(max-width:599px){
+ .alpha-app .application-workbench .application-role-choice{padding:16px;margin-bottom:24px}
+ .alpha-app .application-workbench .application-role-choice h2{font-size:16px}
+ .alpha-app .application-workbench .application-step-guidance{font-size:14px;line-height:1.6}
+}

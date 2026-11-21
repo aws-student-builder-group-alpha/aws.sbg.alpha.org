@@ -29,15 +29,14 @@ export function ProcessProgress({ steps, current, onStep, disabled = false, desc
           : <span key={step} className={`process-segment${index === current ? " current" : ""}`} aria-current={index === current ? "step" : undefined} aria-label={`Step ${index + 1}: ${step}${index > current ? " (not yet available)" : ""}`}><span className="progress-icon"><span aria-hidden="true">0{index + 1}</span></span>{label}</span>;
       })}
     </div>
-    <p className="process-step-label">Step {current + 1} of {steps.length} · {steps[current]}</p>
   </nav>;
 }
 
-export function ProcessActionBar({ status, notice, children }: { status: ReactNode; notice?: ReactNode; children: ReactNode }) {
+export function ProcessActionBar({ exitAction, notice, children }: { exitAction: ReactNode; notice?: ReactNode; children: ReactNode }) {
   return <div className="process-action-bar">
     {notice}
     <div className="process-action-inner">
-      <p className="process-save-state" role="status" aria-live="polite">{status}</p>
+      {exitAction}
       <div className="process-actions">{children}</div>
     </div>
   </div>;

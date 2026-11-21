@@ -6,7 +6,7 @@ import { ApplicationContent } from "@/app/(recruitment)/recruitment/components/a
 import { ProcessActionBar, ProcessProgress, ProcessShell } from "@/app/(recruitment)/recruitment/components/process-shell";
 import { Callout, FieldError, Icon, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
 import { getOpportunity, isCoreEligible, opportunities, opportunityLabel, questionsFor, wordCount } from "@/recruitment/lib/catalog";
-import type { AvailabilityRange, Profile, Track } from "@/recruitment/lib/catalog";
+import type { AvailabilityRange, Opportunity, Profile, Track } from "@/recruitment/lib/catalog";
 import { availabilitySubmissionError, editableDraft, emptyAvailabilityRange, upgradeDraft, isEvidenceUrl, validateDraft } from "@/recruitment/lib/drafts";
 import type { Applicant, Draft, DraftInput } from "@/recruitment/lib/drafts";
 import { DraftSaveQueue } from "@/recruitment/lib/draft-save-queue";
@@ -31,7 +31,7 @@ const stepGuidance: Record<number, string> = {
   5: "Check your details and answers before submitting.",
 };
 const validationStages: Record<string, number> = Object.fromEntries(([
-  [1, ["fullName", "email", "university", "otherUniversity", "program", "programLevel", "year", "yearExplanation", "preferredName", "mobile", "campus", "enrolled"]],
+  [1, ["fullName", "email", "university", "otherUniversity", "program", "programLevel", "year", "yearExplanation", "preferredName", "mobile", "enrolled"]],
   [2, ["track", "eligibility", "opportunityId"]],
   [3, ["resumeUrl", "portfolioUrl", "proofOfEnrollment", "availabilityDays", "motivation", "collaboration", "scenario", "scenarioReviewedOpportunityId"]],
   [5, ["accuracy", "updatesConsent"]],
@@ -46,7 +46,7 @@ function Field({
   hint,
 }: {
   id: string;
-  label: string;
+  label: ReactNode;
   error?: string;
   optional?: boolean;
   children: ReactNode;
@@ -191,10 +191,26 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
   }
   const stepRef = useRef<HTMLDivElement>(null);
   const opportunity = getOpportunity(app.opportunityId);
+  const optionGroups = new Map<string, Opportunity[]>();
+  if (stage === 2) {
+    for (const choice of opportunities.filter(role => role.track === app.track)) {
+      const group = choice.track === "CORE_TEAM" ? choice.department
+        : choice.specialization ? "Skill Builders"
+        : choice.id === "buildher" ? "BuildHer+"
+        : "Committees";
+      const groupOptions = optionGroups.get(group) ?? [];
+      groupOptions.push(choice);
+      optionGroups.set(group, groupOptions);
+    }
+  }
   const requested = getOpportunity(requestedOpportunity || "");
   const showRequested = requested && requested.id !== app.opportunityId
     && requested.id !== initialDraft.opportunityId && requested.id !== dismissedOpportunity;
   const questions = questionsFor(app.opportunityId, 2);
+  const completedResponses = questions.filter(question => {
+    const count = wordCount(app.answers[question.id]);
+    return count > 0 && count <= question.max;
+  }).length;
   const savedAvailability = app.profile.availability;
   const legacyWeekdays = Array.isArray(savedAvailability) ? savedAvailability : [];
   const availabilityRange = Array.isArray(savedAvailability) ? emptyAvailabilityRange : savedAvailability;
@@ -235,7 +251,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
     const message = validateSubmission(editableDraft(app))[key];
     setErrors(previous => { const next = { ...previous }; if (message) next[key] = message; else delete next[key]; return next; });
   };
-  const inputProps = (key: string) => ({ id: key, required: !["preferredName", "mobile", "campus", "portfolioUrl"].includes(key), "aria-required": !["preferredName", "mobile", "campus", "portfolioUrl"].includes(key), "data-validation-field": key, "aria-invalid": !!errors[key], "aria-describedby": [(["experience", "resumeUrl", "portfolioUrl"].includes(key) ? key + "-hint" : ""), errors[key] ? key + "-error" : ""].filter(Boolean).join(" ") || undefined, onBlur: (event: FocusEvent<HTMLElement>) => {
+  const inputProps = (key: string) => ({ id: key, required: !["preferredName", "mobile", "portfolioUrl"].includes(key), "aria-required": !["preferredName", "mobile", "portfolioUrl"].includes(key), "data-validation-field": key, "aria-invalid": !!errors[key], "aria-describedby": [(["experience", "resumeUrl", "portfolioUrl"].includes(key) ? key + "-hint" : ""), errors[key] ? key + "-error" : ""].filter(Boolean).join(" ") || undefined, onBlur: (event: FocusEvent<HTMLElement>) => {
     // Navigation validates on activation; avoid moving its target during pointerdown.
     if (event.relatedTarget instanceof Element && event.relatedTarget.closest(".process-action-bar,.process-track")) return;
     blur(key);
@@ -314,18 +330,47 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
       <main id="main-content" className="apply-page application-workbench-page">
         <div className="process-card application-workbench" ref={stepRef}>
           <div className="application-progress-panel">
-            <header className="application-workbench-header"><span className="application-workbench-label">Your application</span><span className="application-draft-badge">Draft</span></header>
+            <header className="application-workbench-header">
+              <span className="application-workbench-label">Your application</span>
+              <span className="application-draft-badge">Draft</span>
+              <p className="process-save-state" role="status" aria-live="polite">
+                {practice ? "Practice answers are temporary" : <><span className={`process-save-dot ${state.phase}`} aria-hidden="true" />{saveStatus}</>}
+              </p>
+            </header>
             <div className="application-step-navigation">
               <ProcessProgress steps={steps} current={simplifiedStages.indexOf(stage)} onStep={index => goStage(simplifiedStages[index])} disabled={frozen || exiting} />
             </div>
           </div>
-          <div className="application-workbench-content">
+          <div className="application-workbench-column">
+            {stage === 2 && (errors.eligibility || app.track === "CORE_TEAM" && !isCoreEligible(app.profile)) && (
+              <div className="application-track-status">
+                <div className="application-track-status-inner">
+                  <p className="application-track-status-copy" id={errors.eligibility ? "eligibility-error" : undefined} role="status">
+                    {errors.eligibility || "Your academic details do not meet Core Team eligibility."}
+                  </p>
+                  <button className="text-button" type="button" disabled={frozen || exiting} onClick={() => setPath("COMMITTEE")}>
+                    Switch to Committee and keep my details
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="application-workbench-content">
           {practice && <Callout title="Practice application"><p>Use sample details as you try the form. Your answers stay on this page and are never submitted to Alpha.</p></Callout>}
           {signOutFailed && <Callout tone="warning"><p role="alert">Sign-out could not be confirmed. Please retry using Sign out in the navigation.</p></Callout>}
           <div className="process-step-heading" tabIndex={-1} key={stage}>
             <h1>{headings[stage]}</h1>
             <p className="application-step-guidance">{stepGuidance[stage]}</p>
-            {opportunity && !showRequested && <p className="application-role-summary"><Icon name={opportunity.icon} size={18} /><span>Applying for <strong>{opportunityLabel(opportunity)}</strong></span></p>}
+            {opportunity && !showRequested && (
+              <p className="application-role-summary">
+                <span className="application-role-summary-copy">
+                  <span>Applying for </span>
+                  <strong>{opportunityLabel(opportunity)}</strong>
+                </span>
+                <span className="application-role-summary-icon" aria-hidden="true">
+                  <Icon name={opportunity.icon} size={22} />
+                </span>
+              </p>
+            )}
           </div>
           {showRequested && <section className="application-role-choice" aria-labelledby="application-role-choice-title">
             <h2 id="application-role-choice-title">Switch to {opportunityLabel(requested)}?</h2>
@@ -378,6 +423,13 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                       {app.profile.year === "other" && <Field id="yearExplanation" label="Academic standing" error={errors.yearExplanation}>
                         <input {...inputProps("yearExplanation")} maxLength={160} value={app.profile.yearExplanation} onChange={(event) => profile("yearExplanation", event.target.value)} />
                       </Field>}
+                      <div>
+                        <label className="checkbox-row">
+                          <input id="enrolled" aria-required="true" data-validation-field="enrolled" aria-invalid={!!errors.enrolled} type="checkbox" checked={app.profile.enrolled} onChange={(event) => profile("enrolled", event.target.checked)} aria-describedby={errors.enrolled ? "enrolled-error" : undefined} />
+                          <span>I certify that I am currently enrolled at a school, college, or university and will provide my current registration form or official enrollment certificate. <span className="required-mark" aria-hidden="true">*</span></span>
+                        </label>
+                        {errors.enrolled && <FieldError id="enrolled-error">{errors.enrolled}</FieldError>}
+                      </div>
                     </div>
                   </div>
                   <section className="process-optional">
@@ -389,16 +441,8 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                       <Field id="mobile" label="Mobile number" optional error={errors.mobile}>
                         <input {...inputProps("mobile")} value={app.profile.mobile} onChange={(event) => profile("mobile", event.target.value)} type="tel" autoComplete="tel" placeholder="+63 …" />
                       </Field>
-                      <Field id="campus" label="Campus" optional error={errors.campus}>
-                        <input {...inputProps("campus")} value={app.profile.campus} maxLength={120} onChange={(event) => profile("campus", event.target.value)} placeholder="Your campus" />
-                      </Field>
                     </div>
                   </section>
-                  <label className="checkbox-row">
-                    <input id="enrolled" aria-required="true" data-validation-field="enrolled" aria-invalid={!!errors.enrolled} type="checkbox" checked={app.profile.enrolled} onChange={(event) => profile("enrolled", event.target.checked)} aria-describedby={errors.enrolled ? "enrolled-error" : undefined} />
-                    <span>I certify that I am currently enrolled at a school, college, or university and will provide my current registration form or official enrollment certificate. <span className="required-mark" aria-hidden="true">*</span></span>
-                  </label>
-                  {errors.enrolled && <FieldError id="enrolled-error">{errors.enrolled}</FieldError>}
                   {app.track === "CORE_TEAM" && app.profile.enrolled && app.profile.year && app.profile.programLevel && !isCoreEligible(app.profile) && (
                     <div className="process-eligibility">
                       <p className="field-hint">Core Team is for current first- and second-year undergraduates. Committee welcomes all enrolled university year levels.</p><button className="text-button" type="button" onClick={() => { setPath("COMMITTEE"); }}>Switch to Committee and keep my details<Icon name="arrow" size={15} /></button>
@@ -419,22 +463,22 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                     ))}
                   </fieldset>
                   {errors.track && <FieldError id="track-error">{errors.track}</FieldError>}
-                  {(errors.eligibility || app.track === "CORE_TEAM" && !isCoreEligible(app.profile)) && (
-                    <div className="process-eligibility">{errors.eligibility ? <FieldError id="eligibility-error">{errors.eligibility}</FieldError> : <p className="field-hint">Your academic details do not meet Core Team eligibility. Select Committee to continue.</p>}<button className="text-button" type="button" onClick={() => setPath("COMMITTEE")}>Switch to Committee and keep my details<Icon name="arrow" size={15} /></button></div>
-                  )}
                   <fieldset className="apply-opportunities" id="opportunityId" data-validation-field="opportunityId" tabIndex={-1} aria-invalid={!!errors.opportunityId} aria-describedby={errors.opportunityId ? "opportunityId-error" : undefined}>
                     <legend className="process-legend">{app.track === "CORE_TEAM" ? "Core Team role" : "Committee opportunity"} <span className="required-mark" aria-hidden="true">*</span></legend>
 
                     <div className="process-opportunity-groups">
-                      {[...new Set(opportunities.filter(choice => choice.track === app.track).map(choice => choice.department))].map(department => <section className="process-opportunity-group" key={department} aria-label={department}>
-                        <h3>{department}</h3>
-                        {opportunities.filter(choice => choice.track === app.track && choice.department === department).map(choice => {
+                      {[...optionGroups].map(([group, options]) => <section className="process-opportunity-group" key={group} aria-label={group}>
+                        <h3>{group}</h3>
+                        {options.map(choice => {
                           const selected = app.opportunityId === choice.id;
+                          const title = choice.title === "Committee Member" && !choice.specialization
+                            ? `${choice.department} Member`
+                            : opportunityLabel(choice);
                           return <div className={`process-opportunity${selected ? " selected" : ""}`} key={choice.id}>
                             <label>
-                              <input type="radio" required name="opportunity" aria-label={opportunityLabel(choice)} aria-describedby={selected ? `${choice.id}-description${choice.id === "buildher" ? " buildher-eligibility" : ""}` : undefined} value={choice.id} checked={selected} onChange={() => setPath(app.track, choice.id)} />
+                              <input type="radio" required name="opportunity" aria-label={title} aria-describedby={selected ? `${choice.id}-description${choice.id === "buildher" ? " buildher-eligibility" : ""}` : undefined} value={choice.id} checked={selected} onChange={() => setPath(app.track, choice.id)} />
                               <span className="process-radio" aria-hidden="true" />
-                              <span className="process-opportunity-body"><strong>{choice.specialization || choice.title}</strong><small>{availabilityLabel(vacancies, choice.id)}</small>{selected && <small className="process-selected-badge">Selected</small>}</span>
+                              <span className="process-opportunity-body"><strong>{title}</strong><small>{availabilityLabel(vacancies, choice.id)}</small>{selected && <small className="process-selected-badge">Selected</small>}</span>
                               <Icon name={choice.icon} size={20} />
                             </label>
                             {selected && <div className="process-opportunity-detail" id={`${choice.id}-description`}>
@@ -451,18 +495,44 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                 </div>
               )}
               {stage === 3 && (
-                <div className="process-form-section">
+                <div className="process-form-section process-story-section">
                   {initialDraft.formVersion !== 2 && <Callout>We simplified the application to three short responses. Your saved text is preserved. Review the updated motivation and contribution prompt, and shorten any response above 150 words before continuing.</Callout>}
-                  {opportunity && <div className="process-story-guide">
-                    <p className="process-context-line"><Icon name={opportunity.icon} size={16} /><span>Writing for <strong>{opportunityLabel(opportunity)}</strong></span></p>
-                    <a href="#scenario-prompt" className="text-button">Go to the role scenario <Icon name="arrow" size={16} /></a>
-                  </div>}
                   <section className="process-review-links" aria-labelledby="process-links-title">
-                    <h3 className="process-group-title" id="process-links-title">Resume & portfolio</h3>
-                    <p className="field-hint">A resume is required before you submit. You can save a draft without it.</p>
-                    <Field id="resumeUrl" label="Resume link (required)" error={errors.resumeUrl} hint="View-only HTTPS link. It must open without signing in."><input {...inputProps("resumeUrl")} required aria-required="true" type="url" maxLength={2048} value={app.resumeUrl} onChange={event => patch({ resumeUrl: event.target.value })} placeholder="https://drive.google.com/file/d/…/view" /></Field>
-                    <details className="process-resume-help"><summary>How to share your resume</summary><p>For Google Drive, choose Share → General access → Anyone with the link → Viewer. Test it in a private browser window and keep it accessible throughout recruitment. We store the URL without checking document access.</p></details>
-                    {app.resumeUrl && isEvidenceUrl(app.resumeUrl) && <a className="text-button" href={app.resumeUrl} target="_blank" rel="noopener noreferrer">Open resume link<Icon name="external" size={16} /></a>}
+                    <div className="process-story-document-heading">
+                      <h3 className="process-group-title" id="process-links-title">Supporting documents</h3>
+                      <p className="field-hint">A resume is required before you submit. You can save a draft without it.</p>
+                    </div>
+                    <div className="process-resume-group">
+                      <Field id="resumeUrl" label="Resume link (required)" error={errors.resumeUrl} hint="Provide a view-only link. It must be viewable without signing in."><input {...inputProps("resumeUrl")} required aria-required="true" type="url" maxLength={2048} value={app.resumeUrl} onChange={event => patch({ resumeUrl: event.target.value })} placeholder="https://drive.google.com/file/d/…/view" /></Field>
+                      <details className="process-resume-help">
+                        <summary>How to share your resume</summary>
+                        <ol className="process-resume-steps" role="list" aria-label="Google Drive sharing steps">
+                          <li>
+                            <span className="process-resume-step-number" aria-hidden="true">1</span>
+                            <div>
+                              <h4>Open sharing settings</h4>
+                              <p>Open your resume in Google Drive and select <strong>Share</strong>.</p>
+                            </div>
+                          </li>
+                          <li>
+                            <span className="process-resume-step-number" aria-hidden="true">2</span>
+                            <div>
+                              <h4>Set view-only access</h4>
+                              <p>Under <strong>General access</strong>, choose <strong>Anyone with the link</strong> and set the role to <strong>Viewer</strong>. Copy the link.</p>
+                            </div>
+                          </li>
+                          <li>
+                            <span className="process-resume-step-number" aria-hidden="true">3</span>
+                            <div>
+                              <h4>Test the link</h4>
+                              <p>Open the link in a private browser window. If the resume opens without signing in, paste the link into the form.</p>
+                            </div>
+                          </li>
+                        </ol>
+                        <p className="process-resume-note">Keep the link accessible throughout recruitment. Alpha stores the link without checking document access.</p>
+                      </details>
+                      {app.resumeUrl && isEvidenceUrl(app.resumeUrl) && <a className="text-button" href={app.resumeUrl} target="_blank" rel="noopener noreferrer">Open resume link<Icon name="external" size={16} /></a>}
+                    </div>
                     <EnrollmentUpload accountId={applicant.id} disabled={frozen || exiting} error={errors.proofOfEnrollment} onReady={setEnrollmentReady} practice={practice} />
                     <Field id="portfolioUrl" label="Portfolio link" optional error={errors.portfolioUrl} hint="HTTPS link, if you have one.">
                       <input {...inputProps("portfolioUrl")} type="url" maxLength={2048} value={app.portfolioUrl} onChange={(event) => patch({ portfolioUrl: event.target.value })} placeholder="https://your-portfolio.example" />
@@ -475,14 +545,18 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                     <AvailabilitySelector value={availabilityRange} onChange={changeAvailability} optional={legacyWeekdays.length > 0} disabled={frozen || exiting} error={errors.availabilityDays} />
                     {errors.availabilityDays && <FieldError id="availabilityDays-error">{errors.availabilityDays}</FieldError>}
                   </fieldset>
-                  <p className="field-hint" id="story-instructions">All three responses are required. Use your own words and keep each answer to 150 words or fewer.</p>
-                  {questions.map((question, index) => <section className={`process-response${question.id === "scenario" ? " process-response-scenario" : ""}`} key={question.id}>
-                    <h3 className="process-response-heading" id={question.id === "scenario" ? "scenario-prompt" : undefined} tabIndex={question.id === "scenario" ? -1 : undefined}>
-                      <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>{question.id === "scenario" ? "Role scenario" : question.label}
-                    </h3>
-                    {question.id === "scenario" && <p className="field-hint process-scenario-help" id="scenario-help">Use your own words. Explain what you would do first, why you would do it that way, and how you would tell if it worked.</p>}
-                    <Field id={question.id} label={question.prompt} error={errors[question.id]}>
-                      <textarea {...inputProps(question.id)} aria-describedby={`story-instructions ${question.id}-count${question.id === "scenario" ? " scenario-help" : ""}${errors[question.id] ? ` ${question.id}-error` : ""}`} rows={5} value={app.answers[question.id]} onChange={event => changeResponse(question.id, event.target.value)} />
+                  <div className="process-story-response-heading">
+                    <div className="process-story-response-title">
+                      <h3 className="process-group-title">Your responses</h3>
+                      <span>{completedResponses} of {questions.length} complete</span>
+                    </div>
+                    <p className="field-hint" id="story-instructions">Use your own words. All three answers are required, up to 150 words each.</p>
+                  </div>
+                  {questions.map(question => <section className={`process-response${question.id === "scenario" ? " process-response-scenario" : ""}`} id={question.id === "scenario" ? "scenario-prompt" : undefined} key={question.id}>
+                    <Field id={question.id} label={<>{question.id === "scenario" && <Icon name="sparkles" size={17} />}{question.prompt}</>} error={errors[question.id]}>
+                      {question.id === "collaboration" && <p className="field-hint" id="collaboration-help">School and personal projects count.</p>}
+                      {question.id === "scenario" && <p className="field-hint" id="scenario-help">Explain what you’d do first, why, and how you’d check whether it worked.</p>}
+                      <textarea {...inputProps(question.id)} aria-describedby={`story-instructions ${question.id}-count${question.id === "scenario" || question.id === "collaboration" ? ` ${question.id}-help` : ""}${errors[question.id] ? ` ${question.id}-error` : ""}`} rows={5} value={app.answers[question.id]} onChange={event => changeResponse(question.id, event.target.value)} />
                       <span className={`word-count process-word-count ${wordCount(app.answers[question.id]) > 150 ? "over-limit" : ""}`} id={`${question.id}-count`}>{wordCount(app.answers[question.id])} / 150 words</span>
                     </Field>
                     {question.id === "scenario" && (scenarioReviewVisible || app.scenarioReviewedOpportunityId !== app.opportunityId || errors.scenarioReviewedOpportunityId) && app.opportunityId && <label className="checkbox-row"><input id="scenarioReviewedOpportunityId" data-validation-field="scenarioReviewedOpportunityId" aria-invalid={!!errors.scenarioReviewedOpportunityId} type="checkbox" checked={app.scenarioReviewedOpportunityId === app.opportunityId} aria-describedby={errors.scenarioReviewedOpportunityId ? "scenarioReviewedOpportunityId-error" : undefined} onChange={event => patch({ scenarioReviewedOpportunityId: event.target.checked ? app.opportunityId : "" })} /><span className="required-label">I reviewed my scenario response for {opportunityLabel(opportunity)}.</span></label>}
@@ -517,14 +591,19 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
               )}
             </fieldset>
           </form>
-          <ProcessActionBar status={practice ? "Practice answers are temporary" : <><span className={`process-save-dot ${state.phase}`} aria-hidden="true" />{saveStatus}</>} notice={practiceFinished ? <Callout tone="success" title="Practice complete"><p role="status">Your answers passed validation. No application was sent.</p></Callout> : submissionNotice}>
+          <ProcessActionBar
+            exitAction={practice
+              ? <Link className="process-text-action" href="/#opportunities">Browse roles</Link>
+              : <button className="process-text-action" type="button" disabled={exiting || frozen} onClick={() => void saveExit()}>{exiting ? "Saving…" : "Save & exit"}</button>}
+            notice={practiceFinished ? <Callout tone="success" title="Practice complete"><p role="status">Your answers passed validation. No application was sent.</p></Callout> : submissionNotice}
+          >
             <button className="button button-secondary" type="button" disabled={frozen || stage === 1} onClick={() => goStage(simplifiedStages[simplifiedStages.indexOf(stage) - 1])}>Back</button>
             <button className="button button-orange" type="submit" form="application-draft-form" disabled={frozen || exiting || stage === 5 && !intake.accepting}>
               {stage === 5 ? practice ? "Submit test application" : submitting ? "Submitting…" : "Submit application" : "Continue"}
               <Icon name="arrow" size={17} />
             </button>
-            {practice ? <Link className="process-text-action" href="/#opportunities">Browse roles</Link> : <button className="process-text-action" type="button" disabled={exiting || frozen} onClick={() => void saveExit()}>{exiting ? "Saving…" : "Save & exit"}</button>}
           </ProcessActionBar>
+            </div>
           </div>
         </div>
       </main>

@@ -47,10 +47,26 @@ function EnrollmentUploadSession({accountId,disabled=false,error,onReady,practic
  }
  return <section className="enrollment-upload field" aria-labelledby="enrollment-heading" aria-busy={busy}>
   <h3 id="enrollment-heading">Proof of enrollment <span className="required-mark" aria-hidden="true">*</span><span className="sr-only"> (required)</span></h3>
-  <p id="enrollment-hint" className="field-hint">Upload your current registration form (COR) or official enrollment certificate showing your name, school and current academic term. PDF, JPG or PNG, up to 3 MB. Authorized recruitment staff will review it to verify enrollment. Only you and authorized recruitment staff can access this document.</p>
-  {document&&<p role="status">Uploaded: <strong>{document.filename}</strong>{!practice&&<> · <a href={recruitmentPath('/recruitment/api/community/file?kind=enrollment&accountId='+accountId)} target="_blank" rel="noopener noreferrer">Download saved document</a></>}</p>}
-  {!readOnly&&<><label htmlFor="proofOfEnrollment">{document?'Replace document':'Choose enrollment document'}</label>
-  <input id="proofOfEnrollment" data-validation-field="proofOfEnrollment" type="file" accept="application/pdf,image/jpeg,image/png" required={!document} disabled={disabled||busy} aria-invalid={!!error&&!document||!!message} aria-describedby={['enrollment-hint',error&&!document?'proofOfEnrollment-error':'',message?'enrollment-message':''].filter(Boolean).join(' ')} onChange={event=>{const file=event.target.files?.[0];if(file)void upload(file);event.target.value=''}}/></>}
+  {!readOnly && <div id="enrollment-hint" className="enrollment-requirements">
+    <dl>
+      <div><dt>Document</dt><dd>Current registration form (COR) or official enrollment certificate</dd></div>
+      <div><dt>Must show</dt><dd>Your name, school, and current academic term</dd></div>
+      <div><dt>File limits</dt><dd>PDF, JPG, or PNG up to 3 MB</dd></div>
+    </dl>
+    <p className="field-hint">Only you and authorized recruitment staff can access your document. Staff use it to verify enrollment.</p>
+  </div>}
+  {readOnly && document && <p role="status">Uploaded: <strong>{document.filename}</strong></p>}
+  {!readOnly && <>
+    <label className="sr-only" htmlFor="proofOfEnrollment">{document ? 'Replace document' : 'Choose enrollment document'}</label>
+    <div className="enrollment-file-control" data-disabled={disabled || busy}>
+      <div className="enrollment-file-summary" id="enrollment-filename" role={document ? 'status' : undefined}>
+        {document ? <><span>Uploaded</span><strong>{document.filename}</strong></> : <span>Choose your enrollment document</span>}
+      </div>
+      <span className="enrollment-file-action" aria-hidden="true">{busy ? 'Uploading…' : document ? 'Replace file' : 'Choose file'}</span>
+      <input id="proofOfEnrollment" data-validation-field="proofOfEnrollment" type="file" accept="application/pdf,image/jpeg,image/png" required={!document} disabled={disabled||busy} aria-invalid={!!error&&!document||!!message} aria-describedby={['enrollment-hint','enrollment-filename',error&&!document?'proofOfEnrollment-error':'',message?'enrollment-message':''].filter(Boolean).join(' ')} onChange={event=>{const file=event.target.files?.[0];if(file)void upload(file);event.target.value=''}}/>
+    </div>
+  </>}
+  {document && !practice && <a className="enrollment-file-download" href={recruitmentPath('/recruitment/api/community/file?kind=enrollment&accountId='+accountId)} target="_blank" rel="noopener noreferrer">Download saved document</a>}
   {busy&&<p role="status">Uploading your document…</p>}
   {error&&!document&&<p className="field-error" id="proofOfEnrollment-error">{error}</p>}
   {message&&<p role="alert" id="enrollment-message">{message} {!practice&&<button type="button" className="text-button" disabled={busy} onClick={()=>{setMessage('');setRetry(value=>value+1)}}>Reload saved document</button>}</p>}
