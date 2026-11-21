@@ -29,6 +29,24 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
             scrollTrigger: { trigger: scene, start: "top bottom", end: "bottom top", scrub: true },
           })
         })
+        const teamGrid = root.current?.querySelector<HTMLElement>(".alpha-team-grid")
+        if (teamGrid) {
+          teamGrid.querySelectorAll<HTMLElement>(".alpha-team-card").forEach(card => {
+            // Use the rendered column so each row sweeps left to right at every breakpoint.
+            const stagger = () => 17 * (card.offsetLeft - teamGrid.offsetLeft) /
+              Math.max(1, teamGrid.clientWidth - card.offsetWidth)
+
+            gsap.fromTo(card, { x: small ? 28 : 64, opacity: .35 }, {
+              x: 0, opacity: 1, ease: "power1.out",
+              scrollTrigger: {
+                trigger: card,
+                start: () => `top ${98 - stagger()}%`,
+                end: () => `top ${62 - stagger()}%`,
+                scrub: true,
+              },
+            })
+          })
+        }
         gsap.utils.toArray<HTMLElement>(".alpha-scene-transition").forEach(boundary => {
           gsap.fromTo(boundary.querySelector(".alpha-transition-fill"), {
             clipPath: "ellipse(55% 0% at 50% 100%)",

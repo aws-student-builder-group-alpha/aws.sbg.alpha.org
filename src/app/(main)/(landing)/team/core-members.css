@@ -22,6 +22,7 @@
 .alpha-team-social>span{display:flex}
 .alpha-team-social:hover{color:#211c28;background:#c7adff;border-color:#c7adff}
 .alpha-team-social:focus-visible{outline-offset:2px}
+.alpha-team-card:focus-within{opacity:1!important;transform:none!important}
 @media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){.alpha-team-card:hover,.alpha-team-card:focus-within{translate:0 -5px;border-color:#c7adff66;box-shadow:0 15px 40px #100a1640}.alpha-team-card:hover .alpha-team-image{scale:1.04}}
 @media(min-width:900px) and (max-width:1299px){.alpha-team .alpha-team-grid{grid-template-columns:repeat(8,minmax(0,1fr))}.alpha-team-card:nth-child(7){grid-column:span 2}.alpha-team-card:nth-child(9){grid-column:2/span 2}}
 @media(min-width:600px) and (max-width:899px){.alpha-team .alpha-team-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:20px 16px}.alpha-team-card:nth-child(7){grid-column:span 2}.alpha-team-card:nth-child(10){grid-column:2/span 2}}
