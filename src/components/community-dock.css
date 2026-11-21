@@ -15,6 +15,7 @@
   display: grid;
   grid-template-columns: 1fr 48px;
   min-height: 48px;
+  border: 1px solid #000;
   background: #c7adff;
   box-shadow: 4px 4px 0 #5a3c79;
   color: #21162c;
