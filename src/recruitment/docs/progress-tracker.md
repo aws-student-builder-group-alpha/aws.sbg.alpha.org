@@ -1,3 +1,11 @@
+## Application guide sidebar styling - 21 November 2026
+
+Styled the expanded sidebar guidance with a bordered pale surface, highlighted date panel, three numbered application steps, a separated account/vacancy note and a privacy link with icons. Reorganized the existing instructions into Choose your role, Complete your details and Review and submit.
+
+Inspected the connected desktop render. At 390px all three steps and the guide fit without horizontal overflow. SWC TSX compilation, PostCSS parsing and Git whitespace checks passed. No behavioral tests were added for this presentation update.
+
+Reviewed the six context documents for impact. UI direction and this tracker record the presentation. Product, architecture, standards and workflow contracts need no changes.
+
 ## Opportunity directory sidebar, sorting and footer - 21 November 2026
 
 Implemented all nine owner adjustments. Cards retain pastel panels with solid offset shadows. Removed the title eyebrow, repeated eligibility paragraph and Recruitment track label. The beginner welcome now lives in the left panel without its button. Recruitment dates and How to apply guidance are permanently expanded below the filters. On phones the guidance follows the results. The main heading now sits above search within the results column.

@@ -40,10 +40,19 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
           <div className="roles-tabs" role="group" aria-label="Filter opportunities">{(["ALL", "CORE_TEAM", "COMMITTEE"] as const).map(value => <button key={value} type="button" aria-pressed={filter === value} onClick={() => change("track", value === "ALL" ? "" : value)}><span className="roles-filter-marker" aria-hidden="true" />{value === "ALL" ? "All roles" : trackLabel(value)}<span className="roles-filter-count" aria-hidden="true">{value === "ALL" ? opportunities.length : opportunities.filter(role => role.track === value).length}</span></button>)}</div>
         </div>
         <section className="roles-guide" aria-labelledby="roles-guide-heading">
-          <p className="roles-note">Recruitment: 1–30 November 2026, Philippine time. One application per account. Vacancy counts can change; final decisions are made by Alpha.</p>
+          <div className="roles-period">
+            <p><Icon name="calendar" size={16} />Recruitment</p>
+            <strong>1–30 November 2026</strong>
+            <span>Philippine time</span>
+          </div>
           <h2 id="roles-guide-heading">How to apply</h2>
-          <p>Choose one role, sign in with Google, and consent to recruitment processing. Complete your details, role choice, three short responses, resume link, enrollment proof, and available days. Review before submitting. A portfolio is optional.</p>
-          <Link href="/recruitment/privacy">Read the privacy notice</Link>
+          <ol className="roles-steps">
+            <li><h3>Choose your role</h3><p>Sign in with Google and consent to recruitment processing.</p></li>
+            <li><h3>Complete your details</h3><p>Add your role choice, three short responses, resume link, enrollment proof, and available days.</p></li>
+            <li><h3>Review and submit</h3><p>Review your application before submitting. A portfolio is optional.</p></li>
+          </ol>
+          <p className="roles-note">One application per account. Vacancy counts can change; final decisions are made by Alpha.</p>
+          <Link className="roles-privacy" href="/recruitment/privacy"><Icon name="shield" size={16} /><span>Read the privacy notice</span><Icon name="external" size={14} /></Link>
         </section>
       </aside>
       <div className="roles-results">
