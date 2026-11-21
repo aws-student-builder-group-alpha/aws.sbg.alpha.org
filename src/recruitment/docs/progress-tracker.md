@@ -1,3 +1,9 @@
+## Lighter shadows and transparent guide - 21 November 2026
+
+Lightened card offset shadows to 15 percent opacity, with a 22 percent hover shadow. Removed the outer application guide's background and border. The highlighted recruitment-date panel remains.
+
+Verified the refreshed connected browser render and computed transparent guide, zero border and translucent card shadow. PostCSS parsing and Git whitespace checks passed. This CSS-only change required no behavior tests. Reviewed the context documents for impact; UI direction and this tracker record the styling, while product, architecture, standards and workflow contracts need no edits.
+
 ## Application guide sidebar styling - 21 November 2026
 
 Styled the expanded sidebar guidance with a bordered pale surface, highlighted date panel, three numbered application steps, a separated account/vacancy note and a privacy link with icons. Reorganized the existing instructions into Choose your role, Complete your details and Review and submit.

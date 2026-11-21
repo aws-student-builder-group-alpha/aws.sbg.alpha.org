@@ -36,7 +36,7 @@
   display:flex; flex:1; flex-direction:column; min-width:0;
   padding:8px; border:1px solid #dde1e5; border-radius:18px;
   background:#fff; color:#26313f; text-decoration:none;
-  box-shadow:4px 5px 0 #26313f;
+  box-shadow:4px 5px 0 #26313f26;
   transition:translate .2s, border-color .2s, box-shadow .2s;
 }
 .role-card-item:nth-child(6n+2) .role-card { --role-paper:#d9f0e8; }
@@ -61,14 +61,14 @@
 .role-card-action svg { flex-shrink:0; transition:translate .2s; }
 .roles-page :is(a,button,input):focus-visible { outline:3px solid #875000; outline-offset:4px; }
 @media (hover:hover) {
-  .role-card:hover { border-color:#8a97a7; box-shadow:5px 7px 0 #26313f; }
+  .role-card:hover { border-color:#8a97a7; box-shadow:5px 7px 0 #26313f38; }
   .roles-tabs button:hover { color:#26313f; }
 }
 @media (hover:hover) and (prefers-reduced-motion:no-preference) {
   :root:not([data-reduced-motion=true]) .role-card:hover { translate:0 -3px; }
   :root:not([data-reduced-motion=true]) .role-card:hover .role-card-action svg { translate:2px 0; }
 }
-.roles-guide { margin-top:28px; padding:18px; border:1px solid #e0e4e8; border-radius:14px; background:#fafbfc; color:#526174; font-size:13px; line-height:1.65; }
+.roles-guide { margin-top:28px; padding:18px; color:#526174; font-size:13px; line-height:1.65; }
 .roles-period { padding:12px; margin-bottom:22px; border:1px solid #f1d4a6; border-radius:9px; background:#fff1da; color:#624213; }
 .roles-period p { display:flex; align-items:center; gap:7px; margin:0 0 8px; font-size:12px; font-weight:600; }
 .roles-period strong { display:block; color:#26313f; font-size:13px; font-weight:700; }
