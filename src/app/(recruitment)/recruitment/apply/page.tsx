@@ -35,7 +35,8 @@ async function ApplyContent({ searchParams }: { searchParams: Promise<Record<str
     redirect(applicationLandingPath(requested, error));
   }
   if (result.kind !== "ready") return <ApplicantAccess formEntry kind={result.kind} authError={params.auth === "signout-failed" ? "sign-out" : params.auth === "failed" ? "sign-in" : undefined} opportunity={requested} />;
-  if (result.application) redirect("/recruitment/application");
-  if (!result.draft && params.entry !== "1") redirect(applicationLandingPath(requested));
-  return <AccessGuard accountId={result.applicant.id} expected="applicant" blockedContent={<ApplyAccessChanged />}><DraftEditor key={result.applicant.id + ":" + (result.draft?.id || "new")} applicant={result.applicant} initialDraft={result.draft} intake={result.intake} requestedOpportunity={requested} signOutFailed={params.auth === "signout-failed"} /></AccessGuard>;
+  const submittedRole = requested && result.applications.find(item => item.data.opportunityId === requested);
+  if (submittedRole) redirect("/recruitment/application?application=" + submittedRole.id);
+  if (!result.draft && !result.applications.length && params.entry !== "1") redirect(applicationLandingPath(requested));
+  return <AccessGuard accountId={result.applicant.id} expected="applicant" blockedContent={<ApplyAccessChanged />}><DraftEditor key={result.applicant.id + ":" + (result.draft?.id || "new")} applicant={result.applicant} initialDraft={result.draft} previousDraft={result.previousDraft} appliedRoles={result.applications.map(item => item.data.opportunityId)} intake={result.intake} requestedOpportunity={requested} signOutFailed={params.auth === "signout-failed"} /></AccessGuard>;
 }

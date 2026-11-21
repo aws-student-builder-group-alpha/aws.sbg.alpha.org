@@ -10,7 +10,7 @@ import { ApplicationOpportunity } from "@/app/(recruitment)/recruitment/componen
 import { Callout, Icon } from "@/app/(recruitment)/recruitment/components/ui";
 import { ApplyEntry } from "./apply-entry";
 
-export function StartDraft({ applicant, onCreated, requestedOpportunity, signOutFailed = false, embedded = false, onBusyChange }: { applicant: Applicant; onCreated: (draft: Draft) => void; requestedOpportunity?: string; signOutFailed?: boolean; embedded?: boolean; onBusyChange?: (busy: boolean) => void }) {
+export function StartDraft({ applicant, onCreated, requestedOpportunity, signOutFailed = false, embedded = false, onBusyChange, previousDraft }: { applicant: Applicant; onCreated: (draft: Draft) => void; requestedOpportunity?: string; signOutFailed?: boolean; embedded?: boolean; onBusyChange?: (busy: boolean) => void; previousDraft?: Draft | null }) {
   const router = useRouter();
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -33,7 +33,7 @@ export function StartDraft({ applicant, onCreated, requestedOpportunity, signOut
         if (!pending.current) {
           const payload = emptyDraftInput(2); payload.processingConsent = true; payload.profile.fullName = applicant.name;
           if (requested) { payload.track = requested.track; payload.opportunityId = requested.id; payload.scenarioReviewedOpportunityId = requested.id; }
-          pending.current = { accountId: applicant.id, payload, expectedVersion: 0, mutationId: crypto.randomUUID() };
+          pending.current = { accountId: applicant.id, payload, expectedVersion: previousDraft?.version ?? 0, mutationId: crypto.randomUUID() };
         }
         setBusy(true); onBusyChange?.(true); setMessage("");
         try {
@@ -56,7 +56,7 @@ export function StartDraft({ applicant, onCreated, requestedOpportunity, signOut
           <li>A view-only resume link is required before submission. A portfolio link is optional.</li>
           <li>Upload your current registration form (COR) or official enrollment certificate showing your name, school and current term. PDF, JPG or PNG, up to 3 MB.</li>
         </ul>
-        <p>Submit between <strong>1–30 November 2026</strong>, Philippine time. You can submit one application across all opportunities. Withdrawal is final.</p>
+        <p>Submit between <strong>1–30 November 2026</strong>, Philippine time. You can apply once per role and keep one draft at a time. Withdrawal is final for that role.</p>
       </details>}
     </div>
   </>;

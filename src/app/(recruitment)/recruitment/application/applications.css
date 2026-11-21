@@ -1,0 +1,47 @@
+.alpha-app .recruitment-process .applications-hub {
+  width: min(calc(100% - 40px), 1280px);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  gap: 0;
+  overflow: clip;
+  border: 1px solid #e2ddeb;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 12px 48px #080f1b24;
+}
+.alpha-app .applications-sidebar { min-width: 0; padding: 28px 20px; background: #f8f6fb; border-right: 1px solid #e2ddeb; }
+.alpha-app .applications-sidebar-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px; color: #70509b; }
+.alpha-app .applications-sidebar-heading p { margin: 0 0 4px; color: #696174; font-size: 13px; }
+.alpha-app .applications-sidebar-heading h2 { margin: 0; font-size: 20px; letter-spacing: -.03em; color: #292430; }
+.alpha-app .applications-sidebar-heading h2 > span { margin-left: 6px; font-size: 14px; color: #70509b; }
+.alpha-app .applications-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.alpha-app .application-switcher { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px; border: 1px solid transparent; border-radius: 14px; text-decoration: none; color: #2d2933; overflow-wrap: anywhere; transition: background-color 150ms, border-color 150ms; }
+.alpha-app .application-switcher:hover { background: #eeebf4; }
+.alpha-app .application-switcher[aria-current="page"] { background: #eee6f8; border-color: #d0bbea; box-shadow: inset 3px 0 #7752a3; }
+.alpha-app .application-switcher strong { font-size: 15px; line-height: 1.45; font-weight: 600; }
+.alpha-app .application-switcher small { color: #6b6277; font-size: 12px; line-height: 1.5; }
+.alpha-app .application-switcher-top { display: flex; justify-content: space-between; align-items: center; width: 100%; color: #805000; }
+.alpha-app .application-state-draft { font-size: 12px; font-weight: 600; }
+.alpha-app .application-draft-link { background: #fff8ed; border-color: #eddbc0; }
+.alpha-app .application-add { margin-top: 24px; width: 100%; gap: 8px; font-size: 14px; }
+.alpha-app .applications-sidebar-note, .alpha-app .applications-empty { margin: 18px 0 0; font-size: 13px; line-height: 1.7; color: #696174; }
+.alpha-app .applications-hub [aria-disabled="true"] { pointer-events: none; opacity: .6; }
+.alpha-app .applications-detail { min-width: 0; padding: 36px; }
+.alpha-app .recruitment-process .applications-hub .workspace-reading { width: 100%; padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.alpha-app .applications-hub .workspace-withdrawal { width: 100%; margin: 28px 0 0; padding: 24px 0 0; border-top: 1px solid #e2ddeb; }
+.alpha-app .applications-hub .workspace-withdrawal p { margin: 0; }
+.alpha-app .applications-hub .workspace-withdrawal { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.alpha-app .application-switcher:focus-visible, .alpha-app .application-add:focus-visible { outline: 3px solid #7752a3; outline-offset: 3px; }
+@media (max-width: 800px) {
+  .alpha-app .recruitment-process .applications-hub { width: min(calc(100% - 24px), 640px); grid-template-columns: minmax(0, 1fr); border-radius: 20px; }
+  .alpha-app .applications-sidebar { padding: 24px 20px; border-right: 0; border-bottom: 1px solid #e2ddeb; }
+  .alpha-app .applications-sidebar-heading { margin-bottom: 16px; }
+  .alpha-app .applications-list { display: flex; gap: 12px; overflow-x: auto; padding: 4px 4px 10px; margin-inline: -4px; scroll-snap-type: x proximity; }
+  .alpha-app .applications-list > li { flex: 0 0 224px; scroll-snap-align: start; }
+  .alpha-app .application-switcher { height: 100%; }
+  .alpha-app .application-add { margin-top: 16px; }
+  .alpha-app .applications-sidebar-note { margin-top: 12px; }
+  .alpha-app .applications-detail { padding: 28px 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .alpha-app .application-switcher { transition: none; } }

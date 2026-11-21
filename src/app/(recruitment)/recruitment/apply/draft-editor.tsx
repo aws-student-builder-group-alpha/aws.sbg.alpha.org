@@ -12,7 +12,7 @@ import type { Applicant, Draft, DraftInput } from "@/recruitment/lib/drafts";
 import { DraftSaveQueue } from "@/recruitment/lib/draft-save-queue";
 import { applicationCommand, applicationState, saveApplicantDraft } from "@/recruitment/lib/application-client";
 import { intakeAvailability } from "@/recruitment/lib/intake";
-import { validateSubmission } from "@/recruitment/lib/applications";
+import { applicationsIn, validateSubmission } from "@/recruitment/lib/applications";
 import type { ApplicationCommand, Intake } from "@/recruitment/lib/applications";
 import { blockedDestination, simplifiedStages } from "@/recruitment/lib/application-progress";
 import { StartDraft } from "./start-draft";
@@ -72,11 +72,11 @@ function Field({
   );
 }
 
-export function DraftEditor({ applicant, initialDraft, intake, requestedOpportunity, signOutFailed = false, practice = false }: { applicant: Applicant; initialDraft: Draft | null; intake: Intake; requestedOpportunity?: string; signOutFailed?: boolean; practice?: boolean }) {
+export function DraftEditor({ applicant, initialDraft, intake, requestedOpportunity, signOutFailed = false, practice = false, previousDraft, appliedRoles = [] }: { applicant: Applicant; initialDraft: Draft | null; intake: Intake; requestedOpportunity?: string; signOutFailed?: boolean; practice?: boolean; previousDraft?: Draft | null; appliedRoles?: string[] }) {
   const [draft, setDraft] = useState(initialDraft);
-  return draft ? <ApplicationWizard key={draft.id} applicant={applicant} initialDraft={draft} initialIntake={intake} requestedOpportunity={requestedOpportunity} signOutFailed={signOutFailed} practice={practice} /> : <StartDraft applicant={applicant} onCreated={setDraft} requestedOpportunity={requestedOpportunity} signOutFailed={signOutFailed} />;
+  return draft ? <ApplicationWizard key={draft.id} applicant={applicant} initialDraft={draft} appliedRoles={appliedRoles} initialIntake={intake} requestedOpportunity={requestedOpportunity} signOutFailed={signOutFailed} practice={practice} /> : <StartDraft applicant={applicant} previousDraft={previousDraft} onCreated={setDraft} requestedOpportunity={requestedOpportunity} signOutFailed={signOutFailed} />;
 }
-function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOpportunity, signOutFailed, practice }: { applicant: Applicant; initialDraft: Draft; initialIntake: Intake; requestedOpportunity?: string; signOutFailed: boolean; practice: boolean }) {
+function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOpportunity, signOutFailed, practice, appliedRoles }: { applicant: Applicant; initialDraft: Draft; initialIntake: Intake; requestedOpportunity?: string; signOutFailed: boolean; practice: boolean; appliedRoles: string[] }) {
   const router = useRouter();
   const vacancies = useOpportunityAvailability() ?? null;
   const [queue] = useState(() => {
@@ -127,7 +127,9 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
     if (!active.current || read !== latestRead.current) return;
     if (result.ok) {
       setIntake(result.data.intake);
-      if (result.data.application) { queue.freeze(); setFrozen(true); router.replace("/recruitment/application"); router.refresh(); }
+      const submitted = applicationsIn(result.data).find(item => item.sourceDraftVersion === (pendingSubmission.current?.expectedVersion ?? queue.getSnapshot().draft.version))
+        ?? (result.data.applications === undefined ? result.data.application : null);
+      if (submitted) { queue.freeze(); setFrozen(true); router.replace("/recruitment/application?application=" + submitted.id); router.refresh(); }
       else if (pendingSubmission.current) setSubmissionFeedback({ kind: "uncertain", message: "No receipt is available yet. An earlier submission may still complete. Retry the same submission." });
       else if (announceIntake) setIntakeFeedback({ kind: "status", message: "Intake details updated. Your draft is preserved." });
     } else {
@@ -166,7 +168,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
     const result = await applicationCommand(pendingSubmission.current, submissionAbort.current.signal);
     if (!active.current) return;
     working.current = false; setSubmitting(false);
-    if (result.ok) { router.replace("/recruitment/application"); router.refresh(); return; }
+    if (result.ok) { router.replace("/recruitment/application?application=" + result.data.id); router.refresh(); return; }
     setSubmissionFeedback({ kind: result.code === "UNAVAILABLE" ? "uncertain" : "error", message: result.message });
     if (["STAFF_ACCOUNT","DENIED","ACCOUNT_CHANGED","UNAUTHENTICATED"].includes(result.code)) setAccessLost(true);
     if (result.code !== "UNAVAILABLE") {
@@ -471,14 +473,15 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                         <h3>{group}</h3>
                         {options.map(choice => {
                           const selected = app.opportunityId === choice.id;
+                          const alreadyApplied = appliedRoles.includes(choice.id);
                           const title = choice.title === "Committee Member" && !choice.specialization
                             ? `${choice.department} Member`
                             : opportunityLabel(choice);
                           return <div className={`process-opportunity${selected ? " selected" : ""}`} key={choice.id}>
                             <label>
-                              <input type="radio" required name="opportunity" aria-label={title} aria-describedby={selected ? `${choice.id}-description${choice.id === "buildher" ? " buildher-eligibility" : ""}` : undefined} value={choice.id} checked={selected} onChange={() => setPath(app.track, choice.id)} />
+                              <input type="radio" required name="opportunity" aria-label={title} aria-describedby={selected ? `${choice.id}-description${choice.id === "buildher" ? " buildher-eligibility" : ""}` : undefined} value={choice.id} disabled={alreadyApplied} checked={selected} onChange={() => setPath(app.track, choice.id)} />
                               <span className="process-radio" aria-hidden="true" />
-                              <span className="process-opportunity-body"><strong>{title}</strong><small>{availabilityLabel(vacancies, choice.id)}</small>{selected && <small className="process-selected-badge">Selected</small>}</span>
+                              <span className="process-opportunity-body"><strong>{title}</strong><small>{alreadyApplied ? "Already applied" : availabilityLabel(vacancies, choice.id)}</small>{selected && <small className="process-selected-badge">Selected</small>}</span>
                               <Icon name={choice.icon} size={20} />
                             </label>
                             {selected && <div className="process-opportunity-detail" id={`${choice.id}-description`}>
@@ -573,7 +576,7 @@ function ApplicationWizard({ applicant, initialDraft, initialIntake, requestedOp
                   <ApplicationContent application={app} onEdit={next => goStage(next === 4 ? 5 : next)} excludeEvidence />
                   <div className="process-declarations">
                     <h3 className="process-group-title">Before you submit</h3>
-                    <p>{practice ? "Use a sample HTTPS resume link to test the review step." : "One application per cycle. Submitted answers and links lock; withdrawal is final and does not allow reapplication."}</p>
+                    <p>{practice ? "Use a sample HTTPS resume link to test the review step." : "Apply once per role. Submitted answers and links lock. Withdrawal is final for this role; you can still apply for others."}</p>
                     <div className="declarations">
                       <label className="checkbox-row">
                         <input id="accuracy" aria-required="true" data-validation-field="accuracy" aria-invalid={!!errors.accuracy} type="checkbox" checked={app.accuracy} onChange={(event) => patch({ accuracy: event.target.checked })} aria-describedby={errors.accuracy ? "accuracy-error" : undefined} />

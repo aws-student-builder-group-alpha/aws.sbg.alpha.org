@@ -5,7 +5,7 @@ export type MemberInvitation = { id: string; full_name: string; position: string
 export function isMemberInvitation(value: unknown): value is MemberInvitation {
   return record(value) && ['id','full_name','position','joined_on','created_at'].every(key => typeof value[key] === 'string');
 }
-export type Notification = { id: string; kind: string; title: string; body: string; link: string | null; created_at: string; read_at: string | null };
+export type Notification = { id: string; application_id?: string; kind: string; title: string; body: string; link: string | null; created_at: string; read_at: string | null };
 export type Message = { id: string; kind: string; subject: string; body: string; calendly_url: string | null; state: string; created_at: string; completed_at: string | null };
 export type AuditEvent = { id: string; actor_id: string | null; action: string; object_id: string; created_at: string };
 export const enrollmentMaxBytes = 3 * 1024 * 1024;
@@ -25,5 +25,5 @@ export function isEnrollment(value: unknown): value is Enrollment {
 export function isMember(value: unknown): value is Member {
   return record(value) && typeof value.id==='string' && typeof value.full_name==='string' && typeof value.position==='string' && typeof value.joined_on==='string' && (value.photo_path===null||typeof value.photo_path==='string') && typeof value.status==='string' && typeof value.version==='number';
 }
-export function isNotification(v:unknown):v is Notification{return record(v)&&typeof v.id==='string'&&typeof v.kind==='string'&&typeof v.title==='string'&&typeof v.body==='string'&&(v.link===null||typeof v.link==='string')&&typeof v.created_at==='string'&&(v.read_at===null||typeof v.read_at==='string')}
+export function isNotification(v:unknown):v is Notification{return record(v)&&typeof v.id==='string'&&(v.application_id===undefined||typeof v.application_id==='string')&&typeof v.kind==='string'&&typeof v.title==='string'&&typeof v.body==='string'&&(v.link===null||typeof v.link==='string')&&typeof v.created_at==='string'&&(v.read_at===null||typeof v.read_at==='string')}
 export function isMessage(v:unknown):v is Message{return record(v)&&typeof v.id==='string'&&typeof v.kind==='string'&&typeof v.subject==='string'&&typeof v.body==='string'&&(v.calendly_url===null||typeof v.calendly_url==='string')&&typeof v.state==='string'&&typeof v.created_at==='string'}
