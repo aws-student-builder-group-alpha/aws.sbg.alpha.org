@@ -1013,11 +1013,11 @@ try {
   await page.evaluate(()=>window.mountHome());
   const directory=page.locator(".roles-grid");
   async function assertCardSurfaces() {
+    const pastels = ['rgb(252, 227, 207)', 'rgb(217, 240, 232)', 'rgb(228, 221, 247)', 'rgb(220, 238, 250)', 'rgb(247, 224, 236)', 'rgb(237, 240, 244)'];
     for (const card of await directory.locator('.role-card').all()) {
-      const committee = await card.getAttribute('data-track') === 'COMMITTEE';
-      const expected = committee ? 'rgb(199, 173, 255)' : 'rgb(33, 28, 40)';
-      assert.equal(await card.evaluate(node => getComputedStyle(node).backgroundColor), expected, 'Role cards match the landing recruitment track colors');
-      assert.equal(await card.locator('.role-card-surface').evaluate(node => getComputedStyle(node).backgroundColor), expected);
+      assert.equal(await card.evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 255, 255)', 'Cards have a white action area');
+      const surface = card.locator('.role-card-surface');
+      assert.ok(pastels.includes(await surface.evaluate(node => getComputedStyle(node).backgroundColor)), 'Role identity uses a pastel surface');
     }
   }
   await assertCardSurfaces();

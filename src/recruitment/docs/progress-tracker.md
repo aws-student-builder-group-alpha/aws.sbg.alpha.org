@@ -1,3 +1,11 @@
+## Pastel directory restored with soft shadows - 21 November 2026
+
+Restored the owner's preferred white-and-pastel directory from commit 1700469, including rounded cards, compact heading, dark sidebar and pill actions. Added soft offset card shadows with a stronger hover shadow. Restored the corresponding test expectations and removed the unused wolf fixture import.
+
+Inspected the connected browser desktop render and confirmed white card surfaces, pastel panels and computed shadows. At 390px the grid uses one column with no horizontal overflow. TSX/CSS parsing, changed test-script syntax checks and Git whitespace checks passed. Full fixture tests were not rerun for this presentation correction. Previously recorded local vacancy/application access and verification-tool limitations remain unresolved.
+
+Reviewed the six context documents for impact. Updated UI direction and this tracker. Product, architecture, standards and workflow specifications need no change because this restores presentation and preserves existing application contracts.
+
 ## Opportunity directory landing-page styling - 21 November 2026
 
 Matched the owner's latest landing-page reference using its cream canvas, dark ink Core Team panels, lavender Committee panels, orange actions, offset shadows, large headings and existing pixel wolf. The sidebar/grid/search structure continues from the directory reference. Role dialogs use the same ink/violet palette. Updated the existing browser surface expectations and fixture module list for the reused wolf.
