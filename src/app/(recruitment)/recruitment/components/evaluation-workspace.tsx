@@ -1,7 +1,8 @@
 "use client";
-import { ApplicantOutreach } from './applicant-outreach';
+import { ApplicantMembershipTools, ApplicantOutreach, EnrollmentProofLink } from "./applicant-outreach";
 import { DetailSkeleton, ListSkeleton } from "./workspace-skeleton";
 import { AdminPageHeader } from "./admin-shell";
+import { useEntrance } from "./motion";
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useReducer, useRef, useState, type ReactNode } from "react";
@@ -20,13 +21,49 @@ import type { QueueFilters } from "@/recruitment/lib/application-queue";
 import { ApplicationExportControl } from "./application-export-control";
 import type { ExportFailure } from "@/recruitment/lib/application-export";
 import { ApplicationQueueControls, ApplicationQueueCounts } from "./application-queue-controls";
-import { Callout, EmptyState, FieldError, Icon, Modal, PageHeading, StatusBadge, formatDate } from "./ui";
+import { Callout, EmptyState, FieldError, Icon, Modal, PageHeading, StatusBadge, WorkspaceDisclosureLabel, formatDate } from "./ui";
 import { useInlineValidation } from "./inline-validation";
 
 function opportunityName(id: string) {
   const opportunity = getOpportunity(id);
   return opportunity ? opportunityLabel(opportunity) : "Opportunity unavailable";
 }
+function reviewCue(item: EvaluationList["items"][number]) {
+  if (item.recommendation) return `Recommended: ${item.recommendation}`;
+  return item.assignment ? "Recommendation needed" : "Not assigned";
+}
+
+function AdminApplicationTable({ items, selected, onSelect }: {
+  items: EvaluationList["items"]; selected: string; onSelect: (id: string) => void;
+}) {
+  return <table className="admin-application-table">
+    <caption className="sr-only">Submitted applications</caption>
+    <thead><tr>
+      <th scope="col">Applicant</th><th scope="col">Opportunity</th><th scope="col">Status</th>
+      <th scope="col">Evaluator</th><th scope="col">Recommendation</th>
+    </tr></thead>
+    <tbody>{items.map(item => {
+      const opportunity = opportunityName(item.opportunityId);
+      const submitted = formatDate(item.submittedAt);
+      return <tr key={item.id}>
+        <td><button type="button" className="evaluation-list-item" aria-pressed={selected === item.id} onClick={() => onSelect(item.id)}>
+          <span className="admin-application-name">
+            <strong>{item.name}</strong>
+            <span className="admin-application-card-status"><StatusBadge status={item.status} /></span>
+          </span>
+          <span className="admin-application-card-role">{opportunity}</span>
+          <span className="admin-application-meta"><small>{item.reference}</small><small><time dateTime={item.submittedAt}>{submitted}</time></small></span>
+          <small className="admin-application-card-review">{reviewCue(item)}</small>
+        </button></td>
+        <td>{opportunity}</td>
+        <td><StatusBadge status={item.status} /></td>
+        <td>{item.assignment?.evaluator.email || "Not assigned"}</td>
+        <td>{item.recommendation || (item.assignment ? "Recommendation needed" : "No recommendation")}</td>
+      </tr>;
+    })}</tbody>
+  </table>;
+}
+
 const unsavedSelector = '.evaluation-detail[data-unsaved="true"], .decision-panel[data-unsaved="true"]';
 const pendingSelector = '.evaluation-detail[data-command-pending="true"], .decision-panel[data-command-pending="true"]';
 const recordUnsavedSelector = unsavedSelector + ', .workspace-admin [data-admin-unsaved="true"]';
@@ -37,17 +74,18 @@ function RecordSections({ redesign, administrator, application, controls, decisi
 }) {
   const id = useId();
   const [selected, setSelected] = useState(0);
+  const tabs = useRef<HTMLDivElement>(null);
   const labels = administrator ? ["Application", "Review & decision", "History"] : ["Application", "Recommendation", "Previous reviews"];
   if (!redesign) return <><div className="evaluation-reading-layout">{application}{controls}</div>{decision}{history}</>;
   return <div className="record-sections">
-    <div className="record-tabs" role="tablist" aria-label="Application details">
+    <div ref={tabs} className="record-tabs" role="tablist" aria-label="Application details">
       {labels.map((label, index) => <button key={label} type="button" role="tab" id={`${id}-tab-${index}`} aria-controls={`${id}-panel-${index}`} aria-selected={selected === index} tabIndex={selected === index ? 0 : -1} disabled={pending}
         onClick={() => setSelected(index)} onKeyDown={event => {
           if (pending) return;
           const next = event.key === "ArrowRight" ? (index + 1) % 3 : event.key === "ArrowLeft" ? (index + 2) % 3 : event.key === "Home" ? 0 : event.key === "End" ? 2 : null;
           if (next === null) return;
           event.preventDefault(); setSelected(next);
-          event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+          tabs.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus({ preventScroll: true });
         }}>{label}</button>)}
     </div>
     {pending && <p className="record-pending" role="status">Complete the pending confirmation before changing sections.</p>}
@@ -74,9 +112,11 @@ function ReviewHistory({ accountId, applicationId, administrator, onDenied }: { 
   return <section className="evaluation-history" aria-labelledby="review-history-heading">
     <h3 id="review-history-heading">{administrator ? "Private evaluation history" : "Previous reviews"}</h3>
     <p className="muted">{administrator ? "Assignment changes and recommendation revisions. Private to authorized staff." : "Earlier evaluators' latest saved reviews are read-only. Your current assignment needs its own recommendation."}</p>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => { setBusy(true); setReload(n => n + 1); }}>Retry history</button></Callout> : busy && !page.items.length ? <ListSkeleton label="Loading history..." /> : !page.items.length ? <EmptyState compact heading="h4" icon="clock" title="No earlier reviews or changes are recorded." description={administrator ? "Assignment changes and recommendation revisions will appear here." : "Saved reviews from earlier evaluators will appear here."} /> : <ol className="staff-history-list">{page.items.map(event => <li key={event.kind + event.id}>
-      <div className="subheading"><strong>{event.kind === "assignment" ? "Evaluator assigned" : event.recommendation}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
-      <p>{event.evaluator.email} {event.kind === "review" && `- review revision ${event.reviewVersion}`}</p>
+    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => { setBusy(true); setReload(n => n + 1); }}>Retry history</button></Callout> : busy && !page.items.length ? <ListSkeleton label="Loading history..." /> : !page.items.length ? <EmptyState compact heading="h4" icon="clock" title="No earlier reviews or changes are recorded." description={administrator ? "Assignment changes and recommendation revisions will appear here." : "Saved reviews from earlier evaluators will appear here."} /> : <ol className="staff-history-list record-events">{page.items.map(event => <li key={event.kind + event.id}>
+      <div className="record-event-title">{event.recommendation ? <StatusBadge status={event.recommendation} /> : <strong>{event.kind === "assignment" ? "Evaluator assigned" : "Recommendation saved"}</strong>}
+        <time dateTime={event.createdAt}>{formatDate(event.createdAt)} Philippine time</time>
+      </div>
+      <p className="record-event-meta">{event.evaluator.email}{event.kind === "review" && <span>Review revision {event.reviewVersion}</span>}</p>
       {event.notes && <p className="evaluation-note">{event.notes}</p>}
       {event.reason && <p>Reason: {event.reason}</p>}
       {administrator && event.kind === "assignment" && <p className="muted">Changed by {event.actor.email}</p>}
@@ -166,9 +206,19 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
     if (!state.dirty || window.confirm("Discard your unsaved evaluation changes and load the latest details?")) void load(true);
   }
   const detail = state.detail, frozen = state.busy || !!state.pending || state.conflict || !state.verified;
+  const adminRecord = redesign && detail?.role === "administrator";
+  const outreach = detail && <ApplicantOutreach key={`${detail.application.id}:${detail.application.version}`}
+    accountId={accountId} application={detail.application} administrator={detail.role === "administrator"} verified={state.verified && roleVerified} embedded={redesign} />;
   const availableEvaluators = detail ? evaluators.filter(person => person.email.toLowerCase() !== detail.application.email.toLowerCase()) : evaluators;
   const confirmation = state.confirmation;
   const confirmedEvaluatorId = confirmation?.action === "assign" ? confirmation.evaluatorId : "";
+  const summary = useRef<HTMLElement>(null);
+  useEntrance(summary, {
+    preset: "workspace-fade",
+    selector: "[data-record-summary]",
+    enabled: redesign && detail?.role === "evaluator",
+    motionKey: detail?.application.id,
+  });
   const focusedApplication = useRef("");
   useEffect(() => {
     if (redesign && state.verified && detail && focusedApplication.current !== applicationId) {
@@ -182,15 +232,26 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
     {!state.verified && <Callout tone="warning"><p role="alert">Application access could not be verified. Details are hidden until the check succeeds.</p><button type="button" className="button button-secondary" onClick={() => void load()}>Retry application access</button></Callout>}
     <div hidden={!state.verified} inert={!state.verified || undefined}>
       {detail && <>
-        <section className="panel record-identity">
+        <section ref={summary} className="panel record-identity">
           <div className="subheading"><h2 ref={heading} tabIndex={-1}>{detail.application.data.profile.fullName}</h2><StatusBadge status={detail.application.status} /></div>
-          <p className="application-reference">{detail.application.reference}</p>
-          <p>{opportunityName(detail.application.data.opportunityId)}. Submitted {formatDate(detail.application.submittedAt)}, Philippine time.</p>
-          <div className="inline-actions"><button type="button" className="text-button" disabled={state.busy} onClick={reload}>Reload latest details</button></div>
+          <p className="record-opportunity" data-record-summary>{opportunityName(detail.application.data.opportunityId)}</p>
+          <div className="record-identity-meta" data-record-summary>
+            <span className="application-reference">{detail.application.reference}</span>
+            <span>Submitted <time dateTime={detail.application.submittedAt}>{formatDate(detail.application.submittedAt)}</time>, Philippine time</span>
+          </div>
+          <button type="button" className="text-button record-reload" disabled={state.busy} onClick={reload}><Icon name="reset" size={15} />Reload latest details</button>
         </section>
+        {redesign && <details className="workspace-disclosure-card record-communication">
+          <summary><WorkspaceDisclosureLabel icon="mail">Applicant communication</WorkspaceDisclosureLabel></summary>
+          {outreach}
+        </details>}
         <RecordSections redesign={redesign} administrator={detail.role === "administrator"} pending={!!state.pending || decisionPending}
-          application={<section className="panel evaluation-answers"><h2>Submitted application</h2><ApplicationContent application={{ ...detail.application.data, profile: { ...detail.application.data.profile, email: detail.application.email } }} /></section>}
-          controls={<section className="panel evaluation-controls" aria-labelledby="evaluation-controls-heading">
+          application={<section className="panel evaluation-answers">
+            <h2>Submitted application</h2>
+            <ApplicationContent application={{ ...detail.application.data, profile: { ...detail.application.data.profile, email: detail.application.email } }}
+              staffReview={redesign ? { enrollmentProof: <EnrollmentProofLink accountId={accountId} applicationId={applicationId} button /> } : undefined} />
+          </section>}
+          controls={<div className="record-review-group"><section className="panel record-card evaluation-controls" aria-labelledby="evaluation-controls-heading">
             <h2 id="evaluation-controls-heading">{detail.role === "administrator" ? "Evaluator assignment" : "Your recommendation"}</h2>
             {!detail.canEdit && <p>{detail.application.status === "Withdrawn" ? "This application is withdrawn and read-only." : "An outcome is published. Evaluator assignments and recommendations are read-only."}</p>}
             {detail.assignment ? <p>Assigned to <strong>{detail.assignment.evaluator.email}</strong></p> : <p>No evaluator is assigned.</p>}
@@ -212,18 +273,25 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
                 <button className="button button-orange" type="submit">{state.busy ? "Saving..." : detail.role === "administrator" ? "Review evaluator assignment" : "Save recommendation"}</button>
               </fieldset>
             </form>}
-            {detail.role === "evaluator" && detail.review && onNext && <button type="button" className="button button-secondary" disabled={state.dirty || state.busy || !!state.pending || !!state.conflict || !state.verified || !roleVerified} onClick={onNext}>Review next application</button>}
             {state.dirty && !state.pending && <p role="status">Unsaved changes</p>}
             {state.conflict && <Callout tone="error" title="Something needs attention" role="alert">Reload the latest details before saving. Your local changes are still here.</Callout>}
             {state.pending && !state.confirmation && <div className="inline-actions"><button className="button button-orange" type="button" disabled={state.busy} onClick={() => { if (state.pending) void send(state.pending); }}>{state.busy ? "Saving..." : "Retry same recommendation"}</button><button className="text-button" type="button" disabled={state.busy} onClick={() => void load()}>Check latest details</button></div>}
-            {detail.review && <section className="saved-recommendation"><h3>Saved recommendation</h3><p><strong>{detail.review.recommendation}</strong> - revision {detail.review.version}</p><p className="evaluation-note">{detail.review.notes || "No private notes."}</p><p className="muted">Saved {formatDate(detail.review.updatedAt)}, Philippine time.</p></section>}
+          </section>
+          {detail.review && <section className="panel record-card saved-recommendation">
+            <div className="record-event-title"><h3>Saved recommendation</h3><StatusBadge status={detail.review.recommendation} /></div>
+            <p className="record-event-meta">Review revision {detail.review.version}<span>Saved <time dateTime={detail.review.updatedAt}>{formatDate(detail.review.updatedAt)}</time>, Philippine time</span></p>
+            <p className="evaluation-note">{detail.review.notes || "No private notes."}</p>
+            {detail.role === "evaluator" && onNext && <button type="button" className="button button-secondary" disabled={state.dirty || state.busy || !!state.pending || !!state.conflict || !state.verified || !roleVerified} onClick={onNext}>Review next application</button>}
           </section>}
-          decision={detail.role === "administrator" && <DecisionPanel accountId={accountId} applicationId={applicationId} applicantName={detail.application.data.profile.fullName} reference={detail.application.reference}
+          </div>}
+          decision={detail.role === "administrator" && <><DecisionPanel accountId={accountId} applicationId={applicationId} applicantName={detail.application.data.profile.fullName} reference={detail.application.reference}
           revision={`${detail.application.version}:${detail.assignment?.id ?? "none"}:${detail.review?.version ?? 0}`} editorBusy={state.dirty || state.busy || !!state.pending || !!state.confirmation}
-          onPublished={published} onDenied={decisionDenied} showHistory={!redesign} onPendingChange={setDecisionPending} />}
-          history={<div className="record-history"><section className="panel"><ReviewHistory key={`${detail.assignment?.id ?? "none"}:${detail.review?.version ?? 0}`} accountId={accountId} applicationId={applicationId} administrator={detail.role === "administrator"} onDenied={denied} /></section>
-            {redesign && detail.role === "administrator" && <section className="panel"><DecisionHistoryList key={detail.application.version} accountId={accountId} applicationId={applicationId} onDenied={decisionDenied} /></section>}</div>} />
-        <ApplicantOutreach key={`${detail.application.id}:${detail.application.version}`} accountId={accountId} application={detail.application} administrator={detail.role === 'administrator'} />
+          onPublished={published} onDenied={decisionDenied} showHistory={!redesign} onPendingChange={setDecisionPending} />
+          {adminRecord && detail.application.status === "Accepted" && <ApplicantMembershipTools key={detail.application.version} accountId={accountId} application={detail.application} />}
+          </>}
+          history={<div className="record-history"><div className="panel record-card"><ReviewHistory key={`${detail.assignment?.id ?? "none"}:${detail.review?.version ?? 0}`} accountId={accountId} applicationId={applicationId} administrator={detail.role === "administrator"} onDenied={denied} /></div>
+            {redesign && detail.role === "administrator" && <div className="panel record-card"><DecisionHistoryList key={detail.application.version} accountId={accountId} applicationId={applicationId} onDenied={decisionDenied} /></div>}</div>} />
+        {!redesign && outreach}
       </>}
     </div>
     {confirmation && state.verified && <Modal title="Confirm evaluator assignment" dismissible={!state.busy && !state.pending} onClose={() => dispatch({ type: "confirm", command: null })}><div className="modal-body" aria-busy={state.busy}>
@@ -239,6 +307,8 @@ function EvaluationPanel({ accountId, applicationId, evaluators, onChanged, onNe
 }
 
 export function EvaluationWorkspace({ accountId, initialList, redesign = false }: { accountId: string; initialList: EvaluationList; redesign?: boolean }) {
+  const queueOverview = useRef<HTMLDivElement>(null);
+  useEntrance(queueOverview, { preset: "workspace", enabled: redesign });
   const [list, setList] = useState(initialList), [selected, setSelected] = useState("");
   const [filters, setFilters] = useState<QueueFilters>(initialList.queue?.filters ?? defaultQueueFilters);
   const [applied, setApplied] = useState<QueueFilters>(initialList.queue?.filters ?? defaultQueueFilters);
@@ -338,7 +408,7 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
   return <main id="main-content" className={`container portal staff-portal evaluation-workspace${enhanced ? ` workspace-redesign workspace-evaluation ${administrator ? "workspace-admin" : "workspace-reviewer"}` : ""}`} data-mobile-view={enhanced ? mobileDetail ? "detail" : "list" : undefined}>
     {list.role === "administrator" && !enhanced && <AdminNavigation current="applications" />}
     {enhanced ? administrator ? <AdminPageHeader title="Applications" description="Review submissions, assign evaluators and publish recruitment outcomes." /> : <AdminPageHeader title="Evaluator workspace" description="Review the applications assigned to you and save your recommendations." /> : pageHeading}
-    <div className={enhanced ? "workspace-queue-overview" : undefined}>
+    <div ref={queueOverview} className={enhanced ? "workspace-queue-overview" : undefined}>
     {administrator ? <ApplicationQueueControls trailingActions={exportControl} filters={filters} applied={applied} busy={busy || exportBusy} frozen={exportBusy} notice={navigationNotice}
       onChange={setFilters} onSearch={searchApplications}
       onApply={() => applyFilters({ ...filters, search: applied.search }, "Filters were not applied. Your record edits are still open.")}
@@ -358,8 +428,16 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
         </EmptyState> : <EmptyState heading="h2" icon={administrator ? "file" : "people"}
           title={administrator ? "No submitted applications yet." : "You have no active assignments."}
           description={administrator ? "Completed applications will appear here after applicants submit them." : "Applications will appear here when a System Admin assigns them to you."} announce />)}
-        {!!list.items.length && <div hidden={!visibleResultsCurrent}>{administrator && enhanced ? <table className="admin-application-table"><caption className="sr-only">Submitted applications</caption><thead><tr><th scope="col">Applicant</th><th scope="col">Opportunity</th><th scope="col">Status</th><th scope="col">Evaluator</th><th scope="col">Recommendation</th></tr></thead><tbody>{list.items.map(item => <tr key={item.id}><td><button type="button" aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}><strong>{item.name}</strong><small>{item.reference}</small><small>{formatDate(item.submittedAt)}</small></button></td><td data-label="Opportunity">{opportunityName(item.opportunityId)}</td><td data-label="Status"><StatusBadge status={item.status} /></td><td data-label="Evaluator">{item.assignment?.evaluator.email || "Not assigned"}</td><td data-label="Recommendation">{item.recommendation || (item.assignment ? "Recommendation needed" : "No recommendation")}</td></tr>)}</tbody></table> : list.items.map(item => <button type="button" key={item.id} aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}>
-          {enhanced ? <><span className="application-row-heading"><strong>{item.name}</strong><StatusBadge status={item.status} /></span><span>{opportunityName(item.opportunityId)}</span><span>{item.reference}</span></> : <><strong>{item.name}</strong><span>{item.reference}</span><StatusBadge status={item.status} /><span>{opportunityName(item.opportunityId)}</span></>}<span className="muted">{item.assignment ? `${item.assignment.evaluator.email} - ${item.recommendation ?? "Recommendation needed"}` : "Not assigned"}</span>
+        {!!list.items.length && <div hidden={!visibleResultsCurrent}>{administrator && enhanced ? <AdminApplicationTable items={list.items} selected={selected} onSelect={openApplication} /> : list.items.map(item => <button type="button" key={item.id} aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}>
+          {enhanced ? <>
+            <span className="application-row-heading"><strong>{item.name}</strong><StatusBadge status={item.status} /></span>
+            <span className="reviewer-card-role">{opportunityName(item.opportunityId)}</span>
+            <span className="reviewer-card-meta"><span>{item.reference}</span><time dateTime={item.submittedAt}>{formatDate(item.submittedAt)}</time></span>
+            <span className="reviewer-card-cue">{reviewCue(item)}</span>
+          </> : <>
+            <strong>{item.name}</strong><span>{item.reference}</span><StatusBadge status={item.status} /><span>{opportunityName(item.opportunityId)}</span>
+            <span className="muted">{item.assignment ? `${item.assignment.evaluator.email} - ${item.recommendation ?? "Recommendation needed"}` : "Not assigned"}</span>
+          </>}
         </button>)}</div>}
         {resultsCurrent && list.nextOffset !== null && <button className="button button-secondary" disabled={busy} type="button" onClick={() => { if (list.nextOffset !== null) void refresh(list.nextOffset); }}>Load more applications</button>}
       </aside>

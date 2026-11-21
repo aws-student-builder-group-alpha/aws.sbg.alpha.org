@@ -7,8 +7,9 @@ import { useAdminNavigationGuard } from "@/app/(recruitment)/recruitment/compone
 import { useEffect, useRef, useState } from "react";
 import { getStaffData, mergeStaffMembers, postStaffChange } from "@/recruitment/lib/staff-client";
 import { useVerifiedAccess } from "@/app/(recruitment)/recruitment/components/access-guard";
-import { Badge, Callout, EmptyState, FieldError, Icon, Modal, PageHeading } from "@/app/(recruitment)/recruitment/components/ui";
+import { Badge, Callout, EmptyState, FieldError, Icon, Modal, PageHeading, WorkspaceDisclosureLabel } from "@/app/(recruitment)/recruitment/components/ui";
 import { useInlineValidation } from "@/app/(recruitment)/recruitment/components/inline-validation";
+import { useEntrance } from "@/app/(recruitment)/recruitment/components/motion";
 import { formatDate } from "@/recruitment/lib/format-date";
 import { actionLabel, isStaffHistory, isStaffMember, roleLabel, statusLabel } from "@/recruitment/lib/staff";
 import type { StaffMember, StaffHistory, StaffRole, StaffAction, StaffRequest, StaffFailure, StaffStatus } from "@/recruitment/lib/staff";
@@ -48,8 +49,8 @@ function AccessHistory({ accountId, member, onDenied }: { accountId: string; mem
     });
     return () => { active = false; controller.abort(); };
   }, [accountId, member.userId, member.version, onDenied, retry]);
-  return <details ref={historyPanel} className="workspace-disclosure staff-access-history" open={state === "error" || !!error || undefined}>
-    <summary><span><Icon name="shield" size={18} />Access history</span><Icon name="chevron" size={16} /></summary>
+  return <details ref={historyPanel} className="workspace-disclosure-card workspace-disclosure staff-access-history" open={state === "error" || !!error || undefined}>
+    <summary><WorkspaceDisclosureLabel icon="shield">Access history</WorkspaceDisclosureLabel></summary>
     <section className="staff-history" aria-labelledby="staff-history-heading">
     <h3 className="sr-only" id="staff-history-heading">Access history</h3>
     <p className="muted">Private staff access changes.</p>
@@ -85,6 +86,7 @@ export function StaffManager({ accountId, initialStaff }: { accountId: string; i
   const [adding, setAdding] = useState(false);
   const [mobileDetail, setMobileDetail] = useState(false);
   const directoryRef = useRef<HTMLElement>(null);
+  useEntrance(directoryRef, { preset: "workspace" });
   const addStaffButton = useRef<HTMLButtonElement>(null);
   const directoryScroll = useRef(0);
   const [email, setEmail] = useState("");
@@ -218,9 +220,11 @@ export function StaffManager({ accountId, initialStaff }: { accountId: string; i
             <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Account</th><th scope="col" role="columnheader">Role</th><th scope="col" role="columnheader">Access</th><th scope="col" role="columnheader">Updated (Philippine time)</th></tr></thead>
             <tbody role="rowgroup">{visible.map(item => <tr key={item.userId} role="row">
               <td role="cell">
-                <button className="staff-account-trigger" type="button" aria-label={"Open staff account " + item.email} aria-pressed={!adding && item.userId === selectedId} onClick={() => select(item)}>
+                <button className="staff-account-trigger" type="button" aria-label={"Open staff account " + item.email} aria-describedby={`staff-meta-${item.userId}`} aria-pressed={!adding && item.userId === selectedId} onClick={() => select(item)}>
                   <StaffAvatar email={item.email} />
-                  <span className="staff-account-name">{item.email}{item.userId === accountId && <small>Your account</small>}</span>
+                  <span className="staff-account-name">{item.email}{item.userId === accountId && <small>Your account</small>}
+                    <span className="staff-account-meta" id={`staff-meta-${item.userId}`}>{roleLabel(item.role)} <StaffAccessBadge status={item.status} /></span>
+                  </span>
                   <Icon name="chevron" size={15} />
                 </button>
               </td>
@@ -231,7 +235,7 @@ export function StaffManager({ accountId, initialStaff }: { accountId: string; i
           </table>
         </div>}
       </section>
-      <Modal title={adding ? "Add staff access" : "Staff account"} className="admin-staff-drawer" active={mobileDetail && accessVerified} dismissible={!pending && !confirmation} onClose={closeDetail}><section className="staff-member-detail" tabIndex={-1} ref={detailRef} aria-label={adding ? "Add staff access" : "Selected staff account"}>
+      <Modal title={adding ? "Add staff access" : "Staff account"} className="admin-staff-drawer" workspaceDrawer active={mobileDetail && accessVerified} dismissible={!pending && !confirmation} onClose={closeDetail}><section className="staff-member-detail" tabIndex={-1} ref={detailRef} aria-label={adding ? "Add staff access" : "Selected staff account"}>
         <button type="button" className="text-button workspace-back" disabled={pending || !!confirmation} onClick={closeDetail}><Icon name="arrow" size={16} />Back to staff list</button>
         {adding ? <Callout className="staff-add-guidance"><p>Their Google account must have signed in once.</p></Callout> : member && <header className="admin-staff-identity">
           <StaffAvatar email={member.email} />

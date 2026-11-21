@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { AdminPageHeader } from "@/app/(recruitment)/recruitment/components/admin-shell";
-import { EmptyState, Icon, StatusBadge, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
+import { EmptyState, Icon, StatusBadge, WorkspaceDisclosureLabel, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
+import { useEntrance } from "@/app/(recruitment)/recruitment/components/motion";
 import type { EvaluationList } from "@/recruitment/lib/evaluations";
 import type { IntakeState } from "@/recruitment/lib/intake";
 import type { StaffMember } from "@/recruitment/lib/staff";
@@ -22,6 +23,9 @@ function intakeStatus(intake: IntakeState | null) {
 export function AdminOverview({ applications, staff, intake }: { applications: EvaluationList | null; staff: StaffMember[] | null; intake: IntakeState | null }) {
   const router = useRouter();
   const [refreshing, refresh] = useTransition();
+  const [statusExpanded, setStatusExpanded] = useState(false);
+  const overview = useRef<HTMLDivElement>(null);
+  useEntrance(overview, { preset: "workspace", selector: ".admin-metrics, .admin-status-overview" });
   const queue = applications?.queue;
   const activeStaff = staff?.filter(member => member.status === "active").length;
   const cards = [
@@ -38,22 +42,28 @@ export function AdminOverview({ applications, staff, intake }: { applications: E
       </button>
     </AdminPageHeader>
 
-    <div className="admin-overview-grid">
+    <div className="admin-overview-grid" ref={overview}>
       <div className="admin-overview-primary">
         <dl className="admin-metrics" aria-label="Application totals">{cards.map(card => <div className="admin-metric" key={card.label}>
           <dt><span className="admin-metric-icon"><Icon name={card.icon} size={17} /></span>{card.label}</dt>
           <dd className="admin-metric-value" data-unavailable={card.value === undefined || undefined}>{card.value ?? "Unavailable"}</dd>
         </div>)}</dl>
 
-        <section className="admin-surface admin-status-overview" aria-labelledby="status-overview-title">
-          <h2 id="status-overview-title">Application status</h2>
+        <section className="admin-surface admin-status-overview" aria-labelledby="status-overview-title" data-expanded={statusExpanded}>
+          <h2 id="status-overview-title">{queue ? <>
+            <span className="queue-counts-title">Application status</span>
+            <button className="queue-counts-toggle" type="button" aria-expanded={statusExpanded} aria-controls="status-overview-counts"
+              onClick={() => setStatusExpanded(value => !value)}>
+              <WorkspaceDisclosureLabel icon="chart">Application status</WorkspaceDisclosureLabel>
+            </button>
+          </> : "Application status"}</h2>
           {!queue ? <p role="status">Status breakdown is unavailable. Refresh overview to retry.</p> : <>
             {queue.total === 0 ? <p>Status totals will appear after the first submission.</p> :
               <div className="admin-status-track" aria-hidden="true">{statuses.map((status, index) => <span
                 key={status} className={`admin-status-segment status-color-${index}`}
                 style={{ flexGrow: queue.statusCounts[status] }}
               />)}</div>}
-            <dl className="admin-status-legend">{statuses.map((status, index) => <div key={status}>
+            <dl id="status-overview-counts" className="admin-status-legend">{statuses.map((status, index) => <div key={status}>
               <dt><span aria-hidden="true" className={`admin-status-dot status-color-${index}`} />{status}</dt>
               <dd>{queue.statusCounts[status]}</dd>
             </div>)}</dl>
@@ -89,7 +99,12 @@ export function AdminOverview({ applications, staff, intake }: { applications: E
         !applications.items.length ? <EmptyState compact title="No submitted applications yet." description="The five most recent submissions will appear here." /> : <table className="admin-recent-table" aria-labelledby="recent-applications-title" role="table">
           <thead><tr><th scope="col">Applicant</th><th scope="col">Reference</th><th scope="col">Status</th><th scope="col">Submitted · Philippine time</th></tr></thead>
           <tbody role="rowgroup">{applications.items.slice(0, 5).map(item => <tr key={item.id} role="row">
-            <td role="cell"><strong>{item.name}</strong></td>
+            <td role="cell">
+              <div className="admin-recent-identity"><strong>{item.name}</strong><span className="admin-recent-compact"><StatusBadge status={item.status} /></span></div>
+              <div className="admin-recent-compact admin-recent-meta">
+                <span>{item.reference}</span><time dateTime={item.submittedAt}>{formatDate(item.submittedAt)}</time>
+              </div>
+            </td>
             <td role="cell" data-label="Reference">{item.reference}</td>
             <td role="cell" data-label="Status"><StatusBadge status={item.status} /></td>
             <td role="cell" data-label="Submitted"><time dateTime={item.submittedAt ?? undefined}>{formatDate(item.submittedAt)}</time></td>

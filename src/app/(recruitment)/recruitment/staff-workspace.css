@@ -41,6 +41,88 @@
   :focus-visible { outline: 3px solid #965500; outline-offset: 3px; }
   :is(.workspace-help, .workspace-disclosure) > summary { min-height: 44px; padding-block: 8px; cursor: pointer; }
   .workspace-disclosure { border-top: 1px solid var(--staff-rule); }
+  :is(.queue-counts-toggle, .workspace-disclosure-card > summary) {
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: var(--foreground);
+    text-align: start;
+  }
+  .workspace-disclosure-card {
+    min-width: 0;
+    border: 1px solid var(--staff-rule);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .workspace-disclosure-card > summary {
+    display: flex;
+    padding: 8px 12px;
+    border-radius: inherit;
+    font-size: .9375rem;
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .workspace-disclosure-card > summary::marker { content: ""; }
+  .workspace-disclosure-card > summary::-webkit-details-marker { display: none; }
+  .workspace-disclosure-card > summary:hover { background: var(--surface-alt); }
+  .workspace-disclosure-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--color-process-selected);
+    color: var(--admin-accent-ink, #965500);
+  }
+  .workspace-disclosure-chevron { flex: none; margin-inline-start: auto; }
+  .queue-counts-toggle[aria-expanded="true"] .workspace-disclosure-chevron,
+  .workspace-disclosure-card[open] > summary .workspace-disclosure-chevron { transform: rotate(90deg); }
+  .record-communication > .applicant-outreach { padding: var(--staff-card); border-top: 1px solid var(--staff-rule); }
+  .applicant-outreach {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .outreach-addresses {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: 8px;
+    margin: 0;
+  }
+  .outreach-addresses > div {
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--staff-rule);
+    border-radius: 9px;
+    background: var(--surface-alt);
+  }
+  .outreach-addresses dt { color: var(--muted); font-size: .8125rem; }
+  .outreach-addresses dd { margin: 3px 0 0; font-size: .875rem; font-weight: 600; }
+  .outreach-addresses dd span { display: block; font-weight: 400; }
+  .applicant-outreach :is(.callout, .outreach-compose fieldset) { margin: 0; }
+  .applicant-outreach .outreach-compose fieldset { min-width: 0; gap: 12px; }
+  .outreach-compose legend { padding: 0; margin-bottom: 8px; font-size: 1rem; font-weight: 650; }
+  .outreach-compose .field { min-width: 0; margin: 0; }
+  .outreach-compose :is(input, select, textarea) { width: 100%; }
+  .outreach-compose :is(.callout, .outreach-actions) { margin-top: 12px; }
+  .outreach-actions .button, .outreach-deliveries header button { display: inline-flex; align-items: center; gap: 6px; }
+  .outreach-actions svg, .outreach-deliveries svg { flex: none; }
+  .outreach-deliveries { padding-top: 8px; border-top: 1px solid var(--staff-rule); }
+  .outreach-deliveries header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 10px; }
+  .outreach-deliveries h3 { margin: 0; font-size: 1rem; }
+  .outreach-message-list { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+  .outreach-message-list details { border: 1px solid var(--staff-rule); border-radius: 8px; }
+  .outreach-message-list details > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; }
+  .outreach-message-list summary::marker { content: ""; }
+  .outreach-message-list summary::-webkit-details-marker { display: none; }
+  .outreach-message-list details[open] .outreach-history-chevron { transform: rotate(90deg); }
+  .outreach-message-title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: .875rem; }
+  .outreach-message-title time { flex-basis: 100%; color: var(--muted); font-size: .75rem; font-weight: 400; }
+  .outreach-message-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .outreach-message-list .outreach-message-body { margin: 0; padding: 10px; border-top: 1px solid var(--staff-rule); }
+  .outreach-review h3 { font-size: 1rem; }
   .staff-history-list li { padding: 16px; border: 1px solid var(--staff-rule); border-radius: 12px; background: var(--surface-alt); }
   .staff-history-list .subheading { gap: 8px 16px; flex-wrap: wrap; }
   .staff-history-list time { color: var(--muted); font-size: .8125rem; }
@@ -77,13 +159,160 @@
     border-radius: 22px;
     background: var(--surface-alt);
   }
-  .workspace-reviewer .evaluation-list-item { min-height: 44px; }
+  .workspace-reviewer .evaluation-list-item { min-height: 44px; gap: 4px; }
+  .workspace-reviewer .application-row-heading { flex-wrap: wrap; gap: 4px 8px; }
+  .workspace-reviewer .evaluation-list-item > .reviewer-card-role { font-size: .875rem; }
+  .reviewer-card-meta { display: flex; flex-wrap: wrap; gap: 2px 8px; }
+  :is(.reviewer-card-meta, .reviewer-card-cue) { color: var(--muted); }
+  .reviewer-card-cue { font-weight: 600; }
   .workspace-reviewer .evaluation-list-item:hover { background: var(--surface-alt); }
   .workspace-reviewer .evaluation-list-item[aria-pressed="true"] { background: var(--color-process-selected); border-inline-start-color: #a65d00; }
   .workspace-reviewer .evaluation-list-item:focus-visible { outline-offset: -4px; }
   .workspace-reviewer .evaluation-list-item:first-child { border-start-start-radius: 15px; border-start-end-radius: 15px; }
   .workspace-reviewer .evaluation-list-item:last-child { border-end-start-radius: 15px; border-end-end-radius: 15px; border-bottom: 0; }
   .workspace-reviewer .workspace-skeleton-reviewer { width: 100%; padding: var(--staff-card); border: 1px solid var(--staff-rule); }
+}
+
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  .alpha-app .workspace-disclosure-chevron { transition: transform var(--dur-micro) var(--ease-out); }
+}
+
+@media (forced-colors: active) {
+  .alpha-app .workspace-disclosure-icon { outline: 1px solid CanvasText; outline-offset: -1px; }
+}
+
+/* Applicant records share one reading layout across the two staff roles. */
+.alpha-app .recruitment-process .workspace-evaluation .workspace-detail {
+  --record-tabs-top: var(--site-header-height, 0px);
+  --record-section-offset: calc(var(--record-tabs-top) + 12px);
+  --record-tint: #faf7f3;
+  --record-gap: 12px;
+  overflow-wrap: anywhere;
+
+  .workspace-back { margin-bottom: 8px; }
+  .record-identity {
+    margin: 0;
+    padding: 14px var(--staff-card) 8px;
+    border: 1px solid var(--staff-rule);
+    border-radius: 12px;
+    background: var(--record-tint);
+  }
+  .record-identity .subheading { margin: 0 0 6px; }
+  .record-identity h2 { margin: 0; }
+  .record-identity .record-opportunity { margin: 0; font-size: .9375rem; font-weight: 600; }
+  .record-identity-meta, .record-event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    color: var(--muted);
+    font-size: .8125rem;
+  }
+  .record-identity-meta { margin-top: 4px; }
+  .record-identity-meta .application-reference { margin: 0; }
+  .record-reload { display: inline-flex; align-items: center; gap: 6px; }
+  .record-communication { margin: 0; }
+  .evaluation-detail > div:not([hidden]), .record-review, .record-review-group, .record-history {
+    display: grid;
+    min-width: 0;
+    gap: var(--record-gap);
+  }
+  .record-sections { scroll-margin-block-start: var(--record-section-offset); }
+  .record-tabs {
+    gap: 4px;
+    padding: 4px;
+    margin: 0 0 var(--record-gap);
+    border: 1px solid var(--staff-rule);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .record-tabs button {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    white-space: normal;
+  }
+  .record-tabs button[aria-selected="true"] {
+    border-color: var(--staff-rule);
+    background: var(--color-process-selected);
+    color: var(--foreground);
+    box-shadow: inset 0 -2px var(--accent-ink);
+  }
+
+  .evaluation-answers { max-width: none; margin: 0; }
+  .evaluation-answers > h2 { margin-block: 0 8px; font-size: 1.125rem; }
+  .staff-application-content { display: grid; gap: var(--record-gap); }
+  .record-jump-links, .record-evidence-links { display: flex; flex-wrap: wrap; gap: 6px; }
+  .record-jump-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 5px 10px;
+    border: 1px solid var(--staff-rule);
+    border-radius: 9px;
+    color: var(--foreground);
+    font-size: .8125rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .record-jump-links a:hover { background: var(--surface-alt); }
+  .staff-application-content .review-section, .record-card {
+    min-width: 0;
+    margin: 0;
+    padding: clamp(12px, 2vw, 20px);
+    border: 1px solid var(--staff-rule);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .staff-application-content :is(.subheading, .subheading h3), .record-card :is(h2, h3) { margin-block: 0 8px; }
+  .staff-application-content h3, .record-card :is(h2, h3) { font-size: 1.0625rem; }
+  .staff-application-content h3, .record-card :is(input, select, textarea, h2) { scroll-margin-block-start: var(--record-section-offset); }
+  .staff-application-content .details-grid, .record-decision-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 8px;
+    margin: 0;
+  }
+  :is(.staff-application-content .details-grid, .record-decision-summary) > div {
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--staff-rule);
+    border-radius: 8px;
+    background: var(--record-tint);
+  }
+  :is(.staff-application-content .details-grid, .record-decision-summary) dt { color: var(--muted); font-size: .8125rem; line-height: 1.4; }
+  :is(.staff-application-content .details-grid, .record-decision-summary) dd { margin: 2px 0 0; line-height: 1.5; font-size: .9375rem; font-weight: 600; }
+  .staff-application-content .selected-opportunity { margin: 0; }
+  .staff-application-content .response-block {
+    margin: 8px 0 0;
+    padding: 12px;
+    border: 1px solid var(--staff-rule);
+    border-radius: 9px;
+    background: var(--surface-alt);
+  }
+  .staff-application-content .response-block h4 { margin: 0 0 7px; font-size: .9375rem; line-height: 1.45; }
+  .staff-application-content .response-block p { margin: 0; color: var(--foreground); max-width: 70ch; white-space: pre-line; }
+  .record-evidence-links a { display: inline-flex; align-items: center; gap: 6px; min-width: 0; text-decoration: none; }
+  .record-evidence-links a svg { flex: none; }
+  .record-event-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; }
+  .record-event-title time { color: var(--muted); font-size: .8125rem; }
+  .record-event-title h3 { margin: 0; }
+  .record-event-meta { margin: 4px 0 6px; }
+  .record-card .evaluation-note { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .record-events { display: grid; gap: 8px; margin-block: 8px; }
+  .record-events li { padding: 10px 12px; }
+  .record-events li p:last-child { margin-bottom: 0; }
+}
+
+.alpha-app .recruitment-process[data-workspace-frame="administrator"] .workspace-evaluation .workspace-detail { --record-tabs-top: 0px; }
+
+@media (forced-colors: active) {
+  .alpha-app .recruitment-process .workspace-evaluation .workspace-detail .record-tabs button[aria-selected="true"] {
+    border-color: Highlight;
+    outline: 1px solid Highlight;
+    outline-offset: -2px;
+  }
 }
 .alpha-app .recruitment-process[data-workspace-frame="staff"] {
   .staff-auth-page { padding: 24px var(--staff-gutter); }

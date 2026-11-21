@@ -5,7 +5,7 @@ import { readFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertEnlargedProcess } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertEnlargedProcess, watchWorkspaceEntrance, assertWorkspaceEntrance, assertResponsiveEntrances } from "../fixtures/browser-motion.mjs";
 const require = createRequire(import.meta.url), project = fileURLToPath(new URL("../../", import.meta.url));
 const { transform, loadBindings } = require("next/dist/build/swc");
 await loadBindings();
@@ -21,7 +21,7 @@ modules.set("next/link", "exports.__esModule=true;exports.default=props=>require
 modules.set("next/image", "exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
 modules.set("next/navigation", "exports.usePathname=()=>window.testPath||'/recruitment/admin';exports.useSelectedLayoutSegments=()=>(window.testPath||'/recruitment/admin').split('/').filter(Boolean).slice(1);exports.useRouter=()=>({refresh:()=>window.refreshes++});");
 modules.set("@/app/(recruitment)/recruitment/auth/actions", "exports.signOut=async()=>{window.signOutCalls=(window.signOutCalls||0)+1};exports.startApplication=async()=>{};");
-await installBrowserMotion(modules); await installRecruitmentUI(modules);
+await installBrowserMotion(modules, { realEntrances: true }); await installRecruitmentUI(modules);
 for (const [name, pkg, file] of [["react","react","react.development.js"],["react/jsx-runtime","react","react-jsx-runtime.development.js"],["react-dom","react-dom","react-dom.development.js"],["react-dom/client","react-dom","react-dom-client.development.js"],["scheduler","scheduler","scheduler.development.js"]]) modules.set(name, await readFile(path.join(path.dirname(require.resolve(pkg + "/package.json")), "cjs", file), "utf8"));
 modules.set("./drafts.ts", modules.get("@/recruitment/lib/drafts"));
 modules.set("@/recruitment/lib/community-client", "exports.communityRead=()=>new Promise((resolve,reject)=>{window.completeActivity=resolve;window.failActivity=()=>reject(Error('Synthetic activity failure'))});");
@@ -50,7 +50,46 @@ try {
   });
   await page.goto("https://admin.example.test"); await page.addScriptTag({content:bundle});
   const data = { applications:{role:"administrator",queue:{total:36,statusCounts:{"Submitted":20,"Under Review":8,"Accepted":4,"Waitlisted":2,"Not Selected":1,"Withdrawn":1}},items:Array.from({length:25},(_,index)=>({id:String(index),name:"Synthetic applicant "+index,reference:"ALPHA-2026-SYNTHETIC",submittedAt:"2026-11-16T00:00:00Z",status:"Submitted"}))},staff:[{status:"active"},{status:"active"},{status:"suspended"}],intake:{state:"open",accepting:true,opensAt:"2026-11-15T00:00:00Z",closesAt:"2026-11-30T00:00:00Z"} };
-  await page.evaluate(data=>window.mount(data),data); await page.getByRole("heading",{name:"Overview",exact:true}).waitFor();
+  const overviewMotion = ".admin-metrics, .admin-status-overview";
+  const activityMotion = ".community-security";
+  const activityRows = ".admin-activity-table-wrap";
+  await assertResponsiveEntrances(page, async () => {
+    await watchWorkspaceEntrance(page, overviewMotion);
+    await page.evaluate(data => window.mount(data), data);
+    await assertWorkspaceEntrance(page, overviewMotion);
+    await watchWorkspaceEntrance(page, ".member-workspace > section");
+    await page.evaluate(() => window.mountMembers());
+    await assertWorkspaceEntrance(page, ".member-workspace > section");
+    await watchWorkspaceEntrance(page, ".community-member-form");
+    await page.getByRole("button", { name: "Add existing member", exact: true }).click();
+    await assertWorkspaceEntrance(page, ".community-member-form");
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    await watchWorkspaceEntrance(page, activityMotion);
+    await page.evaluate(() => window.mountActivity());
+    await assertWorkspaceEntrance(page, activityMotion);
+    await watchWorkspaceEntrance(page, activityRows);
+    await page.getByRole("button", { name: "Load latest activity", exact: true }).click();
+    await page.locator("main .workspace-loading").waitFor();
+    await page.evaluate(() => window.completeActivity([
+      { id: "synthetic-motion", action: "membership.profile_updated", object_id: "synthetic-record", created_at: "2026-11-17T00:00:00Z" },
+    ]));
+    await assertWorkspaceEntrance(page, activityRows);
+    await watchWorkspaceEntrance(page, activityRows);
+    const filter = page.getByRole("searchbox", { name: "Filter loaded activity" });
+    await filter.fill("absent");
+    await filter.fill("");
+    await page.locator(activityRows).waitFor();
+    assert.equal(await page.evaluate(() => window.workspaceEntranceSeen), false, "Filtering does not replay the results entrance");
+  });
+  for (const media of [{ reducedMotion: "reduce" }, { reducedMotion: "no-preference", forcedColors: "active" }]) {
+    await page.emulateMedia(media);
+    await watchWorkspaceEntrance(page, overviewMotion);
+    await page.evaluate(data => window.mount(data), data);
+    await page.getByRole("heading", { name: "Overview", exact: true }).waitFor();
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await page.evaluate(() => window.workspaceEntranceSeen), false);
+  }
+  await page.emulateMedia({ reducedMotion: "no-preference", forcedColors: "none" });
   const metrics = page.locator(".admin-metrics .admin-metric-value");
   const intakePanel = page.getByRole("region",{name:"Intake",exact:true});
   const staffPanel = page.getByRole("region",{name:"Active staff",exact:true});
@@ -70,8 +109,24 @@ try {
 
 
   await page.getByRole("button",{name:"Refresh overview"}).click();assert.equal(await page.evaluate(()=>window.refreshes),1);
+  const legend = page.locator('.admin-status-legend');
+  const legendToggle = page.getByRole('button',{name:'Application status',exact:true});
+  const recentRows = page.getByRole('table',{name:'Recent applications'});
   for(const width of [320,375,768,1024,1280,1440,1920]){
     await page.setViewportSize({width,height:950});await assertRecruitmentSurface(page,"Admin overview "+width);
+    assert.equal(await legend.isVisible(),width>=768);
+    assert.equal(await legendToggle.isVisible(),width<768);
+    assert.equal(await recentRows.locator('.admin-recent-meta').first().isVisible(),width<768);
+    assert.equal(await recentRows.getByRole('button').count(),0);
+    if(width===375){
+      assert.equal(await page.locator('.admin-status-track').isVisible(),true);
+      await legendToggle.focus();await page.keyboard.press('Enter');
+      assert.equal(await legendToggle.getAttribute('aria-expanded'),'true');
+      assert.equal(await legend.isVisible(),true);
+      assert.equal(await legend.locator('a,button').count(),0);
+      await page.keyboard.press('Space');
+      assert.equal(await legend.isVisible(),false);
+    }
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     assert.equal(await page.locator('.admin-shell').evaluate(node=>getComputedStyle(node).borderRadius),width<768?'22px':'28px');
     const pagePadding=await page.locator('.admin-page').evaluate(node=>getComputedStyle(node).paddingInlineStart);
@@ -160,6 +215,7 @@ try {
   await accountTrigger.focus();
   await page.keyboard.press('Enter');
   await accountPopup.waitFor();
+  assert.equal(await accountPopup.evaluate(node => getComputedStyle(node).animationName), 'admin-popover-enter');
   const desktopPopup = await accountPopup.boundingBox();
   assert.ok(desktopPopup.x>=accountBefore.x+accountBefore.width);
   assert.ok(Math.abs(desktopPopup.y+desktopPopup.height-accountBefore.y-accountBefore.height)<=1);
@@ -193,7 +249,10 @@ try {
   const mobileMenu = page.getByRole('button',{name:'Admin sections',exact:true});
   await mobileMenu.hover();
   await page.waitForFunction(() => getComputedStyle(document.querySelector('.admin-mobile-bar button')).backgroundColor === 'rgb(70, 51, 79)');
+  const mobileDrawer = "dialog.admin-navigation-drawer[open]";
+  await watchWorkspaceEntrance(page, mobileDrawer);
   await mobileMenu.click();
+  await assertWorkspaceEntrance(page, mobileDrawer);
   const drawer = page.getByRole('dialog',{name:'Admin sections'});
   await assertOrangeNavigation(drawer.getByRole('navigation',{name:'Admin sections'}));
   const mobileAccount=drawer.locator('.admin-account');
@@ -301,6 +360,7 @@ try {
   ]));
   const activityTable=page.getByRole('table',{name:'Activity log'});
   await activityTable.waitFor();
+  assert.equal(await activityTable.getByRole('button').count(),0);
   assert.deepEqual(await activityTable.getByRole('columnheader').allTextContents(),['Event','Reference','Philippine time']);
   await activityTable.getByText('Nov 17, 2026, 8:00 AM',{exact:true}).waitFor();
   await activityFilter.fill('APPLICATION.UNDER_REVIEW');
@@ -326,5 +386,5 @@ try {
     await page.getByRole('button',{name:'Cancel',exact:true}).click();
   }
 
-  assert.deepEqual(errors,[]);console.log('Admin overview, all eight loading views, navy canvas, reduced motion, delayed activity reads, refresh retention, responsive navigation and keyboard checks passed.');
+  assert.deepEqual(errors,[]);console.log('Admin overview, members and activity entrances, all eight loading views, navy canvas, motion preferences, delayed activity reads, refresh retention, responsive navigation and keyboard checks passed.');
 } finally { await browser.close(); }

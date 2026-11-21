@@ -148,6 +148,15 @@ export function Icon({
     </svg>
   );
 }
+
+export function WorkspaceDisclosureLabel({ icon, children }: { icon: string; children: ReactNode }) {
+  return <>
+    <span className="workspace-disclosure-icon"><Icon name={icon} size={18} /></span>
+    {children}
+    <Icon name="chevron" size={16} className="workspace-disclosure-chevron" />
+  </>;
+}
+
 type HeaderStaff = { role: StaffRole; status: StaffStatus; needsMfa: boolean };
 type WorkspaceFrame = "applicant" | "administrator" | "evaluator" | "staff";
 function useWorkspaceFrame(): WorkspaceFrame | undefined {
@@ -454,6 +463,7 @@ export function Modal({
   dismissible = true,
   active = true,
   className,
+  workspaceDrawer = false,
 }: {
   title: string;
   headerContent?: ReactNode;
@@ -462,6 +472,7 @@ export function Modal({
   dismissible?: boolean;
   active?: boolean;
   className?: string;
+  workspaceDrawer?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -479,7 +490,9 @@ export function Modal({
     },
     { scope: ref, dependencies: [active], revertOnUpdate: true },
   );
-  useEntrance(ref, { duration: motionPresets.dialog, allowFocused: true });
+  useEntrance(ref, workspaceDrawer
+    ? { preset: "workspace-drawer", enabled: active, allowFocused: true }
+    : { duration: motionPresets.dialog, allowFocused: true });
   return (
     <dialog
       ref={ref}

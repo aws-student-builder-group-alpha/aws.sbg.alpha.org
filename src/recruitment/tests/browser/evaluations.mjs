@@ -1,7 +1,7 @@
 import {recruitmentStyleShell} from "../fixtures/recruitment-build.mjs";
 // Actual components, HTTP authorization, transport and SQL; synthetic identity/navigation/motion only.
 import assert from "node:assert/strict";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance, watchWorkspaceEntrance, assertWorkspaceEntrance, assertResponsiveEntrances } from "../fixtures/browser-motion.mjs";
 import { readFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -26,7 +26,7 @@ for(const [name,pkg,file] of [["react","react","react.development.js"],["react/j
 modules.set("next/link","exports.__esModule=true;exports.default=props=>require('react/jsx-runtime').jsx('a',props);");
 modules.set("next/image","exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
 modules.set("next/navigation","exports.usePathname=()=>window.shellPath||'/recruitment/admin/applications';exports.useSelectedLayoutSegments=()=>(window.shellPath||'/recruitment/admin/applications').split('/').filter(part=>part&&part!=='recruitment');");modules.set("@/app/(recruitment)/recruitment/auth/actions","exports.signOut=async()=>{};");
-await installBrowserMotion(modules);
+await installBrowserMotion(modules, { realEntrances: true });
 await installRecruitmentUI(modules);
 const bundle=`(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([n,c])=>JSON.stringify(n)+":function(module,exports,require){"+c+"\n}").join(",")}};const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked module: '+name);const m=cache[name]={exports:{}};modules[name](m,m.exports,require);}return cache[name].exports;}const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let version=0;window.mount=props=>{window.shellPath=props.initialList.role==='administrator'?'/recruitment/admin/applications':'/recruitment/reviewer';root.render(jsx(require('recruitment-test-frame').Frame,{frame:props.initialList.role,staff:{role:props.initialList.role,status:'active',needsMfa:false},children:jsx(require('./access-guard').AccessGuard,{accountId:props.accountId,expected:props.initialList.role,children:jsx(require('workspace').EvaluationWorkspace,props)})},String(++version)));};})();`;
 const origin="https://evaluations.example.test",runtime=await evaluationRuntime(origin),created=await runtime.createApplication();
@@ -42,6 +42,13 @@ try{
   if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css",body:await readFile(path.join(buildDirectory,url.pathname.replace(/^\/recruitment(?=\/_next\/)/,"").slice("/_next/".length)))});
   if(url.pathname.startsWith("/recruitment/brand/"))return route.fulfill({body:await readFile(path.join(project,"../../public",url.pathname))});
   if(url.pathname==="/recruitment/api/access")return route.fulfill({json:faults.access||await runtime.access()});
+  if(url.pathname==="/recruitment/api/community"){
+   if(incoming.method()==="POST"){
+    (faults.emailSends ??= []).push(incoming.postDataJSON());
+    return route.fulfill({json:{ok:true,data:{state:"uncertain"}}});
+   }
+   return route.fulfill({json:{ok:true,data:{items:[],emailReady:true}}});
+  }
   if(!["/recruitment/api/evaluations","/recruitment/api/decisions"].includes(url.pathname))return route.fulfill({contentType:"text/html",body:`<html lang="en" data-theme="light"><head>${styles.map(s=>`<link rel="stylesheet" href="${s}">`).join("")}</head><body class="alpha-app"><div id="root"></div></body></html>`});
   if(faults.detailUnavailable&&url.searchParams.get("mode")==="detail")return route.fulfill({status:503,json:{ok:false,code:"UNAVAILABLE",message:"Synthetic detail outage"}});
   const body=incoming.method()==="POST"?JSON.parse(incoming.postData()):null;if(body)faults.posts.push(body);
@@ -56,7 +63,46 @@ try{
  async function layout(label){await assertRecruitmentSurface(page,label);for(const colorScheme of ["light","dark"])for(const width of [320,375,414,768,1024,1440]){await page.setViewportSize({width,height:1000});await page.emulateMedia({colorScheme});await assertProcessAppearance(page,".recruitment-process",label);assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),"light");assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,label+" "+width);const dialog=page.getByRole("dialog");if(await dialog.count())assert.equal(await dialog.evaluate(n=>n.scrollWidth>n.clientWidth+1),false,label+" dialog "+width);}}
  async function directAssign(person,reason){runtime.as(runtime.admin);const d=await runtime.rpc("evaluation_detail",{p_application_id:created.app.id});const result=await runtime.rpc("manage_evaluation",{p_request:{action:"assign",applicationId:created.app.id,evaluatorId:person.id,expectedApplicationVersion:d.application.version,expectedAssignmentId:d.assignment?.id??null,reason,mutationId:crypto.randomUUID()}});return result;}
  await mount(runtime.admin);await choose();await assertInlineFailure(page,"Review evaluator assignment","evaluation-person");await page.getByLabel("Evaluator",{exact:true}).selectOption(runtime.first.id);await page.getByLabel("Assignment reason (optional)").fill("??".repeat(501));await assertInlineFailure(page,"Review evaluator assignment","assignment-reason");await assertEnlargedProcess(page,"assignment-reason");await page.getByLabel("Assignment reason (optional)").fill("");await page.getByRole("button",{name:"Review evaluator assignment",exact:true}).click();await page.getByRole("dialog").waitFor();await layout("assignment confirmation");await page.keyboard.press("Escape");await page.getByRole("dialog").waitFor({state:"detached"});await page.getByRole("button",{name:"Review evaluator assignment",exact:true}).click();await page.getByRole("button",{name:"Confirm assignment",exact:true}).click();await page.getByText("Evaluator assignment confirmed.",{exact:true}).waitFor();assert.equal((await runtime.rpc("evaluation_detail",{p_application_id:created.app.id})).application.status,"Under Review");passed.push("initial assignment, public transition, native dialog keyboard and responsive layout");
- await mount(runtime.first);await choose();await page.setViewportSize({width:375,height:812});
+ await assertResponsiveEntrances(page, async () => {
+   const overview = ".workspace-queue-overview";
+   const summary = "[data-record-summary]";
+   await watchWorkspaceEntrance(page, overview);
+   await mount(runtime.first);
+   await assertWorkspaceEntrance(page, overview);
+   await watchWorkspaceEntrance(page, summary);
+   await page.locator(".evaluation-list-item").filter({ hasText: created.app.reference }).click();
+   await assertWorkspaceEntrance(page, summary);
+ });
+ passed.push("evaluator queue and new record summary enter on desktop and phone");
+ await mount(runtime.first);
+ await page.setViewportSize({width:375,height:812});
+ const row=page.locator('.evaluation-list-item').filter({hasText:created.app.reference});
+ await row.locator('.reviewer-card-meta time').waitFor();
+ assert.equal(await row.locator('.reviewer-card-cue').textContent(),'Recommendation needed');
+ await choose();
+ const communication=page.locator('.record-communication'), disclosure=communication.locator(':scope > summary');
+ assert.equal(await communication.evaluate(node=>node.open),false);
+ await page.getByRole('tab',{name:'Application',exact:true}).click();
+ await page.getByRole('tabpanel',{name:'Application',exact:true}).getByRole('link',{name:'Download proof of enrollment',exact:true}).waitFor();
+ await disclosure.focus();await page.keyboard.press('Enter');
+ const subject=communication.getByLabel('Subject',{exact:true});
+ await subject.fill('Synthetic evaluator email');
+ await communication.getByLabel('Calendly scheduling link').fill('https://calendly.com/alpha/interview');
+ await disclosure.click();
+ await page.getByRole('tab',{name:'Recommendation',exact:true}).click();
+ await disclosure.click();
+ assert.equal(await subject.inputValue(),'Synthetic evaluator email');
+ await communication.getByRole('button',{name:'Review and send email',exact:true}).click();
+ const emailReview=page.getByRole('dialog',{name:'Review email',exact:true});
+ await emailReview.getByText('https://calendly.com/alpha/interview').waitFor();
+ await emailReview.getByRole('button',{name:'Send email',exact:true}).click();
+ const retryEmail=communication.getByRole('button',{name:'Check same email request',exact:true});
+ await retryEmail.waitFor();
+ await disclosure.click();await disclosure.click();
+ await retryEmail.click();await until(()=>faults.emailSends?.length===2);
+ assert.deepEqual(faults.emailSends[0],faults.emailSends[1]);
+ await disclosure.click();
+ passed.push('evaluator communication preserves a draft and retries the same synthetic email across tabs and disclosure changes');
  const before=faults.posts.length;await assertInlineFailure(page,'Save recommendation','evaluation-recommendation');await page.getByRole('combobox',{name:'Recommendation',exact:true}).selectOption('Accepted');await page.getByLabel('Private notes (optional)').fill('??'.repeat(5001));await assertInlineFailure(page,'Save recommendation','evaluation-notes');await assertEnlargedProcess(page,'evaluation-notes');await page.getByRole('combobox',{name:'Recommendation',exact:true}).selectOption('');await page.getByLabel('Private notes (optional)').fill('Preserved evaluator input');
  await page.setViewportSize({width:375,height:812});
  const recommendationTab=page.getByRole('tab',{name:'Recommendation',exact:true});await recommendationTab.focus();await page.keyboard.press('Home');assert.equal(await page.getByRole('tab',{name:'Application',exact:true}).getAttribute('aria-selected'),'true');await page.keyboard.press('End');assert.equal(await page.getByRole('tab',{name:'Previous reviews',exact:true}).getAttribute('aria-selected'),'true');await page.keyboard.press('ArrowLeft');

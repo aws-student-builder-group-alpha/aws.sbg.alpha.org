@@ -14,7 +14,6 @@ import {
 	Shield,
 	X,
 } from "lucide-react"
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
 import SignOutModal from "@/components/sign-out-modal"
@@ -34,7 +33,6 @@ export default function Navigation({
 	initialAuth,
 }: NavigationProps = {}) {
 	const pathname = usePathname()
-    const reducedMotion = useReducedMotion()
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 	const [observedSection, setActiveSection] = useState("")
 	const [isInHero, setIsInHero] = useState(pathname === "/")
@@ -50,12 +48,13 @@ export default function Navigation({
 			initialAuth?.role === 'super-admin',
 	)
 	const [isAccountOpen, setIsAccountOpen] = useState(false)
-	const [showSignOutModal, setShowSignOutModal] = useState(false)
+	const [signOutSource, setSignOutSource] = useState<"desktop" | "mobile" | null>(null)
 	const [isSigningOut, setIsSigningOut] = useState(false)
 	const navRef = useRef<HTMLElement>(null)
 	const accountRef = useRef<HTMLDivElement>(null)
+	const mobileMenu = useRef<HTMLDialogElement>(null)
+	const mobileToggle = useRef<HTMLButtonElement>(null)
 	const pageLinks = MAIN_PAGE_LINKS
-	const mobileLinks = PRIMARY_NAV_LINKS
 
 	useEffect(() => {
 		const supabase = getSupabaseBrowserClient()
@@ -184,15 +183,6 @@ export default function Navigation({
 	}, [pathname])
 
 	useEffect(() => {
-		document.body.style.overflow = isMobileMenuOpen
-			? "hidden"
-			: ""
-		return () => {
-			document.body.style.overflow = ""
-		}
-	}, [isMobileMenuOpen])
-
-	useEffect(() => {
 		const handleOutsideClick = (event: MouseEvent) => {
 			const target = event.target as Node
 			if (accountRef.current && !accountRef.current.contains(target)) {
@@ -206,20 +196,42 @@ export default function Navigation({
 		}
 	}, [])
 
-	const closeMobileMenu = useCallback(() => {
-        document.body.style.overflow = ""
-		setIsMobileMenuOpen(false)
+	const openMobileMenu = useCallback(() => {
+		const dialog = mobileMenu.current
+		if (!dialog || dialog.open || !mobileToggle.current?.getClientRects().length) return
 		setIsAccountOpen(false)
+		dialog.showModal()
+		setIsMobileMenuOpen(true)
 	}, [])
+
+	const closeMobileMenu = useCallback(() => {
+		mobileMenu.current?.close()
+		setIsMobileMenuOpen(false)
+		mobileToggle.current?.focus({ preventScroll: true })
+	}, [])
+
+	useEffect(() => {
+		const dialog = mobileMenu.current
+		const desktop = window.matchMedia("(min-width: 80rem)")
+		const closeOnDesktop = () => {
+			if (!desktop.matches || !dialog?.open) return
+			closeMobileMenu()
+			navRef.current?.querySelector<HTMLElement>(".alpha-navigation-links a")?.focus({ preventScroll: true })
+		}
+		desktop.addEventListener("change", closeOnDesktop)
+		return () => {
+			desktop.removeEventListener("change", closeOnDesktop)
+			dialog?.close()
+		}
+	}, [pathname, closeMobileMenu])
 
 	const promptSignOut = useCallback(() => {
 		setIsAccountOpen(false)
-		setShowSignOutModal(true)
+		setSignOutSource("desktop")
 	}, [])
 
 	const handleSignOut = useCallback(async () => {
 		setIsSigningOut(true)
-		setIsMobileMenuOpen(false)
 		setAccountLabel("Account")
 		const { signOutAction } = await import("@/actions/sign-out")
 		await signOutAction()
@@ -375,23 +387,16 @@ export default function Navigation({
 
 						<div className="flex justify-end ml-auto xl:hidden">
 							<button
-								onClick={() =>
-									setIsMobileMenuOpen(!isMobileMenuOpen)
-								}
-								className={`relative z-[60] p-2 transition-colors ${
-									isMobileMenuOpen
-										? "text-white"
-										: `${textColor} ${hoverColor}`
-								}`}
-								aria-label="Toggle menu"
+								ref={mobileToggle}
+								type="button"
+								onClick={openMobileMenu}
+								className={`inline-grid size-11 place-items-center transition-colors ${textColor} ${hoverColor}`}
+								aria-label="Open menu"
+								aria-haspopup="dialog"
 								aria-expanded={isMobileMenuOpen}
-								aria-controls='mobile-navigation'
+								aria-controls="mobile-navigation"
 							>
-								{isMobileMenuOpen ? (
-									<X size={24} />
-								) : (
-									<Menu size={24} />
-								)}
+								<Menu size={24} strokeWidth={1.6} aria-hidden="true" />
 							</button>
 						</div>
 					</div>
@@ -399,140 +404,55 @@ export default function Navigation({
 				</div>
 			</nav>
 
-			<AnimatePresence>
-				{isMobileMenuOpen && (
-					<motion.div
-						initial={reducedMotion ? false : { clipPath: "circle(0% at 95% 3%)" }}
-						animate={{
-							clipPath: "circle(150% at 95% 3%)",
-						}}
-						exit={reducedMotion ? undefined : { clipPath: "circle(0% at 95% 3%)" }}
-						transition={{
-							duration: reducedMotion ? 0 : 0.6,
-							ease: [0.77, 0, 0.175, 1],
-						}}
-						id='mobile-navigation'
-                        onKeyDown={event => { if (event.key === "Escape") { closeMobileMenu(); navRef.current?.querySelector<HTMLButtonElement>('[aria-controls="mobile-navigation"]')?.focus() } }}
-						className="fixed inset-0 z-[55] overflow-y-auto bg-[#232f3e] flex flex-col items-center py-24"
-					>
-						<button
-							onClick={closeMobileMenu}
-							className="absolute top-5 right-5 p-2 text-white hover:text-[#ff9900] transition-colors"
-							aria-label="Close menu"
-						>
-							<X size={28} />
-						</button>
+			<dialog
+				ref={mobileMenu}
+				id="mobile-navigation"
+				className="alpha-mobile-navigation"
+				aria-label="Main navigation menu"
+				data-lenis-prevent
+				onCancel={event => { event.preventDefault(); closeMobileMenu() }}
+				onClose={() => { if (!mobileMenu.current?.open) setIsMobileMenuOpen(false) }}
+			>
+				<button type="button" className="alpha-mobile-close" aria-label="Close menu" onClick={closeMobileMenu}>
+					<X size={28} strokeWidth={1.6} aria-hidden="true" />
+				</button>
 
-						<div className="my-auto flex shrink-0 flex-col items-center gap-5 sm:gap-7">
-							{mobileLinks.map((link, i) => (
-								<motion.a
-									key={link.href}
-									href={link.href}
-									onClick={closeMobileMenu}
-									initial={reducedMotion ? false : { y: 40, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									transition={{
-										delay: reducedMotion ? 0 : 0.15 + i * 0.07,
-										duration: reducedMotion ? 0 : 0.45,
-										ease: [0.25, 1, 0.5, 1],
-									}}
-									className="inline-flex min-h-11 items-center text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
-								>
-									{link.label}
-								</motion.a>
-							))}
+				<div className="alpha-mobile-links">
+					{PRIMARY_NAV_LINKS.map(link => (
+						<a key={link.href} href={link.href} onClick={closeMobileMenu}
+							aria-current={pathname === link.href ? "page" : undefined}>
+							{link.label}
+						</a>
+					))}
+				</div>
 
-							{isAuthenticated ? (
-								<>
-									{isAdmin && (
-										<motion.a
-											href="/admin"
-											onClick={closeMobileMenu}
-											initial={reducedMotion ? false : { y: 40, opacity: 0 }}
-											animate={{ y: 0, opacity: 1 }}
-											transition={{
-												delay: 0.15 + mobileLinks.length * 0.07,
-												duration: reducedMotion ? 0 : 0.45,
-												ease: [0.25, 1, 0.5, 1],
-											}}
-											className="urban-starblues text-4xl text-[#ff9900] hover:text-white transition-colors duration-300"
-										>
-											Admin
-										</motion.a>
-									)}
-									<motion.a
-										href="/settings"
-										onClick={closeMobileMenu}
-										initial={reducedMotion ? false : { y: 40, opacity: 0 }}
-										animate={{ y: 0, opacity: 1 }}
-										transition={{
-											delay: 0.15 + (mobileLinks.length + (isAdmin ? 1 : 0)) * 0.07,
-											duration: reducedMotion ? 0 : 0.45,
-											ease: [0.25, 1, 0.5, 1],
-										}}
-										className="text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
-									>
-										Settings
-									</motion.a>
-									<motion.button
-										type="button"
-										onClick={promptSignOut}
-										initial={reducedMotion ? false : { y: 40, opacity: 0 }}
-										animate={{ y: 0, opacity: 1 }}
-										transition={{
-											delay: 0.22 + (mobileLinks.length + (isAdmin ? 1 : 0)) * 0.07,
-											duration: reducedMotion ? 0 : 0.45,
-											ease: [0.25, 1, 0.5, 1],
-										}}
-										className="text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
-									>
-										Sign out
-									</motion.button>
-								</>
-							) : (
-								<motion.a
-									href="/auth/login"
-									onClick={closeMobileMenu}
-									initial={reducedMotion ? false : { y: 40, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									transition={{
-										delay:
-											0.15 + mobileLinks.length * 0.07,
-										duration: reducedMotion ? 0 : 0.45,
-										ease: [0.25, 1, 0.5, 1],
-									}}
-									className="text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
-								>
-									Login
-								</motion.a>
-							)}
-						</div>
+				<div className="alpha-mobile-account">
+					{isAuthenticated ? (
+						<>
+							{isAdmin && <Link href="/admin" onClick={closeMobileMenu}>Admin</Link>}
+							<Link href="/settings" onClick={closeMobileMenu} aria-current={pathname === "/settings" ? "page" : undefined}>
+								Settings
+							</Link>
+							<button type="button" onClick={() => { closeMobileMenu(); setSignOutSource("mobile") }}>Sign out</button>
+						</>
+					) : (
+						<Link href="/auth/login" onClick={closeMobileMenu}>Login</Link>
+					)}
+				</div>
 
-						<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 0.3 }}
-							transition={{ delay: 0.6 }}
-							className="absolute bottom-10"
-						>
-							<Image
-								src="/optimized/alpha-logo.webp"
-								alt="AWS Student Builder Group Logo"
-								width={48}
-								height={48}
-								className="opacity-50 brightness-0 invert"
-							/>
-						</motion.div>
-					</motion.div>
-				)}
-			</AnimatePresence>
+				<Image className="alpha-mobile-mark" src="/optimized/alpha-logo.webp" alt="" width={48} height={48} />
+			</dialog>
 
-			{showSignOutModal && (
+			{signOutSource && (
 				<SignOutModal
 					isPending={isSigningOut}
+					focusCancel={signOutSource === "mobile"}
 					onConfirm={handleSignOut}
-					onCancel={() =>
-						setShowSignOutModal(false)
-					}
+					onCancel={() => {
+						setSignOutSource(null)
+						// Let Escape finish dismissing the confirmation before reopening the menu.
+						if (signOutSource === "mobile") requestAnimationFrame(openMobileMenu)
+					}}
 				/>
 			)}
 		</>

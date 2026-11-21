@@ -9,7 +9,7 @@ import type { DecisionCommand, DecisionFailure, DecisionHistory, DecisionReceipt
 import { decisionEditorReducer, initialDecisionEditor } from "@/recruitment/lib/decision-workspace-state";
 import { evaluationTextLength, isRecommendation, recommendations } from "@/recruitment/lib/evaluations";
 import { useVerifiedAccess } from "./access-guard";
-import { Callout, EmptyState, FieldError, Modal, formatDate } from "./ui";
+import { Callout, EmptyState, FieldError, Modal, StatusBadge, formatDate } from "./ui";
 import { useInlineValidation } from "./inline-validation";
 
 export function DecisionHistoryList({ accountId, applicationId, onDenied }: { accountId: string; applicationId: string; onDenied: (failure: DecisionFailure) => void }) {
@@ -37,9 +37,9 @@ export function DecisionHistoryList({ accountId, applicationId, onDenied }: { ac
   }, [accountId, applicationId, onDenied]);
   return <section className="decision-history" aria-labelledby="decision-history-title">
     <h3 id="decision-history-title">Private decision history</h3>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button type="button" className="text-button" onClick={() => void load()}>Retry decision history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading decision history..." /> : <EmptyState compact heading="h4" icon="check" title="No decisions have been published." description="Published outcomes and amendments will appear here." /> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
-      <div className="subheading"><strong>{event.action === "publish" ? "Published" : "Amended"}: {event.outcome}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
-      <p>{event.previousStatus} to {event.outcome}. {event.actor.email}</p>
+    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button type="button" className="text-button" onClick={() => void load()}>Retry decision history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading decision history..." /> : <EmptyState compact heading="h4" icon="check" title="No decisions have been published." description="Published outcomes and amendments will appear here." /> : <ol className="staff-history-list record-events">{history.items.map(event => <li key={event.id}>
+      <div className="record-event-title"><strong>{event.action === "publish" ? "Published" : "Amended"} <StatusBadge status={event.outcome} /></strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)} Philippine time</time></div>
+      <p className="record-event-meta"><span>{event.previousStatus} to {event.outcome}</span><span>Changed by {event.actor.email}</span></p>
       {event.reason && <p className="evaluation-note">Reason: {event.reason}</p>}
       <p className="muted">Application revision {event.applicationVersion}; review revision {event.reviewVersion}.</p>
     </li>)}</ol>}
@@ -109,14 +109,17 @@ export function DecisionPanel({ accountId, applicationId, applicantName, referen
   if (state.blocked) return <section className="panel"><Callout tone="error" title="Something needs attention" role="alert">{state.notice}</Callout></section>;
   const data = state.data, confirmation = state.confirmation;
   const frozen = state.busy || !!state.pending || state.conflict || editorBusy;
-  return <section className="panel decision-panel" data-unsaved={state.dirty || !!state.pending} data-command-pending={!!state.pending} aria-labelledby="decision-heading">
+  return <section className="panel record-card decision-panel" data-unsaved={state.dirty || !!state.pending} data-command-pending={!!state.pending} aria-labelledby="decision-heading">
     <h2 id="decision-heading" ref={heading} tabIndex={-1}>Recruitment decision</h2>
     {state.notice && !confirmation && <Callout><p role="status">{state.notice}</p></Callout>}
     {!state.verified && <Callout tone="warning"><p role="alert">Decision details are hidden until administrator access can be verified.</p><button type="button" className="text-button" onClick={() => void load()}>Retry decision access</button></Callout>}
     <div hidden={!state.verified} inert={!state.verified || undefined}>
       {data && <>
-        <p><strong>{data.accepted} / {data.capacity} accepted places filled</strong> for this opportunity.</p>
-        <p>Current outcome: <strong>{data.status}</strong>. Saved recommendation: <strong>{data.recommendation ?? "Not saved"}</strong>.</p>
+        <dl className="record-decision-summary">
+          <div><dt>Current outcome</dt><dd><StatusBadge status={data.status} /></dd></div>
+          <div><dt>Saved recommendation</dt><dd>{data.recommendation ? <StatusBadge status={data.recommendation} /> : "Not saved"}</dd></div>
+          <div><dt>Opportunity capacity</dt><dd><strong>{data.accepted} / {data.capacity} accepted places filled</strong></dd></div>
+        </dl>
         <button type="button" className="text-button" disabled={state.busy} onClick={reload}>Reload decision details</button>
         {!data.canPublish && !data.canAmend && <p>{data.status === "Withdrawn" ? "This application is withdrawn. Further decisions are unavailable." : "Publication requires a saved recommendation from the current assigned evaluator."}</p>}
         {(data.canPublish || data.canAmend) && <form {...validation.props} onSubmit={event => { event.preventDefault(); prepare(); }}>

@@ -2,7 +2,7 @@ import {recruitmentStyleShell} from "../fixtures/recruitment-build.mjs";
 // Real manager, UI, transport, access guard, HTTP handlers, and SQL; synthetic identity/motion dependencies.
 // Synthetic identities only; screenshots exercise the actual shared frame.
 import assert from "node:assert/strict";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance, openDisclosure } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, assertProcessAppearance, openDisclosure, watchWorkspaceEntrance, assertWorkspaceEntrance, assertResponsiveEntrances } from "../fixtures/browser-motion.mjs";
 import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -36,7 +36,7 @@ modules.set("next/link", "exports.__esModule=true;exports.default=props=>require
 modules.set("next/image", "exports.__esModule=true;exports.default=({priority,unoptimized,...props})=>require('react/jsx-runtime').jsx('img',props);");
 modules.set("next/navigation", "exports.usePathname=()=>window.shellPath||'/recruitment/admin/staff';exports.useSelectedLayoutSegments=()=>(window.shellPath||'/recruitment/admin/staff').split('/').filter(Boolean).slice(1);");
 modules.set("@/app/(recruitment)/recruitment/auth/actions", "exports.signOut=async()=>{};");
-await installBrowserMotion(modules);
+await installBrowserMotion(modules, { realEntrances: true });
 await installRecruitmentUI(modules);
 modules.set("./ui", modules.get("@/app/(recruitment)/recruitment/components/ui"));
 const bundle = `(()=>{const process={env:{NODE_ENV:'development'}};const modules={${[...modules].map(([name, code]) => JSON.stringify(name) + ":function(module,exports,require){" + code + "\n}").join(",")}};
@@ -166,6 +166,22 @@ try {
   async function confirm() { await page.getByRole("button", { name: "Confirm access change", exact: true }).click(); }
   async function history() { return rpc(owner, "list_staff_history", { p_target_id: target.userId }); }
 
+  const members = await rpc(owner, "list_staff_members");
+  await assertResponsiveEntrances(page, async () => {
+    await watchWorkspaceEntrance(page, ".staff-directory");
+    await page.evaluate(({ owner, members }) => window.mount(owner, members), { owner, members });
+    await assertWorkspaceEntrance(page, ".staff-directory");
+    const drawer = "dialog.admin-staff-drawer[open]";
+    const account = page.locator(".staff-member-list button").filter({ hasText: second + "@example.test" });
+    await watchWorkspaceEntrance(page, drawer);
+    await account.click();
+    await assertWorkspaceEntrance(page, drawer);
+    await page.keyboard.press("Escape");
+    await page.locator(drawer).waitFor({ state: "hidden" });
+    await page.waitForFunction(email => document.activeElement?.getAttribute("aria-label") === "Open staff account " + email, second + "@example.test");
+  });
+  passed.push("directory and account drawer enter on desktop and phone, with keyboard focus restored");
+
   await mount({historyUnavailable:true});await page.getByRole("button",{name:"Retry history",exact:true}).waitFor();assert.equal(await page.locator(".workspace-disclosure").evaluate(node=>node.open),true);delete faults.historyUnavailable;await page.getByRole("button",{name:"Retry history",exact:true}).click();await page.getByRole("button",{name:"Retry history",exact:true}).waitFor({state:"detached"});
   await mount();assert.equal(await page.locator(".workspace-disclosure").evaluate(node=>node.open),false);assert.equal(await page.locator(".staff-history").count(),1);await openDisclosure(page,"Access history");await page.locator(".workspace-disclosure > summary").click();await assertRecruitmentSurface(page,"Staff directory");await assertInlineFailure(page,"Review access change","staff-reason");await assertEnlargedProcess(page,"staff-reason");await page.setViewportSize({width:375,height:812});
   await page.getByLabel('Reason for this change').fill('Preserved across mobile views');
@@ -186,15 +202,19 @@ try {
   await page.waitForFunction(email => document.activeElement?.getAttribute("aria-label") === "Open staff account " + email, target.email);
   await search.fill(target.email);
   assert.equal(await directory.getByRole("button").count(), 1);
-  await directory.getByRole("cell", { name: /\bActive$/ }).waitFor();
+  await account.locator(".staff-account-meta .badge").filter({hasText:"Active"}).waitFor();
   assert.equal(await account.locator(".staff-avatar").getAttribute("aria-hidden"), "true");
   await search.fill("no-staff-match@example.test");
   await page.getByText("No staff match your search.", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Clear search", exact: true }).click();
   assert.equal(await search.inputValue(), "");
-  for (const width of [375, 1440]) {
+  for (const width of [320, 375, 768, 1440]) {
     await page.setViewportSize({ width, height: 950 });
-    assert.equal(await directory.locator("tbody tr").first().evaluate(row => getComputedStyle(row).display), width === 375 ? "grid" : "table-row");
+    const firstRow=directory.locator("tbody tr").first();
+    assert.equal(await firstRow.evaluate(row => getComputedStyle(row).display), width < 768 ? "block" : "table-row");
+    assert.equal(await firstRow.locator(".staff-account-meta").isVisible(),width<768);
+    assert.equal(await firstRow.locator("time").isVisible(),width>=768);
+    assert.equal(await firstRow.getByRole("button").count(),1);
     assert.equal(await page.locator(".admin-workspace").evaluate(workspace => workspace.scrollWidth > workspace.clientWidth + 1), false);
     await page.evaluate(() => { document.activeElement?.blur(); document.querySelector(".admin-workspace").scrollTop = 0; });
     await page.screenshot({ path: path.join(previewDir, `staff-directory-${width}.png`) });
@@ -365,12 +385,12 @@ try {
   assert.equal(await page.getByLabel("Verified Google email").count(), 0);
   const invitationTable = invitationPanel.getByRole("table", { name: "Member invitations" });
   await invitationTable.waitFor();
-  assert.deepEqual(await invitationTable.getByRole("columnheader").allTextContents(), ["Member", "Invitation status", "Email delivery", "Actions"]);
+  assert.deepEqual(await invitationTable.locator("th").allTextContents(), ["Member", "Invitation status", "Email delivery", "Actions"]);
   const pendingInvitation = invitationTable.getByRole("row").filter({ hasText: "existing-member@example.test" });
-  await pendingInvitation.getByText("Pending", { exact: true }).waitFor();
+  await pendingInvitation.getByText("Pending", { exact: true }).filter({visible:true}).waitFor();
   await pendingInvitation.getByText("Not sent", { exact: true }).waitFor();
-  await invitationPanel.getByText("Accepted", { exact: true }).waitFor();
-  await invitationPanel.getByText("Canceled", { exact: true }).waitFor();
+  await invitationPanel.getByText("Accepted", { exact: true }).filter({visible:true}).waitFor();
+  await invitationPanel.getByText("Canceled", { exact: true }).filter({visible:true}).waitFor();
   await invitationPanel.getByText(/Accepted by Gmail/).waitFor();
   await invitationPanel.getByText(/Delivery unconfirmed/).waitFor();
   assert.equal(await pendingInvitation.getByRole("button", { name: "Send invitation email" }).isDisabled(), true);
@@ -384,7 +404,7 @@ try {
   await page.getByRole("button", { name: "Review membership change", exact: true }).click();
   await page.getByRole("status").filter({ hasText: "Membership revoked." }).waitFor();
   assert.doesNotMatch(await page.getByRole("status").textContent(), /download/);
-  for (const width of [320, 390, 768, 1440]) {
+  for (const width of [320, 375, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 950 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
     const colors = await page.locator(".community-admin-panel").evaluateAll(panels => panels.map(panel => ({
@@ -401,6 +421,7 @@ try {
     assert.equal(await page.locator(".admin-workspace").evaluate(node => node.scrollWidth > node.clientWidth + 1), false);
     if (width === 390 || width === 1440) {
       assert.equal(await invitationTable.locator("tbody tr").first().evaluate(row => getComputedStyle(row).display), width === 390 ? "grid" : "table-row");
+      assert.equal(await invitationTable.locator(".member-invitation-compact-status").first().isVisible(),width===390);
     }
     await page.locator(".admin-workspace").evaluate(node => { node.scrollTop = 0; });
     if (width === 390 || width === 1440) await page.screenshot({ path: path.join(previewDir, "member-admin-" + width + ".png") });

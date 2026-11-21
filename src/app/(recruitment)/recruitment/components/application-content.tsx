@@ -1,4 +1,5 @@
 "use client";
+import { useId, type ReactNode } from "react";
 import {
   formatAvailability,
   getOpportunity,
@@ -9,21 +10,44 @@ import {
 import type { Draft } from "@/recruitment/lib/drafts";
 import { Badge, Icon } from "./ui";
 
+const reviewSections = [
+  ["profile", "Applicant details"],
+  ["opportunity", "Chosen opportunity"],
+  ["answers", "Written answers"],
+  ["evidence", "Supporting evidence"],
+] as const;
+
 export function ApplicationContent({
   application: app,
   onEdit,
   excludeEvidence = false,
+  staffReview,
 }: {
   application: Pick<Draft, "profile" | "track" | "opportunityId" | "answers" | "resumeUrl" | "portfolioUrl" | "formVersion">;
   onEdit?: (stage: number) => void;
   excludeEvidence?: boolean;
+  staffReview?: { enrollmentProof: ReactNode };
 }) {
   const opportunity = getOpportunity(app.opportunityId);
+  const id = useId();
+  const sectionHeading = (key: string) => staffReview ? { id: `${id}-${key}`, tabIndex: -1 } : undefined;
   return (
-    <div className="application-content">
-      <section className="review-section">
+    <div className={staffReview ? "application-content staff-application-content" : "application-content"}>
+      {staffReview && <nav className="record-jump-links" aria-label="Application sections">
+        {reviewSections.filter(([key]) => key !== "evidence" || !excludeEvidence).map(([key, label]) =>
+          <a key={key} href={`#${id}-${key}`} onClick={event => {
+            if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+            const heading = document.getElementById(`${id}-${key}`);
+            if (!heading) return;
+            event.preventDefault();
+            heading.focus({ preventScroll: true });
+            heading.scrollIntoView({ block: "start", behavior: "instant" });
+          }}>{label}</a>
+        )}
+      </nav>}
+      <section className="review-section" aria-labelledby={sectionHeading("profile")?.id}>
         <div className="subheading">
-          <h3>About the applicant</h3>
+          <h3 {...sectionHeading("profile")}>{staffReview ? "Applicant details" : "About the applicant"}</h3>
           {onEdit && (
             <button type="button" className="text-button" onClick={() => onEdit(1)}>
               Edit details
@@ -82,9 +106,9 @@ export function ApplicationContent({
           <p>{app.profile.experience}</p>
         </div>}
       </section>
-      <section className="review-section">
+      <section className="review-section" aria-labelledby={sectionHeading("opportunity")?.id}>
         <div className="subheading">
-          <h3>Chosen opportunity</h3>
+          <h3 {...sectionHeading("opportunity")}>Chosen opportunity</h3>
           {onEdit && (
             <button type="button" className="text-button" onClick={() => onEdit(2)}>
               Edit choice
@@ -102,9 +126,9 @@ export function ApplicationContent({
           </div>
         </div>
       </section>
-      <section className="review-section">
+      <section className="review-section" aria-labelledby={sectionHeading("answers")?.id}>
         <div className="subheading">
-          <h3>The applicant’s story</h3>
+          <h3 {...sectionHeading("answers")}>{staffReview ? "Written answers" : "The applicant’s story"}</h3>
           {onEdit && (
             <button type="button" className="text-button" onClick={() => onEdit(3)}>
               Edit answers
@@ -118,17 +142,24 @@ export function ApplicationContent({
           </div>
         ))}
       </section>
-      {!excludeEvidence && <section className="review-section">
+      {!excludeEvidence && <section className="review-section" aria-labelledby={sectionHeading("evidence")?.id}>
         <div className="subheading">
-          <h3>Supporting evidence</h3>
+          <h3 {...sectionHeading("evidence")}>Supporting evidence</h3>
           {onEdit && (
             <button type="button" className="text-button" onClick={() => onEdit(app.formVersion === 2 ? 3 : 4)}>
               Edit evidence
             </button>
           )}
         </div>
-        {!app.resumeUrl && !app.portfolioUrl && <p className="muted">No evidence links were included in this application.</p>}
-        {([["Resume", app.resumeUrl], ["Portfolio", app.portfolioUrl]] as const).map(([label, url]) => url && <p className="portfolio-link" key={label}>{label}: <a href={url} target="_blank" rel="noopener noreferrer">{url}<Icon name="external" size={14} /></a></p>)}
+        {!app.resumeUrl && !app.portfolioUrl && <p className="muted">{staffReview ? "No résumé or portfolio links were included." : "No evidence links were included in this application."}</p>}
+        {staffReview ? <div className="record-evidence-links">
+          {([["Open résumé", app.resumeUrl], ["Open portfolio", app.portfolioUrl]] as const).map(([label, url]) =>
+            url && <a key={label} className="button button-secondary" href={url} target="_blank" rel="noopener noreferrer">
+              <Icon name="file" size={16} />{label}<Icon name="external" size={14} />
+            </a>
+          )}
+          {staffReview.enrollmentProof}
+        </div> : ([["Resume", app.resumeUrl], ["Portfolio", app.portfolioUrl]] as const).map(([label, url]) => url && <p className="portfolio-link" key={label}>{label}: <a href={url} target="_blank" rel="noopener noreferrer">{url}<Icon name="external" size={14} /></a></p>)}
       </section>}
     </div>
   );
