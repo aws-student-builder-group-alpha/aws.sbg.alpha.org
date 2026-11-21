@@ -20,7 +20,7 @@ import type { QueueFilters } from "@/recruitment/lib/application-queue";
 import { ApplicationExportControl } from "./application-export-control";
 import type { ExportFailure } from "@/recruitment/lib/application-export";
 import { ApplicationQueueControls, ApplicationQueueCounts } from "./application-queue-controls";
-import { Callout, FieldError, Icon, Modal, PageHeading, StatusBadge, formatDate } from "./ui";
+import { Callout, EmptyState, FieldError, Icon, Modal, PageHeading, StatusBadge, formatDate } from "./ui";
 import { useInlineValidation } from "./inline-validation";
 
 function opportunityName(id: string) {
@@ -74,7 +74,7 @@ function ReviewHistory({ accountId, applicationId, administrator, onDenied }: { 
   return <section className="evaluation-history" aria-labelledby="review-history-heading">
     <h3 id="review-history-heading">{administrator ? "Private evaluation history" : "Previous reviews"}</h3>
     <p className="muted">{administrator ? "Assignment changes and recommendation revisions. Private to authorized staff." : "Earlier evaluators' latest saved reviews are read-only. Your current assignment needs its own recommendation."}</p>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => { setBusy(true); setReload(n => n + 1); }}>Retry history</button></Callout> : busy && !page.items.length ? <ListSkeleton label="Loading history..." /> : !page.items.length ? <p>No earlier reviews or changes are recorded.</p> : <ol className="staff-history-list">{page.items.map(event => <li key={event.kind + event.id}>
+    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => { setBusy(true); setReload(n => n + 1); }}>Retry history</button></Callout> : busy && !page.items.length ? <ListSkeleton label="Loading history..." /> : !page.items.length ? <EmptyState compact heading="h4" icon="clock" title="No earlier reviews or changes are recorded." description={administrator ? "Assignment changes and recommendation revisions will appear here." : "Saved reviews from earlier evaluators will appear here."} /> : <ol className="staff-history-list">{page.items.map(event => <li key={event.kind + event.id}>
       <div className="subheading"><strong>{event.kind === "assignment" ? "Evaluator assigned" : event.recommendation}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
       <p>{event.evaluator.email} {event.kind === "review" && `- review revision ${event.reviewVersion}`}</p>
       {event.notes && <p className="evaluation-note">{event.notes}</p>}
@@ -268,25 +268,33 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
     return () => { active.current = false; request.current?.abort(); window.removeEventListener("beforeunload", warn); document.removeEventListener("click", leave, true); };
   }, []);
   useEffect(() => { if (!allowed) request.current?.abort(); }, [allowed]);
-  function canLeave() {
+  function canLeave(cancelNotice?: string) {
     if (document.querySelector(recordPendingSelector)) { setNavigationNotice("Retry or check your pending confirmation before changing applications or filters."); return false; }
-    return !document.querySelector(recordUnsavedSelector) || window.confirm("Discard your unfinished record changes and change applications?");
+    if (!document.querySelector(recordUnsavedSelector) || window.confirm("Discard your unfinished record changes and change applications?")) return true;
+    if (cancelNotice) setNavigationNotice(cancelNotice);
+    return false;
   }
-  function applyFilters(clear = false) {
-    if (exportBusy || !canLeave()) return;
-    const values = clear ? defaultQueueFilters : { ...filters, search: filters.search.trim() };
-    setFilters(values); setApplied(values); setSelected(""); setMobileDetail(false); setNavigationNotice(""); void refresh(0, values);
+  function applyFilters(values: QueueFilters, cancelNotice?: string) {
+    if (exportBusy || !canLeave(cancelNotice)) return false;
+    setApplied(values); setSelected(""); setMobileDetail(false); setNavigationNotice(""); void refresh(0, values);
+    return true;
+  }
+  function searchApplications() {
+    const search = filters.search.trim();
+    if (applyFilters({ ...applied, search })) setFilters(current => ({ ...current, search }));
+  }
+  function clearFilters() {
+    if (applyFilters(defaultQueueFilters)) setFilters(defaultQueueFilters);
   }
   function openApplication(id: string) {
     if (id !== selected && !canLeave()) return;
     request.current?.abort(); request.current = null; setBusy(false);
-    listScroll.current = window.scrollY;
+    const workspace = listElement.current?.closest<HTMLElement>(".admin-workspace");
+    listScroll.current = workspace?.scrollTop ?? window.scrollY;
     setSelected(id); setMobileDetail(true); setNavigationNotice("");
-  }
-  function applyShortcut(status: QueueFilters["status"], assignment: QueueFilters["assignment"], review: QueueFilters["review"]) {
-    if (busy || exportBusy || !canLeave()) return;
-    const values = { ...applied, status, assignment, review };
-    setFilters(values); setApplied(values); setSelected(""); setMobileDetail(false); setNavigationNotice(""); void refresh(0, values);
+    if (workspace && window.matchMedia("(width < 1280px)").matches) {
+      workspace.scrollTo({ top: 0, behavior: "instant" });
+    }
   }
   async function reviewNext() {
     if (busy || !allowed || !canLeave()) return;
@@ -316,34 +324,43 @@ export function EvaluationWorkspace({ accountId, initialList, redesign = false }
     setMobileDetail(false); setNavigationNotice("");
     requestAnimationFrame(() => {
       listElement.current?.querySelector<HTMLButtonElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
-      window.scrollTo({ top: listScroll.current, behavior: "instant" });
+      const scroller = listElement.current?.closest<HTMLElement>(".admin-workspace") ?? window;
+      scroller.scrollTo({ top: listScroll.current, behavior: "instant" });
     });
   }
   const resultsCurrent = !busy && !error && (!administrator || !!list.queue && sameQueueFilters(list.queue.filters, applied));
   const visibleResultsCurrent = !blocked && !error && (!administrator || !!list.queue && sameQueueFilters(list.queue.filters, applied));
-  const exportControl = administrator && <ApplicationExportControl compact={enhanced} key={JSON.stringify(applied)} accountId={accountId} filters={applied} disabled={!resultsCurrent || !list.queue?.total} onBusy={setExportBusy} onDenied={(failure: ExportFailure) => { setError(failure.message); setBlocked(true); setList(current => ({ ...current, items: [], evaluators: [] })); setSelected(""); }} />;
+  const filtered = queueIsFiltered(applied);
+  const empty = resultsCurrent && !list.items.length;
+  const exportControl = administrator && <ApplicationExportControl key={JSON.stringify(applied)} accountId={accountId} filters={applied} disabled={!resultsCurrent || !list.queue?.total} refreshing={busy} onRefresh={() => void refresh()} onBusy={setExportBusy} onDenied={(failure: ExportFailure) => { setError(failure.message); setBlocked(true); setList(current => ({ ...current, items: [], evaluators: [] })); setSelected(""); }} />;
   const pageHeading = <PageHeading eyebrow={enhanced ? "November 2026 · Evaluation" : undefined} title={administrator ? "Application assignments" : "Evaluator workspace"} description={administrator ? "Assign one evaluator and follow saved recommendations." : "Read your assigned applications and save a recommendation with optional private notes."} />;
   if (blocked) return <main id="main-content" className="container portal narrow"><PageHeading title="Check staff access" description={error} /><Link href="/recruitment/staff" className="button button-orange">Staff sign-in</Link></main>;
   return <main id="main-content" className={`container portal staff-portal evaluation-workspace${enhanced ? ` workspace-redesign workspace-evaluation ${administrator ? "workspace-admin" : "workspace-reviewer"}` : ""}`} data-mobile-view={enhanced ? mobileDetail ? "detail" : "list" : undefined}>
     {list.role === "administrator" && !enhanced && <AdminNavigation current="applications" />}
-    {enhanced ? administrator ? <AdminPageHeader title="Applications" description="Review submissions, assign evaluators and publish recruitment outcomes." /> : <h1 className="sr-only">Evaluator workspace</h1> : pageHeading}
+    {enhanced ? administrator ? <AdminPageHeader title="Applications" description="Review submissions, assign evaluators and publish recruitment outcomes." /> : <AdminPageHeader title="Evaluator workspace" description="Review the applications assigned to you and save your recommendations." /> : pageHeading}
     <div className={enhanced ? "workspace-queue-overview" : undefined}>
-    {administrator ? <ApplicationQueueControls collapsible={enhanced} trailingActions={enhanced ? exportControl : undefined} filters={filters} applied={applied} busy={busy || exportBusy} frozen={exportBusy} onChange={setFilters} onApply={() => applyFilters()} onClear={() => applyFilters(true)} onRefresh={() => void refresh()} /> : <form className="evaluation-search" onSubmit={event => { event.preventDefault(); applyFilters(); }}><label htmlFor="evaluation-search">Search applications</label><div className="inline-actions"><input id="evaluation-search" value={filters.search} maxLength={100} onChange={e => setFilters(current => ({ ...current, search: e.target.value }))} placeholder="Name, email, or reference" /><button className="button button-secondary" disabled={busy} type="submit">Search</button><button className="text-button" type="button" disabled={busy} onClick={() => void refresh()}>Refresh applications</button></div></form>}
-    {!enhanced && exportControl}
-    {administrator && visibleResultsCurrent && list.queue && <ApplicationQueueCounts compact={enhanced} queue={list.queue} shown={list.items.length} />}
-    {administrator && <details className="queue-views-disclosure"><summary>Queue views</summary><div className="inline-actions queue-shortcuts" aria-label="Application queue shortcuts">{([
-      ["Unassigned", "Submitted", "unassigned", "all"], ["Awaiting recommendation", "Under Review", "assigned", "missing"], ["Ready for decision", "Under Review", "assigned", "saved"],
-    ] as const).map(([label,status,assignment,review]) => <button key={label} type="button" className="button button-secondary" disabled={busy || exportBusy} aria-pressed={applied.status === status && applied.assignment === assignment && applied.review === review} onClick={() => applyShortcut(status,assignment,review)}>{label}</button>)}</div></details>}
+    {administrator ? <ApplicationQueueControls trailingActions={exportControl} filters={filters} applied={applied} busy={busy || exportBusy} frozen={exportBusy} notice={navigationNotice}
+      onChange={setFilters} onSearch={searchApplications}
+      onApply={() => applyFilters({ ...filters, search: applied.search }, "Filters were not applied. Your record edits are still open.")}
+      onClear={clearFilters}
+    /> : <form className="evaluation-search" onSubmit={event => { event.preventDefault(); searchApplications(); }}><label htmlFor="evaluation-search">Search applications</label><div className="inline-actions"><input id="evaluation-search" value={filters.search} maxLength={100} onChange={e => setFilters(current => ({ ...current, search: e.target.value }))} placeholder="Name, email, or reference" /><button className="button button-secondary" disabled={busy} type="submit">Search</button><button className="text-button" type="button" disabled={busy} onClick={() => void refresh()}>Refresh applications</button></div></form>}
+    {administrator && visibleResultsCurrent && list.queue && <ApplicationQueueCounts queue={list.queue} shown={list.items.length} />}
     </div>
     {navigationNotice && <Callout><p role="alert">{navigationNotice}</p></Callout>}
     {error && <Callout tone="warning"><p role="alert">{error}</p><button type="button" className="text-button" onClick={() => void refresh()}>Retry applications</button></Callout>}
     <div className="evaluation-layout">
       <aside ref={listElement} className="panel evaluation-list" aria-label="Applications" aria-busy={busy}>
         {busy && (!visibleResultsCurrent || !list.items.length) ? <ListSkeleton label="Loading applications..." rows={5} /> : busy && <p role="status">Updating applications...</p>}
-        {resultsCurrent && !list.items.length && <p>{queueIsFiltered(applied) ? "No applications match the applied search and filters." : list.role === "administrator" ? "No submitted applications yet." : "You have no active assignments."}</p>}
-        <div hidden={!visibleResultsCurrent}>{administrator && enhanced ? <table className="admin-application-table"><caption className="sr-only">Submitted applications</caption><thead><tr><th scope="col">Applicant</th><th scope="col">Opportunity</th><th scope="col">Status</th><th scope="col">Evaluator</th><th scope="col">Recommendation</th></tr></thead><tbody>{list.items.map(item => <tr key={item.id}><td><button type="button" aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}><strong>{item.name}</strong><small>{item.reference}</small><small>{formatDate(item.submittedAt)}</small></button></td><td data-label="Opportunity">{opportunityName(item.opportunityId)}</td><td data-label="Status"><StatusBadge status={item.status} /></td><td data-label="Evaluator">{item.assignment?.evaluator.email || "Not assigned"}</td><td data-label="Recommendation">{item.recommendation || (item.assignment ? "Recommendation needed" : "No recommendation")}</td></tr>)}</tbody></table> : list.items.map(item => <button type="button" key={item.id} aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}>
+        {empty && (filtered ? <EmptyState heading="h2" icon="search" title="No results found"
+          description={administrator ? "No applications match the applied search and filters." : "None of your assigned applications match this search."} announce>
+          {administrator ? <button type="button" className="button button-secondary" disabled={exportBusy} onClick={clearFilters}>Reset search and filters</button>
+            : <button type="button" className="button button-secondary" onClick={clearFilters}>Clear search</button>}
+        </EmptyState> : <EmptyState heading="h2" icon={administrator ? "file" : "people"}
+          title={administrator ? "No submitted applications yet." : "You have no active assignments."}
+          description={administrator ? "Completed applications will appear here after applicants submit them." : "Applications will appear here when a System Admin assigns them to you."} announce />)}
+        {!!list.items.length && <div hidden={!visibleResultsCurrent}>{administrator && enhanced ? <table className="admin-application-table"><caption className="sr-only">Submitted applications</caption><thead><tr><th scope="col">Applicant</th><th scope="col">Opportunity</th><th scope="col">Status</th><th scope="col">Evaluator</th><th scope="col">Recommendation</th></tr></thead><tbody>{list.items.map(item => <tr key={item.id}><td><button type="button" aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}><strong>{item.name}</strong><small>{item.reference}</small><small>{formatDate(item.submittedAt)}</small></button></td><td data-label="Opportunity">{opportunityName(item.opportunityId)}</td><td data-label="Status"><StatusBadge status={item.status} /></td><td data-label="Evaluator">{item.assignment?.evaluator.email || "Not assigned"}</td><td data-label="Recommendation">{item.recommendation || (item.assignment ? "Recommendation needed" : "No recommendation")}</td></tr>)}</tbody></table> : list.items.map(item => <button type="button" key={item.id} aria-pressed={selected === item.id} className="evaluation-list-item" onClick={() => openApplication(item.id)}>
           {enhanced ? <><span className="application-row-heading"><strong>{item.name}</strong><StatusBadge status={item.status} /></span><span>{opportunityName(item.opportunityId)}</span><span>{item.reference}</span></> : <><strong>{item.name}</strong><span>{item.reference}</span><StatusBadge status={item.status} /><span>{opportunityName(item.opportunityId)}</span></>}<span className="muted">{item.assignment ? `${item.assignment.evaluator.email} - ${item.recommendation ?? "Recommendation needed"}` : "Not assigned"}</span>
-        </button>)}</div>
+        </button>)}</div>}
         {resultsCurrent && list.nextOffset !== null && <button className="button button-secondary" disabled={busy} type="button" onClick={() => { if (list.nextOffset !== null) void refresh(list.nextOffset); }}>Load more applications</button>}
       </aside>
       <div className={enhanced ? "workspace-detail" : "evaluation-detail-slot"}>

@@ -6,7 +6,7 @@ The unified deployment uses two Supabase projects. Skillbuilder uses its existin
 
 Browser fixtures obtain the recruitment route CSS from its built client-reference manifest because dynamic routes have no prerendered admin HTML. Run the root build first.
 
-The admin workspace suite covers the built route inventory, every section's sidebar selection, loading, responsive layout and overview totals. Staff, queue, decision, intake and export suites cover recovery and preservation of unfinished edits. Run these from the root via `npm run verify:ci`.
+The admin workspace suite covers the built route inventory, every section's sidebar selection, loading, Overview totals and layout at 320, 375, 768, 1280 and 1440 pixels. The application queue suite checks the desktop list-to-detail ratio and the full-width phone detail. Staff, queue, decision, intake and export suites cover recovery and preservation of unfinished edits. Run these from the root via `npm run verify:ci`.
 
 Separate root layouts preserve the two designs. Moving between areas loads a new document. Recruitment email remains disabled without private credentials. Skillbuilder member removal preserves the account in the main Auth project.
 

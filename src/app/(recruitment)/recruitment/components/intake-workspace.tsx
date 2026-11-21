@@ -5,15 +5,32 @@ import { ListSkeleton } from "./workspace-skeleton";
 import Link from "next/link";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { intakeCommand, intakeHistory, intakeState } from "@/recruitment/lib/intake-client";
-import { intakeAccessLost, intakeAvailability } from "@/recruitment/lib/intake";
+import { intakeAccessLost } from "@/recruitment/lib/intake";
 import type { IntakeCommand, IntakeFailure, IntakeHistory, IntakeState } from "@/recruitment/lib/intake";
 import { initialIntakeEditor, intakeEditorReducer } from "@/recruitment/lib/intake-workspace-state";
 import { evaluationTextLength } from "@/recruitment/lib/evaluations";
 import { useVerifiedAccess } from "./access-guard";
-import { Callout, FieldError, Modal, PageHeading, formatDate } from "./ui";
+import { Callout, EmptyState, FieldError, Icon, Modal, PageHeading, formatDate } from "./ui";
 import { useInlineValidation } from "./inline-validation";
 
 const labels = { pause: "Pause intake", resume: "Resume intake", close: "Close intake" };
+const stateLabels = { open: "Open", paused: "Paused", closed: "Closed" };
+
+const availability = {
+  accepting: { title: "Accepting submissions", icon: "check", description: "Applicants can submit during the scheduled window." },
+  scheduled: { title: "Scheduled to open", icon: "calendar", description: "Submissions start at the scheduled opening time." },
+  paused: { title: "Submissions paused", icon: "warning", description: "Applicants can still save drafts while submissions are paused." },
+  deadline: { title: "Deadline passed", icon: "clock", description: "The scheduled submission window has ended." },
+  closed: { title: "Intake closed", icon: "close", description: "Submissions have ended for this recruitment cycle." },
+};
+
+function availabilityKey(data: IntakeState): keyof typeof availability {
+  if (data.state === "closed") return "closed";
+  if (data.accepting) return "accepting";
+  if (Date.parse(data.serverNow) >= Date.parse(data.closesAt)) return "deadline";
+  return data.state === "paused" ? "paused" : "scheduled";
+}
+
 function IntakeHistoryList({ accountId, onFailure }: { accountId: string; onFailure: (failure: IntakeFailure) => void }) {
   const historyPanel = useRef<HTMLDetailsElement>(null);
   const [history, setHistory] = useState<IntakeHistory>({ items: [], nextOffset: null });
@@ -37,15 +54,29 @@ function IntakeHistoryList({ accountId, onFailure }: { accountId: string; onFail
     });
     return () => { active.current = false; request.current?.abort(); };
   }, [accountId, onFailure]);
-  return <details ref={historyPanel} className="workspace-disclosure" open={!!error || undefined}><summary>Private intake history</summary><section className="decision-history" aria-labelledby="intake-history-title">
-    <h2 className="sr-only" id="intake-history-title">Private intake history</h2>
-    <p>Reasons are visible only to administrators. History starts with changes made through these controls.</p>
-    {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => void load()}>Retry intake history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading intake history..." /> : <p>No intake changes have been recorded.</p> : <ol className="staff-history-list">{history.items.map(event => <li key={event.id}>
-      <div className="subheading"><strong>{labels[event.action]}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
-      <p>{event.previousState} to {event.state}. {event.actor.email}</p><p className="evaluation-note">Reason: {event.reason}</p><p className="muted">Intake revision {event.version}.</p>
-    </li>)}</ol>}
-    {!error && history.nextOffset !== null && <button type="button" className="button button-secondary" disabled={busy} onClick={() => void load(history.nextOffset!)}>{busy ? "Loading..." : "Load earlier intake changes"}</button>}
-  </section></details>;
+  const nextOffset = history.nextOffset;
+  return <details ref={historyPanel} className="admin-surface workspace-disclosure intake-history" open={!!error || undefined}>
+    <summary><span><Icon name="shield" size={18} />Private intake history</span><Icon name="chevron" size={16} /></summary>
+    <section className="intake-history-body" aria-labelledby="intake-history-title">
+      <h2 className="sr-only" id="intake-history-title">Private intake history</h2>
+      <p className="muted">Reasons are visible only to administrators. History starts with changes made through these controls.</p>
+      {error ? <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => void load()}>Retry intake history</button></Callout> : !history.items.length ? busy ? <ListSkeleton label="Loading intake history..." /> : <EmptyState compact icon="calendar" title="No intake changes have been recorded." description="Changes to intake availability and their reasons will appear here." /> : <ol className="intake-history-list" role="list">
+        {history.items.map(event => <li key={event.id}>
+          <div className="intake-history-entry">
+            <strong>{labels[event.action]}</strong>
+            <time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time>
+          </div>
+          <div className="intake-history-meta">
+            <span>{stateLabels[event.previousState]} to {stateLabels[event.state]}</span>
+            <span>{event.actor.email}</span>
+            <span>Revision {event.version}</span>
+          </div>
+          <p>Reason: {event.reason}</p>
+        </li>)}
+      </ol>}
+      {!error && nextOffset !== null && <button type="button" className="button button-secondary" disabled={busy} onClick={() => void load(nextOffset)}>{busy ? "Loading..." : "Load earlier intake changes"}</button>}
+    </section>
+  </details>;
 }
 
 export function IntakeWorkspace({ accountId, initialState }: { accountId: string; initialState: IntakeState }) {
@@ -112,29 +143,64 @@ export function IntakeWorkspace({ accountId, initialState }: { accountId: string
   }
   if (state.blocked) return <main id="main-content" className="container portal narrow"><PageHeading title="Intake access has changed" description={state.notice} /><Link href="/recruitment/staff" className="button button-orange">Check staff access</Link></main>;
   const data = state.data, confirmation = state.confirmation, frozen = state.busy || !!state.pending || state.conflict;
+  const availabilityState = data && availabilityKey(data);
+  const status = availabilityState && availability[availabilityState];
   return <main id="main-content" className="container portal intake-workspace workspace-redesign workspace-intake" data-command-pending={state.busy || !!state.pending || !!state.confirmation || undefined} data-unsaved={state.dirty || !!state.pending}>
     <AdminPageHeader title="Intake" description="Control submission availability and review the recruitment schedule." />
     <div className="workspace-reading">
-    {state.notice && !confirmation && <Callout><p role="status">{state.notice}</p></Callout>}
-    {!state.verified && <Callout tone="warning"><p role="alert">Intake details are hidden until administrator access can be verified.</p><button type="button" className="text-button" onClick={() => void load()}>Retry intake access</button></Callout>}
-    <div hidden={!state.verified} inert={!state.verified || undefined}>
-      {data && <section className="panel intake-panel" aria-labelledby="intake-heading">
-        <h2 id="intake-heading" ref={heading} tabIndex={-1}>Submission availability</h2>
-        <dl className="intake-details"><div><dt>Configured state</dt><dd>{data.state === "open" ? "Open" : data.state === "paused" ? "Paused" : "Closed"}</dd></div><div><dt>Accepting submissions</dt><dd>{data.accepting ? "Yes" : "No"}</dd></div><div><dt>Opens (Philippine time)</dt><dd>{formatDate(data.opensAt)}</dd></div><div><dt>Closes (Philippine time)</dt><dd>{formatDate(data.closesAt)}</dd></div></dl>
-        <p>{intakeAvailability(data)}</p><details className="workspace-help"><summary>About intake controls</summary><p>Draft saving, evaluation, decisions, and withdrawal remain available. These controls do not change the dates. Resume respects the scheduled opening and deadline.</p></details>
-        <button className="text-button" type="button" disabled={state.busy} onClick={reload}>Reload intake details</button>
-        {data.state === "closed" && !state.dirty && !state.pending ? <Callout><p>Intake is finally closed. Reopening is unavailable in this app.</p></Callout> : <form {...validation.props} onSubmit={event => { event.preventDefault(); prepare(); }}>
-          <fieldset className="application-fields" disabled={frozen}>
-            <div className="field"><label htmlFor="intake-action">Intake change</label><select id="intake-action" {...validation.field("intake-action")} required value={state.action} onChange={event => dispatch({ type: "edit", field: "action", value: event.target.value })}><option value="">Choose a change</option>{(data.canPause || state.action === "pause") && <option value="pause">Pause intake</option>}{(data.canResume || state.action === "resume") && <option value="resume">Resume intake</option>}{data.canClose && <option value="close">Close intake permanently</option>}</select>{validation.errors["intake-action"] && <FieldError id="intake-action-error">{validation.errors["intake-action"]}</FieldError>}</div>
-            <div className="field"><label htmlFor="intake-reason">Private reason (required)</label><textarea id="intake-reason" {...validation.field("intake-reason", "intake-reason-help")} rows={3} required value={state.reason} onChange={event => dispatch({ type: "edit", field: "reason", value: event.target.value })} /><p id="intake-reason-help" className="muted">Private to administrators. {evaluationTextLength(state.reason)} / 500 characters.</p>{validation.errors["intake-reason"] && <FieldError id="intake-reason-error">{validation.errors["intake-reason"]}</FieldError>}</div>
-            <p>Closing is permanent; intake cannot be reopened in this app.</p><button className="button button-orange" type="submit">Review intake change</button>
-          </fieldset>
-        </form>}
-        {state.dirty && !state.pending && <p role="status">Unsaved intake choice and reason</p>}
-        {state.conflict && <Callout tone="error" title="Something needs attention" role="alert">Intake details changed. Your choice and reason are preserved. Reload before a new confirmation.</Callout>}
-        <IntakeHistoryList key={data.version} accountId={accountId} onFailure={fail} />
-      </section>}
-    </div>
+      {state.notice && !confirmation && <Callout><p role="status">{state.notice}</p></Callout>}
+      {!state.verified && <Callout tone="warning"><p role="alert">Intake details are hidden until administrator access can be verified.</p><button type="button" className="text-button" onClick={() => void load()}>Retry intake access</button></Callout>}
+      <div hidden={!state.verified} inert={!state.verified || undefined}>
+        {data && status && <>
+          <div className="intake-workspace-columns">
+            <section className="admin-surface intake-status" aria-labelledby="intake-heading">
+              <header className="intake-availability-heading">
+                <h2 id="intake-heading" ref={heading} tabIndex={-1}>Submission availability</h2>
+                <button className="text-button" type="button" disabled={state.busy} onClick={reload}><Icon name="reset" size={15} />Reload intake details</button>
+              </header>
+              <div className="intake-availability" data-availability={availabilityState}>
+                <span className="intake-availability-icon"><Icon name={status.icon} size={20} /></span>
+                <div><strong>{status.title}</strong><p>{status.description}</p></div>
+              </div>
+              <dl className="intake-configured"><dt>Configured state</dt><dd>{stateLabels[data.state]}</dd></dl>
+              <header className="intake-schedule-heading"><h3>Schedule</h3><span>Philippine time</span></header>
+              <dl className="intake-schedule">
+                <div><dt><Icon name="calendar" size={16} />Opens</dt><dd><time dateTime={data.opensAt}>{formatDate(data.opensAt)}</time></dd></div>
+                <div><dt><Icon name="calendar" size={16} />Closes</dt><dd><time dateTime={data.closesAt}>{formatDate(data.closesAt)}</time></dd></div>
+              </dl>
+              <details className="workspace-help"><summary>About intake controls</summary><p>Draft saving, evaluation, decisions, and withdrawal remain available. These controls do not change the dates. Resume respects the scheduled opening and deadline.</p></details>
+            </section>
+            <section className="admin-surface intake-controls" aria-labelledby="intake-controls-heading">
+              <h2 id="intake-controls-heading">Change intake</h2>
+              {data.state === "closed" && !state.dirty && !state.pending ? <Callout><p>Intake is finally closed. Reopening is unavailable in this app.</p></Callout> : <form {...validation.props} onSubmit={event => { event.preventDefault(); prepare(); }}>
+                <fieldset className="application-fields" disabled={frozen}>
+                  <div className="field">
+                    <label htmlFor="intake-action">Intake change</label>
+                    <select id="intake-action" {...validation.field("intake-action")} required value={state.action} onChange={event => dispatch({ type: "edit", field: "action", value: event.target.value })}>
+                      <option value="">Choose a change</option>
+                      {(data.canPause || state.action === "pause") && <option value="pause">Pause intake</option>}
+                      {(data.canResume || state.action === "resume") && <option value="resume">Resume intake</option>}
+                      {data.canClose && <option value="close">Close intake permanently</option>}
+                    </select>
+                    {validation.errors["intake-action"] && <FieldError id="intake-action-error">{validation.errors["intake-action"]}</FieldError>}
+                  </div>
+                  <div className="field">
+                    <label htmlFor="intake-reason">Private reason (required)</label>
+                    <textarea id="intake-reason" {...validation.field("intake-reason", "intake-reason-help")} rows={3} required value={state.reason} onChange={event => dispatch({ type: "edit", field: "reason", value: event.target.value })} />
+                    <p id="intake-reason-help" className="muted">Private to administrators. {evaluationTextLength(state.reason)} / 500 characters.</p>
+                    {validation.errors["intake-reason"] && <FieldError id="intake-reason-error">{validation.errors["intake-reason"]}</FieldError>}
+                  </div>
+                  {state.action === "close" && <Callout className="intake-close-note" tone="warning" title="Permanent closure">Closing permanently ends submissions for this recruitment cycle.</Callout>}
+                  <button className="button button-orange" type="submit">Review intake change</button>
+                </fieldset>
+              </form>}
+              {state.dirty && !state.pending && <p role="status">Unsaved intake choice and reason</p>}
+              {state.conflict && <Callout tone="error" title="Something needs attention" role="alert">Intake details changed. Your choice and reason are preserved. Reload before a new confirmation.</Callout>}
+            </section>
+          </div>
+          <IntakeHistoryList key={data.version} accountId={accountId} onFailure={fail} />
+        </>}
+      </div>
     </div>
     {confirmation && state.verified && allowed && <Modal title={labels[confirmation.action]} dismissible={!state.busy && !state.pending} onClose={() => dispatch({ type: "confirm", command: null })}><div className="modal-body" aria-busy={state.busy}>
       <p><strong>November 2026 recruitment</strong></p><p>{confirmation.action === "close" ? "Close intake permanently? Reopening will be unavailable in this app." : confirmation.action === "pause" ? "Pause new submissions? Applicants can keep saving their drafts." : "Resume intake? Submissions will be accepted only within the scheduled November window."}</p>

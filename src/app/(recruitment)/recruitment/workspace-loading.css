@@ -13,23 +13,16 @@
 .workspace-skeleton-detail { min-height:360px; }
 .workspace-skeleton-reviewer { overflow:hidden; border-radius:20px; background:#fff; padding:24px; }
 .workspace-skeleton-toolbar { display:grid; gap:20px; padding-bottom:24px; }
-.workspace-skeleton-split { display:grid; grid-template-columns:320px minmax(0,1fr); gap:32px; }
 .alpha-app .recruitment-process [data-skeleton-view="reviewer"] .workspace-skeleton-reviewer { width:min(calc(100% - 32px),1280px); margin-inline:auto; }
 .staff-auth-card .workspace-loading [aria-busy] { display:grid; gap:16px; }
 .staff-auth-card .workspace-loading .skeleton-title { margin-block:0; }
 .staff-auth-card .workspace-loading .skeleton-paragraph { margin-block:8px; }
-.admin-account .workspace-skeleton-row { border-color:#ffffff26; }
-.admin-account .workspace-skeleton-block { background:#435166; }
 .admin-account .workspace-loading { padding:12px; }
 @keyframes workspace-skeleton-pulse { 50% { opacity:.45; } }
 @media(max-width:767px) {
   .workspace-skeleton-fields { grid-template-columns:minmax(0,1fr); }
   .workspace-skeleton-row { gap:12px; }
   .workspace-skeleton-reviewer { padding:20px; }
-}
-@media(max-width:899px) {
-  .workspace-skeleton-split { grid-template-columns:minmax(0,1fr); }
-  .workspace-skeleton-split>div+div { display:none; }
 }
 @media(prefers-reduced-motion:reduce) { .workspace-skeleton-block { animation:none; } }
 @media(forced-colors:active) { .workspace-skeleton-block { background:GrayText; animation:none; } }

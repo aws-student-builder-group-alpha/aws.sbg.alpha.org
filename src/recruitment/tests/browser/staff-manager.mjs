@@ -43,7 +43,7 @@ const bundle = `(()=>{const process={env:{NODE_ENV:'development'}};const modules
 const cache={};function require(name){if(!cache[name]){if(!modules[name])throw Error('Unmocked browser module: '+name);const module=cache[name]={exports:{}};modules[name](module,module.exports,require);}return cache[name].exports;}
 const {jsx}=require('react/jsx-runtime');const root=require('react-dom/client').createRoot(document.getElementById('root'));let revision=0;
 window.mount=(accountId,members,expected='administrator',guardOnly=false)=>root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:jsx(require('@/app/(recruitment)/recruitment/components/access-guard').AccessGuard,{accountId,expected,children:guardOnly?jsx('input',{'aria-label':'Unsaved applicant answer',defaultValue:'Preserved synthetic answer'}):jsx(require('manager').StaffManager,{accountId,initialStaff:members})})},String(++revision)));
-window.mountMembers=(accountId,activity=false)=>{window.shellPath=activity?'/recruitment/admin/activity':'/recruitment/admin/members';root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:require('react/jsx-runtime').jsxs('main',{id:'main-content',className:'admin-page',children:[jsx(require('./admin-shell').AdminPageHeader,{title:activity?'Security activity':'Organization members',description:'Manage Alpha membership and inspect activity.'}),jsx('div',{className:'community-admin-extras',children:activity?jsx(require('./member-administration').SecurityLog,{accountId,expanded:true}):jsx(require('./member-administration').MemberAdministration,{accountId,workspace:true})})]})},String(++revision)))};})();`;
+window.mountMembers=(accountId,activity=false)=>{window.shellPath=activity?'/recruitment/admin/activity':'/recruitment/admin/members';root.render(jsx(require('recruitment-test-frame').Frame,{frame:'administrator',staff:{role:'administrator',status:'active',needsMfa:false},children:require('react/jsx-runtime').jsxs('main',{id:'main-content',className:'admin-page',children:[jsx(require('./admin-shell').AdminPageHeader,{title:activity?'Security activity':'Organization members',description:'Manage Alpha membership and inspect activity.'}),jsx('div',{className:'community-admin-extras',children:activity?jsx(require('./member-administration').SecurityLog,{accountId}):jsx(require('./member-administration').MemberAdministration,{accountId,workspace:true})})]})},String(++revision)))};})();`;
 
 const db = new PGlite();
 let browser;
@@ -103,7 +103,8 @@ try {
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ reducedMotion: "reduce" });
   const errors = []; page.on("pageerror", error => errors.push(error.message));
-  let faults, target, memberFailure = false;
+  let faults, target, memberFailure = false, invitationReadFailure = false;
+  const memberInvitations = [];
   const memberPosts = [];
   await page.route(origin + "/**", async route => {
     const incoming = route.request(), url = new URL(incoming.url());
@@ -115,8 +116,20 @@ try {
       return route.fulfill({ json: faults.access || { kind: "staff", accountId: owner, role: "administrator", status: "active", needsMfa: false } });
     }
     if (url.pathname === "/recruitment/api/community") {
-      if (incoming.method() === "GET") return route.fulfill({ json: { ok: true, data: url.searchParams.get("action")==="memberInvitations"?{items:[],emailReady:false}:[] } });
+      if (incoming.method() === "GET") {
+        if (url.searchParams.get("action") !== "memberInvitations") return route.fulfill({ json: { ok: true, data: [] } });
+        if (invitationReadFailure) return route.fulfill({ status: 503, json: { ok: false, message: "Synthetic invitation read failure" } });
+        return route.fulfill({ json: { ok: true, data: { items: memberInvitations, emailReady: false } } });
+      }
       const payload = JSON.parse(incoming.postData()); memberPosts.push(payload);
+      if (!memberFailure && payload.action === "inviteMember") {
+        const item = { id: payload.id, full_name: payload.name, email: payload.email, position: payload.position, joined_on: payload.joined, created_at: new Date().toISOString() };
+        memberInvitations.push(
+          { ...item, state: "pending", delivery: "not_sent" },
+          { ...item, id: crypto.randomUUID(), full_name: "Accepted Alpha Member", email: "accepted@example.test", state: "accepted", delivery: "sent" },
+          { ...item, id: crypto.randomUUID(), full_name: "Canceled Invitation", email: "canceled@example.test", state: "canceled", delivery: "uncertain" },
+        );
+      }
       return memberFailure
         ? route.fulfill({ status: 404, json: { ok: false, message: "The member must sign in with their verified Google account first" } })
         : route.fulfill({ json: { ok: true, data: payload.action==="inviteMember"?{id:payload.id,state:"pending"}:{ id: "ALPHA-2026-ABCDEF123456", status: payload.status } } });
@@ -167,6 +180,27 @@ try {
   await page.setViewportSize({width:375,height:812});
   const addStaff=page.getByRole('button',{name:'Add staff',exact:true});
   await page.getByRole('button',{name:'Back to staff list',exact:true}).click();
+  const directory = page.getByRole("table", { name: "Staff directory" });
+  const search = page.getByRole("searchbox", { name: "Find staff" });
+  const account = directory.getByRole("button", { name: "Open staff account " + target.email, exact: true });
+  await page.waitForFunction(email => document.activeElement?.getAttribute("aria-label") === "Open staff account " + email, target.email);
+  await search.fill(target.email);
+  assert.equal(await directory.getByRole("button").count(), 1);
+  await directory.getByRole("cell", { name: /\bActive$/ }).waitFor();
+  assert.equal(await account.locator(".staff-avatar").getAttribute("aria-hidden"), "true");
+  await search.fill("no-staff-match@example.test");
+  await page.getByText("No staff match your search.", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "Clear search", exact: true }).click();
+  assert.equal(await search.inputValue(), "");
+  for (const width of [375, 1440]) {
+    await page.setViewportSize({ width, height: 950 });
+    assert.equal(await directory.locator("tbody tr").first().evaluate(row => getComputedStyle(row).display), width === 375 ? "grid" : "table-row");
+    assert.equal(await page.locator(".admin-workspace").evaluate(workspace => workspace.scrollWidth > workspace.clientWidth + 1), false);
+    await page.evaluate(() => { document.activeElement?.blur(); document.querySelector(".admin-workspace").scrollTop = 0; });
+    await page.screenshot({ path: path.join(previewDir, `staff-directory-${width}.png`) });
+  }
+  passed.push("directory search, empty-state reset, account focus return and responsive table and cards");
+  await page.setViewportSize({width:375,height:812});
   page.once("dialog",dialog=>dialog.accept());
   await addStaff.click();
   await assertInlineFailure(page,'Review access change','staff-email');
@@ -197,7 +231,7 @@ try {
   assert.match(await page.getByRole("alert").textContent(), /may have completed/);
   const artifactDir = path.join(project, ".next/verification/staff-confirmation");
   await mkdir(artifactDir, { recursive: true });
-  for (const colorScheme of ["light", "dark"]) for (const width of [320, 375, 414, 768, 1024, 1440]) {
+  for (const colorScheme of ["light", "dark"]) for (const width of [320, 375, 414, 768, 1024, 1280, 1440]) {
     await page.setViewportSize({ width, height: 950 });
     await page.emulateMedia({ colorScheme });
     await assertProcessAppearance(page,".recruitment-process","Staff "+width);
@@ -206,7 +240,7 @@ try {
     assert.ok(layout.left >= 0 && layout.right <= width + 1 && !layout.overflow && !layout.pageOverflow, `${colorScheme} ${width}: ${JSON.stringify(layout)}`);
     if (colorScheme === "dark" && width === 375 || colorScheme === "light" && width === 1440) await page.screenshot({ path: path.join(artifactDir, `light-prefers-${colorScheme}-${width}.png`), fullPage: true });
   }
-  passed.push("native retry dialog fits six widths with light/dark device preferences, fixed light appearance, and reduced motion");
+  passed.push("native retry dialog fits seven widths with light/dark device preferences, fixed light appearance, and reduced motion");
   const original = faults.posts[0]; faults.stallPost = false;
   await page.getByRole("button", { name: "Retry confirmation", exact: true }).focus(); await page.keyboard.press("Enter");
   await page.getByText("Staff access updated and recorded.", { exact: true }).waitFor();
@@ -218,7 +252,7 @@ try {
   await mount({ stallDirectory: true }); await prepare(); await confirm();
   await page.getByText("Staff access updated and recorded.", { exact: true }).waitFor();
   assert.equal(await page.locator('dialog.modal:not(.admin-staff-drawer)').count(), 0);
-  assert.match(await page.locator(".staff-member-detail > p").first().textContent(), /Suspended/);
+  await page.locator(".admin-staff-identity").getByText("Suspended", { exact: true }).waitFor();
   await until(() => faults.directoryReads > 0); await page.clock.runFor(8001);
   await page.getByRole("alert").waitFor();
   await page.waitForFunction(() => document.activeElement?.matches(".staff-member-detail"));
@@ -230,7 +264,7 @@ try {
   await mount(); faults.staleDirectory = await rpc(owner, "list_staff_members");
   await prepare(); await confirm(); await page.getByText("Staff access updated and recorded.", { exact: true }).waitFor();
   await until(() => faults.directoryReads > 0);
-  assert.match(await page.locator(".staff-member-detail > p").first().textContent(), /Suspended/);
+  await page.locator(".admin-staff-identity").getByText("Suspended", { exact: true }).waitFor();
   passed.push("stale directory response cannot downgrade acknowledged membership");
 
   await mount(); await prepare("revoke");
@@ -291,8 +325,18 @@ try {
   assert.equal(await page.getByLabel("Unsaved applicant answer").isVisible(), true);
   passed.push("applicant unsaved input survives access-check timeout");
 
+  invitationReadFailure = true;
   await page.evaluate(accountId => window.mountMembers(accountId), owner);
   await page.getByRole("heading", { name: "Organization members", exact: true }).waitFor();
+  const invitationPanel = page.getByRole("region", { name: "Member invitations" });
+  assert.equal(await invitationPanel.locator("details, summary").count(), 0);
+  assert.equal(await invitationPanel.evaluate(node => !!node.closest("details")), false);
+  await invitationPanel.getByRole("alert").filter({ hasText: "Synthetic invitation read failure" }).waitFor();
+  assert.equal(await invitationPanel.getByText("No membership invitations yet", { exact: true }).count(), 0);
+  invitationReadFailure = false;
+  await invitationPanel.getByRole("button", { name: "Refresh invitations" }).click();
+  await invitationPanel.getByText("No membership invitations yet", { exact: true }).waitFor();
+  assert.equal(await invitationPanel.getByRole("link", { name: "Membership ID" }).getAttribute("href"), "/recruitment/membership");
   await page.getByRole("button", { name: "Add existing member", exact: true }).click();
   await page.getByLabel("Verified Google email").fill("existing-member@example.test");
   await page.getByLabel("Member name", { exact: true }).fill("Existing Alpha Member");
@@ -319,6 +363,18 @@ try {
   assert.equal(memberPosts.at(-1).accountId, owner);
   assert.equal(memberPosts.at(-1).status, "active");
   assert.equal(await page.getByLabel("Verified Google email").count(), 0);
+  const invitationTable = invitationPanel.getByRole("table", { name: "Member invitations" });
+  await invitationTable.waitFor();
+  assert.deepEqual(await invitationTable.getByRole("columnheader").allTextContents(), ["Member", "Invitation status", "Email delivery", "Actions"]);
+  const pendingInvitation = invitationTable.getByRole("row").filter({ hasText: "existing-member@example.test" });
+  await pendingInvitation.getByText("Pending", { exact: true }).waitFor();
+  await pendingInvitation.getByText("Not sent", { exact: true }).waitFor();
+  await invitationPanel.getByText("Accepted", { exact: true }).waitFor();
+  await invitationPanel.getByText("Canceled", { exact: true }).waitFor();
+  await invitationPanel.getByText(/Accepted by Gmail/).waitFor();
+  await invitationPanel.getByText(/Delivery unconfirmed/).waitFor();
+  assert.equal(await pendingInvitation.getByRole("button", { name: "Send invitation email" }).isDisabled(), true);
+  assert.equal(await invitationPanel.getByRole("button", { name: "Cancel invitation" }).count(), 1);
   await page.getByRole("button", { name: "Update or revoke membership", exact: true }).click();
   await page.getByLabel("Verified Google email").fill("existing-member@example.test");
   await page.getByLabel("Member name", { exact: true }).fill("Existing Alpha Member");
@@ -342,8 +398,16 @@ try {
       assert.ok(1.05 / (luminance + .05) >= 4.5, "Admin headings and disclosure text remain readable");
     }
     assert.equal(await page.locator("main").count(),1,"Member tools belong to one page landmark");
-    await page.locator(".community-admin-extras").evaluate(node => node.scrollIntoView({ block: "start" }));
+    assert.equal(await page.locator(".admin-workspace").evaluate(node => node.scrollWidth > node.clientWidth + 1), false);
+    if (width === 390 || width === 1440) {
+      assert.equal(await invitationTable.locator("tbody tr").first().evaluate(row => getComputedStyle(row).display), width === 390 ? "grid" : "table-row");
+    }
+    await page.locator(".admin-workspace").evaluate(node => { node.scrollTop = 0; });
     if (width === 390 || width === 1440) await page.screenshot({ path: path.join(previewDir, "member-admin-" + width + ".png") });
+    if (width === 390) {
+      await invitationPanel.evaluate(node => node.scrollIntoView({ block: "start" }));
+      await page.screenshot({ path: path.join(previewDir, "member-invitations-390.png") });
+    }
   }
   passed.push("existing-member form confirms/cancels, preserves failed input, distinguishes revocation and stays readable over the gradient; synthetic community transport");
   await page.evaluate(accountId=>window.mountMembers(accountId,true),owner);

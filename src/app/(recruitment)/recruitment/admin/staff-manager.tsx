@@ -7,13 +7,23 @@ import { useAdminNavigationGuard } from "@/app/(recruitment)/recruitment/compone
 import { useEffect, useRef, useState } from "react";
 import { getStaffData, mergeStaffMembers, postStaffChange } from "@/recruitment/lib/staff-client";
 import { useVerifiedAccess } from "@/app/(recruitment)/recruitment/components/access-guard";
-import { Badge, Callout, FieldError, Icon, Modal, PageHeading } from "@/app/(recruitment)/recruitment/components/ui";
+import { Badge, Callout, EmptyState, FieldError, Icon, Modal, PageHeading } from "@/app/(recruitment)/recruitment/components/ui";
 import { useInlineValidation } from "@/app/(recruitment)/recruitment/components/inline-validation";
 import { formatDate } from "@/recruitment/lib/format-date";
 import { actionLabel, isStaffHistory, isStaffMember, roleLabel, statusLabel } from "@/recruitment/lib/staff";
-import type { StaffMember, StaffHistory, StaffRole, StaffAction, StaffRequest, StaffFailure } from "@/recruitment/lib/staff";
+import type { StaffMember, StaffHistory, StaffRole, StaffAction, StaffRequest, StaffFailure, StaffStatus } from "@/recruitment/lib/staff";
 
 const deniedCodes = ["AUTH_REQUIRED", "DENIED", "ACCOUNT_CHANGED", "MFA_REQUIRED"];
+const accessTones: Record<StaffStatus, string> = { active: "green", suspended: "orange", revoked: "neutral" };
+
+function StaffAccessBadge({ status }: { status: StaffStatus }) {
+  return <Badge tone={accessTones[status]}><span className="badge-dot" aria-hidden="true" />{statusLabel(status)}</Badge>;
+}
+
+function StaffAvatar({ email }: { email: string }) {
+  return <span className="staff-avatar" aria-hidden="true">{email.slice(0, 1).toUpperCase()}</span>;
+}
+
 function AccessHistory({ accountId, member, onDenied }: { accountId: string; member: StaffMember; onDenied: (error: StaffFailure) => void }) {
   const historyPanel = useRef<HTMLDetailsElement>(null);
   const [events, setEvents] = useState<StaffHistory[]>([]);
@@ -38,16 +48,18 @@ function AccessHistory({ accountId, member, onDenied }: { accountId: string; mem
     });
     return () => { active = false; controller.abort(); };
   }, [accountId, member.userId, member.version, onDenied, retry]);
-  return <details ref={historyPanel} className="workspace-disclosure" open={state === "error" || !!error || undefined}><summary>Access history</summary><section className="staff-history" aria-labelledby="staff-history-heading">
+  return <details ref={historyPanel} className="workspace-disclosure staff-access-history" open={state === "error" || !!error || undefined}>
+    <summary><span><Icon name="shield" size={18} />Access history</span><Icon name="chevron" size={16} /></summary>
+    <section className="staff-history" aria-labelledby="staff-history-heading">
     <h3 className="sr-only" id="staff-history-heading">Access history</h3>
     <p className="muted">Private staff access changes.</p>
     {state === "loading" && <ListSkeleton label="Loading access history..." />}
     {state === "error" && <Callout tone="error" title="Something needs attention" role="alert">{error} <button className="text-button" type="button" onClick={() => setRetry(n => n + 1)}>Retry history</button></Callout>}
-    {state === "ready" && !events.length && <p>No access changes are recorded.</p>}
-    {state === "ready" && <ol className="staff-history-list">{events.map(event => <li key={event.id}>
+    {state === "ready" && !events.length && <EmptyState compact heading="h4" icon="shield" title="No access changes are recorded." description="Role and access changes for this account will appear here." />}
+    {state === "ready" && events.length > 0 && <ol className="staff-history-list" role="list">{events.map(event => <li key={event.id}>
       <div className="subheading"><strong>{actionLabel[event.action]}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)}</time></div>
       <p>{event.previousRole && event.previousStatus ? `${roleLabel(event.previousRole)} / ${statusLabel(event.previousStatus)} → ` : ""}{roleLabel(event.newRole)} / {statusLabel(event.newStatus)}</p>
-      <p>{event.reason}</p><p className="muted">{event.actorEmail || "Supabase project owner"}</p>
+      <p className="staff-history-reason">{event.reason}</p><p className="muted">{event.actorEmail || "Supabase project owner"}</p>
     </li>)}</ol>}
     {state === "ready" && more && <button className="button button-secondary" disabled={loadingMore} type="button" onClick={async () => {
       if (moreRequest.current) return;
@@ -150,42 +162,90 @@ export function StaffManager({ accountId, initialStaff }: { accountId: string; i
       }
     }
   }
+  function openDetail() {
+    directoryScroll.current = directoryRef.current?.closest<HTMLElement>(".admin-workspace")?.scrollTop ?? window.scrollY;
+    setMobileDetail(true);
+    requestAnimationFrame(() => detailRef.current?.focus());
+  }
   const select = (item: StaffMember) => {
     if (pending || confirmation) return;
     if ((item.userId !== selectedId || adding) && dirty && !window.confirm("Discard the unfinished access change and open this staff account?")) return;
     validation.clear();
-    directoryScroll.current = window.scrollY;
-    setMobileDetail(true);
-    if (item.userId === selectedId && !adding) { requestAnimationFrame(() => detailRef.current?.focus()); return; }
+    openDetail();
+    if (item.userId === selectedId && !adding) return;
     setDirty(false); setSelectedId(item.userId); setAdding(false); setRole(item.role === "administrator" ? "evaluator" : "administrator"); setAction("change_role"); setReason(""); setFailure(null); setNotice("");
-    requestAnimationFrame(() => detailRef.current?.focus());
   };
   function closeDetail() {
     if (pending || confirmation) return;
     setMobileDetail(false);
-    requestAnimationFrame(() => { window.scrollTo({ top: directoryScroll.current, behavior: "instant" }); const target = adding ? addStaffButton.current : directoryRef.current?.querySelector<HTMLButtonElement>('[aria-pressed="true"]'); target?.focus({ preventScroll: true }); });
+    requestAnimationFrame(() => {
+      const scroller = directoryRef.current?.closest<HTMLElement>(".admin-workspace") ?? window;
+      scroller.scrollTo({ top: directoryScroll.current, behavior: "instant" });
+      const target = adding ? addStaffButton.current : directoryRef.current?.querySelector<HTMLButtonElement>('[aria-pressed="true"]');
+      (target ?? directoryRef.current?.querySelector("input"))?.focus({ preventScroll: true });
+    });
   }
   if (blocked) return <main id="main-content" className="container portal narrow"><PageHeading title="Your access has changed" description={failure?.message || "Staff management has been cleared."} /><Link href="/recruitment/staff" className="button button-orange">Check staff access</Link></main>;
   return <main id="main-content" className="container portal staff-portal workspace-redesign workspace-staff" data-admin-unsaved={dirty || undefined} data-admin-pending={pending || !!confirmation || undefined} data-mobile-view={mobileDetail ? "detail" : "list"}>
-<AdminPageHeader title="Staff accounts" description="Manage who can administer recruitment and review applications."><button ref={addStaffButton} className="button button-orange" type="button" disabled={pending || !!confirmation} onClick={() => { if (!adding && dirty && !window.confirm("Discard the unfinished access change and add staff?")) return; directoryScroll.current = window.scrollY; setMobileDetail(true); if (!adding) { setAdding(true); setDirty(false); setEmail(""); setRole("evaluator"); setReason(""); setFailure(null); setNotice(""); } requestAnimationFrame(() => detailRef.current?.focus()); }}>Add staff</button></AdminPageHeader>
+    <AdminPageHeader title="Staff accounts" description="Manage who can administer recruitment and review applications.">
+      <button ref={addStaffButton} className="button button-orange staff-add-action" type="button" disabled={pending || !!confirmation} onClick={() => { if (!adding && dirty && !window.confirm("Discard the unfinished access change and add staff?")) return; openDetail(); if (!adding) { setAdding(true); setDirty(false); setEmail(""); setRole("evaluator"); setReason(""); setFailure(null); setNotice(""); } }}><Icon name="people" size={16} />Add staff</button>
+    </AdminPageHeader>
     <div className="workspace-staff-body">
 
     {!mobileDetail && notice && <Callout tone="success" title="Access updated" role="status" className="staff-notice">{notice}</Callout>}
     {!mobileDetail && failure && !confirmation && <Callout tone="warning"><p role="alert">{failure.message}</p><button type="button" className="text-button" disabled={refreshing} onClick={() => void refresh()}>Reload staff details</button></Callout>}
     <div className="staff-management-layout">
       <section ref={directoryRef} className="staff-directory" aria-labelledby="staff-directory-heading">
-        <div className="subheading"><h2 id="staff-directory-heading">Staff directory</h2><button className="text-button" type="button" disabled={refreshing} onClick={() => void refresh()}>{refreshing ? "Refreshing…" : "Refresh"}</button></div>
-        <div className="field"><label htmlFor="staff-search">Find staff</label><input id="staff-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Email, role, or access state" /></div>
-        <p className="muted">{visible.length} of {members.length} staff accounts</p>
-        {!visible.length && <p>{members.length ? "No staff match your search." : "No staff accounts are available."}</p>}
-        <div className="staff-table-wrap"><table className="staff-member-list"><thead><tr><th scope="col">Account</th><th scope="col">Role</th><th scope="col">Access</th><th scope="col">Updated (Philippine time)</th></tr></thead><tbody>{visible.map(item => <tr key={item.userId}><td><button type="button" aria-label={"Open staff account " + item.email} aria-pressed={!adding && item.userId === selectedId} onClick={() => select(item)}>{item.email}{item.userId === accountId && <small>Your account</small>}</button></td><td data-label="Role">{roleLabel(item.role)}</td><td data-label="Access"><Badge tone={item.status === "active" ? "green" : "neutral"}>{statusLabel(item.status)}</Badge></td><td data-label="Updated"><time dateTime={item.updatedAt}>{formatDate(item.updatedAt)}</time></td></tr>)}</tbody></table></div>
+        <header className="staff-directory-heading">
+          <h2 id="staff-directory-heading">Staff directory</h2>
+          <p>{visible.length} of {members.length} staff accounts</p>
+        </header>
+        <div className="staff-directory-toolbar">
+          <div className="staff-directory-search">
+            <label className="sr-only" htmlFor="staff-search">Find staff</label>
+            <Icon name="search" size={17} />
+            <input id="staff-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Email, role, or access state" />
+          </div>
+          <button className="button button-secondary" type="button" disabled={refreshing} onClick={() => void refresh()}><Icon name="reset" size={15} />{refreshing ? "Refreshing…" : "Refresh"}</button>
+        </div>
+        {!visible.length && !refreshing && !failure && <EmptyState icon={members.length ? "search" : "people"}
+          title={members.length ? "No staff match your search." : "No staff accounts are available."}
+          description={members.length ? "Try another email, role, or access status." : "Staff accounts will appear here once access is granted."} announce>
+          {members.length > 0 && <button type="button" className="button button-secondary" onClick={() => setQuery("")}>Clear search</button>}
+        </EmptyState>}
+        {visible.length > 0 && <div className="staff-table-wrap">
+          <table className="staff-member-list" role="table" aria-labelledby="staff-directory-heading">
+            <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Account</th><th scope="col" role="columnheader">Role</th><th scope="col" role="columnheader">Access</th><th scope="col" role="columnheader">Updated (Philippine time)</th></tr></thead>
+            <tbody role="rowgroup">{visible.map(item => <tr key={item.userId} role="row">
+              <td role="cell">
+                <button className="staff-account-trigger" type="button" aria-label={"Open staff account " + item.email} aria-pressed={!adding && item.userId === selectedId} onClick={() => select(item)}>
+                  <StaffAvatar email={item.email} />
+                  <span className="staff-account-name">{item.email}{item.userId === accountId && <small>Your account</small>}</span>
+                  <Icon name="chevron" size={15} />
+                </button>
+              </td>
+              <td role="cell" data-label="Role">{roleLabel(item.role)}</td>
+              <td role="cell" data-label="Access"><StaffAccessBadge status={item.status} /></td>
+              <td role="cell" data-label="Updated (Philippine time)"><time dateTime={item.updatedAt}>{formatDate(item.updatedAt)}</time></td>
+            </tr>)}</tbody>
+          </table>
+        </div>}
       </section>
       <Modal title={adding ? "Add staff access" : "Staff account"} className="admin-staff-drawer" active={mobileDetail && accessVerified} dismissible={!pending && !confirmation} onClose={closeDetail}><section className="staff-member-detail" tabIndex={-1} ref={detailRef} aria-label={adding ? "Add staff access" : "Selected staff account"}>
         <button type="button" className="text-button workspace-back" disabled={pending || !!confirmation} onClick={closeDetail}><Icon name="arrow" size={16} />Back to staff list</button>
-        {adding ? <><h2>Add staff access</h2><p>Their Google account must have signed in once.</p></> : member ? <><h2>{member.email}</h2><p>{roleLabel(member.role)} · {statusLabel(member.status)}</p><p className="muted">Updated {formatDate(member.updatedAt)} Philippine time</p></> : <h2>Select a staff account</h2>}
+        {adding ? <Callout className="staff-add-guidance"><p>Their Google account must have signed in once.</p></Callout> : member && <header className="admin-staff-identity">
+          <StaffAvatar email={member.email} />
+          <div>
+            <h2>{member.email}</h2>
+            <p className="staff-identity-meta">{roleLabel(member.role)} <StaffAccessBadge status={member.status} />{own && <small>Your account</small>}</p>
+            <p className="muted staff-updated">Updated <time dateTime={member.updatedAt}>{formatDate(member.updatedAt)}</time> Philippine time</p>
+          </div>
+        </header>}
         {mobileDetail && notice && <Callout tone="success" title="Access updated" role="status">{notice}</Callout>}
         {mobileDetail && failure && !confirmation && <Callout tone="warning"><p role="alert">{failure.message}</p><button type="button" className="text-button" disabled={refreshing} onClick={() => void refresh()}>Reload staff details</button></Callout>}
-        {(adding || member) && (own && !adding ? <Callout>Your own access cannot be changed here. Ask another administrator if your role needs to change.</Callout> : <form {...validation.props} className="staff-change-form" onSubmit={event => {
+        {(adding || member) && <section className="admin-staff-access">
+        {!adding && <h3>Manage access</h3>}
+        {own && !adding ? <Callout>Your own access cannot be changed here. Ask another administrator if your role needs to change.</Callout> : <form {...validation.props} className="staff-change-form" onSubmit={event => {
           event.preventDefault();
           if (pending) return;
           if (!adding && !member) return;
@@ -204,7 +264,8 @@ export function StaffManager({ accountId, initialStaff }: { accountId: string; i
           {(adding || effectiveAction === "change_role") && <div className="field"><label htmlFor="staff-role">{adding ? "Role" : "New role"}</label><select id="staff-role" {...validation.field("staff-role", "staff-role-hint")} value={role} onChange={event => { setDirty(true); setRole(event.target.value as StaffRole); }}><option value="evaluator">Evaluator</option><option value="administrator">Administrator</option></select><p className="field-hint" id="staff-role-hint">Administrators require authenticator verification.</p>{validation.errors["staff-role"] && <FieldError id="staff-role-error">{validation.errors["staff-role"]}</FieldError>}</div>}
           <div className="field"><label htmlFor="staff-reason">Reason for this change</label><textarea id="staff-reason" {...validation.field("staff-reason", "staff-reason-hint")} required maxLength={500} rows={3} value={reason} onChange={event => { setDirty(true); setReason(event.target.value); }} /><p className="field-hint" id="staff-reason-hint">Private access history. {reason.trim().length} / 500 characters.</p>{validation.errors["staff-reason"] && <FieldError id="staff-reason-error">{validation.errors["staff-reason"]}</FieldError>}</div>
           <button className="button button-orange" disabled={pending || refreshing} type="submit">Review access change</button>
-        </form>)}
+        </form>}
+        </section>}
         {!adding && member && <AccessHistory key={member.userId + ":" + member.version} accountId={accountId} member={member} onDenied={deny} />}
       </section></Modal>
     </div>

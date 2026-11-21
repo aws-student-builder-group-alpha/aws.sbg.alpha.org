@@ -151,7 +151,7 @@ Administrator pages use the navy sidebar instead of the website top navbar. Open
 
 **Expected result:** The applicant becomes **Under Review** and appears in the chosen evaluator's workspace. Only one evaluator is assigned at a time. Reassignment requires a fresh saved recommendation from the new assignment.
 
-Tip: expand **Queue views** and click **Unassigned**, **Awaiting recommendation**, or **Ready for decision** to find the next group of applications. Click **Back to applications** to return from an open administrator record.
+Tip: open **Filters**, choose **Unassigned**, **Awaiting recommendation**, or **Ready for decision**, then click **Apply filters**. Click **Back to applications** to return from an open administrator record on a narrow screen.
 
 ## Organization Head: review an application
 
@@ -173,7 +173,7 @@ Tip: expand **Queue views** and click **Unassigned**, **Awaiting recommendation*
 ### A. Publish the first outcome
 
 1. Open [Applications](http://localhost:3000/recruitment/admin/applications).
-2. Find and click the applicant. You can use **Queue views → Ready for decision**.
+2. Find and click the applicant. To narrow the queue to ready records, open **Filters**, choose **Ready for decision**, then click **Apply filters**.
 3. Click **Review & decision**.
 4. Check the saved recommendation and the number of accepted places filled.
 5. In **Outcome to publish**, select **Accepted**, **Waitlisted**, or **Not Selected**.
@@ -221,9 +221,9 @@ Tip: expand **Queue views** and click **Unassigned**, **Awaiting recommendation*
 ### B. Export applications
 
 1. Open [Applications](http://localhost:3000/recruitment/admin/applications).
-2. Use **Search** or **Filters → Apply filters** to select the records you need. To export all submitted applications, click **Clear filters**.
+2. Use **Search** or **Filters → Apply filters** to select the records you need. To export all submitted applications, use **Clear all** when a search or filter is active.
 3. Check the matching count. Changing a field without applying it does not change the export scope.
-4. Click **Export CSV** and wait for the download to start. **Cancel export** is available during preparation.
+4. Choose **More actions → Export CSV** and wait for the download to start. **Cancel export** is available below the toolbar during preparation.
 
 **Expected result:** The CSV includes all matching pages, not just visible rows. It includes submitted applications, including Withdrawn when matched, but excludes drafts, evidence links, and private evaluator/admin notes. No matches means export is unavailable.
 
@@ -247,7 +247,7 @@ Tip: expand **Queue views** and click **Unassigned**, **Awaiting recommendation*
 3. Enter their intended **Verified Google email**, **Member name**, **Position**, **Date joined**, and **Private reason**. They do not need to have signed in before you save the invitation.
 4. Click **Review and add member**, check the browser confirmation, then **OK**.
 5. Wait for the invitation-saved message. This creates a pending invitation, not an immediately issued ID.
-6. Share the [Membership ID page](http://localhost:3000/recruitment/membership). If email is configured, expand **Member invitations**, find the invitation, click **Send invitation email**, and confirm the recipient with **OK**.
+6. Share the [Membership ID page](http://localhost:3000/recruitment/membership). If email is configured, find the pending invitation in **Member invitations**, click **Send invitation email**, and confirm the recipient with **OK**.
 7. To withdraw a pending invitation, use **Member invitations → Cancel invitation** and confirm.
 
 **Expected result:** The invited person must sign in with the invited Google account and accept membership before an ID is issued. They do not complete a recruitment application. Saving an invitation does not automatically email it.

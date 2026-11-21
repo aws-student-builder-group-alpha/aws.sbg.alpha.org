@@ -1,7 +1,7 @@
 import {recruitmentStyleShell} from "../fixtures/recruitment-build.mjs";
 // Actual components, HTTP authorization, transport and SQL; synthetic identity/navigation/motion only.
 import assert from "node:assert/strict";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertProcessAppearance, openDisclosure } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertProcessAppearance } from "../fixtures/browser-motion.mjs";
 import { readFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -63,11 +63,30 @@ try{
  }
  async function mount(person){runtime.as(person);faults={posts:[]};const initialList=(await (await runtime.get()).json()).data;await page.evaluate(props=>window.mount(props),{accountId:person.id,initialList,redesign:true});await page.getByRole('heading',{name:initialList.role==='administrator'?'Applications':'Evaluator workspace',exact:true}).waitFor();}
  async function match(shown,total){await page.getByText(new RegExp(`^${shown} shown of ${total} matching applications`)).waitFor();assert.equal(await page.locator('.evaluation-list-item').count(),shown);}
- async function clear(){if(await page.getByRole('button',{name:/^Filters\b/}).getAttribute('aria-expanded')!=='true')await page.getByRole('button',{name:/^Filters\b/}).click();await page.getByRole('button',{name:'Clear filters',exact:true}).click();await match(25,36);}
+ const filterToggle=page.getByRole('button',{name:/^Filters\b/});
+ const filterDrawer=page.getByRole('dialog',{name:'Filter applications'});
+ async function openFilters(){await filterToggle.click();await filterDrawer.waitFor();}
+ async function closeFilters(){await page.keyboard.press('Escape');await filterDrawer.waitFor({state:'detached'});}
+ async function clear(){await page.getByRole('button',{name:'Clear all',exact:true}).click();await match(25,36);}
+ async function search(query){await page.getByLabel('Search applications',{exact:true}).fill(query);await page.getByRole('button',{name:'Search',exact:true}).click();}
  async function layout(label){await assertRecruitmentSurface(page,label);for(const colorScheme of ['light','dark'])for(const width of [320,375,414,768,1024,1440]){await page.setViewportSize({width,height:1000});await page.emulateMedia({colorScheme});await assertProcessAppearance(page,".recruitment-process",label);assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),'light');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,label+' '+width);}}
+ runtime.as(runtime.admin);
+ const emptyList=(await (await runtime.get()).json()).data;
+ emptyList.items=[];emptyList.nextOffset=null;emptyList.queue.total=0;
+ for(const status of Object.keys(emptyList.queue.statusCounts))emptyList.queue.statusCounts[status]=0;
+ await page.evaluate(props=>window.mount(props),{accountId:runtime.admin.id,initialList:emptyList,redesign:true});
+ await page.getByRole('heading',{name:'No submitted applications yet.',exact:true}).waitFor();
+ assert.equal(await page.getByRole('table',{name:'Submitted applications'}).count(),0);
+ assert.equal(await page.locator('.empty-state-art').getAttribute('aria-hidden'),'true');
+ for(const width of [375,1440]){
+  await page.setViewportSize({width,height:850});await assertRecruitmentSurface(page,'Empty application queue');
+  await page.screenshot({path:path.join(output,'empty-queue-'+width+'.png')});
+ }
+ passed.push('the confirmed empty queue shows illustrated guidance at desktop and phone widths');
  await mount(runtime.admin);await match(25,36);assert.equal(await page.locator('.queue-status-counts div').filter({hasText:'Withdrawn'}).locator('dd').textContent(),'5');await page.getByRole('button',{name:'Load more applications',exact:true}).click();await match(36,36);assert.equal(await page.getByRole('button',{name:'Load more applications',exact:true}).count(),0);passed.push('matching counts include all pages and Withdrawn while loading more deduplicates rows');
 
  faults.holdSearch='';
+ await page.getByRole('button',{name:'More actions',exact:true}).click();
  await page.getByRole('button',{name:'Refresh applications',exact:true}).click();
  await until(()=>faults.held);
  assert.equal(await page.locator('.evaluation-list-item:visible').count(),36,'Matching rows remain visible during refresh');
@@ -77,21 +96,30 @@ try{
  await match(25,36);
  passed.push('delayed matching refresh retains real rows until the new page arrives');
  await page.getByRole('button',{name:'Load more applications',exact:true}).click();await match(36,36);
- await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>scrollTo(0,0));
+ const workspace = page.getByRole('region',{name:'Admin workspace'});
+ const scrollWorkspaceToTop = () => workspace.evaluate(node=>node.scrollTo({top:0,behavior:'instant'}));
+ await page.setViewportSize({width:1440,height:900});await scrollWorkspaceToTop();
  const firstRow=await page.locator('.evaluation-list-item').first().boundingBox();
  assert.ok(firstRow && firstRow.y>=81 && firstRow.y+firstRow.height<=900,'Applications appear below the landing navbar and above the fold without expanding filters');
  assert.equal(await page.locator('.site-header,.site-header-space').count(),0);
- assert.equal(await page.locator('.queue-count-disclosure').evaluate(node=>node.open),false);assert.equal(await page.locator('.queue-views-disclosure').evaluate(node=>node.open),false);assert.equal(await page.getByRole('button',{name:'Apply filters',exact:true}).isVisible(),false);await page.getByRole('button',{name:'Search',exact:true}).waitFor();
- await openDisclosure(page,'Queue views');
- for (const width of [320,375,768,1440,1920]) {
+ const summary=page.locator('.queue-status-counts');
+ assert.equal(await summary.locator('button,a,summary,[tabindex]').count(),0);
+ assert.equal(await summary.locator('dt').count(),6);
+ assert.equal(await summary.locator('.queue-status-icon[aria-hidden="true"] svg').count(),6);
+ await page.getByRole('heading',{name:'Status breakdown',exact:true}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'Apply filters',exact:true}).isVisible(),false);
+ for (const width of [320,375,768,1280,1440,1920]) {
   await page.setViewportSize({width,height:1000});
-  const bounds=await page.locator('.queue-shortcuts').evaluate(node=>{const row=node.getBoundingClientRect(),parent=node.closest('.workspace-queue-overview')?.getBoundingClientRect();return {left:row.left,right:row.right,parentLeft:parent?.left+parseFloat(getComputedStyle(node.closest(".workspace-queue-overview")).paddingLeft)+parseFloat(getComputedStyle(node.closest(".workspace-queue-overview")).borderLeftWidth),parentRight:parent?.right,buttons:[...node.querySelectorAll('button')].map(button=>{const rect=button.getBoundingClientRect();return {left:rect.left,right:rect.right};})};});
-  assert.equal(bounds.left,bounds.parentLeft,'Queue shortcuts align with the toolbar');
-  assert.ok(bounds.right<=bounds.parentRight+1 && bounds.buttons.every(button=>button.left>=bounds.left-1 && button.right<=bounds.right+1),'Shortcut actions wrap inside the shared content gutters');
+  assert.equal(await summary.evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width<768?3:6);
+  await openFilters();
+  const bounds=await filterDrawer.boundingBox();
+  assert.equal(bounds.width,width<768?width:430);
+  assert.ok(Math.abs(bounds.x+bounds.width-width)<=1);
+  if(width===375 || width===1440)await page.screenshot({path:path.join(output,'filters-'+width+'.png')});
+  await closeFilters();
+  assert.equal(await filterToggle.evaluate(node=>node===document.activeElement),true);
  }
- await page.locator('.queue-views-disclosure > summary').click();
  await page.setViewportSize({width:1440,height:900});
- const filterToggle=page.getByRole('button',{name:/^Filters\b/});
  assert.equal(await filterToggle.getAttribute('aria-expanded'),'false');
  assert.equal(await page.getByLabel('Application status',{exact:true}).isVisible(),false);
  await page.setViewportSize({width:375,height:1000});
@@ -99,11 +127,21 @@ try{
  assert.ok(mobileRow && mobileRow.y>=73 && mobileRow.y+mobileRow.height<=812,'The first application also fits below the landing navbar in an 812px-high mobile screen with filters collapsed');
  assert.equal(await filterToggle.getAttribute('aria-expanded'),'false');
  assert.equal(await page.getByLabel('Application status',{exact:true}).isVisible(),false);
- await filterToggle.click();await page.getByLabel('Application status',{exact:true}).selectOption('Under Review');
- await filterToggle.click();await match(36,36);await filterToggle.click();
+ await openFilters();await page.getByLabel('Application status',{exact:true}).selectOption('Under Review');
+ await closeFilters();await match(36,36);
+ await search('%_');await match(1,1);
+ await search('');await match(25,36);
+ await openFilters();
  assert.equal(await page.getByLabel('Application status',{exact:true}).inputValue(),'Under Review');
- await page.getByLabel('Application status',{exact:true}).selectOption('all');await filterToggle.click();
- await page.locator('.evaluation-list-item').filter({hasText:created.app.reference}).click();
+ await page.getByRole('button',{name:'Reset selections',exact:true}).click();
+ assert.equal(await page.getByLabel('Application status',{exact:true}).inputValue(),'all');
+ await closeFilters();
+ const record = page.locator('.evaluation-list-item').filter({hasText:created.app.reference});
+ await workspace.evaluate(node=>node.scrollTo({top:400,behavior:'instant'}));
+ await record.scrollIntoViewIfNeeded();
+ const queueScroll = await workspace.evaluate(node=>node.scrollTop);
+ assert.ok(queueScroll>0);
+ await record.click();
  await page.getByRole('heading',{name:'Submitted application',exact:true}).waitFor();
  const applicationTab=page.getByRole('tab',{name:'Application',exact:true});await applicationTab.focus();await page.keyboard.press('ArrowRight');
  assert.equal(await page.getByRole('tab',{name:'Review & decision',exact:true}).getAttribute('aria-selected'),'true');
@@ -113,12 +151,21 @@ try{
  await applicationTab.click();await page.getByRole('tab',{name:'Review & decision',exact:true}).click();
  assert.equal(await page.getByLabel('Assignment reason (optional)',{exact:true}).inputValue(),'Preserve my assignment draft');
  await page.getByRole('tab',{name:'Application',exact:true}).click();
- await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'detail-375.png')});
- await page.setViewportSize({width:1440,height:1000});
+ await scrollWorkspaceToTop();await page.screenshot({path:path.join(output,'detail-375.png')});
+ assert.equal(await page.locator('.evaluation-list').isVisible(),false,'The selected application has the full phone width');
+ for(const width of [1280,1440]){
+   await page.setViewportSize({width,height:1000});
+   const list=await page.locator('.evaluation-list').boundingBox();
+   const detail=await page.locator('.workspace-detail').boundingBox();
+   assert.ok(list && detail && list.x+list.width<detail.x,'The selected application sits beside the queue');
+   assert.ok(Math.abs(list.width/(list.width+detail.width)-.45)<.01,'The queue and detail share the space 45:55');
+ }
  await page.getByRole('tab',{name:'Review & decision',exact:true}).click();
- await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'detail-1440.png')});
+ await scrollWorkspaceToTop();await page.screenshot({path:path.join(output,'detail-1440.png')});
  await page.setViewportSize({width:375,height:1000});
  await page.getByRole('button',{name:'Back to applications',exact:true}).click();
+ await page.waitForFunction(top=>Math.abs(document.querySelector('.admin-workspace').scrollTop-top)<=1,queueScroll);
+ assert.equal(await record.evaluate(node=>node===document.activeElement),true);
  await page.locator('.evaluation-list-item').filter({hasText:created.app.reference}).click();
  assert.equal(await page.getByLabel('Assignment reason (optional)',{exact:true}).inputValue(),'Preserve my assignment draft');
  await page.getByRole('button',{name:'Back to applications',exact:true}).click();
@@ -127,31 +174,36 @@ try{
  assert.equal(await page.getByLabel('Assignment reason (optional)',{exact:true}).inputValue(),'Preserve my assignment draft');
  assert.equal(faults.posts.length,0);
  await page.setViewportSize({width:1440,height:1000});await mount(runtime.admin);await match(25,36);
- await filterToggle.click();
+ await openFilters();
  passed.push('mobile filters preserve unapplied values; keyboard tabs and Back to list preserve edits without writes; another record still requires discard confirmation');
  await page.getByLabel('Application status',{exact:true}).selectOption('Under Review');await page.getByLabel('Track',{exact:true}).selectOption('COMMITTEE');await page.getByText(/Filter changes have not been applied/).waitFor();await match(25,36);await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(6,6);assert.equal(await page.locator('.queue-status-counts div').filter({hasText:'Submitted'}).locator('dd').textContent(),'0');passed.push('explicit combined filters reset paging and counts follow all applied filters including status');
- await page.getByLabel('Opportunity',{exact:true}).selectOption('committee-secretariat');await page.getByLabel('Track',{exact:true}).selectOption('CORE_TEAM');assert.equal(await page.getByLabel('Opportunity',{exact:true}).inputValue(),'');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await page.getByText('No applications match the applied search and filters.',{exact:true}).waitFor();await match(0,0);await clear();passed.push('track changes clear incompatible opportunity selection and Clear filters restores defaults');
- await page.getByLabel('Evaluator assignment',{exact:true}).selectOption('assigned');await page.getByLabel('Current recommendation',{exact:true}).selectOption('missing');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(3,3);await page.getByLabel('Current recommendation',{exact:true}).selectOption('saved');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(21,21);passed.push('assignment and current-review filters distinguish Saved from Not saved without counting older reviews');
+ await openFilters();await page.getByLabel('Opportunity',{exact:true}).selectOption('committee-secretariat');await page.getByLabel('Track',{exact:true}).selectOption('CORE_TEAM');assert.equal(await page.getByLabel('Opportunity',{exact:true}).inputValue(),'');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await page.getByText('No applications match the applied search and filters.',{exact:true}).waitFor();await match(0,0);await clear();passed.push('track changes clear incompatible opportunity selection and Clear all restores defaults');
+ await openFilters();await page.getByLabel('Evaluator assignment',{exact:true}).selectOption('assigned');await page.getByLabel('Current recommendation',{exact:true}).selectOption('missing');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(3,3);await openFilters();await page.getByLabel('Current recommendation',{exact:true}).selectOption('saved');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(21,21);passed.push('assignment and current-review filters distinguish Saved from Not saved without counting older reviews');
  await clear();await page.getByLabel('Search applications',{exact:true}).fill('%_');await page.getByRole('button',{name:'Search',exact:true}).click();await match(1,1);await page.getByText('Literal %_ Applicant',{exact:true}).waitFor();await layout('filtered queue');await clear();passed.push('literal search combines with filters and six widths remain usable with both device preferences');
- await page.locator('.evaluation-list-item').filter({hasText:created.app.reference}).click();await page.getByRole('heading',{name:'Submitted application',exact:true}).waitFor();await page.getByRole('tab',{name:'Review & decision',exact:true}).click();await page.getByLabel('Evaluator',{exact:true}).selectOption(runtime.first.id);await page.getByRole('button',{name:'Back to applications',exact:true}).click();await page.getByLabel('Application status',{exact:true}).selectOption('Accepted');page.once('dialog',dialog=>dialog.dismiss());await page.getByRole('button',{name:'Apply filters',exact:true}).click();assert.equal(await page.getByLabel('Evaluator',{exact:true}).inputValue(),runtime.first.id);await match(25,36);page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(6,6);assert.equal(await page.getByRole('heading',{name:'Submitted application',exact:true}).count(),0);passed.push('dirty assignment survives a canceled filter change and is discarded only after confirmation');
- await clear();await page.locator('.evaluation-list-item').filter({hasText:created.app.reference}).click();await page.getByRole('heading',{name:'Submitted application',exact:true}).waitFor();await page.getByRole('tab',{name:'Review & decision',exact:true}).click();await page.getByLabel('Evaluator',{exact:true}).selectOption(runtime.first.id);await page.getByRole('button',{name:'Review evaluator assignment',exact:true}).click();faults.stallAfter='assign';await page.getByRole('button',{name:'Confirm assignment',exact:true}).click();await until(()=>faults.committed);await page.clock.fastForward(15010);await page.getByRole('button',{name:'Retry same assignment',exact:true}).waitFor();await page.evaluate(()=>document.querySelector('.application-queue-controls').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));assert.equal(await page.getByRole('dialog').count(),1);assert.equal(await page.getByRole('button',{name:'Back',exact:true}).isDisabled(),true);delete faults.stallAfter;await page.getByRole('button',{name:'Retry same assignment',exact:true}).click();await page.getByText('Evaluator assignment confirmed.',{exact:true}).waitFor();assert.equal(faults.posts.at(-1).request.mutationId,faults.posts.at(-2).request.mutationId);await page.getByRole('button',{name:'Back to applications',exact:true}).click();await match(25,36);passed.push('filter submission cannot discard an uncertain command; retry keeps its exact operation and refreshes matching counts');
+ await page.locator('.evaluation-list-item').filter({hasText:created.app.reference}).click();await page.getByRole('heading',{name:'Submitted application',exact:true}).waitFor();await page.getByRole('tab',{name:'Review & decision',exact:true}).click();await page.getByLabel('Evaluator',{exact:true}).selectOption(runtime.first.id);await page.getByRole('button',{name:'Back to applications',exact:true}).click();await openFilters();await page.getByLabel('Application status',{exact:true}).selectOption('Accepted');page.once('dialog',dialog=>dialog.dismiss());await page.getByRole('button',{name:'Apply filters',exact:true}).click();await filterDrawer.getByRole('alert').waitFor();await closeFilters();assert.equal(await page.getByLabel('Evaluator',{exact:true}).inputValue(),runtime.first.id);await match(25,36);await openFilters();page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(6,6);assert.equal(await page.getByRole('heading',{name:'Submitted application',exact:true}).count(),0);passed.push('dirty assignment survives a canceled filter change and is discarded only after confirmation');
+ await clear();await page.locator('.evaluation-list-item').filter({hasText:created.app.reference}).click();await page.getByRole('heading',{name:'Submitted application',exact:true}).waitFor();await page.getByRole('tab',{name:'Review & decision',exact:true}).click();await page.getByLabel('Evaluator',{exact:true}).selectOption(runtime.first.id);await page.getByRole('button',{name:'Review evaluator assignment',exact:true}).click();faults.stallAfter='assign';await page.getByRole('button',{name:'Confirm assignment',exact:true}).click();await until(()=>faults.committed);await page.clock.fastForward(15010);await page.getByRole('button',{name:'Retry same assignment',exact:true}).waitFor();await page.evaluate(()=>document.querySelector('.queue-search-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));assert.equal(await page.getByRole('dialog').count(),1);assert.equal(await page.getByRole('button',{name:'Back',exact:true}).isDisabled(),true);delete faults.stallAfter;await page.getByRole('button',{name:'Retry same assignment',exact:true}).click();await page.getByText('Evaluator assignment confirmed.',{exact:true}).waitFor();assert.equal(faults.posts.at(-1).request.mutationId,faults.posts.at(-2).request.mutationId);await page.getByRole('button',{name:'Back to applications',exact:true}).click();await match(25,36);passed.push('filter submission cannot discard an uncertain command; retry keeps its exact operation and refreshes matching counts');
  // Time out a delayed prior query, apply a new one, then release the obsolete response.
- faults.holdSearch='Delayed response';await page.getByLabel('Search applications',{exact:true}).fill('Delayed response');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await until(()=>faults.held);await page.clock.fastForward(8010);await page.getByRole('button',{name:'Retry applications',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Matching applications',exact:true}).count(),0);const held=faults.held;delete faults.holdSearch;await page.getByLabel('Search applications',{exact:true}).fill('%_');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(1,1);await held.route.fulfill({status:held.status,headers:held.headers,body:held.body}).catch(()=>{});await match(1,1);passed.push('failed reads hide old counts and an obsolete response cannot replace a newer applied query');
- await clear();if(await filterToggle.getAttribute('aria-expanded')==='true')await filterToggle.click();await page.setViewportSize({width:1440,height:1000});await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'queue-1440.png')});await page.setViewportSize({width:375,height:1000});await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'queue-375.png')});
- await mount(runtime.admin);await openDisclosure(page,'Queue views');
+ faults.holdSearch='Delayed response';await search('Delayed response');await until(()=>faults.held);await page.clock.fastForward(8010);await page.getByRole('button',{name:'Retry applications',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Status breakdown',exact:true}).count(),0);const held=faults.held;delete faults.holdSearch;await search('%_');await match(1,1);await held.route.fulfill({status:held.status,headers:held.headers,body:held.body}).catch(()=>{});await match(1,1);passed.push('failed reads hide old counts and an obsolete response cannot replace a newer applied query');
+ await clear();if(await filterToggle.getAttribute('aria-expanded')==='true')await filterToggle.click();await page.setViewportSize({width:1440,height:1000});await scrollWorkspaceToTop();await page.screenshot({path:path.join(output,'queue-1440.png')});await page.setViewportSize({width:375,height:1000});await scrollWorkspaceToTop();await page.screenshot({path:path.join(output,'queue-375.png')});
+ await mount(runtime.admin);
+ await search('scope-check');await match(0,0);
+ await openFilters();
+ await page.getByLabel('Track',{exact:true}).selectOption('COMMITTEE');await page.getByLabel('Opportunity',{exact:true}).selectOption('skillbuilders-web');
  for(const [label,status,assignment,review] of [['Unassigned','Submitted','unassigned','all'],['Awaiting recommendation','Under Review','assigned','missing'],['Ready for decision','Under Review','assigned','saved']]){
   await page.getByRole('button',{name:label,exact:true}).click();
-  await page.waitForFunction(label=>document.querySelector('button[aria-pressed="true"]')?.textContent===label,label);
-  const toggle=page.getByRole('button',{name:/^Filters\b/});if(await toggle.getAttribute('aria-expanded')!=='true')await toggle.click();
+  assert.equal(await page.getByRole('button',{name:label,exact:true}).getAttribute('aria-pressed'),'true');
   assert.equal(await page.getByLabel('Application status',{exact:true}).inputValue(),status);
   assert.equal(await page.getByLabel('Evaluator assignment',{exact:true}).inputValue(),assignment);
   assert.equal(await page.getByLabel('Current recommendation',{exact:true}).inputValue(),review);
  }
- await page.getByLabel('Track',{exact:true}).selectOption('COMMITTEE');await page.getByLabel('Opportunity',{exact:true}).selectOption('skillbuilders-web');await page.getByLabel('Search applications',{exact:true}).fill('scope-check');await page.getByRole('button',{name:'Apply filters',exact:true}).click();
- await page.getByRole('button',{name:'Unassigned',exact:true}).click();
- assert.equal(await page.getByLabel('Search applications',{exact:true}).inputValue(),'scope-check');assert.equal(await page.getByLabel('Track',{exact:true}).inputValue(),'COMMITTEE');assert.equal(await page.getByLabel('Opportunity',{exact:true}).inputValue(),'skillbuilders-web');
- await clear();passed.push('admin queue shortcuts apply actionable status filters and preserve applied scope');
- await mount(runtime.first);assert.equal(await page.getByRole('tablist').count(),0);assert.equal(await page.locator('.workspace-admin').count(),0);assert.equal(await page.locator('.queue-filter-toggle').count(),0);assert.equal(await page.getByRole('form',{name:'Application queue filters',exact:true}).count(),0);assert.equal(await page.getByRole('heading',{name:'Matching applications',exact:true}).count(),0);await page.getByRole('button',{name:'Search',exact:true}).waitFor();passed.push('evaluator keeps assigned-only search without administrator filters or counts');
+ assert.equal(await page.getByLabel('Track',{exact:true}).inputValue(),'COMMITTEE');assert.equal(await page.getByLabel('Opportunity',{exact:true}).inputValue(),'skillbuilders-web');
+ await page.getByRole('button',{name:'Apply filters',exact:true}).click();await match(0,0);
+ assert.equal(await page.getByLabel('Search applications',{exact:true}).inputValue(),'scope-check');
+ assert.ok(await page.getByRole('list',{name:'Applied filters'}).getByText('Recommendation saved').isVisible());
+ await page.getByRole('heading',{name:'No results found',exact:true}).waitFor();
+ await page.getByRole('button',{name:'Reset search and filters',exact:true}).click();await match(25,36);
+ passed.push('admin queue shortcuts preserve applied scope and the no-results action resets it');
+ await mount(runtime.first);assert.equal(await page.getByRole('tablist').count(),0);assert.equal(await page.locator('.workspace-admin').count(),0);assert.equal(await page.locator('.queue-filter-toggle').count(),0);assert.equal(await page.getByRole('form',{name:'Application queue filters',exact:true}).count(),0);assert.equal(await page.getByRole('heading',{name:'Status breakdown',exact:true}).count(),0);await page.getByRole('button',{name:'Search',exact:true}).waitFor();passed.push('evaluator keeps assigned-only search without administrator filters or counts');
  await mount(runtime.admin);faults.access={kind:'applicant',accountId:runtime.admin.id};await page.clock.runFor(100);await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByRole('heading',{name:'Your access has changed',exact:true}).waitFor();assert.equal(await page.locator('.application-queue-counts').count(),0);assert.equal(await page.locator('.evaluation-list-item').count(),0);passed.push('known administrator access loss unmounts queue rows, filters and counts');
  assert.deepEqual(errors,[]);console.log(JSON.stringify({passed,pageErrors:errors,screenshotDirectory:output},null,2));
 }finally{await browser?.close();await runtime.db.close();}
