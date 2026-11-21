@@ -19,7 +19,7 @@ import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
 import SignOutModal from "@/components/sign-out-modal"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
-import { MAIN_SECTION_LINKS, MAIN_PAGE_LINKS } from "@/lib/navigation"
+import { MAIN_PAGE_LINKS, PRIMARY_NAV_LINKS } from "@/lib/navigation"
 import "./navigation.css"
 
 interface NavigationProps {
@@ -37,8 +37,8 @@ export default function Navigation({
     const reducedMotion = useReducedMotion()
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 	const [observedSection, setActiveSection] = useState("")
-	const activeSection = MAIN_PAGE_LINKS.find(link => pathname.startsWith(link.href))?.href ?? observedSection
 	const [isInHero, setIsInHero] = useState(pathname === "/")
+	const activeSection = isInHero ? "/" : MAIN_PAGE_LINKS.find(link => pathname.startsWith(link.href))?.href ?? observedSection
 	const [isAuthenticated, setIsAuthenticated] = useState(
 		initialAuth?.authenticated ?? false,
 	)
@@ -55,7 +55,7 @@ export default function Navigation({
 	const navRef = useRef<HTMLElement>(null)
 	const accountRef = useRef<HTMLDivElement>(null)
 	const pageLinks = MAIN_PAGE_LINKS
-	const mobileLinks = [...MAIN_SECTION_LINKS, ...pageLinks]
+	const mobileLinks = PRIMARY_NAV_LINKS
 
 	useEffect(() => {
 		const supabase = getSupabaseBrowserClient()
@@ -280,13 +280,13 @@ export default function Navigation({
 
 						<div className="alpha-navigation-desktop hidden xl:contents">
 							<div className="alpha-navigation-links flex items-center gap-7">
-								{MAIN_SECTION_LINKS.map((link) => (
+								{PRIMARY_NAV_LINKS.map((link) => (
 									<a
 										key={link.href}
 										href={link.href}
 										className={linkClass(link.href)}
 									>
-										{link.href === RECRUITMENT_URL + "/opportunities" ? "Become a Member" : link.label}
+										{link.label}
 									</a>
 								))}
 							</div>
@@ -436,9 +436,9 @@ export default function Navigation({
 										duration: reducedMotion ? 0 : 0.45,
 										ease: [0.25, 1, 0.5, 1],
 									}}
-									className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-12 items-center rounded-md bg-[#ff9900] px-6 text-lg font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : "text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"}
+									className="inline-flex min-h-11 items-center text-3xl font-semibold text-white hover:text-[#ff9900] transition-colors duration-300"
 								>
-									{link.href === RECRUITMENT_URL + "/opportunities" ? "Become a Member" : link.label}
+									{link.label}
 								</motion.a>
 							))}
 

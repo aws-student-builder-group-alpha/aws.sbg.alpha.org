@@ -8,7 +8,7 @@ import { useFormStatus } from "react-dom";
 import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from "react";
 import { motionPresets, useEntrance, useGSAP } from "./motion";
 import { signOut, startApplication } from "@/app/(recruitment)/recruitment/auth/actions";
-import { MAIN_SECTION_LINKS, MEMBERSHIP_LINK } from "@/lib/navigation";
+import { MAIN_SECTION_LINKS, MEMBERSHIP_LINK, PRIMARY_NAV_LINKS } from "@/lib/navigation";
 import { RECRUITMENT_URL } from "@/lib/recruitment";
 import { alphaSiteOrigin, chapterLinks, recruitmentPath } from "@/recruitment/lib/site-paths";
 import type { ApplicationStatus } from "@/recruitment/lib/applications";
@@ -214,12 +214,13 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
     const header = headerRef.current;
     if (!header) return;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+    const hideOnScroll = path !== "/recruitment/apply";
     let previous = window.scrollY, frameId = 0;
     const update = () => {
       frameId = 0;
       const y = Math.max(0, window.scrollY);
       header.dataset.scrolled = String(y > 20);
-      header.dataset.hidden = String(!reduce.matches && !menuOpen && !accountOpen && !header.contains(document.activeElement) && y > 100 && y > previous);
+      header.dataset.hidden = String(hideOnScroll && !reduce.matches && !menuOpen && !accountOpen && !header.contains(document.activeElement) && y > 100 && y > previous);
       previous = y;
     };
     const scroll = () => { if (!frameId) frameId = requestAnimationFrame(update); };
@@ -227,7 +228,7 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
     window.addEventListener("scroll", scroll, { passive: true });
     reduce.addEventListener("change", update);
     return () => { cancelAnimationFrame(frameId); window.removeEventListener("scroll", scroll); reduce.removeEventListener("change", update); };
-  }, [menuOpen, accountOpen]);
+  }, [path, menuOpen, accountOpen]);
   useEffect(() => {
     if (!accountOpen) return;
     const outside = (event: PointerEvent) => { if (event.target instanceof Node && !accountRef.current?.contains(event.target)) setAccountOpen(false); };
@@ -281,10 +282,11 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
           onClick={event => { if ((event.target as HTMLElement).closest("a")) { if (menuOpen) closeMenu(); setAccountOpen(false); } }}
           onKeyDown={event => { if (menuOpen && event.key === "Tab") { const controls = Array.from(navRef.current?.querySelectorAll<HTMLElement>("a,button:not(:disabled)") || []).filter(node => node.getClientRects().length); const first = controls[0], last = controls.at(-1); if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } } }}>
           <button ref={closeButton} type="button" className="nav-close icon-button" aria-label="Close menu" onClick={closeMenu}><Icon name="close" size={28} /></button>
-          <div className="nav-chapter-links">{MAIN_SECTION_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}</div>
+          <div className="nav-chapter-links">{(menuOpen ? PRIMARY_NAV_LINKS : MAIN_SECTION_LINKS).map(link => <a key={link.href} href={alphaSiteOrigin + link.href} aria-current={path === link.href ? "page" : undefined}>{link.label}</a>)}</div>
           <div className="nav-primary-actions">
-            {showMembershipCta && showGuestActions && <Link className="nav-apply" href={opportunities}>Become a Member</Link>}
+            {!menuOpen && showMembershipCta && showGuestActions && <Link className="nav-apply" href={opportunities}>Become a Member</Link>}
             <Link href={MEMBERSHIP_LINK.href} aria-current={isMembershipPage ? "page" : undefined}>Membership ID</Link>
+            {signedIn && <span className="nav-action-divider" aria-hidden="true" />}
             {showGuestActions && <>{guestDivider}<Link href={loginHref}>Login</Link></>}
             {signedIn && (
               <div ref={accountRef} className="account-navigation" data-open={accountOpen}>
@@ -305,10 +307,10 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
       </div>
     </header>
     <noscript><nav className="header-no-script" aria-label="Chapter links">
-      {MAIN_SECTION_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}
+      {PRIMARY_NAV_LINKS.map(link => <a key={link.href} href={alphaSiteOrigin + link.href}>{link.label}</a>)}
       {links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}
-      {showMembershipCta && <Link href={opportunities}>Become a Member</Link>}
       <Link href={MEMBERSHIP_LINK.href} aria-current={isMembershipPage ? "page" : undefined}>Membership ID</Link>
+      {signedIn && <span className="nav-action-divider" aria-hidden="true" />}
       {!signedIn && <>{guestDivider}<Link href={loginHref}>Login</Link></>}
     </nav></noscript>
   </>;

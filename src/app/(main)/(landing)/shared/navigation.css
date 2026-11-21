@@ -26,9 +26,10 @@
 .alpha-navigation-aws{display:block;flex-shrink:0;height:1cap;aspect-ratio:477.88/149;overflow:visible}
 .alpha-navigation-aws svg{display:block;width:100%;height:100%;overflow:visible}
 .alpha-navigation-chapter{margin-left:12px;padding-left:12px;border-left:1px solid currentColor;font-weight:750;letter-spacing:-.02em}
-@media(max-width:650px){.alpha-navigation-name{font-size:10px;letter-spacing:-.025em}.alpha-navigation-organization{gap:4px}.alpha-navigation-chapter{margin-left:7px;padding-left:7px;font-size:10px}}
+@media(width < 80rem){.alpha-navigation-row .alpha-navigation-name{display:none}}
 @media(max-width:650px){.alpha-navigation-gutter{padding-inline:7vw}}
 
+.alpha-landing:has(> #mobile-navigation) > .alpha-community-dock{display:none}
 
 .alpha-landing nav :is(a,button):focus-visible{outline:3px solid #ffb13e;outline-offset:4px}
 @media(prefers-reduced-motion:reduce){.alpha-landing nav *{transition:none!important}}
@@ -48,6 +49,10 @@
 
 .alpha-landing .alpha-navigation-name{color:var(--alpha-nav-ink)}
 .alpha-landing .alpha-navigation-links{gap:12px}
+
+@media (min-width: 1280px) and (max-width: 1350px) {
+  .alpha-navigation-desktop .alpha-navigation-links { gap: 8px; }
+}
 
 .alpha-landing .alpha-navigation-actions .link-underline:focus-visible::after {
   transform: scaleX(1);

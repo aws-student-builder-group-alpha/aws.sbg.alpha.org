@@ -64,16 +64,13 @@
 @keyframes header-menu-item { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:none; } }
 @media (max-width:650px) {
   .alpha-app .site-header .header-inner { margin-inline:7vw; }
-  .alpha-app .site-header .alpha-navigation-name {
-    max-width:calc(100% - 100px);
-    font-size:.6875rem;
-    white-space:normal;
-  }
-  .alpha-app .site-header .alpha-navigation-chapter { font-size:inherit; }
 }
 @media (max-width:560px) {
   :root { --site-header-height:56px; }
   .alpha-app .site-header .header-inner { min-height:max(56px, 3.5rem); }
+}
+@container site-navigation (width < 80em) {
+  .alpha-app .site-header .alpha-navigation-name { display:none; }
 }
 @container site-navigation (min-width:80em) {
  .alpha-app .site-header .header-actions,.alpha-app .site-header .nav-close,.alpha-app .mobile-menu-mark { display:none; }
