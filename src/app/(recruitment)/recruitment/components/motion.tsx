@@ -1,6 +1,6 @@
 "use client";
 
-import { type RefObject } from "react";
+import { useRef, type ReactNode, type RefObject } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -28,6 +28,7 @@ const conditions = {
   mobile: "(max-width: 767px)",
   reduce: "(prefers-reduced-motion: reduce)",
 };
+const workspaceConditions = { ...conditions, forcedColors: "(forced-colors: active)" };
 
 const staggerFor = (count: number, stagger: number = motionPresets.stagger) =>
   count > 1 ? Math.min(stagger, motionPresets.maxStagger / (count - 1)) : 0;
@@ -45,10 +46,12 @@ function finishOnInteraction(
   targets: HTMLElement[],
   context: gsap.Context,
   onFinish?: (element: HTMLElement) => void,
+  workspace = false,
 ) {
   const finish = context.add("finishInteraction", (event: Event) => {
     if (!(event.target instanceof Node)) return;
     const target = event.target;
+    if (workspace && event.type === "focusin" && target instanceof HTMLElement && target.tabIndex < 0) return;
     const active = targets.filter((element) => element.contains(target));
     active.forEach((element) => onFinish?.(element));
     settle(active);
@@ -69,6 +72,7 @@ type EntranceOptions = {
   stagger?: number;
   enabled?: boolean;
   allowFocused?: boolean;
+  preset?: "workspace" | "workspace-fade" | "workspace-drawer";
 };
 
 /** Run only on mount or an explicit visual identity change, never on normal renders. */
@@ -82,24 +86,26 @@ export function useEntrance(
     stagger = 0,
     enabled = true,
     allowFocused = false,
+    preset,
   }: EntranceOptions = {},
 ) {
   useGSAP(
     () => {
       const root = scope.current;
       if (!root || !enabled) return;
-      const targets = selector
+      const candidates = selector
         ? Array.from(root.querySelectorAll<HTMLElement>(selector))
         : [root];
+      const targets = preset ? candidates.filter(target => target.getClientRects().length > 0) : candidates;
       if (!targets.length) return;
       // Local to this hook run: survives matchMedia refreshes, resets on actual
       // component identity changes and React Strict Mode setup/cleanup cycles.
       let started = false;
       const media = gsap.matchMedia();
       media.add(
-        conditions,
+        preset ? workspaceConditions : conditions,
         (context) => {
-          if (started || context.conditions?.reduce) {
+          if (started || context.conditions?.reduce || context.conditions?.forcedColors) {
             started = true;
             settle(targets);
             return;
@@ -109,16 +115,21 @@ export function useEntrance(
             target.contains(document.activeElement),
           );
           if (focused && !allowFocused) return;
+          const desktop = context.conditions?.desktop;
+          const rise = preset ? 6 : distance;
+          const offset = preset === "workspace-drawer" ? (desktop ? { x: 8 } : {})
+            : preset === "workspace-fade" ? {}
+            : { y: desktop ? rise : rise / 2 };
           gsap.from(targets, {
-            opacity: 0.65,
-            y: context.conditions?.desktop ? distance : distance / 2,
-            duration,
+            ...offset,
+            opacity: preset ? 0.9 : 0.65,
+            duration: preset ? motionPresets.dialog : duration,
             ease: motionPresets.ease,
             stagger: staggerFor(targets.length, stagger),
             overwrite: "auto",
             clearProps: "opacity,transform,willChange",
           });
-          return finishOnInteraction(root, targets, context);
+          return finishOnInteraction(root, targets, context, undefined, !!preset);
         },
         root,
       );
@@ -134,10 +145,19 @@ export function useEntrance(
         stagger,
         enabled,
         allowFocused,
+        preset,
       ],
       revertOnUpdate: true,
     },
   );
+}
+
+export function WorkspaceEntranceSection({ children, className, enabled }: {
+  children: ReactNode; className: string; enabled: boolean;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  useEntrance(ref, { preset: "workspace", enabled });
+  return <section ref={ref} className={className}>{children}</section>;
 }
 
 /** One staged brand entrance after the Home preloader, independent of page interactions. */

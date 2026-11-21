@@ -433,6 +433,7 @@ export function Modal({
   dismissible = true,
   active = true,
   className,
+  workspaceDrawer = false,
 }: {
   title: string;
   headerContent?: ReactNode;
@@ -441,6 +442,7 @@ export function Modal({
   dismissible?: boolean;
   active?: boolean;
   className?: string;
+  workspaceDrawer?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -458,7 +460,9 @@ export function Modal({
     },
     { scope: ref, dependencies: [active], revertOnUpdate: true },
   );
-  useEntrance(ref, { duration: motionPresets.dialog, allowFocused: true });
+  useEntrance(ref, workspaceDrawer
+    ? { preset: "workspace-drawer", enabled: active, allowFocused: true }
+    : { duration: motionPresets.dialog, allowFocused: true });
   return (
     <dialog
       ref={ref}

@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useRef, useTransition } from "react";
 import { AdminPageHeader } from "@/app/(recruitment)/recruitment/components/admin-shell";
 import { EmptyState, Icon, StatusBadge, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
+import { useEntrance } from "@/app/(recruitment)/recruitment/components/motion";
 import type { EvaluationList } from "@/recruitment/lib/evaluations";
 import type { IntakeState } from "@/recruitment/lib/intake";
 import type { StaffMember } from "@/recruitment/lib/staff";
@@ -22,6 +23,8 @@ function intakeStatus(intake: IntakeState | null) {
 export function AdminOverview({ applications, staff, intake }: { applications: EvaluationList | null; staff: StaffMember[] | null; intake: IntakeState | null }) {
   const router = useRouter();
   const [refreshing, refresh] = useTransition();
+  const overview = useRef<HTMLDivElement>(null);
+  useEntrance(overview, { preset: "workspace", selector: ".admin-metrics, .admin-status-overview" });
   const queue = applications?.queue;
   const activeStaff = staff?.filter(member => member.status === "active").length;
   const cards = [
@@ -38,7 +41,7 @@ export function AdminOverview({ applications, staff, intake }: { applications: E
       </button>
     </AdminPageHeader>
 
-    <div className="admin-overview-grid">
+    <div className="admin-overview-grid" ref={overview}>
       <div className="admin-overview-primary">
         <dl className="admin-metrics" aria-label="Application totals">{cards.map(card => <div className="admin-metric" key={card.label}>
           <dt><span className="admin-metric-icon"><Icon name={card.icon} size={17} /></span>{card.label}</dt>

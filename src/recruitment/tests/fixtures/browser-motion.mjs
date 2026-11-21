@@ -163,10 +163,57 @@ export async function assertEnlargedProcess(page, field) {
 }
 
 /** Real header/dialog lifecycles; ordinary decorative entrances stay synthetic. */
-export async function installBrowserMotion(modules) {
+export async function installBrowserMotion(modules, { realEntrances = false } = {}) {
   modules.set("gsap", await readFile(require.resolve("gsap/dist/gsap.js"), "utf8"));
   modules.set("@gsap/react", await readFile(require.resolve("@gsap/react"), "utf8"));
-  const motion = "exports.motionPresets={dialog:0};exports.useEntrance=()=>{};exports.useGSAP=require('@gsap/react').useGSAP;";
+  let motion = "exports.motionPresets={dialog:0};exports.useEntrance=()=>{};exports.useGSAP=require('@gsap/react').useGSAP;exports.WorkspaceEntranceSection=({enabled,...props})=>require('react/jsx-runtime').jsx('section',props);";
+  if (realEntrances) {
+    modules.set("gsap/ScrollTrigger", await readFile(require.resolve("gsap/dist/ScrollTrigger.js"), "utf8"));
+    const filename = fileURLToPath(new URL("../../../app/(recruitment)/recruitment/components/motion.tsx", import.meta.url));
+    const { transform } = require("next/dist/build/swc");
+    ({ code: motion } = await transform(await readFile(filename, "utf8"), {
+      filename, jsc: { parser: { syntax: "typescript", tsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" },
+    }));
+  }
   modules.set("./motion", motion);
   modules.set("@/app/(recruitment)/recruitment/components/motion", motion);
+}
+
+/** Observe actual tween styles without racing the first animation frame. */
+export async function watchWorkspaceEntrance(page, selector) {
+  await page.evaluate(selector => {
+    window.workspaceEntranceObserver?.disconnect();
+    window.workspaceEntranceSeen = false;
+    window.workspaceEntranceObserver = new MutationObserver(records => {
+      if (records.some(({ target, oldValue }) => target.matches(selector)
+        && (/opacity: 0\.[6-9]/.test(oldValue || "") || Number(target.style.opacity) > 0 && Number(target.style.opacity) < 1))) {
+        window.workspaceEntranceSeen = true;
+      }
+    });
+    window.workspaceEntranceObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["style"], attributeOldValue: true });
+  }, selector);
+}
+
+export async function assertWorkspaceEntrance(page, selector) {
+  await page.waitForFunction(() => window.workspaceEntranceSeen);
+  await page.waitForFunction(selector => {
+    const nodes = [...document.querySelectorAll(selector)];
+    return nodes.length > 0 && nodes.every(node => !node.style.opacity && !node.style.transform);
+  }, selector);
+}
+
+/** Exercise fresh route mounts at both workspace breakpoints. */
+export async function assertResponsiveEntrances(page, check) {
+  const viewport = page.viewportSize();
+  const reducedMotion = await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  try {
+    for (const width of [1440, 375]) {
+      await page.setViewportSize({ width, height: 950 });
+      await check(width);
+    }
+  } finally {
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: reducedMotion ? "reduce" : "no-preference" });
+  }
 }

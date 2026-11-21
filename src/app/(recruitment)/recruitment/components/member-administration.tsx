@@ -9,6 +9,7 @@ import { formatDate } from "@/recruitment/lib/format-date";
 import { Callout, EmptyState, Icon } from "./ui";
 import { MemberInvitations } from "./member-invitations";
 import { useAdminNavigationGuard } from "./admin-navigation-guard";
+import { useEntrance } from "./motion";
 
 type MemberAdministrationProps = {
   accountId: string;
@@ -26,6 +27,10 @@ export function MemberAdministration({
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [mode, setMode] = useState<MemberFormMode | null>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  useEntrance(workspaceRef, { preset: "workspace", selector: ":scope > section", enabled: workspace });
+  useEntrance(formRef, { preset: "workspace", enabled: workspace && !!mode, motionKey: mode ?? undefined });
   const [dirty, setDirty] = useState(false);
   useAdminNavigationGuard(dirty, busy);
   const formId = useId();
@@ -116,7 +121,7 @@ export function MemberAdministration({
       </div>
     </div>
     {workspace && !mode && feedback}
-    {mode && <form id={formId} className="community-member-form" key={mode} onChange={() => setDirty(true)} onSubmit={save}>
+    {mode && <form ref={formRef} id={formId} className="community-member-form" key={mode} onChange={() => setDirty(true)} onSubmit={save}>
       <h3>{mode === "add" ? "Add an existing Alpha member" : "Update membership details or access"}</h3>
       <fieldset className="application-fields" disabled={busy}>
         <label>Verified Google email<input name="email" type="email" required maxLength={254} autoComplete="email" defaultValue={email} /></label>
@@ -140,7 +145,7 @@ export function MemberAdministration({
     </form>}
     {!workspace && <>{invitations}{feedback}</>}
   </section>;
-  return workspace ? <div className="member-workspace">{tools}{invitations}</div> : tools;
+  return workspace ? <div ref={workspaceRef} className="member-workspace">{tools}{invitations}</div> : tools;
 }
 
 type ActivityEvent = Pick<AuditEvent, "id" | "action" | "object_id" | "created_at">;
@@ -166,6 +171,11 @@ function activityIcon(action: string) {
 
 export function SecurityLog({ accountId }: { accountId: string }) {
   const [items, setItems] = useState<ActivityEvent[] | null>(null);
+  const [loadedRows, setLoadedRows] = useState(false);
+  const log = useRef<HTMLElement>(null);
+  const table = useRef<HTMLDivElement>(null);
+  useEntrance(log, { preset: "workspace" });
+  useEntrance(table, { preset: "workspace", enabled: loadedRows });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState("");
@@ -186,6 +196,7 @@ export function SecurityLog({ accountId }: { accountId: string }) {
         throw new Error("Security history could not be verified.");
       }
       setItems(events);
+      if (events.length) setLoadedRows(true);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Security log unavailable.");
     } finally {
@@ -193,7 +204,7 @@ export function SecurityLog({ accountId }: { accountId: string }) {
     }
   }
 
-  return <section className="community-admin-panel community-security" aria-labelledby={headingId}>
+  return <section ref={log} className="community-admin-panel community-security" aria-labelledby={headingId}>
     <header className="admin-activity-heading">
       <div>
         <h2 id={headingId}>Activity log</h2>
@@ -223,7 +234,7 @@ export function SecurityLog({ accountId }: { accountId: string }) {
       description={`No matching events out of ${items.length} loaded.`} announce>
       <button type="button" className="button button-secondary" onClick={() => setFilter("")}>Clear search</button>
     </EmptyState>}
-    {!!visible?.length && <div className="admin-activity-table-wrap">
+    {!!visible?.length && <div ref={table} className="admin-activity-table-wrap">
       <table className="admin-activity-table" role="table" aria-labelledby={headingId}>
         <thead role="rowgroup"><tr role="row">
           <th scope="col" role="columnheader">Event</th>

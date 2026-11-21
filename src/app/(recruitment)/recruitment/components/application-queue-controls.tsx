@@ -68,7 +68,7 @@ export function ApplicationQueueControls({ filters, applied, busy, frozen, notic
       </ul>}
       <button type="button" className="text-button" disabled={busy} onClick={onClear}>Clear all</button>
     </div>}
-    {expanded && <Modal title="Filter applications" className="queue-filter-drawer" onClose={close}>
+    {expanded && <Modal title="Filter applications" className="queue-filter-drawer" workspaceDrawer onClose={close}>
       <form className="queue-drawer-form" aria-label="Application queue filters" onSubmit={event => {
         event.preventDefault();
         if (onApply()) close();

@@ -2,7 +2,7 @@ import {recruitmentStyleShell} from "../fixtures/recruitment-build.mjs";
 // Runs the real MfaForm with synthetic action/router/image dependencies.
 // Pass a Playwright module entry path when it is supplied by the local tooling.
 import assert from "node:assert/strict";
-import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess } from "../fixtures/browser-motion.mjs";
+import { installBrowserMotion, installRecruitmentUI, assertRecruitmentSurface, assertInlineFailure, assertEnlargedProcess, watchWorkspaceEntrance, assertWorkspaceEntrance, assertResponsiveEntrances } from "../fixtures/browser-motion.mjs";
 import { readFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -27,7 +27,7 @@ for(const [name,relative] of [['@/app/(recruitment)/recruitment/components/ui','
 modules.set('next/link',"exports.__esModule=true;exports.default=props=>require('react/jsx-runtime').jsx('a',props);");
 modules.set('./ui', modules.get('@/app/(recruitment)/recruitment/components/ui'));
 modules.set('@/app/(recruitment)/recruitment/auth/actions','exports.signOut=async()=>{};exports.signIn=async data=>{window.testState.signInDestination=data.get("destination");if(window.testState.holdSignIn)await new Promise(resolve=>{window.testState.releaseSignIn=resolve})};');
-await installBrowserMotion(modules);
+await installBrowserMotion(modules, { realEntrances: true });
 await installRecruitmentUI(modules);
 for (const [name, packageName, file] of [
   ["react", "react", "react.development.js"],
@@ -108,7 +108,7 @@ const styles=[...shell.matchAll(/href="([^"?]+\.css)(?:\?[^"]*)?"/g)].map(m=>m[1
 const output=path.join(project,'.next/verification/authenticator');await mkdir(output,{recursive:true});
 const browser = await chromium.launch({ headless: true });
 try {
-  const page = await browser.newPage();
+  const page = await browser.newPage({ reducedMotion: "reduce" });
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   const origin='https://authenticator.example.test';
@@ -122,6 +122,15 @@ try {
   await page.addScriptTag({ content: bundle });
   const factorId = "00000000-0000-4000-8000-000000000002";
   const enrollment = { factorId, secret: "SYNTHETICSETUPKEY", qrCode: null };
+  await assertResponsiveEntrances(page, async () => {
+    const card = ".staff-auth-card";
+    await watchWorkspaceEntrance(page, card);
+    await page.evaluate(() => window.mountAccess({ kind: "anonymous" }));
+    await assertWorkspaceEntrance(page, card);
+    await watchWorkspaceEntrance(page, card);
+    await page.evaluate(id => window.mountForm(null, [{ id, name: "Existing authenticator" }]), factorId);
+    await assertWorkspaceEntrance(page, card);
+  });
   for (const props of [{kind:'anonymous'},{kind:'anonymous',authError:true},{kind:'applicant',email:'synthetic.applicant@example.test'},{kind:'staff',status:'suspended',email:'synthetic.staff@example.test'},{kind:'staff',status:'revoked',email:'synthetic.staff@example.test'},{kind:'unavailable'},{kind:'unconfigured'},{kind:'loading'}]) {
     await page.evaluate(props=>window.mountAccess(props),props);
     await page.locator('.staff-auth-card').waitFor();

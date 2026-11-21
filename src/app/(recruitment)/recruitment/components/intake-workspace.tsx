@@ -12,6 +12,7 @@ import { evaluationTextLength } from "@/recruitment/lib/evaluations";
 import { useVerifiedAccess } from "./access-guard";
 import { Callout, EmptyState, FieldError, Icon, Modal, PageHeading, formatDate } from "./ui";
 import { useInlineValidation } from "./inline-validation";
+import { useEntrance } from "./motion";
 
 const labels = { pause: "Pause intake", resume: "Resume intake", close: "Close intake" };
 const stateLabels = { open: "Open", paused: "Paused", closed: "Closed" };
@@ -80,6 +81,8 @@ function IntakeHistoryList({ accountId, onFailure }: { accountId: string; onFail
 }
 
 export function IntakeWorkspace({ accountId, initialState }: { accountId: string; initialState: IntakeState }) {
+  const panels = useRef<HTMLDivElement>(null);
+  useEntrance(panels, { preset: "workspace" });
   const [state, dispatch] = useReducer(intakeEditorReducer, initialState, data => intakeEditorReducer(initialIntakeEditor, { type: "read", data }));
   const allowed = useVerifiedAccess();
   const readRequest = useRef<AbortController | null>(null), commandRequest = useRef<AbortController | null>(null), active = useRef(true);
@@ -152,7 +155,7 @@ export function IntakeWorkspace({ accountId, initialState }: { accountId: string
       {!state.verified && <Callout tone="warning"><p role="alert">Intake details are hidden until administrator access can be verified.</p><button type="button" className="text-button" onClick={() => void load()}>Retry intake access</button></Callout>}
       <div hidden={!state.verified} inert={!state.verified || undefined}>
         {data && status && <>
-          <div className="intake-workspace-columns">
+          <div className="intake-workspace-columns" ref={panels}>
             <section className="admin-surface intake-status" aria-labelledby="intake-heading">
               <header className="intake-availability-heading">
                 <h2 id="intake-heading" ref={heading} tabIndex={-1}>Submission availability</h2>
