@@ -30,7 +30,7 @@ Start the app with `npm run dev` from the repository root. Use **http://localhos
 
 | Where you want to go | Local page |
 | --- | --- |
-| Browse roles | [Available Roles](http://localhost:3000/recruitment/opportunities) |
+| Browse roles | [Opportunities](http://localhost:3000/recruitment/opportunities) |
 | Edit an application | [Application editor](http://localhost:3000/recruitment/apply) |
 | Resume a draft or check a submitted application | [My application](http://localhost:3000/recruitment/application) |
 | Sign in as staff | [Staff sign-in](http://localhost:3000/recruitment/staff) |
@@ -53,7 +53,7 @@ On phones, open the navigation menu to find your account links. On desktop, sign
 
 ### A. Choose a role and create a draft
 
-1. Open [Available Roles](http://localhost:3000/recruitment/opportunities).
+1. Open [Opportunities](http://localhost:3000/recruitment/opportunities).
 2. Click **Core Team** or **Committee**, or keep **All roles** selected. To search, enter a role, department, or specialization in **Search roles**, then click **Search**.
 3. Click a role card or its **View role** area. Read the role details, eligibility, preparation checklist, and remaining places.
 4. Click **Continue with Google** and choose your applicant Google account.

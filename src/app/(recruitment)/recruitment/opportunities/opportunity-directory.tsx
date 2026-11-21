@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getOpportunity, opportunities, opportunityLabel, trackLabel, type Track } from "@/recruitment/lib/catalog";
 import type { Applicant } from "@/recruitment/lib/drafts";
+import PixelWolf from "@/app/(main)/(landing)/hero/pixel-wolf";
 import { EmptyState, Icon, Modal } from "@/app/(recruitment)/recruitment/components/ui";
 import { StartDraft } from "@/app/(recruitment)/recruitment/apply/start-draft";
 import { signIn } from "@/app/(recruitment)/recruitment/auth/actions";
@@ -41,20 +42,19 @@ export function OpportunityDirectory({ entry }: { entry: Entry }) {
   const selectedPalette = selected && (selectedIndex >= 0
     ? selectedIndex
     : opportunities.filter(role => role.track === selected.track).indexOf(selected)) % rolePaletteSize;
+  const canOpenApplication = entry.kind === "anonymous" || entry.kind === "applicant";
+  const canContinueApplication = entry.kind === "applicant" && (entry.hasDraft || entry.submitted);
   const close = () => change("opportunity", "");
   return <main id="main-content" className="roles-page roles-directory">
-    {entry.kind === "applicant" && (entry.hasDraft || entry.submitted) && (
+    {canOpenApplication && (
       <Link className="roles-continue-banner" href="/recruitment/application?resume=1">
-        <span>Continue Application</span>
-        <span className="roles-continue-arrow" aria-hidden="true"><Icon name="arrow" size={24} /></span>
+        <span>{canContinueApplication ? "Continue Application" : "Available Applications"}</span>
+        <span className="roles-continue-mascot" aria-hidden="true"><PixelWolf className="roles-continue-mascot-art" look="roles" dimensional pose="wave" /></span>
       </Link>
     )}
     <div className="roles-layout">
       <div className="roles-results">
-        <header className="roles-heading">
-          <h1>Available Roles</h1>
-          <p className="roles-count" role="status">{visible.length} {visible.length === 1 ? "opportunity" : "opportunities"}{query && <> matching “{query}”</>}</p>
-        </header>
+        <h1 className="sr-only">Opportunities</h1>
         <div className="roles-tools">
           <form role="search" onSubmit={event => {
             event.preventDefault();

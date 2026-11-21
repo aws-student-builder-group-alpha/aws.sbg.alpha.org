@@ -28,6 +28,7 @@ const modules = {
   "next/navigation": { useRouter: () => ({}), useSearchParams: () => new URLSearchParams(search) },
   "@/recruitment/lib/catalog": catalog,
   "@/recruitment/lib/opportunity-availability": availability,
+  "@/app/(main)/(landing)/hero/pixel-wolf": { __esModule: true, default: () => null },
   "@/app/(recruitment)/recruitment/components/ui": {
     Icon: () => null,
     EmptyState: ({ heading: Heading, title, description, children }) => React.createElement("section", null,

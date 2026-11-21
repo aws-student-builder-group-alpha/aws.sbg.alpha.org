@@ -6,7 +6,7 @@ export function OpportunitiesSkeleton() {
       <p className="sr-only" role="status">Loading opportunities…</p>
       <div className="roles-layout roles-loading" aria-busy="true">
         <div className="roles-results">
-          <header className="roles-heading"><h1>Available Roles</h1></header>
+          <h1 className="sr-only">Opportunities</h1>
           <div className="roles-tools" aria-hidden="true">
             <SkeletonBlock className="roles-placeholder-control" />
             <SkeletonBlock className="roles-placeholder-control" />

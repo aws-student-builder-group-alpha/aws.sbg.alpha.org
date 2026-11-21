@@ -4,7 +4,7 @@ import { loadApplicantDraft } from "@/recruitment/lib/server/drafts";
 import { OpportunityDirectory } from "./opportunity-directory";
 import { OpportunitiesSkeleton } from "./opportunities-skeleton";
 import "./opportunities.css";
-export const metadata = { title: "Available Roles" };
+export const metadata = { title: "Opportunities" };
 export default function OpportunitiesPage() {
  return <><Suspense fallback={<OpportunitiesSkeleton />}><Directory /></Suspense><div className="roles-landing-footer"><LandingFooter compact /></div></>;
 }

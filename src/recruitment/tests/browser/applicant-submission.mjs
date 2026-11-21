@@ -1145,7 +1145,7 @@ try {
     await page.setViewportSize({width,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     assert.equal(await directory.locator(".role-card").count(),16);
-    await page.getByRole("heading",{name:"Available Roles",exact:true}).waitFor();
+    await page.getByRole("heading",{name:"Opportunities",exact:true}).waitFor();
     assert.deepEqual(await directory.locator('.role-card').evaluateAll(nodes=>nodes.filter(node=>{const box=node.getBoundingClientRect();return box.left<0||box.right>innerWidth+1;}).map(node=>node.textContent)),[], 'Whole cards fit '+width+'px');
     assert.equal(await directory.locator('.roles-grid').first().evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),width>=1200?3:width>560?2:1);
     if(width===375||width===1440) await page.screenshot({path:path.join(artifactDir,'opportunity-cards-'+width+'.png')});

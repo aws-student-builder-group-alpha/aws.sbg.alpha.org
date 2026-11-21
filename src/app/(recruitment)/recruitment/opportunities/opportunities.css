@@ -16,9 +16,6 @@
   color:var(--roles-ink);
   min-height:80svh;
 }
-.roles-heading { display:flex; align-items:center; flex-wrap:wrap; gap:16px 24px; margin-bottom:24px; }
-.roles-heading h1 { margin:0; color:var(--roles-ink); font-size:clamp(38px,4.7vw,66px); font-weight:750; letter-spacing:-.065em; line-height:1.02; }
-.roles-heading > .roles-count { margin-inline-start:auto; }
 .roles-page .roles-continue-banner {
   display:flex;
   align-items:center;
@@ -37,7 +34,7 @@
   letter-spacing:-.055em;
   text-decoration:none;
 }
-.roles-continue-arrow {
+.roles-continue-mascot {
   display:grid;
   place-items:center;
   flex:none;
@@ -47,10 +44,11 @@
   background:var(--roles-action-fill);
   color:var(--roles-ink);
 }
-.roles-continue-banner:hover .roles-continue-arrow { background:#ffd286; }
+.roles-continue-mascot-art { width:88%; height:auto; }
+.roles-continue-banner:hover .roles-continue-mascot { background:#ffd286; }
 @media (hover:hover) and (prefers-reduced-motion:no-preference) {
-  :root:not([data-reduced-motion=true]) .roles-continue-arrow svg { transition:translate .2s ease; }
-  :root:not([data-reduced-motion=true]) .roles-continue-banner:hover .roles-continue-arrow svg { translate:4px 0; }
+  :root:not([data-reduced-motion=true]) .roles-continue-mascot-art { transition:translate .2s ease; }
+  :root:not([data-reduced-motion=true]) .roles-continue-banner:hover .roles-continue-mascot-art { translate:0 -2px; }
 }
 .roles-layout { display:grid; grid-template-columns:minmax(0,1fr) clamp(280px, 23vw, 320px); gap:48px; align-items:start; }
 .roles-sidebar {
@@ -130,7 +128,6 @@
   .roles-sort select { appearance:auto; padding-inline-end:14px; }
   .roles-sort-chevron { display:none; }
 }
-.roles-count { max-width:30ch; margin:0; font-size:14px; color:var(--roles-muted); text-align:end; overflow-wrap:anywhere; }
 .roles-sections { display:grid; gap:36px; scroll-margin-top:90px; }
 .roles-section { min-width:0; }
 .roles-section > summary { display:flex; align-items:center; gap:14px; min-height:64px; padding:12px 0 20px; list-style:none; cursor:pointer; }
@@ -162,7 +159,7 @@
   to { opacity:1; transform:translateY(0); }
 }
 @media (prefers-reduced-motion:no-preference) {
-  :root:not([data-reduced-motion=true]) .roles-directory :is(.roles-sidebar-intro,.roles-guide,.roles-heading,.roles-tools,.roles-results-bar),
+  :root:not([data-reduced-motion=true]) .roles-directory :is(.roles-sidebar-intro,.roles-guide,.roles-tools,.roles-results-bar),
   :root:not([data-reduced-motion=true]) .roles-directory .roles-section[open] > .roles-grid {
     animation:roles-enter .24s ease-out;
   }
@@ -344,7 +341,6 @@
 }
 @media (max-width:760px) {
   .alpha-app .roles-page { padding:32px 20px 64px; }
-  .roles-heading { align-items:flex-start; flex-direction:column; }
 }
 @media (max-width:560px) {
   .roles-grid { grid-template-columns:1fr; }
