@@ -22,6 +22,7 @@ export type Database = {
           id: string
           object_id: string
         }
+        ComputedFields: never
         Insert: {
           action: string
           actor_id?: string | null
@@ -54,6 +55,7 @@ export type Database = {
           reason: string
           state: string
         }
+        ComputedFields: never
         Insert: {
           accepted_at?: string | null
           actor_id: string
@@ -107,6 +109,7 @@ export type Database = {
           status: string
           version: number
         }
+        ComputedFields: never
         Insert: {
           application_id?: string | null
           created_at?: string
@@ -152,6 +155,7 @@ export type Database = {
           reason: string
           status: string
         }
+        ComputedFields: never
         Insert: {
           actor_id: string
           created_at?: string
@@ -186,7 +190,7 @@ export type Database = {
         Row: {
           consented_at: string
           created_at: string
-          data: Json
+          data: NonNullable<Json>
           email: string
           id: string
           last_mutation_id: string
@@ -196,10 +200,11 @@ export type Database = {
           updated_at: string
           version: number
         }
+        ComputedFields: never
         Insert: {
           consented_at?: string
           created_at?: string
-          data: Json
+          data: NonNullable<Json>
           email: string
           id?: string
           last_mutation_id: string
@@ -212,7 +217,7 @@ export type Database = {
         Update: {
           consented_at?: string
           created_at?: string
-          data?: Json
+          data?: NonNullable<Json>
           email?: string
           id?: string
           last_mutation_id?: string
@@ -235,10 +240,11 @@ export type Database = {
           id: string
           kind: string
           recipient: string
-          request: Json
+          request: NonNullable<Json>
           state: string
           subject: string
         }
+        ComputedFields: never
         Insert: {
           actor_id: string
           application_id: string
@@ -249,7 +255,7 @@ export type Database = {
           id: string
           kind: string
           recipient: string
-          request: Json
+          request: NonNullable<Json>
           state?: string
           subject: string
         }
@@ -263,7 +269,7 @@ export type Database = {
           id?: string
           kind?: string
           recipient?: string
-          request?: Json
+          request?: NonNullable<Json>
           state?: string
           subject?: string
         }
@@ -290,6 +296,7 @@ export type Database = {
           read_at: string | null
           title: string
         }
+        ComputedFields: never
         Insert: {
           application_id: string
           body: string
@@ -331,6 +338,7 @@ export type Database = {
           status: string
           version: number
         }
+        ComputedFields: never
         Insert: {
           application_id: string
           created_at?: string
@@ -356,7 +364,7 @@ export type Database = {
       applications: {
         Row: {
           consented_at: string
-          data: Json
+          data: NonNullable<Json>
           email: string
           id: string
           owner_id: string
@@ -370,9 +378,10 @@ export type Database = {
           withdraw_mutation_id: string | null
           withdrawn_at: string | null
         }
+        ComputedFields: never
         Insert: {
           consented_at: string
-          data: Json
+          data: NonNullable<Json>
           email: string
           id?: string
           owner_id: string
@@ -388,7 +397,7 @@ export type Database = {
         }
         Update: {
           consented_at?: string
-          data?: Json
+          data?: NonNullable<Json>
           email?: string
           id?: string
           owner_id?: string
@@ -410,21 +419,22 @@ export type Database = {
           application_id: string
           mutation_id: string
           request_hash: string
-          result: Json
+          result: NonNullable<Json>
         }
+        ComputedFields: never
         Insert: {
           actor_id: string
           application_id: string
           mutation_id: string
           request_hash: string
-          result: Json
+          result: NonNullable<Json>
         }
         Update: {
           actor_id?: string
           application_id?: string
           mutation_id?: string
           request_hash?: string
-          result?: Json
+          result?: NonNullable<Json>
         }
         Relationships: [
           {
@@ -450,6 +460,7 @@ export type Database = {
           reason: string
           review_version: number
         }
+        ComputedFields: never
         Insert: {
           action: string
           actor_id: string
@@ -498,6 +509,7 @@ export type Database = {
           id: string
           track: string
         }
+        ComputedFields: never
         Insert: {
           id: string
           track: string
@@ -519,6 +531,7 @@ export type Database = {
           path: string
           size_bytes: number
         }
+        ComputedFields: never
         Insert: {
           application_id?: string | null
           created_at?: string
@@ -560,6 +573,7 @@ export type Database = {
           reason: string
           superseded_at: string | null
         }
+        ComputedFields: never
         Insert: {
           application_id: string
           assigned_at?: string
@@ -596,21 +610,22 @@ export type Database = {
           application_id: string
           mutation_id: string
           request_hash: string
-          result: Json
+          result: NonNullable<Json>
         }
+        ComputedFields: never
         Insert: {
           actor_id: string
           application_id: string
           mutation_id: string
           request_hash: string
-          result: Json
+          result: NonNullable<Json>
         }
         Update: {
           actor_id?: string
           application_id?: string
           mutation_id?: string
           request_hash?: string
-          result?: Json
+          result?: NonNullable<Json>
         }
         Relationships: [
           {
@@ -632,6 +647,7 @@ export type Database = {
           recommendation: string
           version: number
         }
+        ComputedFields: never
         Insert: {
           actor_id: string
           assignment_id: string
@@ -668,6 +684,7 @@ export type Database = {
           updated_at: string
           version: number
         }
+        ComputedFields: never
         Insert: {
           assignment_id: string
           notes?: string
@@ -697,19 +714,20 @@ export type Database = {
           actor_id: string
           mutation_id: string
           request_hash: string
-          result: Json
+          result: NonNullable<Json>
         }
+        ComputedFields: never
         Insert: {
           actor_id: string
           mutation_id: string
           request_hash: string
-          result: Json
+          result: NonNullable<Json>
         }
         Update: {
           actor_id?: string
           mutation_id?: string
           request_hash?: string
-          result?: Json
+          result?: NonNullable<Json>
         }
         Relationships: []
       }
@@ -724,6 +742,7 @@ export type Database = {
           reason: string
           settings_version: number
         }
+        ComputedFields: never
         Insert: {
           action: string
           actor_id: string
@@ -751,6 +770,7 @@ export type Database = {
           capacity: number
           opportunity_id: string
         }
+        ComputedFields: never
         Insert: {
           capacity: number
           opportunity_id: string
@@ -779,6 +799,7 @@ export type Database = {
           updated_at: string
           version: number
         }
+        ComputedFields: never
         Insert: {
           closes_at: string
           finalized_at?: string | null
@@ -811,11 +832,12 @@ export type Database = {
           previous_role: string | null
           previous_status: string | null
           reason: string
-          request: Json
-          result: Json
+          request: NonNullable<Json>
+          result: NonNullable<Json>
           target_id: string
           target_version: number
         }
+        ComputedFields: never
         Insert: {
           action: string
           actor_id?: string | null
@@ -827,8 +849,8 @@ export type Database = {
           previous_role?: string | null
           previous_status?: string | null
           reason: string
-          request: Json
-          result: Json
+          request: NonNullable<Json>
+          result: NonNullable<Json>
           target_id: string
           target_version: number
         }
@@ -843,8 +865,8 @@ export type Database = {
           previous_role?: string | null
           previous_status?: string | null
           reason?: string
-          request?: Json
-          result?: Json
+          request?: NonNullable<Json>
+          result?: NonNullable<Json>
           target_id?: string
           target_version?: number
         }
@@ -859,6 +881,7 @@ export type Database = {
           user_id: string
           version: number
         }
+        ComputedFields: never
         Insert: {
           created_at?: string
           role: string
@@ -951,7 +974,7 @@ export type Database = {
         }
         Returns: Json
       }
-      alpha_security_log: { Args: never; Returns: Json }
+      alpha_security_log: { Args: Record<PropertyKey, never>; Returns: Json }
       alpha_update_member: {
         Args: { p_name: string; p_photo?: string }
         Returns: Json
@@ -975,21 +998,27 @@ export type Database = {
         Args: { p_offset?: number; p_search?: string }
         Returns: Json
       }
-      get_application_state: { Args: never; Returns: Json }
+      get_application_state: { Args: Record<PropertyKey, never>; Returns: Json }
       intake_history_page: { Args: { p_offset?: number }; Returns: Json }
-      intake_state: { Args: never; Returns: Json }
-      is_applicant_account: { Args: never; Returns: boolean }
-      is_staff_account: { Args: never; Returns: boolean }
+      intake_state: { Args: Record<PropertyKey, never>; Returns: Json }
+      is_applicant_account: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_staff_account: { Args: Record<PropertyKey, never>; Returns: boolean }
       list_staff_history: {
         Args: { p_before_version?: number; p_target_id: string }
         Returns: Json
       }
-      list_staff_members: { Args: never; Returns: Json }
+      list_staff_members: { Args: Record<PropertyKey, never>; Returns: Json }
       manage_decision: { Args: { p_request: Json }; Returns: Json }
       manage_evaluation: { Args: { p_request: Json }; Returns: Json }
       manage_intake: { Args: { p_request: Json }; Returns: Json }
       manage_staff_access: { Args: { p_request: Json }; Returns: Json }
-      opportunity_availability: { Args: never; Returns: Json }
+      opportunity_availability: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       save_applicant_draft: {
         Args: {
           p_data: Json
@@ -1003,10 +1032,19 @@ export type Database = {
         Returns: Json
       }
       valid_draft_payload: { Args: { p: Json }; Returns: boolean }
-      withdraw_applicant_application: {
-        Args: { p_expected_version: number; p_mutation_id: string }
-        Returns: Json
-      }
+      withdraw_applicant_application:
+        | {
+            Args: { p_expected_version: number; p_mutation_id: string }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_application: string
+              p_expected_version: number
+              p_mutation_id: string
+            }
+            Returns: Json
+          }
     }
     Enums: {
       [_ in never]: never

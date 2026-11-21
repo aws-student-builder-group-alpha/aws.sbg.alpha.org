@@ -28,7 +28,7 @@ test("assignment creates one Under Review transition while applicant DTO exclude
   assert.ok(isEvaluationReceipt(result));assert.equal(result.status,"Under Review");assert.equal(result.applicationVersion,2);assert.equal(result.reviewVersion,0);
   assert.deepEqual(await command(admin,request),result);assert.equal(await count("evaluation_assignments",app.id),1);
   const state=await call(owner,"get_application_state");assert.equal(state.application.status,"Under Review");assert.deepEqual(state.application.history.map(e=>e.status),["Submitted","Under Review"]);
-  assert.deepEqual(Object.keys(state.application).sort(),["id","reference","email","data","status","version","submittedAt","withdrawnAt","history"].sort());
+  assert.deepEqual(Object.keys(state.application).sort(),["id","reference","email","data","status","version","sourceDraftVersion","submittedAt","withdrawnAt","history"].sort());
   const detail=await call(first,"evaluation_detail",[app.id]);assert.ok(isEvaluationDetail(detail));assert.equal(detail.review,null);
   assert.ok(isEvaluationList(await call(admin,"evaluation_list",[0,app.reference])));
   assert.ok((await call(first,"evaluation_list")).items.some(i=>i.id===app.id));

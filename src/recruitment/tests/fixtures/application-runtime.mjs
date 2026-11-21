@@ -29,7 +29,7 @@ export async function applicationRuntime(origin = "https://application.example.t
       save_applicant_draft: ["select public.save_applicant_draft($1,$2,$3) as value", [args.p_data, args.p_expected_version, args.p_mutation_id]],
       get_application_state: ["select public.get_application_state() as value", []],
       submit_applicant_application: ["select public.submit_applicant_application($1,$2) as value", [args.p_expected_version, args.p_mutation_id]],
-      withdraw_applicant_application: ["select public.withdraw_applicant_application($1,$2) as value", [args.p_expected_version, args.p_mutation_id]],
+      withdraw_applicant_application: args.p_application ? ["select public.withdraw_applicant_application($1,$2,$3) as value", [args.p_expected_version, args.p_mutation_id, args.p_application]] : ["select public.withdraw_applicant_application($1,$2) as value", [args.p_expected_version, args.p_mutation_id]],
     };
     if (!calls[name]) throw new Error("Unexpected application RPC");
     return db.transaction(async tx => {

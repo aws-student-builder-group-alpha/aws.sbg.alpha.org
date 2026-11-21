@@ -1,16 +1,21 @@
 import "server-only";
-import { isApplicationCommand, isApplicationState, isSubmittedApplication } from "@/recruitment/lib/applications";
+import { applicationsIn, isApplicationCommand, isApplicationState, isSubmittedApplication } from "@/recruitment/lib/applications";
 import type { ApplicationResult, ApplicationState, SubmittedApplication } from "@/recruitment/lib/applications";
 import { record } from "@/recruitment/lib/drafts";
 import { applicantSession } from "./session";
 
-export async function readApplication(accountId: string): Promise<ApplicationResult<ApplicationState>> {
+export async function readApplication(accountId: string, applicationId?: string): Promise<ApplicationResult<ApplicationState>> {
   const session = await applicantSession();
   if (session.kind === "staff") return { ok: false, code: "STAFF_ACCOUNT", message: "Use a separate applicant account. This account has staff access." };
   if (session.kind !== "authenticated") return { ok: false, code: session.kind === "anonymous" ? "UNAUTHENTICATED" : "UNAVAILABLE", message: "Your application could not be loaded. Check your sign-in and retry." };
   if (session.applicant.id !== accountId) return { ok: false, code: "ACCOUNT_CHANGED", message: "Sign back in to the original account to view this application." };
   try {
     const { data, error } = await session.client.rpc("get_application_state");
+    if (!error && isApplicationState(data) && applicationId) {
+      const application = applicationsIn(data).find(item => item.id === applicationId);
+      if (!application) return { ok: false, code: "NOT_FOUND", message: "This application could not be found in your account." };
+      return { ok: true, data: { ...data, application } };
+    }
     return !error && isApplicationState(data) ? { ok: true, data } : { ok: false, code: error?.code === "42501" ? "DENIED" : "UNAVAILABLE", message: "Your application could not be loaded. Check your access and retry." };
   } catch { return { ok: false, code: "UNAVAILABLE", message: "Your application could not be loaded. Retry shortly." }; }
 }
@@ -22,7 +27,8 @@ export async function changeApplication(request: unknown): Promise<ApplicationRe
   if (!isApplicationCommand(request)) return { ok: false, code: "VALIDATION", message: "Invalid application request. Reload the latest details." };
   if (request.accountId !== session.applicant.id) return { ok: false, code: "ACCOUNT_CHANGED", message: "Sign back in to the original account before retrying." };
   try {
-    const { data, error } = await session.client.rpc(request.action === "submit" ? "submit_applicant_application" : "withdraw_applicant_application", { p_expected_version: request.expectedVersion, p_mutation_id: request.mutationId });
+    const args = { p_expected_version: request.expectedVersion, p_mutation_id: request.mutationId, ...(request.applicationId ? { p_application: request.applicationId } : {}) };
+    const { data, error } = await session.client.rpc(request.action === "submit" ? "submit_applicant_application" : "withdraw_applicant_application", args);
     if (error) {
       if (error.code === "PT422") {
         let errors: Record<string, string> | undefined;

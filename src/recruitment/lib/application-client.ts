@@ -25,9 +25,9 @@ export async function applicationCommand(request: ApplicationCommand, signal?: A
     return !response.ok && isApplicationFailure(data) ? data : unavailable();
   } catch { return unavailable(); }
 }
-export async function applicationState(accountId: string, signal?: AbortSignal): Promise<ApplicationResult<ApplicationState>> {
+export async function applicationState(accountId: string, signal?: AbortSignal, applicationId?: string): Promise<ApplicationResult<ApplicationState>> {
   try {
-    const { response, data } = await fetchJson("/recruitment/api/application?accountId=" + encodeURIComponent(accountId), { signal });
+    const { response, data } = await fetchJson("/recruitment/api/application?accountId=" + encodeURIComponent(accountId) + (applicationId ? "&applicationId=" + encodeURIComponent(applicationId) : ""), { signal });
     if (response.ok && record(data) && data.ok === true && isApplicationState(data.data)) return { ok: true, data: data.data };
     return !response.ok && isApplicationFailure(data) ? data : { ok: false, code: "UNAVAILABLE", message: "The latest application details could not be loaded. Retry shortly." };
   } catch { return { ok: false, code: "UNAVAILABLE", message: "The latest application details could not be loaded. Retry shortly." }; }

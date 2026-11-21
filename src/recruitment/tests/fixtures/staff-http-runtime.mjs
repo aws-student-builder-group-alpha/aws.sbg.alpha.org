@@ -105,3 +105,13 @@ export async function createExportRoute(accountSession, origin) {
   const server = await load("../../lib/server/application-export.ts", { "server-only": {}, "./staff": staffServer, "@/recruitment/lib/staff": staff, "@/recruitment/lib/application-queue": applicationQueue, "@/recruitment/lib/application-export": exports });
   return load("../../../app/(recruitment)/recruitment/api/applications/export/route.ts", { "@/recruitment/lib/server/application-export": server, "@/recruitment/lib/application-export": exports, "@/recruitment/lib/drafts": drafts, "@/recruitment/lib/staff": staff, "@/recruitment/lib/supabase/config": { getAppOrigin: () => origin } });
 }
+
+/** Real server loader with a substituted verified session. */
+export async function createDraftLoader(applicantSession) {
+  const server = await load("../../lib/server/drafts.ts", {
+    "server-only": {}, "@/recruitment/lib/drafts": drafts,
+    "@/recruitment/lib/applications": applications, "./session": { applicantSession },
+    "@/recruitment/lib/member-entry": { memberEntry: async () => "application" },
+  });
+  return server.loadApplicantDraft;
+}

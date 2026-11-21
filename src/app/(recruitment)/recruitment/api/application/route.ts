@@ -13,7 +13,9 @@ function respond(result: ApplicationResult<unknown> | SaveResult) {
 export async function GET(request: Request) {
   const accountId = new URL(request.url).searchParams.get("accountId");
   if (!accountId || !/^[0-9a-f-]{36}$/i.test(accountId)) return respond({ ok: false, code: "VALIDATION", message: "Invalid application request." });
-  return respond(await readApplication(accountId));
+  const applicationId = new URL(request.url).searchParams.get("applicationId");
+  if (applicationId && !/^[0-9a-f-]{36}$/i.test(applicationId)) return respond({ ok: false, code: "VALIDATION", message: "Invalid application selection." });
+  return respond(await readApplication(accountId, applicationId || undefined));
 }
 export async function POST(request: Request) {
   try {
