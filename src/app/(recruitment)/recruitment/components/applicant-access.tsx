@@ -26,13 +26,20 @@ export function ApplicantAccess({ kind, authError, opportunity, redesign = false
       </div>
     </ApplyEntry>;
   }
-  if (redesign) return <main id="main-content" className={`container portal workspace-redesign workspace-auth${kind === "anonymous" ? " workspace-anonymous" : ""}`}>
+  if (redesign) return <main id="main-content" className={`container portal workspace-redesign workspace-auth${kind === "anonymous" ? " workspace-anonymous application-sign-in" : ""}`}>
     <section className="panel workspace-auth-content">
       <h1>{kind === "anonymous" ? "My application" : "Applications are not available right now"}</h1>
       <p>{kind === "anonymous" ? "Check your application status or continue your draft." : "Please try again later or contact the Alpha team for help."}</p>
       {authError && <Callout tone="error" title="Something needs attention" role="alert">{authError === "sign-out" ? "Sign-out could not be fully confirmed. Reload this page to check your session before leaving a shared device." : "Sign-in was cancelled or could not be completed. Please try again."}</Callout>}
       {kind === "anonymous" && <form action={signIn}><input type="hidden" name="opportunity" value={opportunity || ""} /><GoogleSignInButton /></form>}
-      <details className="workspace-help"><summary>Account and privacy help</summary><p>Signing in creates an authentication account. Your verified email stays read-only. Recruitment consent is required before creating a draft.</p><p>Read the <Link href="/recruitment/privacy">privacy notice</Link> or <a href="mailto:awslc.alpha@gmail.com">contact Alpha</a>.</p></details>
+      <details className="workspace-help">
+        <summary>
+          <span>Account and privacy help</span>
+          {kind === "anonymous" && <Icon name="chevron" size={17} />}
+        </summary>
+        <p>Signing in creates an authentication account. Your verified email stays read-only. Recruitment consent is required before creating a draft.</p>
+        <p>Read the <Link href="/recruitment/privacy">privacy notice</Link> or <a href="mailto:awslc.alpha@gmail.com">contact Alpha</a>.</p>
+      </details>
     </section>
   </main>;
   const heading = <PageHeading title={kind === "anonymous" ? "Your next chapter starts here" : "Applications are not available right now"} description={kind === "anonymous" ? "Sign in with Google to save your application and return to it later." : "Please try again later or contact the Alpha team for help."} />;

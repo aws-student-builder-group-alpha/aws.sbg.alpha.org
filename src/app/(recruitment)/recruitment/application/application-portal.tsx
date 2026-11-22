@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ApplicationSidebar } from "./application-sidebar";
 import type { Draft } from "@/recruitment/lib/drafts";
 import { ApplicationContent } from "@/app/(recruitment)/recruitment/components/application-content";
-import { Callout, Modal, PageHeading, StatusBadge, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
+import { Callout, Icon, Modal, PageHeading, StatusBadge, WorkspaceDisclosureLabel, formatDate } from "@/app/(recruitment)/recruitment/components/ui";
 import { getOpportunity, opportunityLabel } from "@/recruitment/lib/catalog";
 import { applicationCommand, applicationState } from "@/recruitment/lib/application-client";
 import type { ApplicationCommand, SubmittedApplication } from "@/recruitment/lib/applications";
@@ -67,25 +67,53 @@ export function ApplicationPortal({ accountId, initialApplication, applications 
     Withdrawn: "Withdrawn. You can still apply for other roles.",
   }[application.status];
   return <main id="main-content" className="container portal applicant-portal workspace-redesign workspace-portal">
-    <h1 className="sr-only">My application</h1>
     <div className="applications-hub">
-    <ApplicationSidebar applications={applications.map(item => item.id === application.id ? application : item)} draft={draft} selectedId={application.id} locked={busy || retrying} />
-    <div className="applications-detail"><div className="workspace-reading">
-    {message && !confirm && <Callout><p role="status">{message}</p></Callout>}
-    <section className="panel application-receipt" aria-labelledby="receipt-title" tabIndex={-1} ref={receipt}>
-      <div className="receipt-heading"><h2 id="receipt-title">Application reference</h2><StatusBadge status={application.status} /></div><p className="application-reference">{application.reference}</p>
-      <p className="receipt-guidance" role="status">{guidance}</p>
-      <p className="receipt-opportunity">{opportunityLabel(getOpportunity(application.data.opportunityId))}</p>
-      <p>Submitted {formatDate(application.submittedAt)}, Philippine time.</p>
-      <div className="inline-actions"><button type="button" className="button button-secondary" disabled={busy} onClick={() => void refresh()}>{busy ? "Checking…" : "Refresh status"}</button>
+      <ApplicationSidebar applications={applications.map(item => item.id === application.id ? application : item)} draft={draft} selectedId={application.id} locked={busy || retrying} />
+      <div className="applications-detail submission-status">
+        <section className="panel application-receipt" aria-labelledby="receipt-title" tabIndex={-1} ref={receipt}>
+          <h1 id="receipt-title">Submission status</h1>
+          <div className="submission-status-role">
+            <h2>{opportunityLabel(getOpportunity(application.data.opportunityId))}</h2>
+            <StatusBadge status={application.status} />
+          </div>
+          <p className="receipt-guidance" role="status">{guidance}</p>
+          <dl className="submission-status-metadata">
+            <div>
+              <dt><Icon name="file" size={16} /> Application reference</dt>
+              <dd className="application-reference">{application.reference}</dd>
+            </div>
+            <div>
+              <dt><Icon name="calendar" size={16} /> Submitted</dt>
+              <dd><time dateTime={application.submittedAt}>{formatDate(application.submittedAt)} Philippine time</time></dd>
+            </div>
+          </dl>
+          <button type="button" className="button button-secondary submission-status-refresh" disabled={busy} onClick={() => void refresh()}>{busy ? "Checking…" : "Refresh status"}</button>
+        </section>
+        {message && !confirm && <Callout><p role="status">{message}</p></Callout>}
+        <NotificationInbox accountId={accountId} applicationId={application.id} />
+        <details className="panel submitted-details submission-status-disclosure portal-history">
+          <summary><WorkspaceDisclosureLabel icon="clock"><span>Status history</span></WorkspaceDisclosureLabel></summary>
+          {application.history.length > 0
+            ? <ol className="application-history" role="list">
+                {application.history.map((event, index) => <li key={index}>
+                  <strong>{event.status}</strong>
+                  <time dateTime={event.createdAt}>{formatDate(event.createdAt)} Philippine time</time>
+                </li>)}
+              </ol>
+            : <p className="submission-status-details">No status changes have been recorded yet.</p>}
+        </details>
+        <details className="panel submitted-details submission-status-disclosure">
+          <summary><WorkspaceDisclosureLabel icon="file"><span>View submitted answers</span></WorkspaceDisclosureLabel></summary>
+          <div className="submission-status-details">
+            <ApplicationContent application={{ ...application.data, profile: { ...application.data.profile, email: application.email } }} />
+          </div>
+        </details>
+        {application.status !== "Withdrawn" && <section className="withdrawal-action workspace-withdrawal" aria-label="Application withdrawal">
+          <div><h2>Withdrawal</h2><p>Withdrawal is final.</p></div>
+          <button type="button" className="text-button" disabled={busy} onClick={() => { setMessage(""); setConfirm(true); }}>Withdraw application</button>
+        </section>}
       </div>
-    </section>
-    <details className="panel submitted-details portal-history"><summary id="history-title">Status history</summary><ol className="application-history">{application.history.map((event, index) => <li key={index}><strong>{event.status}</strong><time dateTime={event.createdAt}>{formatDate(event.createdAt)} Philippine time</time></li>)}</ol></details>
-    <NotificationInbox accountId={accountId} applicationId={application.id} />
-    <details className="panel submitted-details"><summary>View submitted answers</summary><ApplicationContent application={{ ...application.data, profile: { ...application.data.profile, email: application.email } }} /></details>
     </div>
-    {application.status !== "Withdrawn" && <section className="withdrawal-action workspace-withdrawal" aria-label="Application withdrawal"><p>Withdrawal is final.</p><button type="button" className="text-button" disabled={busy} onClick={() => { setMessage(""); setConfirm(true); }}>Withdraw application</button></section>}
-    </div></div>
     {confirm && <Modal title="Withdraw application" dismissible={!busy} onClose={() => setConfirm(false)}><div className="modal-body" aria-busy={busy}>
       <p>Withdraw {application.reference}? This is final. You cannot edit this application or apply again for this role. You can still apply for other roles. Your submitted answers and status history will remain available.</p>
       {message && <Callout tone="error" title="Something needs attention" role="alert">{message}</Callout>}

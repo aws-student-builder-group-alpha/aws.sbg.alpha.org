@@ -22,6 +22,7 @@ const { loadBindings, transform } = require("next/dist/build/swc");
 await loadBindings();
 const modules = new Map();
 for (const [name, relative] of [
+  ["@/app/(main)/(landing)/hero/pixel-wolf", "../app/(main)/(landing)/hero/pixel-wolf.tsx"],
   ["./application-sidebar","../app/(recruitment)/recruitment/application/application-sidebar.tsx"],
   ["home","../app/(recruitment)/recruitment/opportunities/opportunity-directory.tsx"],
   ["@/recruitment/lib/intake","lib/intake.ts"],["./staff.ts","lib/staff.ts"],["./application-queue.ts","lib/application-queue.ts"],["./evaluations.ts","lib/evaluations.ts"],["editor","../app/(recruitment)/recruitment/apply/draft-editor.tsx"],["@/app/(recruitment)/recruitment/apply/start-draft","../app/(recruitment)/recruitment/apply/start-draft.tsx"],["./start-draft","../app/(recruitment)/recruitment/apply/start-draft.tsx"],["./apply-entry","../app/(recruitment)/recruitment/apply/apply-entry.tsx"],["entry","../app/(recruitment)/recruitment/components/applicant-access.tsx"],["portal","../app/(recruitment)/recruitment/application/application-portal.tsx"],
@@ -64,6 +65,7 @@ window.mount=(kind,props)=>{window.shellPath=kind==='editor'?'/recruitment/apply
 function EnrollmentProbe({accountId}){const React=require('react'),[account,setAccount]=React.useState(accountId),[ready,setReady]=React.useState(false),[revision,setRevision]=React.useState(0);window.changeEnrollmentAccount=setAccount;window.rotateEnrollmentCallback=()=>setRevision(value=>value+1);const onReady=React.useCallback(value=>{window.enrollmentCallbacks.push(value);setReady(value)},[revision]);return require('react/jsx-runtime').jsxs('main',{id:'main-content',className:'container portal narrow',children:[jsx(require('@/app/(recruitment)/recruitment/components/enrollment-upload').EnrollmentUpload,{accountId:account,onReady}),jsx('output',{id:'enrollment-ready',children:String(ready)})]});}
 window.mountEnrollment=accountId=>{window.shellPath='/recruitment/apply';window.enrollmentCallbacks=[];require('react-dom').flushSync(()=>root.render(renderShell(jsx(EnrollmentProbe,{accountId}))));};
 window.mountEntry=props=>{window.shellPath='/recruitment/apply';root.render(renderShell(jsx(require('entry').ApplicantAccess,{...props,formEntry:true}),false));};
+window.mountPortalEntry=props=>{window.shellPath='/recruitment/application';require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('entry').ApplicantAccess,{...props,redesign:true}),false)));};
 window.mountLoading=()=>{window.shellPath='/recruitment/apply';root.render(renderShell(jsx(require('./apply-entry').ApplyLoading,{}),false));};
 window.mountHome=(entry={kind:'anonymous'})=>{window.shellPath='/recruitment/opportunities';history.replaceState({},'','/recruitment/opportunities');require('react-dom').flushSync(()=>root.render(renderShell(jsx(require('react').Fragment,{children:[jsx('style',{children:${JSON.stringify(homeStyles)}}),jsx(require('home').OpportunityDirectory,{entry})]}),false)));};
 window.mountFeedback=()=>{const {jsx,jsxs}=require('react/jsx-runtime'),ui=require('@/app/(recruitment)/recruitment/components/ui');window.shellPath='/recruitment/privacy';require('react-dom').flushSync(()=>root.render(renderShell(jsx('main',{id:'main-content',className:'container portal narrow',children:jsxs('section',{children:[...['info','success','warning','error'].map(tone=>jsx(ui.Callout,{tone,title:tone+' example',role:tone==='error'?'alert':tone==='success'?'status':undefined,children:jsxs('div',{children:[jsx('p',{children:'Readable feedback with an explicit recovery action.'}),jsx('button',{type:'button',className:'text-button',children:'Retry '+tone})]})},tone)),jsx('label',{htmlFor:'feedback-field',children:'Example field'}),jsx('input',{id:'feedback-field','aria-invalid':true,'aria-describedby':'feedback-field-error'}),jsx(ui.FieldError,{id:'feedback-field-error',children:'Enter a valid value.'}),jsx(ui.ErrorSummary,{children:jsx('a',{href:'#feedback-field',children:'Check the example field'})})]})}),false)));};
@@ -104,6 +106,7 @@ try {
     const incoming=route.request(),url=new URL(incoming.url());
     if(styles.includes(url.pathname))return route.fulfill({contentType:"text/css; charset=utf-8",body:await readFile(path.join(buildDirectory,url.pathname.split("/_next/")[1]))});
     if(url.pathname.startsWith("/recruitment/brand/"))return route.fulfill({body:await readFile(path.join(project,"../../public",url.pathname))});
+    if(url.pathname==="/optimized/alpha-logo.webp")return route.fulfill({contentType:"image/webp",body:await readFile(path.join(project,"../../public",url.pathname))});
     if(url.pathname==="/recruitment/api/opportunities") {
       if(faults.vacanciesUnavailable)return route.fulfill({status:503,json:{ok:false}});
       const value=(await runtime.db.query("select opportunity_availability() value")).rows[0].value;
@@ -111,6 +114,17 @@ try {
     }
     if(url.pathname==="/recruitment/api/access")return route.fulfill({json:faults.access||{kind:"applicant",accountId:runtime.identity.id}});
     if(url.pathname==='/recruitment/api/community'){
+      if(url.searchParams.get('action')==='notifications'){
+        if(faults.notificationsUnavailable)return route.fulfill({status:503,json:{ok:false,message:'Updates could not be loaded.'}});
+        return route.fulfill({json:{ok:true,data:faults.notifications||[]}});
+      }
+      if(incoming.method()==='POST'){
+        const command=JSON.parse(incoming.postData());
+        if(command.action==='read'&&faults.notifications){
+          faults.notifications=faults.notifications.map(note=>note.id===command.id?{...note,read_at:note.created_at}:note);
+          return route.fulfill({json:{ok:true,data:faults.notifications}});
+        }
+      }
       if(incoming.method()==='GET'&&url.searchParams.get('action')==='enrollment'){
         const row=faults.enrollmentMissing?null:(await runtime.db.query('select id,filename,size_bytes as size,created_at as "createdAt" from public.enrollment_documents where owner_id=$1',[url.searchParams.get('accountId')])).rows[0];
         const failure=faults.enrollmentReadFailure;
@@ -184,7 +198,7 @@ try {
   async function mountPortal() {
     const state=await runtime.rpc("get_application_state");
     await page.evaluate(props=>window.mount("portal",props),{accountId:runtime.identity.id,initialApplication:state.application,applications:state.applications});
-    await page.getByRole("heading",{name:"Application reference",exact:true}).waitFor();
+    await page.getByRole("heading",{name:"Submission status",exact:true}).waitFor();
     assert.equal(await page.locator(".workspace-heading,.apply-workspace-heading").count(),0);
     assert.equal(await page.locator(".application-receipt .badge").count(),1);
     await assertRecruitmentSurface(page,"Applicant portal");
@@ -335,6 +349,77 @@ try {
   await page.evaluate(()=>window.resolveSignIn());
   await page.waitForFunction(()=>!document.querySelector('.apply-google-button')?.disabled);
   passed.push("responsive sign-in, failed-sign-in, unavailable and loading screens preserve the requested opportunity");
+
+  const entryViewport=page.viewportSize();
+  await page.evaluate(()=>window.mountPortalEntry({kind:'anonymous'}));
+  const portalEntry=page.locator('.application-sign-in');
+  const loginCard=portalEntry.locator('.workspace-auth-content');
+  const googleButton=portalEntry.getByRole('button',{name:'Continue with Google',exact:true});
+  const accountHelp=portalEntry.locator('details');
+  const helpTrigger=accountHelp.locator('summary');
+  const signInHeading=portalEntry.getByRole('heading',{name:'My application',exact:true});
+  await signInHeading.waitFor();
+  assert.equal(await signInHeading.evaluate(node=>node.previousElementSibling),null,'The sign-in card starts with its heading');
+  for(const [width,height] of [[320,640],[768,900],[1440,900],[568,320]]){
+    await page.setViewportSize({width,height});
+    const layout=await loginCard.evaluate(card=>{
+      const box=card.getBoundingClientRect(),main=card.closest('main').getBoundingClientRect();
+      return {width:box.width,top:box.top,bottom:box.bottom,left:box.left,right:box.right,middle:box.top+box.height/2,mainMiddle:main.top+main.height/2};
+    });
+    assert.ok(layout.width<=501&&layout.left>=15&&layout.right<=width-15, 'The card fits at '+width+'px: '+JSON.stringify(layout));
+    assert.ok(Math.abs(layout.middle-layout.mainMiddle)<1,'The card is centered in the space beneath the header');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
+    assert.equal(await loginCard.evaluate(node=>getComputedStyle(node).animationName),'none','Reduced motion disables the card entrance');
+    if(width===320||width===1440)await page.screenshot({path:path.join(artifactDir,`portal-sign-in-${width}.png`)});
+  }
+  assert.deepEqual(await googleButton.evaluate(node=>{
+    const context=document.createElement('canvas').getContext('2d');
+    context.fillStyle=getComputedStyle(node).backgroundColor;
+    context.fillRect(0,0,1,1);
+    return [...context.getImageData(0,0,1,1).data];
+  }),[255,255,255,255],'The Google sign-in button has a white background');
+  await googleButton.hover();
+  await page.waitForFunction(()=>{
+    const style=getComputedStyle(document.querySelector('.application-sign-in .apply-google-button'));
+    const context=document.createElement('canvas').getContext('2d');
+    context.fillStyle=style.getPropertyValue('--color-orange').trim();
+    const orange=context.fillStyle;
+    context.fillStyle=style.backgroundColor;
+    return context.fillStyle===orange;
+  });
+  assert.equal(await accountHelp.getAttribute('open'),null);
+  await googleButton.focus();
+  await page.keyboard.press('Tab');
+  assert.equal(await helpTrigger.evaluate(node=>node===document.activeElement),true);
+  await page.keyboard.press('Enter');
+  assert.equal(await helpTrigger.locator('svg').evaluate(node=>getComputedStyle(node).rotate),'90deg');
+  const privacyLink=accountHelp.getByRole('link',{name:'privacy notice',exact:true});
+  await page.keyboard.press('Tab');
+  assert.equal(await privacyLink.evaluate(node=>node===document.activeElement),true);
+  assert.equal(await privacyLink.getAttribute('href'),'/recruitment/privacy');
+  assert.equal(await accountHelp.getByRole('link',{name:'contact Alpha',exact:true}).getAttribute('href'),'mailto:awslc.alpha@gmail.com');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollHeight>innerHeight),'Expanded help scrolls in a short viewport');
+  await googleButton.click();
+  const portalPending=portalEntry.getByRole('button',{name:'Connecting…',exact:true});
+  await portalPending.waitFor();
+  assert.equal(await portalPending.isDisabled(),true);
+  assert.equal(await portalPending.getAttribute('aria-busy'),'true');
+  await page.evaluate(()=>window.resolveSignIn());
+  await googleButton.waitFor();
+  await page.evaluate(()=>window.mountPortalEntry({kind:'anonymous',authError:'sign-in'}));
+  await portalEntry.getByRole('alert').filter({hasText:'Sign-in was cancelled'}).waitFor();
+  assert.equal(await googleButton.isEnabled(),true);
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.evaluate(()=>document.documentElement.setAttribute('data-reduced-motion','true'));
+  assert.equal(await loginCard.evaluate(node=>getComputedStyle(node).animationName),'none','Saved reduced motion disables the card entrance');
+  await page.evaluate(()=>document.documentElement.removeAttribute('data-reduced-motion'));
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.evaluate(()=>window.mountPortalEntry({kind:'unavailable'}));
+  await page.getByRole('heading',{name:'Applications are not available right now',exact:true}).waitFor();
+  assert.equal(await portalEntry.count(),0,'Recovery uses the existing reading surface');
+  assert.equal(await page.getByRole('button',{name:'Continue with Google',exact:true}).count(),0);
+  await page.setViewportSize(entryViewport);
+  passed.push('My application sign-in remains centered, readable and keyboard accessible at phone, tablet, desktop and short landscape sizes');
 
   runtime.setIdentity(await runtime.addIdentity());faults={posts:[]};
   await page.evaluate(props=>window.mount("editor",props),{applicant:runtime.identity,initialDraft:null,intake:(await runtime.rpc("get_application_state")).intake,requestedOpportunity:"buildher"});
@@ -815,7 +900,47 @@ try {
   assert.equal((await runtime.rpc("get_application_state")).application.history.length,1);
   passed.push("field errors preserve answers and focus; submission freezes, flushes acknowledged revision, retries exact operation with one receipt/history");
   await mountPortal();assert.equal(await page.locator(".portal-history").evaluate(node=>node.open),false);assert.equal(await page.locator(".application-history li").count(),1);await openDisclosure(page,"Status history");await page.locator(".portal-history > summary").click();await layout("submitted portal");
-  for(const width of [375,1440]){await page.setViewportSize({width,height:950});await page.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0);});assert.equal(await page.getByRole('banner').getAttribute('data-workspace-frame'),'applicant');await page.screenshot({path:path.join(artifactDir,'portal-'+width+'.png')});}
+  const receiptState=await runtime.rpc("get_application_state");
+  const statusPanel=page.getByRole('region',{name:'Submission status',exact:true});
+  const notifications=page.getByRole('region',{name:/^Notifications/});
+  assert.equal(await statusPanel.locator(".application-reference").textContent(),receiptState.application.reference);
+  assert.equal(await statusPanel.locator("time").getAttribute("datetime"),receiptState.application.submittedAt);
+  assert.equal(await page.locator(".submission-status > .community-inbox + .portal-history").count(),1);
+  await notifications.getByText('No updates yet',{exact:true}).waitFor();
+  for(const width of [375,1440]){
+    await page.setViewportSize({width,height:width===375?950:1000});
+    await page.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0);});
+    await page.mouse.move(0,0);
+    assert.equal(await page.getByRole('banner').getAttribute('data-workspace-frame'),'applicant');
+    const placement=await statusPanel.evaluate(node=>({
+      role:node.querySelector('.submission-status-role').getBoundingClientRect().top,
+      refresh:node.querySelector('.submission-status-refresh').getBoundingClientRect().top,
+    }));
+    assert.equal(placement.role<placement.refresh,width===375,'The role stays ahead of its secondary action on phones');
+    await page.screenshot({path:path.join(artifactDir,'submission-status-'+width+'.png')});
+  }
+  faults.notificationsUnavailable=true;
+  const refreshNotifications=notifications.getByRole('button',{name:'Refresh notifications',exact:true});
+  await refreshNotifications.click();
+  await notifications.getByRole('alert').filter({hasText:'Updates could not be loaded.'}).waitFor();
+  faults.notificationsUnavailable=false;
+  faults.notifications=[
+    {id:crypto.randomUUID(),application_id:receiptState.application.id,kind:'interview',title:'Interview invitation',body:'Choose a schedule that works for you.',link:'https://calendly.com/alpha/interview',created_at:receiptState.application.submittedAt,read_at:null},
+    {id:crypto.randomUUID(),application_id:crypto.randomUUID(),kind:'update',title:'Other application update',body:'Outside this receipt.',link:null,created_at:receiptState.application.submittedAt,read_at:null},
+  ];
+  await refreshNotifications.click();
+  await notifications.getByText('1 unread',{exact:true}).waitFor();
+  assert.equal(await notifications.getByText('Other application update',{exact:true}).count(),0);
+  assert.equal(await notifications.getByRole('link',{name:'Choose an interview schedule',exact:true}).getAttribute('href'),'https://calendly.com/alpha/interview');
+  await notifications.getByRole('button',{name:'Mark as read',exact:true}).click();
+  await notifications.getByText('0 unread',{exact:true}).waitFor();
+  delete faults.notifications;
+  for(const status of ['Accepted','Waitlisted','Not Selected']){
+    await page.evaluate(props=>window.mount('portal',props),{accountId:runtime.identity.id,initialApplication:{...receiptState.application,status}});
+    await statusPanel.locator('.badge').filter({hasText:status}).waitFor();
+    assert.notEqual(await statusPanel.getByRole('status').textContent(),'');
+  }
+  await mountPortal();
   await page.getByText("View submitted answers",{exact:true}).click();
   assert.equal(await page.locator("textarea,input").count(),0);
   await layout("immutable answers");
@@ -847,7 +972,7 @@ try {
   assert.equal(await page.locator('.application-switcher[aria-current="page"]').getAttribute('href'),'/recruitment/application?application='+secondApplication.id);
   await layout('multiple application sidebar');
   await page.evaluate(props=>window.mount('portal',props),{accountId:runtime.identity.id,initialApplication:state.application,applications:(await runtime.rpc('get_application_state')).applications});
-  await page.getByRole('heading',{name:'Application reference',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Submission status',exact:true}).waitFor();
   assert.equal(await page.locator('.application-reference').textContent(),state.application.reference);
   assert.equal(await page.getByRole('button',{name:'Withdraw application',exact:true}).count(),0);
   passed.push('multiple role receipts have separate sidebar entries, selected status and withdrawal actions across desktop/phone layouts');
@@ -993,7 +1118,18 @@ try {
         assert.equal(await menu.getAttribute('aria-expanded'),'true');
         assert.deepEqual(await page.locator('.nav-chapter-links a').allTextContents(),['Home','Events','Opportunities','Team','Connect','Skill Builders']);
         assert.equal(await page.locator('.main-nav a[href="/recruitment/opportunities"]').count(),1,'The mobile menu has one opportunities link');
-        assert.equal(await page.locator('.main-nav').evaluate(node=>getComputedStyle(node).animationName),'none','Reduced motion disables the circular reveal');
+        const mobileNav=page.locator('.main-nav');
+        assert.equal(await mobileNav.evaluate(node=>getComputedStyle(node).animationName),'none','Reduced motion disables the circular reveal');
+        assert.equal(await mobileNav.evaluate(node=>getComputedStyle(node).rowGap),width>=640?'28px':'20px','Mobile links use the landing menu spacing');
+        const links=await mobileNav.locator('a').evaluateAll(nodes=>nodes.map(node=>{
+          const style=getComputedStyle(node);
+          return {family:style.fontFamily,size:style.fontSize,weight:style.fontWeight};
+        }));
+        assert.ok(links.every(({family,size,weight})=>family.includes('Urban Starblues')&&size==='40px'&&weight==='400'),'Mobile links use the landing menu typography');
+        if(route==='/recruitment/opportunities'||route==='/recruitment/membership'){
+          const currentLink=mobileNav.locator('a[aria-current="page"]');
+          assert.equal(await currentLink.evaluate(node=>getComputedStyle(node).color),'rgb(255, 153, 0)','The active mobile link uses the landing menu accent');
+        }
         await page.keyboard.press('Tab');
         assert.equal(await page.locator('.main-nav a').first().evaluate(node=>node===document.activeElement),true,'Tab enters the opened menu');
         await page.keyboard.press('Escape');
@@ -1080,6 +1216,7 @@ try {
     assert.equal(await page.locator('main').evaluate(node=>node.inert),true,'Background is inert while the mobile menu is open');
     await page.keyboard.press('Shift+Tab');
     const signOut=page.locator('.site-header').getByRole('button',{name:'Sign out',exact:true});
+    assert.match(await signOut.evaluate(node=>getComputedStyle(node).fontFamily),/Urban Starblues/,'The mobile account action uses the landing menu typography');
     assert.equal(await signOut.evaluate(node=>document.activeElement===node),true,'Shift+Tab wraps to the last mobile action');
     await page.keyboard.press('Tab');assert.equal(await page.getByRole('button',{name:'Close menu',exact:true}).evaluate(node=>document.activeElement===node),true,'Tab wraps to Close');
     await signOut.focus();

@@ -1,3 +1,72 @@
+.alpha-app .recruitment-process:has(> .application-sign-in) {
+  padding-block: 0;
+}
+
+.alpha-app .recruitment-process .portal.workspace-redesign.application-sign-in {
+  display: grid;
+  place-items: center;
+  width: calc(100% - 32px);
+  min-block-size: calc(100dvh - var(--site-header-height));
+  margin-inline: auto;
+  padding-block: clamp(24px, 5dvh, 56px);
+}
+
+.alpha-app .recruitment-process .application-sign-in .workspace-auth-content {
+  width: min(100%, 500px);
+  margin: 0;
+  padding: clamp(24px, 5vw, 36px);
+  text-align: center;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgb(0 0 0 / .2);
+}
+
+.alpha-app .recruitment-process .application-sign-in .workspace-auth-content h1 {
+  margin: 0 0 10px;
+  font-size: clamp(1.875rem, 5vw, 2.5rem);
+  letter-spacing: -.045em;
+}
+
+.alpha-app .recruitment-process .application-sign-in .workspace-auth-content > p {
+  margin: 0;
+  color: var(--color-auth-muted);
+  font-size: 1rem;
+}
+
+.alpha-app .recruitment-process .application-sign-in .apply-google-button {
+  background: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-hero);
+}
+
+.alpha-app .recruitment-process .application-sign-in .apply-google-button:hover:not(:disabled) {
+  background: var(--color-orange);
+  border-color: var(--color-orange);
+}
+
+.alpha-app .recruitment-process .application-sign-in .workspace-help {
+  margin-top: 20px;
+  padding-top: 4px;
+}
+
+.alpha-app .application-sign-in :is(.workspace-help, .callout) { text-align: start; }
+.alpha-app .application-sign-in .callout { margin-block-start: 16px; }
+
+.alpha-app .recruitment-process .application-sign-in summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+  font-weight: 600;
+}
+
+.alpha-app .application-sign-in summary::-webkit-details-marker { display: none; }
+.alpha-app .application-sign-in summary svg { flex: none; }
+.alpha-app .application-sign-in details[open] > summary svg { rotate: 90deg; }
+.alpha-app .application-sign-in :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+
+:root[data-reduced-motion="true"] .alpha-app .recruitment-process .application-sign-in .workspace-auth-content { animation: none; }
+
 .alpha-app .recruitment-process .applications-hub {
   width: min(calc(100% - 40px), 1280px);
   margin-inline: auto;
@@ -33,6 +102,107 @@
 .alpha-app .applications-hub .workspace-withdrawal p { margin: 0; }
 .alpha-app .applications-hub .workspace-withdrawal { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .alpha-app .application-switcher:focus-visible, .alpha-app .application-add:focus-visible { outline: 3px solid #7752a3; outline-offset: 3px; }
+
+.alpha-app .applications-hub > .submission-status {
+  --receipt-padding: clamp(16px, 2.4vw, 26px);
+  --receipt-rule: #e3ddec;
+  --receipt-violet: #69468f;
+  --receipt-tint: #f8f5fb;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: clamp(12px, 2.5vw, 32px);
+  background: #fdfcfe;
+}
+
+.alpha-app .submission-status > :is(.panel, .workspace-withdrawal) {
+  min-width: 0;
+  margin: 0;
+  padding: var(--receipt-padding);
+  border: 1px solid var(--receipt-rule);
+  border-radius: 16px;
+  background: var(--color-process-surface);
+}
+
+.alpha-app .submission-status > .application-receipt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: linear-gradient(135deg, #f1eafa, #fbf8ff 80%);
+}
+
+.alpha-app .submission-status :is(.submission-status-role, .notification-inbox-heading) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.alpha-app .submission-status .notification-inbox-heading { justify-content: space-between; }
+.alpha-app .submission-status .application-receipt h1 { align-self: center; margin: 0; color: var(--receipt-violet); font-size: 1rem; letter-spacing: -.01em; }
+.alpha-app .submission-status .submission-status-refresh { justify-self: start; margin-block-start: 12px; }
+.alpha-app .submission-status .submission-status-role { margin-block-start: 12px; }
+
+.alpha-app .submission-status .submission-status-role h2 {
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.alpha-app .submission-status .receipt-guidance { margin: 8px 0 18px; color: var(--color-process-muted); font-size: 1rem; }
+.alpha-app .submission-status .submission-status-metadata { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 8px; margin: 0; }
+.alpha-app .submission-status .submission-status-metadata > div { min-width: 0; padding: 10px 12px; border: 1px solid var(--receipt-rule); border-radius: 10px; background: rgb(255 255 255 / .7); }
+.alpha-app .submission-status .submission-status-metadata dt { display: flex; align-items: center; gap: 6px; color: var(--color-process-muted); font-size: .8125rem; }
+.alpha-app .submission-status .submission-status-metadata dt svg { flex: none; color: var(--receipt-violet); }
+.alpha-app .submission-status .submission-status-metadata dd { margin: 4px 0 0; font-size: .875rem; font-weight: 600; overflow-wrap: anywhere; }
+
+.alpha-app .submission-status .notification-inbox-heading h2 { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; font-size: 1.125rem; }
+.alpha-app .submission-status .notification-unread { padding: 3px 8px; border-radius: 999px; background: var(--receipt-tint); color: var(--receipt-violet); font-size: .75rem; font-weight: 600; }
+.alpha-app .submission-status .notification-empty { display: flex; align-items: flex-start; gap: 12px; padding: 12px; margin-block: 4px 8px; border-radius: 10px; background: var(--receipt-tint); }
+.alpha-app .submission-status .notification-empty h3 { margin: 0 0 4px; font-size: .9375rem; }
+.alpha-app .submission-status .notification-empty p { margin: 0; color: var(--color-process-muted); font-size: .875rem; }
+.alpha-app .submission-status .notification-error { margin: 4px 0 8px; padding: 10px 12px; border-inline-start: 3px solid var(--color-danger); background: #fff4f2; color: var(--color-process-ink); }
+.alpha-app .submission-status .community-notifications { margin-block: 8px; }
+.alpha-app .submission-status .community-notifications .inline-actions { margin-block-start: 8px; }
+.alpha-app .submission-status .community-inbox a.text-button { display: inline-flex; align-items: center; }
+
+.alpha-app .submission-status > .submission-status-disclosure { padding: 0; }
+.alpha-app .submission-status .submission-status-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 12px var(--receipt-padding);
+  border-radius: inherit;
+  list-style: none;
+  font-size: .9375rem;
+  font-weight: 650;
+}
+.alpha-app .submission-status .submission-status-disclosure > summary::-webkit-details-marker { display: none; }
+.alpha-app .submission-status .submission-status-disclosure > summary:hover { background: var(--receipt-tint); }
+.alpha-app .submission-status .workspace-disclosure-icon { display: grid; flex: none; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--color-orange-soft); color: var(--color-orange-ink); }
+.alpha-app .submission-status .workspace-disclosure-chevron { flex: none; margin-inline-start: auto; color: var(--receipt-violet); }
+.alpha-app .submission-status .submission-status-disclosure[open] > summary .workspace-disclosure-chevron { transform: rotate(90deg); }
+.alpha-app .submission-status .submission-status-details { padding: 0 var(--receipt-padding) var(--receipt-padding); }
+.alpha-app .submission-status .submission-status-details .review-section:last-child { margin-bottom: 0; padding-bottom: 0; }
+
+.alpha-app .submission-status .application-history { list-style: none; margin: 0; padding: 4px var(--receipt-padding) 18px; }
+.alpha-app .submission-status .application-history li { position: relative; padding: 0 0 16px 22px; }
+.alpha-app .submission-status .application-history li:last-child { padding-bottom: 0; }
+.alpha-app .submission-status .application-history li::before { content: ""; position: absolute; inset-block-start: .45em; inset-inline-start: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--receipt-violet); }
+.alpha-app .submission-status .application-history li:not(:last-child)::after { content: ""; position: absolute; inset-block: calc(.45em + 9px) -.45em; inset-inline-start: 4px; border-inline-start: 1px solid var(--receipt-rule); }
+
+.alpha-app .applications-hub > .submission-status > .workspace-withdrawal { background: transparent; }
+.alpha-app .submission-status .workspace-withdrawal h2 { margin: 0 0 4px; font-size: 1rem; }
+.alpha-app .submission-status .workspace-withdrawal p { color: var(--color-process-muted); font-size: .875rem; }
+
+@media (min-width: 640px) {
+  .alpha-app .submission-status > .application-receipt { grid-template-columns: minmax(0, 1fr) auto; }
+  .alpha-app .submission-status .application-receipt > :is(.submission-status-role, .receipt-guidance, .submission-status-metadata) { grid-column: 1 / -1; }
+  .alpha-app .submission-status .submission-status-refresh { grid-area: 1 / 2; margin-block-start: 0; }
+}
+
 @media (max-width: 800px) {
   .alpha-app .recruitment-process .applications-hub { width: min(calc(100% - 24px), 640px); grid-template-columns: minmax(0, 1fr); border-radius: 20px; }
   .alpha-app .applications-sidebar { padding: 24px 20px; border-right: 0; border-bottom: 1px solid #e2ddeb; }
