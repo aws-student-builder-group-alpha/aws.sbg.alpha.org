@@ -4,6 +4,7 @@ import { useEffect,useState } from 'react';
 import { communityCommand,communityRead } from '@/recruitment/lib/community-client';
 import { isCalendly,isNotification,type Notification } from '@/recruitment/lib/community';
 import { formatDate } from '@/recruitment/lib/format-date';
+import { Icon } from './ui';
 export function NotificationInbox({accountId,applicationId}:{accountId:string;applicationId?:string}){
  const [items,setItems]=useState<Notification[]>([]),[message,setMessage]=useState(''),[retry,setRetry]=useState(0);
  useEffect(()=>{
@@ -15,10 +16,25 @@ export function NotificationInbox({accountId,applicationId}:{accountId:string;ap
  async function mark(id:string){try{const data=await communityCommand(accountId,'read',{id});if(Array.isArray(data)&&data.every(isNotification))setItems(data)}catch(error){setMessage(error instanceof Error?error.message:'Could not mark this notification as read.')}}
  const visible=applicationId?items.filter(item=>!item.application_id||item.application_id===applicationId):items;
  return <section className="panel community-inbox" aria-labelledby="notification-heading">
-  <div className="subheading"><h2 id="notification-heading">Notifications <span className="muted">{visible.filter(item=>!item.read_at).length} unread</span></h2><button type="button" className="text-button" onClick={()=>setRetry(value=>value+1)}>Refresh</button></div>
-  {message&&<p role="alert">{message}</p>}
-  {!visible.length&&!message&&<p>Application status updates and interview invitations will appear here.</p>}
-  <ul className="community-notifications">{visible.map(item=><li key={item.id} data-unread={!item.read_at}><h3>{item.title}</h3><p>{item.body}</p><time dateTime={item.created_at}>{formatDate(item.created_at)} Philippine time</time><div className="inline-actions">{item.link&&isCalendly(item.link)&&<a className="button button-secondary" href={item.link} target="_blank" rel="noopener noreferrer">Choose an interview schedule</a>}{!item.read_at&&<button type="button" className="text-button" onClick={()=>void mark(item.id)}>Mark as read</button>}</div></li>)}</ul>
+  <div className="notification-inbox-heading">
+    <h2 id="notification-heading">Notifications <span className="notification-unread">{visible.filter(item=>!item.read_at).length} unread</span></h2>
+    <button type="button" className="text-button" aria-label="Refresh notifications" onClick={()=>setRetry(value=>value+1)}>Refresh</button>
+  </div>
+  {message&&<p className="notification-error" role="alert">{message}</p>}
+  {!visible.length&&!message&&<div className="notification-empty">
+    <span className="workspace-disclosure-icon"><Icon name="mail" size={18}/></span>
+    <div><h3>No updates yet</h3><p>Application status updates and interview invitations will appear here.</p></div>
+  </div>}
+  {visible.length>0&&<ul className="community-notifications">{visible.map(item=>{
+    const interviewLink=item.link&&isCalendly(item.link)?item.link:null;
+    return <li key={item.id} data-unread={!item.read_at}>
+      <h3>{item.title}</h3><p>{item.body}</p><time dateTime={item.created_at}>{formatDate(item.created_at)} Philippine time</time>
+      {(interviewLink||!item.read_at)&&<div className="inline-actions">
+        {interviewLink&&<a className="button button-secondary" href={interviewLink} target="_blank" rel="noopener noreferrer">Choose an interview schedule</a>}
+        {!item.read_at&&<button type="button" className="text-button" onClick={()=>void mark(item.id)}>Mark as read</button>}
+      </div>}
+    </li>;
+  })}</ul>}
   <Link href="/recruitment/membership" className="text-button">Find your Alpha membership ID</Link>
  </section>;
 }

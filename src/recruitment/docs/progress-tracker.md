@@ -6,6 +6,50 @@ The production build and targeted lint passed. Local Chromium verified the menu 
 
 Reviewed project overview, architecture, code standards, AI workflow rules, UI direction and this tracker. UI direction records the shared mobile presentation. Existing access rules and workflow guidance cover the route and account behavior.
 
+## Submission Status receipt - 23 November 2026
+
+Redesigned the selected submission with a lavender role and status card, grouped reference and Philippine submission time, and stacked notifications, status history, and read-only answers. The history disclosure uses a dated timeline. Withdrawal stays in a separate section. On narrow screens, the role and status precede the refresh action.
+
+The production build, TypeScript, focused ESLint, and Chromium applicant suite passed. Browser coverage includes the six statuses, receipt switching, notification isolation and recovery, and the existing withdrawal retry. Reviewed desktop and phone screenshots with synthetic data and verified the mobile refresh placement. The decision browser suite passed after its fixture loaded the shared application sidebar and router.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, UI direction, and this tracker. Updated UI direction and applicant browser assertions. The existing routes, ownership, and workflow contracts cover the presentation changes.
+
+## My application sign-in - 23 November 2026
+
+Centered the signed-out card below the shared navbar. The card uses the existing translucent charcoal palette and waves and leads with the My application heading. The Google button is white at rest and Alpha orange on hover. Account and privacy help uses a chevron and expands in document flow on short screens. The existing sign-in action and recovery states remain in place.
+
+The production build, TypeScript, focused ESLint, and four section navigation tests passed. Verified the built route in Chromium at five phone, tablet, desktop, and landscape sizes. Reviewed the rendered desktop and phone previews. The applicant browser suite passed with the heading-first layout, white and orange button states, keyboard, disclosure, simulated sign-in feedback, and reduced-motion coverage.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, UI direction, and this tracker. Updated UI direction and browser coverage. The existing product, routing, and authorization guidance covers the sign-in flow.
+
+## Single hosted submission reset - 23 November 2026
+
+Removed one named Under Review submission from the verified Recruitment account. The committed transaction removed its linked assignment, review, review history, notifications, message, and audit records after a successful rollback rehearsal. The Supabase Storage API removed the attached enrollment file.
+
+Independent database and Storage checks found zero scoped application records and uploads. Fingerprints across 28 tables confirmed that the same account's separate draft, Google identity, and other records were preserved. The existing product, architecture, code standards, workflow, and UI guidance continue to apply.
+
+## Single hosted membership removal - 23 November 2026
+
+At the owner's request, permanently removed one verified Alpha membership, one linked history row and one linked audit event after a rollback rehearsal. Removed its one orphaned portrait through the Supabase Storage API. Independent database and Storage checks found zero scoped records and zero portrait objects. Fingerprints across 28 tables confirmed the other records were preserved. The confirmed, unbanned Auth account and its Google identity remain available. Verification used the Auth admin API and database checks.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, UI direction, and this tracker. This tracker records the one-time hosted operation. Application behavior and schema were preserved.
+
+## Hosted Recruitment applicant reset - 23 November 2026
+
+The owner selected a reset of hosted application data with sign-in accounts and memberships preserved. A rollback rehearsal returned the database to its original state. The verified transaction then removed two submissions, four drafts, and linked reviews, decisions, history, notifications, and application communication records. The existing linked membership kept its ID and status when its application link was cleared, and the accepted place became available.
+
+The Supabase Storage API removed all seven enrollment uploads, including four orphaned files. Independent SQL and Storage checks found zero applications, drafts, enrollment records, and enrollment objects. Database fingerprints confirmed preservation of Auth identities, staff, membership records and invitations, intake settings, configured capacity, and other storage. Intake remained open.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, UI direction, and this tracker. The reset changed hosted data only. This tracker records the operation and verification.
+
+## Recruitment mobile menu appearance - 23 November 2026
+
+Recruitment’s expanded menu now uses the main site's Urban Starblues typography, centered spacing, navy surface and orange active and hover states. The hamburger and close icons use the same geometry at the existing touch sizes. Recruitment keeps its session-specific destinations and account actions.
+
+The production build, TypeScript, focused ESLint, and four section-navigation tests passed. Chromium compared the rendered guest menus at 320px, 375px, 568px, and 768px and verified focus return, reduced motion, short-viewport scrolling, and desktop typography at 1440px. The applicant browser suite passed with synthetic signed-in accounts and enlarged text after its fixture loaded the directory's mascot component.
+
+Reviewed the project overview, architecture, code standards, AI workflow rules, UI direction, and this tracker. Updated UI direction and the applicant browser assertions. The existing product, routing, authorization, and verification guidance covers the change.
+
 ## Opportunities heading and application call to action - 21 November 2026
 
 Removed the visible Available Roles title and aggregate opportunity total from the directory. The semantic page heading is now “Opportunities” for assistive technology. The wide application call to action says Continue Application when the verified applicant has a draft or submission, and Available Applications for signed-out visitors or verified applicants without saved work. Staff, members and unverified account states do not see the action. Replaced the arrow with a larger roles wolf on a transparent background and reduced the gap beneath the banner to 20–28px. Updated the loading fallback, page title and current user guide.

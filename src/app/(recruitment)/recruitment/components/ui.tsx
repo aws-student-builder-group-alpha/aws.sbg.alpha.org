@@ -15,7 +15,7 @@ import type { ApplicationStatus } from "@/recruitment/lib/applications";
 import type { StaffRole, StaffStatus } from "@/recruitment/lib/staff";
 
 const paths: Record<string, ReactNode> = {
-  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  menu: <path d="M4 5h16M4 12h16M4 19h16" />,
   filter: <path d="M4 6h16M7 12h10m-7 6h4" />,
   more: <><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>,
   arrow: <path d="M4 12h15M13 5l7 7-7 7" />,
@@ -286,7 +286,7 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
           <Image src="/optimized/alpha-logo.webp" alt="" width={36} height={36} priority />
         </a>
         <NavigationWordmark />
-        <div className="header-actions"><button ref={menuButton} type="button" className="icon-button mobile-menu-button" aria-label="Open menu" aria-controls={menuId} aria-expanded={menuOpen} onClick={() => { setAccountOpen(false); setMenuOpen(true); }}><Icon name="menu" size={24} /></button></div>
+        <div className="header-actions"><button ref={menuButton} type="button" className="icon-button mobile-menu-button" aria-label="Open menu" aria-haspopup="dialog" aria-controls={menuId} aria-expanded={menuOpen} onClick={() => { setAccountOpen(false); setMenuOpen(true); }}><Icon name="menu" size={24} /></button></div>
         <nav ref={navRef} id={menuId} aria-label={menuOpen ? "Main navigation menu" : "Main navigation"} role={menuOpen ? "dialog" : undefined} aria-modal={menuOpen ? true : undefined} className="main-nav" data-open={menuOpen}
           onClick={event => { if ((event.target as HTMLElement).closest("a")) { if (menuOpen) closeMenu(); setAccountOpen(false); } }}
           onKeyDown={event => { if (menuOpen && event.key === "Tab") { const controls = Array.from(navRef.current?.querySelectorAll<HTMLElement>("a,button:not(:disabled)") || []).filter(node => node.getClientRects().length); const first = controls[0], last = controls.at(-1); if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } } }}>

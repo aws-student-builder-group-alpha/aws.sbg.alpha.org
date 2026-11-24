@@ -172,6 +172,10 @@ html:has(.alpha-mobile-navigation[open]) { overflow: hidden; }
 	filter: brightness(0) invert(1);
 }
 
+@media (min-width: 640px) {
+	.alpha-mobile-navigation[open] { gap: 28px; }
+}
+
 @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
 	.alpha-mobile-navigation[open] {
 		animation: alpha-mobile-menu-reveal .6s cubic-bezier(.77, 0, .175, 1);
