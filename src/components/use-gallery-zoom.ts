@@ -26,7 +26,9 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
         style: card.getAttribute('style'),
         button: card.querySelector<HTMLButtonElement>('.gallery-trigger'),
         tabindex: card.querySelector('.gallery-trigger')?.getAttribute('tabindex') ?? null,
+        preview: card.querySelector<HTMLSourceElement>('source[data-full-src]'),
       }))
+      const smallScreen = matchMedia('(max-width: 767px)')
       gallery.dataset.zoomGallery = ''
       let width = 1, height = 1
       let sizes: { width: number; height: number }[] = []
@@ -66,6 +68,11 @@ export function useGalleryZoom(root: RefObject<HTMLDivElement | null>, enabled: 
           if (onScreen) {
             card.style.transform = `translate3d(calc(-50% + ${x}px),calc(-50% + ${y}px),0) scale(${scale})`
             card.style.opacity = String(opacity)
+            const preview = originals[index].preview
+            const full = preview?.dataset.fullSrc
+            if (smallScreen.matches && scale >= .85 && preview && full && preview.srcset !== full) {
+              preview.srcset = full
+            }
           }
           if (visibleStates[index] !== onScreen) {
             visibleStates[index] = onScreen

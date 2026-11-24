@@ -7,7 +7,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import "./gallery-collage.css"
 
-export default function GalleryCollage({ photos, animate = true }: { photos: readonly string[]; animate?: boolean }) {
+export default function GalleryCollage({ photos, animate = true, mobilePreviews }: {
+  photos: readonly string[]
+  animate?: boolean
+  mobilePreviews?: Readonly<Record<string, string>>
+}) {
   const reducedMotion = useReducedMotion()
   const root = useRef<HTMLElement>(null)
 
@@ -31,11 +35,16 @@ export default function GalleryCollage({ photos, animate = true }: { photos: rea
   return (
     <section ref={root} className="gallery-collage" aria-label="Our community, together">
       <div className="gallery-collage-grid" aria-hidden="true">
-        {Array.from({ length: 36 }, (_, index) => (
-          <div key={index} style={{ "--gallery-tile-index": index } as CSSProperties}>
-            <Image src={photos[index % photos.length]} alt="" fill sizes="(min-width: 768px) 17vw, 34vw" />
-          </div>
-        ))}
+        {Array.from({ length: 36 }, (_, index) => {
+          const src = photos[index % photos.length]
+          const preview = mobilePreviews?.[src]
+          const image = <Image src={src} alt="" fill sizes="(min-width: 768px) 17vw, 34vw" />
+          return (
+            <div key={index} style={{ "--gallery-tile-index": index } as CSSProperties}>
+              {preview ? <picture><source media="(max-width: 767px)" srcSet={preview} />{image}</picture> : image}
+            </div>
+          )
+        })}
       </div>
       <div className="gallery-collage-message"><h3>This is what we’ve<br />built together.</h3></div>
     </section>
