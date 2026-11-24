@@ -21,8 +21,11 @@ export default function HeroBackground() {
       return
     }
 
+    let ready = false
+    let startScheduled = false
+    let cancelStart = () => {}
     const playback = () => {
-      if (!visible || document.hidden) {
+      if (!ready || !visible || document.hidden) {
         element.pause()
         return
       }
@@ -38,10 +41,42 @@ export default function HeroBackground() {
       playback()
     })
     observer.observe(element)
+
+    const intro = document.querySelector<HTMLElement>(".alpha-page-loader[data-home-intro]")
+    const scheduleStart = () => {
+      if (startScheduled) return
+      startScheduled = true
+      const start = () => {
+        ready = true
+        playback()
+      }
+      if (typeof window.requestIdleCallback === "function") {
+        const idle = window.requestIdleCallback(start, { timeout: 1200 })
+        cancelStart = () => window.cancelIdleCallback(idle)
+      } else {
+        const timer = window.setTimeout(start, 250)
+        cancelStart = () => window.clearTimeout(timer)
+      }
+    }
+    const checkIntro = () => {
+      if (!intro || intro.hidden || getComputedStyle(intro).visibility === "hidden" || getComputedStyle(intro).display === "none") {
+        scheduleStart()
+      }
+    }
+    const introObserver = new MutationObserver(checkIntro)
+    if (intro) {
+      introObserver.observe(intro, { attributes: true, attributeFilter: ["hidden", "data-home-intro"] })
+      intro.addEventListener("animationend", checkIntro)
+    }
+    checkIntro()
+
     mobile.addEventListener("change", playback)
     document.addEventListener("visibilitychange", playback)
     return () => {
       observer.disconnect()
+      introObserver.disconnect()
+      intro?.removeEventListener("animationend", checkIntro)
+      cancelStart()
       mobile.removeEventListener("change", playback)
       document.removeEventListener("visibilitychange", playback)
       element.pause()
