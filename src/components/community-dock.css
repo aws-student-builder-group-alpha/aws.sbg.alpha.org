@@ -163,3 +163,14 @@
   .alpha-dock-control > span { display: none; }
   .alpha-cookie-popover { padding: 22px; }
 }
+
+@media (360px <= width <= 760px) {
+  .alpha-community-dock { gap: 10px; }
+  .alpha-community-invitation { min-height: 52px; }
+  .alpha-community-invitation > span:first-child { padding-inline: 12px; }
+
+  .alpha-dock-control {
+    inline-size: 52px;
+    block-size: 52px;
+  }
+}
