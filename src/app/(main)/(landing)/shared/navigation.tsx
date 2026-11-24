@@ -256,7 +256,6 @@ export default function Navigation({
 
 	return (
 		<>
-			{pathname === "/" && <div className="alpha-viewport-frame" aria-hidden="true" />}
 			<nav
 				ref={navRef}
 				aria-label="Main navigation"
@@ -308,19 +307,14 @@ export default function Navigation({
 								{pageLinks.map((link) => {
 									const NavigationLink = link.href === RECRUITMENT_URL + "/opportunities" ? "a" : Link
 									return (
-										<NavigationLink
-											key={link.href}
-											href={link.href}
-											className={link.href === RECRUITMENT_URL + "/opportunities" ? "inline-flex min-h-11 items-center justify-center rounded-md bg-[#ff9900] px-4 text-xs font-semibold text-[#08090a] transition-colors hover:bg-[#ffb13d]" : linkClass(link.href)}
-										>
-											{link.href === RECRUITMENT_URL + "/opportunities" ? "Become a Member" : link.label}
+									<NavigationLink key={link.href} href={link.href} className={linkClass(link.href)}>
+										{link.href === RECRUITMENT_URL + "/opportunities" ? "Become a Member Now!" : link.label}
 										</NavigationLink>
 									)
 								})}
 
-								<div ref={accountRef} className="relative">
-									{isAuthenticated ? (
-										<>
+								{isAuthenticated && (
+									<div ref={accountRef} className="relative">
 											<button
 												type="button"
 												onClick={() =>
@@ -372,16 +366,8 @@ export default function Navigation({
 													</button>
 												</div>
 											)}
-										</>
-									) : (
-										<Link
-											href="/auth/login"
-											className={linkClass("/auth/login")}
-										>
-											Login
-										</Link>
-									)}
-								</div>
+									</div>
+								)}
 							</div>
 						</div>
 
@@ -426,19 +412,15 @@ export default function Navigation({
 					))}
 				</div>
 
-				<div className="alpha-mobile-account">
-					{isAuthenticated ? (
-						<>
-							{isAdmin && <Link href="/admin" onClick={closeMobileMenu}>Admin</Link>}
-							<Link href="/settings" onClick={closeMobileMenu} aria-current={pathname === "/settings" ? "page" : undefined}>
-								Settings
-							</Link>
-							<button type="button" onClick={() => { closeMobileMenu(); setSignOutSource("mobile") }}>Sign out</button>
-						</>
-					) : (
-						<Link href="/auth/login" onClick={closeMobileMenu}>Login</Link>
-					)}
-				</div>
+				{isAuthenticated && (
+					<div className="alpha-mobile-account">
+						{isAdmin && <Link href="/admin" onClick={closeMobileMenu}>Admin</Link>}
+						<Link href="/settings" onClick={closeMobileMenu} aria-current={pathname === "/settings" ? "page" : undefined}>
+							Settings
+						</Link>
+						<button type="button" onClick={() => { closeMobileMenu(); setSignOutSource("mobile") }}>Sign out</button>
+					</div>
+				)}
 
 				<Image className="alpha-mobile-mark" src="/optimized/alpha-logo.webp" alt="" width={48} height={48} />
 			</dialog>
