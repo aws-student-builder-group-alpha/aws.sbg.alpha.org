@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/media/:video(scd-hero\\.mp4|scd-hero-mobile\\.mp4)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400" }],
+      },
+    ];
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

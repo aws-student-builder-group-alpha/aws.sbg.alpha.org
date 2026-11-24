@@ -58,4 +58,4 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|recruitment/brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2|ttf)$).*)"] };
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|recruitment/brand/|media/scd-hero(?:-mobile)?\\.mp4$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2|ttf)$).*)"] };

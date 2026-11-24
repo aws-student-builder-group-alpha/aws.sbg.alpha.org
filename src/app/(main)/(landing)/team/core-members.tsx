@@ -1,5 +1,3 @@
-"use client"
-
 import Image from "next/image"
 import { Mail, Globe } from "lucide-react"
 import { Facebook, Linkedin } from "@/components/icons"
@@ -165,7 +163,6 @@ function MemberCard({ member, index }: { member: Member; index: number }) {
         alt={member.name}
         fill
         sizes="(min-width: 1300px) 220px, (min-width: 900px) 25vw, (min-width: 600px) 33vw, 45vw"
-        loading="eager"
         className="alpha-team-image"
         style={member.imageZoom ? { transform: `scale(${member.imageZoom})` } : undefined}
       />

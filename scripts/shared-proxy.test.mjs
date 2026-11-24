@@ -16,6 +16,13 @@ test('the proxy selects separate project sessions and applies recruitment role c
  const deps={'@supabase/ssr':{createServerClient:(url,key,options)=>{connections.push({url,key,cookies:options.cookieOptions});return client}},'next/server':require('next/server'),'@/recruitment/lib/supabase/config':{getMainSupabaseConfig:()=>main,getSupabaseConfig:()=>recruitmentConfigured?recruitment:null,recruitmentAuthCookies,getAppOrigin:()=> 'https://alpha.example.test'},'@/recruitment/lib/site-paths':{recruitmentBasePath:'/recruitment',recruitmentPath:p=>p}};
  const compiled={exports:{}};new Function('require','module','exports',code)(name=>deps[name],compiled,compiled.exports);
  const {NextRequest}=require('next/server');
+ const {unstable_doesMiddlewareMatch}=require('next/experimental/testing/server');
+ for (const url of ['/media/scd-hero.mp4','/media/scd-hero-mobile.mp4']) {
+  assert.equal(unstable_doesMiddlewareMatch({config:compiled.exports.config,url}),false);
+ }
+ for (const url of ['/recruitment/admin','/recruitment/api/community/file','/media/other.mp4']) {
+  assert.equal(unstable_doesMiddlewareMatch({config:compiled.exports.config,url}),true);
+ }
  assert.equal((await compiled.exports.proxy(new NextRequest('https://alpha.example.test/recruitment/admin'))).status,404);
  assert.equal(reads,1);
  assert.equal((await compiled.exports.proxy(new NextRequest('https://alpha.example.test/admin'))).status,200);
