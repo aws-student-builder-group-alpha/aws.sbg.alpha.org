@@ -74,15 +74,7 @@ export default function LoginClient() {
 	return (
 		<main className='relative min-h-screen flex overflow-hidden'>
 			{/* ── Left panel: background image ── */}
-			<div className='hidden lg:block lg:w-1/2 relative'>
-				<Image
-					src='/skillbuilder-hero-bg.jpg'
-					alt=''
-					fill
-					priority
-					className='object-cover'
-					sizes='50vw'
-				/>
+			<div className="hidden lg:block lg:w-1/2 relative bg-cover bg-center lg:bg-[url('/optimized/skillbuilder-hero-bg.webp')]">
 				<div
 					className={cn(
 						'absolute inset-0',

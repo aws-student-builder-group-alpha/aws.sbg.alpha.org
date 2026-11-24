@@ -249,7 +249,7 @@ export default function SkillbuilderLanding({
 						className='absolute inset-0 will-change-transform'
 					>
 						<Image
-							src='/skillbuilder-hero-bg.jpg'
+							src='/optimized/skillbuilder-hero-bg.webp'
 							alt=''
 							fill
 							priority

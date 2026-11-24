@@ -29,6 +29,7 @@ await optimize(logo, path.join(output, "alpha-logo.webp"), 256, 88)
 await exportImage(logo, path.join(output, "favicon.png"), 48)
 await exportImage(logo, path.join(output, "apple-touch-icon.png"), 180)
 await optimize(path.join(publicRoot, "Banner.png"), path.join(output, "banner.webp"), 1640, 84)
+await optimize(path.join(publicRoot, "skillbuilder-hero-bg.jpg"), path.join(output, "skillbuilder-hero-bg.webp"), 1920, 79)
 
 for (const filename of await readdir(path.join(publicRoot, "board-members"))) {
   if (!filename.endsWith(".webp")) continue
