@@ -137,14 +137,29 @@
 .alpha-cookie-popover :is(button,a):focus-visible{outline:3px solid #ffb13e;outline-offset:4px}
 @media (max-width: 760px) {
   .alpha-community-dock {
-    inset-inline: 16px;
+    inset-inline: 12px;
     bottom: calc(12px + env(safe-area-inset-bottom));
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    gap: 10px;
+    grid-template-columns: minmax(0, max-content) auto;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
 
-  .alpha-community-invitation { grid-column: 1; }
-  .alpha-dock-preferences { justify-self: center; }
+  .alpha-community-invitation {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr) 36px;
+    font-size: 14px;
+  }
+
+  .alpha-community-invitation > span:first-child { padding-inline: 8px; }
+
+  .alpha-dock-control {
+    flex: none;
+    inline-size: 48px;
+    block-size: 48px;
+    padding: 0;
+  }
+
+  .alpha-dock-control > span { display: none; }
   .alpha-cookie-popover { padding: 22px; }
 }
