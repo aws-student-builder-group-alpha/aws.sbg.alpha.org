@@ -86,7 +86,8 @@
 
 html:has(.alpha-mobile-navigation[open]) { overflow: hidden; }
 
-.alpha-mobile-navigation[open] {
+.alpha-mobile-navigation[open],
+.alpha-app .site-header .main-nav[data-open="true"] {
 	position: fixed;
 	inset: 0;
 	display: flex;
@@ -130,35 +131,45 @@ html:has(.alpha-mobile-navigation[open]) { overflow: hidden; }
 
 .alpha-mobile-links { margin-top: auto; }
 
-.alpha-mobile-navigation :is(a, .alpha-mobile-account > button) {
+.alpha-mobile-navigation :is(a, .alpha-mobile-account > button),
+.alpha-app .main-nav a,
+.alpha-app .main-nav .text-button {
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
 	min-height: 44px;
+	width: auto;
 	max-width: 100%;
-	font-family: "Urban Starblues", sans-serif;
-	font-size: 2.5rem;
-	font-weight: 400;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: inherit;
+	font-family: var(--font-body, var(--font-geist-sans, system-ui));
+	font-size: 1.875rem;
+	font-weight: 600;
 	line-height: 1.35;
 	text-align: center;
+	white-space: normal;
 	overflow-wrap: anywhere;
+	text-decoration: none;
 }
+
+.alpha-mobile-navigation :is(a, .alpha-mobile-account > button) { justify-content: center; }
 
 .alpha-mobile-navigation :is(a, button):hover,
 .alpha-mobile-navigation a[aria-current="page"] { color: #ff9900; }
 .alpha-mobile-navigation :focus-visible { outline: 2px solid #ff9900; outline-offset: 4px; }
 
-.alpha-mobile-mark {
+.alpha-mobile-mark,
+.alpha-app .mobile-menu-mark {
+	display: block;
 	flex: none;
 	width: 48px;
 	height: 48px;
 	margin-block: 20px auto;
 	opacity: .15;
 	filter: brightness(0) invert(1);
-}
-
-@media (min-width: 640px) {
-	.alpha-mobile-navigation[open] { gap: 28px; }
 }
 
 @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {

@@ -24,6 +24,7 @@ const modules = new Map();
 for (const [name, relative] of [
   ["./application-sidebar","../app/(recruitment)/recruitment/application/application-sidebar.tsx"],
   ["home","../app/(recruitment)/recruitment/opportunities/opportunity-directory.tsx"],
+  ["@/app/(main)/(landing)/hero/pixel-wolf","../app/(main)/(landing)/hero/pixel-wolf.tsx"],
   ["@/recruitment/lib/intake","lib/intake.ts"],["./staff.ts","lib/staff.ts"],["./application-queue.ts","lib/application-queue.ts"],["./evaluations.ts","lib/evaluations.ts"],["editor","../app/(recruitment)/recruitment/apply/draft-editor.tsx"],["@/app/(recruitment)/recruitment/apply/start-draft","../app/(recruitment)/recruitment/apply/start-draft.tsx"],["./start-draft","../app/(recruitment)/recruitment/apply/start-draft.tsx"],["./apply-entry","../app/(recruitment)/recruitment/apply/apply-entry.tsx"],["entry","../app/(recruitment)/recruitment/components/applicant-access.tsx"],["portal","../app/(recruitment)/recruitment/application/application-portal.tsx"],
   ["@/app/(recruitment)/recruitment/components/application-content","../app/(recruitment)/recruitment/components/application-content.tsx"],["@/app/(recruitment)/recruitment/components/access-guard","../app/(recruitment)/recruitment/components/access-guard.tsx"],
   ["@/app/(recruitment)/recruitment/components/ui","../app/(recruitment)/recruitment/components/ui.tsx"],["@/recruitment/lib/application-client","lib/application-client.ts"],["@/app/(recruitment)/recruitment/components/process-shell","../app/(recruitment)/recruitment/components/process-shell.tsx"],
@@ -1063,6 +1064,15 @@ try {
   await page.locator('body').click({position:{x:5,y:200}});assert.equal(await account.getAttribute('aria-expanded'),'false','Outside pointer dismisses account actions');
   await page.evaluate(()=>window.mountShell('/recruitment/opportunities',{pendingSession:true}));
   assert.equal(await page.locator('.account-trigger,.nav-apply').count(),0,'Pending session exposes no account or apply action');
+
+  await page.setViewportSize({width:375,height:700});
+  await page.evaluate(()=>window.mountNavigation('/recruitment/opportunities'));
+  await page.getByRole('button',{name:'Open menu',exact:true}).click();
+  const guestMobileMenu=page.getByRole('dialog',{name:'Main navigation menu'});
+  assert.equal(await guestMobileMenu.getByRole('link',{name:'Login',exact:true}).count(),0);
+  assert.equal(await guestMobileMenu.getByRole('link',{name:'Opportunities',exact:true}).getAttribute('href'),'/recruitment/opportunities');
+  assert.equal(await guestMobileMenu.getByRole('link',{name:'Membership ID',exact:true}).getAttribute('href'),'/recruitment/membership');
+  await page.keyboard.press('Escape');
 
   const adminMenu={signedIn:true,staff:{role:'administrator',status:'active',needsMfa:false}};
   for(const width of [320,375,768,1200,1440]){

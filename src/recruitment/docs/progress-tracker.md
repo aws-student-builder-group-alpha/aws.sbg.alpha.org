@@ -1,3 +1,11 @@
+## Shared Opportunities-style mobile menus - 24 November 2026
+
+The main site and Recruitment share the Opportunities menu's navy surface, Geist typography and muted Alpha mark. Mobile guest menus omit the Login shortcut. Recruitment keeps Membership ID and signed-in actions available. The main homepage dock fits Explore open roles, Motion and Cookies in one row with 48px square preference controls.
+
+The production build and targeted lint passed. Local Chromium verified the menu and Escape focus return on Home, Events, Skill Builders, Opportunities and Privacy. It verified one-row dock geometry at 320, 360, 390 and 760px and exercised both preference controls. The applicant browser fixture now checks mobile guest links and loads the mascot used by the Opportunities banner.
+
+Reviewed project overview, architecture, code standards, AI workflow rules, UI direction and this tracker. UI direction records the shared mobile presentation. Existing access rules and workflow guidance cover the route and account behavior.
+
 ## Opportunities heading and application call to action - 21 November 2026
 
 Removed the visible Available Roles title and aggregate opportunity total from the directory. The semantic page heading is now “Opportunities” for assistive technology. The wide application call to action says Continue Application when the verified applicant has a draft or submission, and Available Applications for signed-out visitors or verified applicants without saved work. Staff, members and unverified account states do not see the action. Replaced the arrow with a larger roles wolf on a transparent background and reduced the gap beneath the banner to 20–28px. Updated the loading fallback, page title and current user guide.

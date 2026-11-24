@@ -22,7 +22,7 @@
 .alpha-app .site-header :focus-visible { outline:2px solid #965500; outline-offset:4px; }
 .alpha-app .main-nav[data-open="true"] :focus-visible { outline-color:#ff9900; }
 .alpha-app .site-header .main-nav { display:none; margin:0; }
-.alpha-app .site-header .main-nav[data-open="true"] { display:flex; position:fixed; inset:0; z-index:55; width:100%; height:100dvh; max-height:none; flex-direction:column; align-items:center; gap:20px; padding:96px 24px 80px; overflow-y:auto; overscroll-behavior:contain; background:#232f3e; border:0; color:#fff; animation:header-menu-reveal .6s cubic-bezier(.77,0,.175,1) both; }
+.alpha-app .site-header .main-nav[data-open="true"] { z-index:55; animation:header-menu-reveal .6s cubic-bezier(.77,0,.175,1) both; }
 .alpha-app .site-header .nav-close { position:absolute; right:20px; top:20px; }
 .alpha-app .nav-chapter-links,.alpha-app .nav-primary-actions,.alpha-app .account-dropdown { display:flex; flex-direction:column; align-items:center; gap:20px; }
 .alpha-app .nav-action-divider { flex:none; inline-size:32px; block-size:1px; background:currentColor; opacity:.3; }
@@ -30,7 +30,7 @@
 .alpha-app .nav-chapter-links,.alpha-app .account-navigation,.alpha-app .account-dropdown { min-width:0; max-width:100%; }
 .alpha-app .account-navigation { flex:none; }
 
-.alpha-app .main-nav a,.alpha-app .main-nav .text-button { display:inline-flex; align-items:center; min-height:44px; width:auto; margin:0; padding:0; border:0; border-radius:0; background:transparent; color:inherit; font-family:var(--font-body); font-size:1.875rem; font-weight:600; line-height:1.35; text-align:center; max-width:100%; white-space:normal; overflow-wrap:anywhere; text-decoration:none; transition:color .3s ease; }
+.alpha-app .main-nav a,.alpha-app .main-nav .text-button { transition:color .3s ease; }
 .alpha-app .main-nav a:hover,.alpha-app .main-nav a[aria-current="page"],.alpha-app .main-nav button:hover { color:#ff9900; }
 .alpha-app .main-nav .nav-primary-actions > a[aria-current="page"],
 .alpha-app .header-no-script > a[aria-current="page"] {
@@ -46,7 +46,6 @@
 .alpha-app .main-nav[data-open="true"] .nav-chapter-links a:nth-child(5) { animation-delay:.43s; }
 .alpha-app .main-nav[data-open="true"] .account-dropdown > * { animation-delay:.5s; }
 .alpha-app .site-header .account-trigger { display:none; }
-.alpha-app .mobile-menu-mark { display:block; flex:none; width:48px; height:48px; margin-top:20px; margin-bottom:auto; opacity:.15; filter:brightness(0) invert(1); }
 .alpha-app .header-no-script { display:flex; flex-wrap:wrap; gap:16px; padding:16px; background:#fff; color:#232f3e; }
 .alpha-app .header-no-script .nav-action-divider { align-self:center; inline-size:1px; block-size:18px; }
 .alpha-app .main-nav .nav-apply {
@@ -68,6 +67,9 @@
 @media (max-width:560px) {
   :root { --site-header-height:56px; }
   .alpha-app .site-header .header-inner { min-height:max(56px, 3.5rem); }
+}
+@media (width < 80rem) {
+  .alpha-app .header-no-script .nav-guest-login { display:none; }
 }
 @container site-navigation (width < 80em) {
   .alpha-app .site-header .alpha-navigation-name { display:none; }

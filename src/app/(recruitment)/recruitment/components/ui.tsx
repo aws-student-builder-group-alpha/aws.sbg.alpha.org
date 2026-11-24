@@ -274,7 +274,7 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
   const showMembershipCta = !isOpportunitiesPage && !isMembershipPage;
   const loginHref = RECRUITMENT_URL + "/application";
   const showGuestActions = !staff && !signedIn && !pendingSession;
-  const guestDivider = isOpportunitiesPage && <span className="nav-action-divider" aria-hidden="true" />;
+  const guestDivider = isOpportunitiesPage && <span className="nav-action-divider nav-guest-login" aria-hidden="true" />;
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
     <div className="site-header-space" data-workspace-frame={frame} data-tone={dark ? "dark" : "light"} aria-hidden="true" />
@@ -296,7 +296,7 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
             {!menuOpen && showMembershipCta && showGuestActions && <Link className="nav-apply" href={opportunities}>Become a Member</Link>}
             <Link href={MEMBERSHIP_LINK.href} aria-current={isMembershipPage ? "page" : undefined}>Membership ID</Link>
             {signedIn && <span className="nav-action-divider" aria-hidden="true" />}
-            {showGuestActions && <>{guestDivider}<Link href={loginHref}>Login</Link></>}
+            {!menuOpen && showGuestActions && <>{guestDivider}<Link href={loginHref}>Login</Link></>}
             {signedIn && (
               <div ref={accountRef} className="account-navigation" data-open={accountOpen}>
                 <button ref={accountButton} type="button" className="account-trigger" aria-expanded={accountOpen} aria-controls={accountId} onClick={() => setAccountOpen(!accountOpen)}>
@@ -320,7 +320,7 @@ function HeaderContent({ path, frame, signedIn = false, staff, pendingSession = 
       {links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}
       <Link href={MEMBERSHIP_LINK.href} aria-current={isMembershipPage ? "page" : undefined}>Membership ID</Link>
       {signedIn && <span className="nav-action-divider" aria-hidden="true" />}
-      {!signedIn && <>{guestDivider}<Link href={loginHref}>Login</Link></>}
+      {!signedIn && <>{guestDivider}<Link className="nav-guest-login" href={loginHref}>Login</Link></>}
     </nav></noscript>
   </>;
 }
