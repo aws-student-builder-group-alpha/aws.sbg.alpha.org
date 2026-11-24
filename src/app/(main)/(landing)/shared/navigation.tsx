@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import dynamic from "next/dynamic"
 import Image from "next/image"
 import ApplicationNavBanner from "@/components/application-nav-banner"
 import NavigationWordmark from "@/components/navigation-wordmark"
@@ -16,10 +17,11 @@ import {
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/services/supabase-client.service"
-import SignOutModal from "@/components/sign-out-modal"
 import { RECRUITMENT_URL } from "@/lib/recruitment"
 import { MAIN_PAGE_LINKS, PRIMARY_NAV_LINKS } from "@/lib/navigation"
 import "./navigation.css"
+
+const SignOutModal = dynamic(() => import("@/components/sign-out-modal"))
 
 interface NavigationProps {
 	initialAuth?: {
