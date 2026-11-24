@@ -38,13 +38,17 @@
 @keyframes alpha-opening-cube-float{50%{transform:translateY(-8px) rotate(12deg)}}
 
 @media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  body:has(> .alpha-page-loader[data-home-intro]) .alpha-opening {
+    --opening-reveal-delay: calc(var(--alpha-loader-duration) - var(--alpha-loader-wipe));
+  }
+
   body:has(> .alpha-page-loader[data-home-intro]) .alpha-opening-title > span {
-    animation-delay: calc(var(--alpha-loader-duration) + var(--opening-word-delay, 0ms));
+    animation-delay: calc(var(--opening-reveal-delay) + var(--opening-word-delay, 0ms));
   }
 
   body:has(> .alpha-page-loader[data-home-intro]) .alpha-opening :is(.alpha-opening-eyebrow, .alpha-opening-memory) {
     animation: alpha-opening-detail-in 680ms cubic-bezier(.16, 1, .3, 1)
-      calc(var(--alpha-loader-duration) + var(--opening-detail-delay, 0ms)) both;
+      calc(var(--opening-reveal-delay) + var(--opening-detail-delay, 0ms)) both;
   }
 
   .alpha-opening-memory-one { --opening-detail-delay: 240ms; }
